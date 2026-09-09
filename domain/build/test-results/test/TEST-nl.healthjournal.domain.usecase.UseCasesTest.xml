@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="nl.healthjournal.domain.usecase.UseCasesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-09-09T21:12:18" hostname="xps" time="0.02">
+  <properties/>
+  <testcase name="GetHealthHistoryUseCase aggregates all metric entries" classname="nl.healthjournal.domain.usecase.UseCasesTest" time="0.017"/>
+  <testcase name="RecordGlucoseUseCase with mg per dL converts and evaluates NHG" classname="nl.healthjournal.domain.usecase.UseCasesTest" time="0.001"/>
+  <testcase name="RecordBloodPressureUseCase classifies according to NHG and saves" classname="nl.healthjournal.domain.usecase.UseCasesTest" time="0.0"/>
+  <testcase name="RecordWeightUseCase calculates BMI from profile height" classname="nl.healthjournal.domain.usecase.UseCasesTest" time="0.001"/>
+  <testcase name="CreateProfileUseCase creates profile and sets active" classname="nl.healthjournal.domain.usecase.UseCasesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

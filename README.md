@@ -25,7 +25,7 @@ The application enforces **Hexagonal Architecture** (Ports and Adapters) paired 
 ### Core Architectural Directives
 1. **Strict Isolation:** The `:domain` module is pure Kotlin. It has zero dependencies on `android.*`, `androidx.*`, or database persistence libraries.
 2. **Dependency Rule:** All dependencies point inward toward `:domain`. Presentation (`:app`) and Infrastructure (`:data`) are outer adapters implementing or consuming domain ports.
-3. **Dependency Minimization:** We strictly prioritize the native Android SDK, official AndroidX/Jetpack libraries, and official Kotlinx libraries over third-party dependencies. Any external library must be justified via an [Architecture Decision Record (ADR)](file:///home/scrape/development/code/health_journal/docs/adr).
+3. **Dependency Minimization:** We strictly prioritize the native Android SDK, official AndroidX/Jetpack libraries, and official Kotlinx libraries over third-party dependencies. Any external library must be justified via an [Architecture Decision Record (ADR)]/health_journal/docs/adr).
 4. **Offline-First:** Room SQLite serves as the local source of truth.
 
 ### Hexagonal Architecture & Boundary Flow
@@ -100,9 +100,9 @@ flowchart TD
 
 | Module | Type | Responsibilities & Dependencies |
 |---|---|---|
-| [`:domain`](file:///home/scrape/development/code/health_journal/domain) | Pure Kotlin JVM Library | Contains Aggregate Roots (`Profile`), Entities, Value Objects (`GlucoseLevel`, `BloodPressureReading`, `ProfileId`), Use Cases, and Port Interfaces. **Zero Android/Jetpack dependencies.** |
-| [`:data`](file:///home/scrape/development/code/health_journal/data) | Android Library | Infrastructure adapter implementing domain repository and data import/export ports using Room SQLite and CSV streams. Depends on `:domain`. |
-| [`:app`](file:///home/scrape/development/code/health_journal/app) | Android Application | Presentation adapter containing Jetpack Compose UI screens, navigation, and ViewModels. Depends on `:domain` and runtime `:data`. |
+| [`:domain`]/health_journal/domain) | Pure Kotlin JVM Library | Contains Aggregate Roots (`Profile`), Entities, Value Objects (`GlucoseLevel`, `BloodPressureReading`, `ProfileId`), Use Cases, and Port Interfaces. **Zero Android/Jetpack dependencies.** |
+| [`:data`]/health_journal/data) | Android Library | Infrastructure adapter implementing domain repository and data import/export ports using Room SQLite and CSV streams. Depends on `:domain`. |
+| [`:app`]/health_journal/app) | Android Application | Presentation adapter containing Jetpack Compose UI screens, navigation, and ViewModels. Depends on `:domain` and runtime `:data`. |
 
 ---
 
@@ -121,15 +121,15 @@ All data files must be encoded in **UTF-8**.
 
 ## Architecture Decision Records (ADRs)
 
-Key architectural choices are preserved in [`docs/adr/`](file:///home/scrape/development/code/health_journal/docs/adr):
-- [ADR 0001: Record Architecture Decisions](file:///home/scrape/development/code/health_journal/docs/adr/0001-record-architecture-decisions.md)
+Key architectural choices are preserved in [`docs/adr/`]/health_journal/docs/adr):
+- [ADR 0001: Record Architecture Decisions]/health_journal/docs/adr/0001-record-architecture-decisions.md)
 
 ---
 
 ## Development Workflow & OpenSpec
 
 This project uses [OpenSpec](https://openspec.dev/) to drive specification, design, and implementation workflows:
-- **Active change:** [`openspec/changes/init-core-health-features/`](file:///home/scrape/development/code/health_journal/openspec/changes/init-core-health-features)
+- **Active change:** [`openspec/changes/init-core-health-features/`]/health_journal/openspec/changes/init-core-health-features)
 - **Workflows:**
   - `/opsx-propose`: Formulate new capabilities and specifications.
   - `/opsx-apply`: Implement verified changes in code.
