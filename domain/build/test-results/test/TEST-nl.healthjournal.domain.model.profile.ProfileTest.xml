@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="nl.healthjournal.domain.model.profile.ProfileTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-09-09T21:12:18" hostname="xps" time="0.012">
+  <properties/>
+  <testcase name="reject future date of birth" classname="nl.healthjournal.domain.model.profile.ProfileTest" time="0.01"/>
+  <testcase name="create valid profile" classname="nl.healthjournal.domain.model.profile.ProfileTest" time="0.0"/>
+  <testcase name="reject older than 130 years" classname="nl.healthjournal.domain.model.profile.ProfileTest" time="0.001"/>
+  <testcase name="calculate BMI returns null when height is absent" classname="nl.healthjournal.domain.model.profile.ProfileTest" time="0.0"/>
+  <testcase name="calculate BMI when height is present" classname="nl.healthjournal.domain.model.profile.ProfileTest" time="0.0"/>
+  <testcase name="reject today date of birth" classname="nl.healthjournal.domain.model.profile.ProfileTest" time="0.001"/>
+  <testcase name="reject blank name" classname="nl.healthjournal.domain.model.profile.ProfileTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

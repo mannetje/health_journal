@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="nl.healthjournal.domain.model.nhg.NhgClassificationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-09T21:12:18" hostname="xps" time="0.001">
+  <properties/>
+  <testcase name="Blood Pressure NHG classification scenarios" classname="nl.healthjournal.domain.model.nhg.NhgClassificationTest" time="0.0"/>
+  <testcase name="Glucose Postprandial NHG classification scenarios" classname="nl.healthjournal.domain.model.nhg.NhgClassificationTest" time="0.001"/>
+  <testcase name="BMI NHG classification scenarios" classname="nl.healthjournal.domain.model.nhg.NhgClassificationTest" time="0.0"/>
+  <testcase name="Glucose Fasting NHG classification scenarios" classname="nl.healthjournal.domain.model.nhg.NhgClassificationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

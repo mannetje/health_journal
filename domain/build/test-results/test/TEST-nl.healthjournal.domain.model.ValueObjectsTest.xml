@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="nl.healthjournal.domain.model.ValueObjectsTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-09T21:12:18" hostname="xps" time="0.018">
+  <properties/>
+  <testcase name="HeightCm valid range and invalid bounds" classname="nl.healthjournal.domain.model.ValueObjectsTest" time="0.004"/>
+  <testcase name="ProfileId generation and equality" classname="nl.healthjournal.domain.model.ValueObjectsTest" time="0.0"/>
+  <testcase name="ActivitySession enforces end after start and calculates duration" classname="nl.healthjournal.domain.model.ValueObjectsTest" time="0.006"/>
+  <testcase name="WeightKg valid range and invalid bounds" classname="nl.healthjournal.domain.model.ValueObjectsTest" time="0.003"/>
+  <testcase name="GlucoseLevel stores mmol per L canonically and converts from mg per dL" classname="nl.healthjournal.domain.model.ValueObjectsTest" time="0.001"/>
+  <testcase name="BloodPressureReading valid and invalid invariants" classname="nl.healthjournal.domain.model.ValueObjectsTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
