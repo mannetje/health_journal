@@ -1,6 +1,17 @@
 # Health Journal
 
+[![Android CI](https://github.com/mannetje/health_journal/actions/workflows/android.yml/badge.svg)](https://github.com/mannetje/health_journal/actions/workflows/android.yml)
+[![Latest Release](https://img.shields.io/github/v/release/mannetje/health_journal?include_prereleases&color=blue&label=APK%20Release)](https://github.com/mannetje/health_journal/releases/latest)
+
 An offline-first, privacy-focused Android health logging application built with Kotlin, Jetpack Compose, and Hexagonal Architecture (Ports and Adapters).
+
+---
+
+## 📥 Download APK
+
+You can download the ready-to-install Android APK directly from GitHub:
+
+👉 **[Download Latest APK (v1.0.0)](https://github.com/mannetje/health_journal/releases/latest)**
 
 ---
 
@@ -81,43 +92,28 @@ flowchart TD
 
 ---
 
-## Building & Sideloading the APK
+## Installation & Sideloading
 
-### 1. Build the APK
+### Method 1: Download from GitHub Releases (Easiest)
 
-To assemble a debug APK, run:
-
-```bash
-./gradlew assembleDebug
-```
-
-The compiled APK will be generated at:
-```
-app/build/outputs/apk/debug/app-debug.apk
-```
+1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
+2. Download `health-journal-v1.0.0-debug.apk`.
+3. Tap the downloaded file in your browser/file manager.
+4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
 ---
 
-### 2. Sideload via ADB (USB / Wireless Debugging)
+### Method 2: Sideload via ADB
 
-1. Connect your Android device via USB (or pair with wireless debugging).
-2. Enable **Developer Options** and **USB Debugging** on your device (`Settings` → `About phone` → Tap `Build number` 7 times, then `System` → `Developer options` → `USB debugging`).
-3. Run:
+If you build locally or have the Android SDK:
 
 ```bash
+# Build the APK locally
+./gradlew assembleDebug
+
+# Install to connected device or emulator
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
-
----
-
-### 3. Sideload Directly on Device (Manual Installation)
-
-1. Copy `app-debug.apk` to your Android device (via USB file transfer, Google Drive, email, or local server).
-2. On your Android device, open your **Files** or **Downloads** app and tap `app-debug.apk`.
-3. If prompted with *"For your security, your phone is not allowed to install unknown apps from this source"*:
-   - Tap **Settings**.
-   - Enable **Allow from this source**.
-4. Tap **Install**, then **Open** to launch Health Journal.
 
 ---
 
@@ -131,8 +127,8 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 | **Architecture** | AndroidX ViewModel & Flow | Reactive state holding aligned with lifecycle management. |
 | **Persistence** | Jetpack Room SQLite | Type-safe, compile-time verified local database with Coroutines. |
 | **Concurrency** | Kotlinx Coroutines & Flow | Asynchronous execution and reactive data streams. |
-| **Serialization** | Kotlinx Serialization | Lightweight serialization for import/export routines. |
-| **Tooling & CI** | GitHub CLI (`gh`) | Automated branch, PR, and release management. |
+| **CI/CD** | GitHub Actions | Automated test verification and APK artifact compilation. |
+| **Tooling & Release** | GitHub CLI (`gh`) | Automated branch, PR, and GitHub Release asset distribution. |
 
 ---
 
