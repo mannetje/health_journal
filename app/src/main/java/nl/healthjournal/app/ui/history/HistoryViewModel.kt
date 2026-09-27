@@ -121,7 +121,13 @@ class HistoryViewModel(
                 )
                 loadHistory()
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(errorMessage = "Import failed: ${e.message}")
+                val errorMessage = if (metricType.lowercase() == "libra") {
+                    "Libra import failed: ${e.message ?: "Unknown error"}. " +
+                        "Ensure the file starts with #Version:, #Units:, and a #date;weight;... header."
+                } else {
+                    "Import failed: ${e.message}"
+                }
+                _uiState.value = _uiState.value.copy(errorMessage = errorMessage)
             }
         }
     }
