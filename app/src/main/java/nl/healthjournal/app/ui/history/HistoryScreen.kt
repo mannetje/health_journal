@@ -208,12 +208,23 @@ fun HistoryScreen(
                             onClick = { importMetricType = "glucose" },
                             label = { Text("Glucose") }
                         )
+                        FilterChip(
+                            selected = importMetricType == "libra",
+                            onClick = { importMetricType = "libra" },
+                            label = { Text("Libra (CSV)") }
+                        )
                     }
                     OutlinedTextField(
                         value = importCsvText,
                         onValueChange = { importCsvText = it },
                         label = { Text("Paste CSV Content") },
-                        placeholder = { Text("timestamp,weight_kg,bmi\n...") },
+                        placeholder = {
+                            if (importMetricType == "libra") {
+                                Text("#Version: 6\n#Units: kg\n#date;weight;...\n2026-09-20T08:00:00Z;74.5;...")
+                            } else {
+                                Text("timestamp,weight_kg,bmi\n...")
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(140.dp)

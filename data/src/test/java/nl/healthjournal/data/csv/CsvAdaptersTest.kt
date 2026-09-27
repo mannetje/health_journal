@@ -224,4 +224,129 @@ class CsvAdaptersTest {
         assertEquals(0, result.skippedRows.size)
         assertEquals(2, healthLogRepo.weights.size)
     }
+
+    // -------------------------------------------------------------------------
+    // Libra CSV import tests
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `libra CSV in kilograms imported correctly`() = runBlocking {
+        val healthLogRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1), HeightCm(180))
+        profileRepo.save(profile)
+
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, profileRepo)
+
+        val libraCsv = """
+            #Version: 6
+            #Units: kg
+            #date;weight;weight trend;body fat;body fat trend;muscle mass;body water;bone mass;comments
+            2026-09-20T08:00:00.000Z;74.5;;;;;;;
+            2026-09-21T08:00:00.000Z;74.2;;;;;;;
+        """.trimIndent()
+
+        val result = importAdapter.importCsv(profile.id, "weight", libraCsv)
+        assertEquals(2, result.importedCount)
+        assertEquals(0, result.skippedRows.size)
+        assertEquals(2, healthLogRepo.weights.size)
+        assertEquals(BigDecimal("74.5"), healthLogRepo.weights[0].weight.value)
+        assertEquals(BigDecimal("74.2"), healthLogRepo.weights[1].weight.value)
+    }
+
+    @Test
+    fun `libra CSV with imperial lbs converted to kg`() = runBlocking {
+        val healthLogRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, profileRepo)
+
+        val libraCsv = """
+            #Version: 6
+            #Units: lbs
+            #date;weight;weight trend;body fat;body fat trend;muscle mass;body water;bone mass;comments
+            2026-09-20T08:00:00.000Z;164.0;;;;;;;
+        """.trimIndent()
+
+        // 164.0 lbs * 0.45359237 = 74.39 kg (rounded to 2dp)
+        val result = importAdapter.importCsv(profile.id, "weight", libraCsv)
+        assertEquals(1, result.importedCount)
+        assertEquals(0, result.skippedRows.size)
+        val importedWeight = healthLogRepo.weights[0].weight.value
+        assertEquals(BigDecimal("74.39"), importedWeight)
+    }
+
+    @Test
+    fun `libra CSV metadata comments and optional columns handled`() = runBlocking {
+        val healthLogRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, profileRepo)
+
+        // File with extra metadata, optional trailing columns, and a comment line in the body
+        val libraCsv = """
+            #Version: 6
+            #Units: kg
+            #SomeOtherDirective: ignored
+            #date;weight;weight trend;body fat;body fat trend;muscle mass;body water;bone mass;comments
+            2026-09-20;74.5;74.3;18.5;;35.0;60.0;3.2;Morning weigh-in
+            #This is a stray comment line - should be skipped
+            2026-09-21;74.2;74.2;;;;;;
+        """.trimIndent()
+
+        val result = importAdapter.importCsv(profile.id, "weight", libraCsv)
+        assertEquals(2, result.importedCount)
+        assertEquals(0, result.skippedRows.size)
+    }
+
+    @Test
+    fun `libra CSV malformed rows are skipped with error report`() = runBlocking {
+        val healthLogRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, profileRepo)
+
+        val libraCsv = """
+            #Version: 6
+            #Units: kg
+            #date;weight;weight trend
+            2026-09-20T08:00:00.000Z;74.5;
+            invalid-date;74.0;
+            2026-09-22T08:00:00.000Z;not-a-number;
+            2026-09-23T08:00:00.000Z;75.0;
+        """.trimIndent()
+
+        val result = importAdapter.importCsv(profile.id, "weight", libraCsv)
+        assertEquals(2, result.importedCount)     // rows 1 and 4 valid
+        assertEquals(2, result.skippedRows.size)  // rows 2 and 3 skipped
+    }
+
+    @Test
+    fun `libra CSV out-of-range weight is skipped`() = runBlocking {
+        val healthLogRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, profileRepo)
+
+        val libraCsv = """
+            #Version: 6
+            #Units: kg
+            #date;weight;weight trend
+            2026-09-20T08:00:00.000Z;0.5;
+            2026-09-21T08:00:00.000Z;74.5;
+            2026-09-22T08:00:00.000Z;800.0;
+        """.trimIndent()
+
+        val result = importAdapter.importCsv(profile.id, "weight", libraCsv)
+        assertEquals(1, result.importedCount)     // only the 74.5 row
+        assertEquals(2, result.skippedRows.size)  // 0.5 and 800.0 out of range
+    }
 }
