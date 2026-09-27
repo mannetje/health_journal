@@ -21,9 +21,9 @@
 
 ## 4. Data Infrastructure Module (Room & CSV Adapters)
 
-- [ ] 4.1 Define Room Database (`HealthJournalDatabase`), database entities, and converters in `:data`; verify schema generation.
-- [ ] 4.2 Implement Room DAOs and Repository Adapter classes mapping between Room entities and pure Domain entities; verify with in-memory Room tests.
-- [ ] 4.3 Implement CSV export and import adapters supporting UTF-8 formats for all metrics; verify parsing and export output with unit tests.
+- [x] 4.1 Define Room Database (`HealthJournalDatabase`), database entities, and converters in `:data`; verify schema generation.
+- [x] 4.2 Implement Room DAOs and Repository Adapter classes mapping between Room entities and pure Domain entities; verify with in-memory Room tests.
+- [x] 4.3 Implement CSV export and import adapters supporting UTF-8 formats for all metrics; verify parsing and export output with unit tests.
 
 ## 5. Presentation Module (Jetpack Compose UI)
 
