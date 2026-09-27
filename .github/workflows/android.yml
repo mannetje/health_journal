@@ -14,6 +14,9 @@ jobs:
     name: Build & Test Android APK
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # needed to create GitHub Releases
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,9 +37,36 @@ jobs:
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
-      - name: Upload APK Artifact
+      - name: Rename APK with version tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          cp app/build/outputs/apk/debug/app-debug.apk \
+             app/build/outputs/apk/debug/health-journal-${VERSION}-debug.apk
+
+      - name: Upload APK Artifact (CI runs)
+        if: "!startsWith(github.ref, 'refs/tags/v')"
         uses: actions/upload-artifact@v4
         with:
           name: health-journal-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
+
+      - name: Create GitHub Release & upload APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Health Journal ${{ github.ref_name }}"
+          body: |
+            ## Health Journal ${{ github.ref_name }}
+
+            ### What's new
+            See [CHANGELOG](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}) for full details.
+
+            ### Install
+            1. Download `health-journal-${{ github.ref_name }}-debug.apk` below.
+            2. On your Android device, open the file and tap **Install**.
+            3. Enable *Install from unknown sources* if prompted.
+          files: app/build/outputs/apk/debug/health-journal-${{ github.ref_name }}-debug.apk
+          draft: false
+          prerelease: false
