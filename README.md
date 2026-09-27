@@ -81,6 +81,46 @@ flowchart TD
 
 ---
 
+## Building & Sideloading the APK
+
+### 1. Build the APK
+
+To assemble a debug APK, run:
+
+```bash
+./gradlew assembleDebug
+```
+
+The compiled APK will be generated at:
+```
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+---
+
+### 2. Sideload via ADB (USB / Wireless Debugging)
+
+1. Connect your Android device via USB (or pair with wireless debugging).
+2. Enable **Developer Options** and **USB Debugging** on your device (`Settings` → `About phone` → Tap `Build number` 7 times, then `System` → `Developer options` → `USB debugging`).
+3. Run:
+
+```bash
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+---
+
+### 3. Sideload Directly on Device (Manual Installation)
+
+1. Copy `app-debug.apk` to your Android device (via USB file transfer, Google Drive, email, or local server).
+2. On your Android device, open your **Files** or **Downloads** app and tap `app-debug.apk`.
+3. If prompted with *"For your security, your phone is not allowed to install unknown apps from this source"*:
+   - Tap **Settings**.
+   - Enable **Allow from this source**.
+4. Tap **Install**, then **Open** to launch Health Journal.
+
+---
+
 ## Core Technologies
 
 | Category | Technology | Rationale / Constraints |
@@ -148,4 +188,4 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
 - [x] **Phase 0: Specifications & Architecture Governance** — OpenSpec change definition, initial ADR, living README, Hexagonal boundary definition.
 - [x] **Phase 1: Gradle Build & Pure Kotlin Domain Model** — Multi-module Gradle build, Value Objects (`ProfileId`, `GlucoseLevel`, `BloodPressureReading`), `Profile` Aggregate Root, and Dutch NHG evaluation rules.
 - [x] **Phase 2: Data Infrastructure Layer** — Room SQLite Database, DAOs, Entity-to-Domain mappers, and CSV parser/generator adapters.
-- [ ] **Phase 3: Jetpack Compose Presentation Layer** — Material 3 UI screens, metric entry forms, NHG category feedback indicators, and trend visualizations.
+- [x] **Phase 3: Jetpack Compose Presentation Layer** — Material 3 UI screens, metric entry forms, NHG category feedback indicators, and trend visualizations.
