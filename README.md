@@ -25,7 +25,7 @@ The application enforces **Hexagonal Architecture** (Ports and Adapters) paired 
 ### Core Architectural Directives
 1. **Strict Isolation:** The `:domain` module is pure Kotlin. It has zero dependencies on `android.*`, `androidx.*`, or database persistence libraries.
 2. **Dependency Rule:** All dependencies point inward toward `:domain`. Presentation (`:app`) and Infrastructure (`:data`) are outer adapters implementing or consuming domain ports.
-3. **Dependency Minimization:** We strictly prioritize the native Android SDK, official AndroidX/Jetpack libraries, and official Kotlinx libraries over third-party dependencies. Any external library must be justified via an [Architecture Decision Record (ADR)]/health_journal/docs/adr).
+3. **Dependency Minimization:** We strictly prioritize the native Android SDK, official AndroidX/Jetpack libraries, and official Kotlinx libraries over third-party dependencies. Any external library must be justified via an [Architecture Decision Record (ADR)](docs/adr/).
 4. **Offline-First:** Room SQLite serves as the local source of truth.
 
 ### Hexagonal Architecture & Boundary Flow
@@ -100,9 +100,9 @@ flowchart TD
 
 | Module | Type | Responsibilities & Dependencies |
 |---|---|---|
-| [`:domain`]/health_journal/domain) | Pure Kotlin JVM Library | Contains Aggregate Roots (`Profile`), Entities, Value Objects (`GlucoseLevel`, `BloodPressureReading`, `ProfileId`), Use Cases, and Port Interfaces. **Zero Android/Jetpack dependencies.** |
-| [`:data`]/health_journal/data) | Android Library | Infrastructure adapter implementing domain repository and data import/export ports using Room SQLite and CSV streams. Depends on `:domain`. |
-| [`:app`]/health_journal/app) | Android Application | Presentation adapter containing Jetpack Compose UI screens, navigation, and ViewModels. Depends on `:domain` and runtime `:data`. |
+| [`:domain`](domain/) | Pure Kotlin JVM Library | Contains Aggregate Roots (`Profile`), Entities, Value Objects (`GlucoseLevel`, `BloodPressureReading`, `ProfileId`), Use Cases, and Port Interfaces. **Zero Android/Jetpack dependencies.** |
+| [`:data`](data/) | Android Library | Infrastructure adapter implementing domain repository and data import/export ports using Room SQLite and CSV streams. Depends on `:domain`. |
+| [`:app`](app/) | Android Application | Presentation adapter containing Jetpack Compose UI screens, navigation, and ViewModels. Depends on `:domain` and runtime `:data`. |
 
 ---
 
@@ -121,18 +121,23 @@ All data files must be encoded in **UTF-8**.
 
 ## Architecture Decision Records (ADRs)
 
-Key architectural choices are preserved in [`docs/adr/`]/health_journal/docs/adr):
-- [ADR 0001: Record Architecture Decisions]/health_journal/docs/adr/0001-record-architecture-decisions.md)
+Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
+- [ADR 0001: Record Architecture Decisions](docs/adr/0001-record-architecture-decisions.md)
+- [ADR 0002: Hexagonal Architecture (Ports and Adapters)](docs/adr/0002-hexagonal-architecture.md)
+- [ADR 0003: Dependency Minimization Policy](docs/adr/0003-dependency-minimization.md)
+- [ADR 0004: Room SQLite for Offline-First Persistence](docs/adr/0004-room-for-offline-first-persistence.md)
+- [ADR 0005: Dutch NHG Clinical Guidelines](docs/adr/0005-dutch-nhg-guidelines.md)
 
 ---
 
 ## Development Workflow & OpenSpec
 
 This project uses [OpenSpec](https://openspec.dev/) to drive specification, design, and implementation workflows:
-- **Active change:** [`openspec/changes/init-core-health-features/`]/health_journal/openspec/changes/init-core-health-features)
+- **Active change:** [`openspec/changes/init-core-health-features/`](openspec/changes/init-core-health-features/)
 - **Workflows:**
   - `/opsx-propose`: Formulate new capabilities and specifications.
   - `/opsx-apply`: Implement verified changes in code.
+  - `/opsx-sync`: Synchronize delta specifications with main capability specs.
   - `/opsx-archive`: Archive completed features into living specifications.
 - **Git & GitHub:** Managed with the GitHub CLI (`gh`). Pull requests and reviews accompany each milestone.
 
@@ -141,6 +146,6 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
 ## Roadmap
 
 - [x] **Phase 0: Specifications & Architecture Governance** — OpenSpec change definition, initial ADR, living README, Hexagonal boundary definition.
-- [ ] **Phase 1: Gradle Build & Pure Kotlin Domain Model** — Multi-module Gradle build, Value Objects (`ProfileId`, `GlucoseLevel`, `BloodPressureReading`), `Profile` Aggregate Root, and Dutch NHG evaluation rules.
-- [ ] **Phase 2: Data Infrastructure Layer** — Room SQLite Database, DAOs, Entity-to-Domain mappers, and CSV parser/generator adapters.
+- [x] **Phase 1: Gradle Build & Pure Kotlin Domain Model** — Multi-module Gradle build, Value Objects (`ProfileId`, `GlucoseLevel`, `BloodPressureReading`), `Profile` Aggregate Root, and Dutch NHG evaluation rules.
+- [x] **Phase 2: Data Infrastructure Layer** — Room SQLite Database, DAOs, Entity-to-Domain mappers, and CSV parser/generator adapters.
 - [ ] **Phase 3: Jetpack Compose Presentation Layer** — Material 3 UI screens, metric entry forms, NHG category feedback indicators, and trend visualizations.
