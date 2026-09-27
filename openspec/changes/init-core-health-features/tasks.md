@@ -27,7 +27,7 @@
 
 ## 5. Presentation Module (Jetpack Compose UI)
 
-- [ ] 5.1 Implement Material 3 Compose theme, design tokens, and base layout in `:app`; verify with Compose previews.
-- [ ] 5.2 Implement Profile setup screen and `ProfileViewModel` communicating via domain use cases; verify state flow with ViewModel tests.
-- [ ] 5.3 Implement Metric Logging screens (Blood Pressure, Glucose with mmol/L default, Weight) with instant NHG category feedback; verify UI interactivity.
-- [ ] 5.4 Implement Health History screen with filtering and CSV export/import action triggers; verify complete round-trip data flow.
+- [x] 5.1 Implement Material 3 Compose theme, design tokens, and base layout in `:app`; verify with Compose previews.
+- [x] 5.2 Implement Profile setup screen and `ProfileViewModel` communicating via domain use cases; verify state flow with ViewModel tests.
+- [x] 5.3 Implement Metric Logging screens (Blood Pressure, Glucose with mmol/L default, Weight) with instant NHG category feedback; verify UI interactivity.
+- [x] 5.4 Implement Health History screen with filtering and CSV export/import action triggers; verify complete round-trip data flow.
