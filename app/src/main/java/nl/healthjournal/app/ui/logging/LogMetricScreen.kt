@@ -11,13 +11,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import nl.healthjournal.app.R
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.app.ui.theme.NhgNormalGreen
 import nl.healthjournal.app.ui.theme.NhgNormalGreenDark
 import nl.healthjournal.app.ui.theme.NhgOptimalGreen
@@ -56,7 +59,7 @@ fun LogMetricScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "Log Health Metric",
+            text = stringResource(R.string.log_title),
             style = MaterialTheme.typography.headlineSmall
         )
 
@@ -65,7 +68,7 @@ fun LogMetricScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
             ) {
                 Text(
-                    text = "No profile found. Please set up your profile first.",
+                    text = stringResource(R.string.log_no_profile),
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.padding(12.dp)
                 )
@@ -101,22 +104,22 @@ fun LogMetricScreen(
             Tab(
                 selected = state.selectedMetric == MetricType.WEIGHT,
                 onClick = { viewModel.selectMetric(MetricType.WEIGHT) },
-                text = { Text("Weight") }
+                text = { Text(stringResource(R.string.log_tab_weight)) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.BLOOD_PRESSURE,
                 onClick = { viewModel.selectMetric(MetricType.BLOOD_PRESSURE) },
-                text = { Text("Blood Pressure") }
+                text = { Text(stringResource(R.string.log_tab_blood_pressure)) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.GLUCOSE,
                 onClick = { viewModel.selectMetric(MetricType.GLUCOSE) },
-                text = { Text("Glucose") }
+                text = { Text(stringResource(R.string.log_tab_glucose)) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.ACTIVITY,
                 onClick = { viewModel.selectMetric(MetricType.ACTIVITY) },
-                text = { Text("Activity") }
+                text = { Text(stringResource(R.string.log_tab_activity)) }
             )
         }
 
@@ -125,15 +128,19 @@ fun LogMetricScreen(
                 OutlinedTextField(
                     value = state.weightInput,
                     onValueChange = { viewModel.onWeightChanged(it) },
-                    label = { Text("Weight (kg)") },
-                    placeholder = { Text("e.g. 74.5") },
+                    label = { Text(stringResource(R.string.log_weight_label)) },
+                    placeholder = { Text(stringResource(R.string.log_weight_placeholder)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 if (state.previewBmi != null && state.previewBmiCategory != null) {
                     CategoryBadge(
-                        label = "BMI: ${state.previewBmi} — ${state.previewBmiCategory?.name?.replace('_', ' ')}",
+                        label = stringResource(
+                            R.string.log_bmi_badge,
+                            state.previewBmi.toString(),
+                            state.previewBmiCategory!!.label()
+                        ),
                         color = getBmiColor(state.previewBmiCategory!!)
                     )
                 }
@@ -147,16 +154,16 @@ fun LogMetricScreen(
                     OutlinedTextField(
                         value = state.systolicInput,
                         onValueChange = { viewModel.onSystolicChanged(it) },
-                        label = { Text("Systolic (mmHg)") },
-                        placeholder = { Text("120") },
+                        label = { Text(stringResource(R.string.log_systolic_label)) },
+                        placeholder = { Text(stringResource(R.string.log_systolic_placeholder)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = state.diastolicInput,
                         onValueChange = { viewModel.onDiastolicChanged(it) },
-                        label = { Text("Diastolic (mmHg)") },
-                        placeholder = { Text("80") },
+                        label = { Text(stringResource(R.string.log_diastolic_label)) },
+                        placeholder = { Text(stringResource(R.string.log_diastolic_placeholder)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
@@ -164,7 +171,7 @@ fun LogMetricScreen(
 
                 if (state.previewBpCategory != null) {
                     CategoryBadge(
-                        label = "NHG: ${state.previewBpCategory?.name?.replace('_', ' ')}",
+                        label = stringResource(R.string.log_nhg_badge, state.previewBpCategory!!.label()),
                         color = getBpColor(state.previewBpCategory!!)
                     )
                 }
@@ -180,12 +187,12 @@ fun LogMetricScreen(
                     FilterChip(
                         selected = state.glucoseContext == GlucoseContext.FASTING,
                         onClick = { viewModel.setGlucoseContext(GlucoseContext.FASTING) },
-                        label = { Text("Fasting (Nuchter)") }
+                        label = { Text(stringResource(R.string.log_glucose_context_fasting)) }
                     )
                     FilterChip(
                         selected = state.glucoseContext == GlucoseContext.POSTPRANDIAL,
                         onClick = { viewModel.setGlucoseContext(GlucoseContext.POSTPRANDIAL) },
-                        label = { Text("Postprandial (Na de maaltijd)") }
+                        label = { Text(stringResource(R.string.log_glucose_context_postprandial)) }
                     )
                 }
 
@@ -195,31 +202,43 @@ fun LogMetricScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Unit:", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.log_unit_label), style = MaterialTheme.typography.bodyMedium)
                     FilterChip(
                         selected = !state.isGlucoseMgDl,
                         onClick = { viewModel.toggleGlucoseUnit(false) },
-                        label = { Text("mmol/L (NHG)") }
+                        label = { Text(stringResource(R.string.log_unit_mmol)) }
                     )
                     FilterChip(
                         selected = state.isGlucoseMgDl,
                         onClick = { viewModel.toggleGlucoseUnit(true) },
-                        label = { Text("mg/dL") }
+                        label = { Text(stringResource(R.string.log_unit_mgdl)) }
                     )
                 }
 
                 OutlinedTextField(
                     value = state.glucoseInput,
                     onValueChange = { viewModel.onGlucoseChanged(it) },
-                    label = { Text(if (state.isGlucoseMgDl) "Glucose (mg/dL)" else "Glucose (mmol/L)") },
-                    placeholder = { Text(if (state.isGlucoseMgDl) "e.g. 100" else "e.g. 5.4") },
+                    label = {
+                        Text(
+                            stringResource(
+                                if (state.isGlucoseMgDl) R.string.log_glucose_label_mgdl else R.string.log_glucose_label_mmol
+                            )
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            stringResource(
+                                if (state.isGlucoseMgDl) R.string.log_glucose_placeholder_mgdl else R.string.log_glucose_placeholder_mmol
+                            )
+                        )
+                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 if (state.previewGlucoseCategory != null) {
                     CategoryBadge(
-                        label = "NHG: ${state.previewGlucoseCategory?.name?.replace('_', ' ')}",
+                        label = stringResource(R.string.log_nhg_badge, state.previewGlucoseCategory!!.label()),
                         color = getGlucoseColor(state.previewGlucoseCategory!!)
                     )
                 }
@@ -229,16 +248,16 @@ fun LogMetricScreen(
                 OutlinedTextField(
                     value = state.activityDurationInput,
                     onValueChange = { viewModel.onActivityDurationChanged(it) },
-                    label = { Text("Duration (minutes)") },
-                    placeholder = { Text("e.g. 30") },
+                    label = { Text(stringResource(R.string.log_duration_label)) },
+                    placeholder = { Text(stringResource(R.string.log_duration_placeholder)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = state.activityDistanceInput,
                     onValueChange = { viewModel.onActivityDistanceChanged(it) },
-                    label = { Text("Distance (km)") },
-                    placeholder = { Text("e.g. 5.0") },
+                    label = { Text(stringResource(R.string.log_distance_label)) },
+                    placeholder = { Text(stringResource(R.string.log_distance_placeholder)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -250,7 +269,7 @@ fun LogMetricScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = !state.isSaving && state.activeProfile != null
         ) {
-            Text(if (state.isSaving) "Saving..." else "Record Entry")
+            Text(stringResource(if (state.isSaving) R.string.log_saving else R.string.log_record_entry))
         }
     }
 }

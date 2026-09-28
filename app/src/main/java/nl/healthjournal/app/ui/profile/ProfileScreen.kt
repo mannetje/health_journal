@@ -7,8 +7,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.AppLanguage
 import nl.healthjournal.app.ui.theme.onSuccessContainerColor
 import nl.healthjournal.app.ui.theme.successContainerColor
 import nl.healthjournal.domain.model.profile.Profile
@@ -19,7 +22,9 @@ import java.time.LocalDate
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    currentLanguage: AppLanguage = AppLanguage.SYSTEM,
+    onLanguageChange: (AppLanguage) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -45,7 +50,7 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = if (state.activeProfile != null) "Edit Profile" else "Create Profile",
+            text = stringResource(if (state.activeProfile != null) R.string.profile_title_edit else R.string.profile_title_create),
             style = MaterialTheme.typography.headlineSmall
         )
 
@@ -76,7 +81,7 @@ fun ProfileScreen(
         OutlinedTextField(
             value = nameInput,
             onValueChange = { nameInput = it },
-            label = { Text("Full Name *") },
+            label = { Text(stringResource(R.string.profile_name_label)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -84,8 +89,8 @@ fun ProfileScreen(
         OutlinedTextField(
             value = birthDateInput,
             onValueChange = { birthDateInput = it },
-            label = { Text("Date of Birth (YYYY-MM-DD) *") },
-            placeholder = { Text("e.g. 1990-05-15") },
+            label = { Text(stringResource(R.string.profile_dob_label)) },
+            placeholder = { Text(stringResource(R.string.profile_dob_placeholder)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -93,22 +98,47 @@ fun ProfileScreen(
         OutlinedTextField(
             value = heightInput,
             onValueChange = { heightInput = it },
-            label = { Text("Height (cm, optional)") },
-            placeholder = { Text("e.g. 180") },
+            label = { Text(stringResource(R.string.profile_height_label)) },
+            placeholder = { Text(stringResource(R.string.profile_height_placeholder)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("Sex (optional)", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.profile_sex_label), style = MaterialTheme.typography.labelLarge)
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 val options = listOf<Sex?>(null, Sex.FEMALE, Sex.MALE)
-                val labels = listOf("Not set", "Female", "Male")
+                val labels = listOf(
+                    stringResource(R.string.common_not_set),
+                    stringResource(R.string.profile_sex_female),
+                    stringResource(R.string.profile_sex_male)
+                )
                 options.forEachIndexed { index, option ->
                     SegmentedButton(
                         selected = sexInput == option,
                         onClick = { sexInput = option },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)
+                    ) {
+                        Text(labels[index])
+                    }
+                }
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(R.string.profile_language_label), style = MaterialTheme.typography.labelLarge)
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                val options = listOf(AppLanguage.SYSTEM, AppLanguage.ENGLISH, AppLanguage.DUTCH)
+                val labels = listOf(
+                    stringResource(R.string.profile_language_system),
+                    stringResource(R.string.profile_language_english),
+                    stringResource(R.string.profile_language_dutch)
+                )
+                options.forEachIndexed { index, option ->
+                    SegmentedButton(
+                        selected = currentLanguage == option,
+                        onClick = { onLanguageChange(option) },
                         shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)
                     ) {
                         Text(labels[index])
@@ -130,19 +160,28 @@ fun ProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = !state.isLoading && nameInput.isNotBlank() && birthDateInput.isNotBlank()
         ) {
-            Text(if (state.activeProfile != null) "Update Profile" else "Create Profile")
+            Text(stringResource(if (state.activeProfile != null) R.string.profile_update_button else R.string.profile_title_create))
         }
 
         if (state.activeProfile != null) {
             HorizontalDivider()
             Text(
-                text = "Active Profile Summary",
+                text = stringResource(R.string.profile_summary_title),
                 style = MaterialTheme.typography.titleMedium
             )
-            Text("Name: ${state.activeProfile?.name}")
-            Text("Date of Birth: ${state.activeProfile?.dateOfBirth}")
-            Text("Height: ${state.activeProfile?.height?.let { "${it.value} cm" } ?: "Not set"}")
-            Text("Sex: ${state.activeProfile?.sex?.name ?: "Not set"}")
+            val notSet = stringResource(R.string.common_not_set)
+            Text(stringResource(R.string.profile_summary_name, state.activeProfile?.name.orEmpty()))
+            Text(stringResource(R.string.profile_summary_dob, state.activeProfile?.dateOfBirth.toString()))
+            val heightText = state.activeProfile?.height?.value?.let {
+                stringResource(R.string.profile_height_value, it.toString())
+            } ?: notSet
+            Text(stringResource(R.string.profile_summary_height, heightText))
+            val sexText = when (state.activeProfile?.sex) {
+                Sex.FEMALE -> stringResource(R.string.profile_sex_female)
+                Sex.MALE -> stringResource(R.string.profile_sex_male)
+                null -> notSet
+            }
+            Text(stringResource(R.string.profile_summary_sex, sexText))
         }
     }
 }

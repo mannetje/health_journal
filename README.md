@@ -28,6 +28,7 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
 - **Light & Dark Theme:** Automatically follows the device's system light/dark setting; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
+- **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen.
 
 ---
 
@@ -48,7 +49,9 @@ flowchart TD
     subgraph Presentation["Presentation Adapter (:app)"]
         UI["Jetpack Compose UI (Screens & Theme)"]
         VM["AndroidX ViewModel & UI State"]
+        LANG["LanguagePreference (SharedPreferences) & Locale Override"]
         UI --> VM
+        UI --> LANG
     end
 
     subgraph Domain["Hexagonal Core (:domain - Pure Kotlin)"]
@@ -193,6 +196,6 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
 - [ ] **Phase 4: Trends, Theming, Localization & New Metrics** (proposed, not yet implemented — see linked OpenSpec change for each):
   - [ ] [Per-metric trend charts](openspec/changes/add-health-trend-visualizations/proposal.md) — Weight/BP/Glucose graphs on the History screen, shown when a single metric filter is selected.
   - [x] [Dark theme](openspec/changes/add-dark-theme/proposal.md) — full light/dark support following the system setting.
-  - [ ] [Dutch/English localization](openspec/changes/add-localization/proposal.md) — system-language-following UI text, overridable from Profile settings.
+  - [x] [Dutch/English localization](openspec/changes/add-localization/proposal.md) — system-language-following UI text, overridable from Profile settings.
   - [x] [Optional Profile sex field](openspec/changes/add-profile-sex-field/proposal.md) — selectable male/female, not required, no effect on existing BMI/BP/glucose calculations.
   - [ ] [Optional waist circumference tracking](openspec/changes/add-waist-circumference-tracking/proposal.md) — sex-specific Voedingscentrum thresholds; low-priority/optional.
