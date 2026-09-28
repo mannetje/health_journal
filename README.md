@@ -24,6 +24,7 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, automatically classified against Dutch NHG blood pressure standards (Optimal, Normal, High Normal, Hypertension Grades 1–3).
 - **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) with built-in converter support for **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges (Hypoglycaemia, Normal, Impaired, Diabetes Range).
 - **Activity Tracking:** Manually log workout and physical activity sessions from the Log screen (duration + distance), or bulk-import sessions; each session records start time, end time, and distance in metres.
+- **Profile Sex Field (optional):** Selectable male/female on the Profile screen. Purely demographic — has no effect on BMI, blood pressure, or glucose classification (Dutch NHG guidelines do not differentiate these by sex).
 - **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
 
@@ -192,5 +193,5 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
   - [ ] [Per-metric trend charts](openspec/changes/add-health-trend-visualizations/proposal.md) — Weight/BP/Glucose graphs on the History screen, shown when a single metric filter is selected.
   - [ ] [Dark theme](openspec/changes/add-dark-theme/proposal.md) — full light/dark support following the system setting.
   - [ ] [Dutch/English localization](openspec/changes/add-localization/proposal.md) — system-language-following UI text, overridable from Profile settings.
-  - [ ] [Optional Profile sex field](openspec/changes/add-profile-sex-field/proposal.md) — selectable male/female, not required, no effect on existing BMI/BP/glucose calculations.
+  - [x] [Optional Profile sex field](openspec/changes/add-profile-sex-field/proposal.md) — selectable male/female, not required, no effect on existing BMI/BP/glucose calculations.
   - [ ] [Optional waist circumference tracking](openspec/changes/add-waist-circumference-tracking/proposal.md) — sex-specific Voedingscentrum thresholds; low-priority/optional.

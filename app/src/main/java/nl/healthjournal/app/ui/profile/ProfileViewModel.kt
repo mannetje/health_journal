@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.model.profile.Sex
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.CreateProfileUseCase
 import java.time.LocalDate
@@ -49,11 +50,11 @@ class ProfileViewModel(
         }
     }
 
-    fun saveProfile(name: String, birthDate: LocalDate, heightCm: Int?) {
+    fun saveProfile(name: String, birthDate: LocalDate, heightCm: Int?, sex: Sex? = null) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null, successMessage = null)
             try {
-                createProfileUseCase(name = name, dateOfBirth = birthDate, heightCm = heightCm)
+                createProfileUseCase(name = name, dateOfBirth = birthDate, heightCm = heightCm, sex = sex)
                 val updatedProfile = profileRepository.getActiveProfile()
                 _uiState.value = _uiState.value.copy(
                     activeProfile = updatedProfile,

@@ -89,4 +89,39 @@ class ProfileTest {
         val bmi = profile.calculateBmi(WeightKg(BigDecimal("81.0")))
         assertNull(bmi)
     }
+
+    @Test
+    fun `sex is optional and defaults to unset`() {
+        val profile = Profile.create(
+            name = "Test",
+            dateOfBirth = LocalDate.of(1985, 3, 10)
+        )
+        assertNull(profile.sex)
+    }
+
+    @Test
+    fun `sex can be set to male or female`() {
+        val female = Profile.create(name = "Test", dateOfBirth = LocalDate.of(1985, 3, 10), sex = Sex.FEMALE)
+        val male = Profile.create(name = "Test", dateOfBirth = LocalDate.of(1985, 3, 10), sex = Sex.MALE)
+        assertEquals(Sex.FEMALE, female.sex)
+        assertEquals(Sex.MALE, male.sex)
+    }
+
+    @Test
+    fun `BMI calculation is identical regardless of sex`() {
+        val height = HeightCm(180)
+        val weight = WeightKg(BigDecimal("81.0"))
+        val female = Profile.create(name = "Test", dateOfBirth = LocalDate.of(1985, 3, 10), height = height, sex = Sex.FEMALE)
+        val male = Profile.create(name = "Test", dateOfBirth = LocalDate.of(1985, 3, 10), height = height, sex = Sex.MALE)
+        assertEquals(female.calculateBmi(weight)?.bmi, male.calculateBmi(weight)?.bmi)
+    }
+
+    @Test
+    fun `updateSex replaces sex while preserving other fields`() {
+        val profile = Profile.create(name = "Test", dateOfBirth = LocalDate.of(1985, 3, 10))
+        val updated = profile.updateSex(Sex.MALE)
+        assertEquals(Sex.MALE, updated.sex)
+        assertEquals(profile.id, updated.id)
+        assertEquals(profile.name, updated.name)
+    }
 }

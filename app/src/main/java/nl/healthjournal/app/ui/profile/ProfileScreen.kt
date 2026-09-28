@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.model.profile.Sex
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,12 +25,14 @@ fun ProfileScreen(
     var nameInput by remember { mutableStateOf("") }
     var birthDateInput by remember { mutableStateOf("") } // YYYY-MM-DD
     var heightInput by remember { mutableStateOf("") }
+    var sexInput by remember { mutableStateOf<Sex?>(null) }
 
     LaunchedEffect(state.activeProfile) {
         state.activeProfile?.let {
             nameInput = it.name
             birthDateInput = it.dateOfBirth.toString()
             heightInput = it.height?.value?.toString() ?: ""
+            sexInput = it.sex
         }
     }
 
@@ -96,12 +99,29 @@ fun ProfileScreen(
             singleLine = true
         )
 
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("Sex (optional)", style = MaterialTheme.typography.labelLarge)
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                val options = listOf<Sex?>(null, Sex.FEMALE, Sex.MALE)
+                val labels = listOf("Not set", "Female", "Male")
+                options.forEachIndexed { index, option ->
+                    SegmentedButton(
+                        selected = sexInput == option,
+                        onClick = { sexInput = option },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)
+                    ) {
+                        Text(labels[index])
+                    }
+                }
+            }
+        }
+
         Button(
             onClick = {
                 try {
                     val dob = LocalDate.parse(birthDateInput.trim())
                     val height = heightInput.trim().toIntOrNull()
-                    viewModel.saveProfile(nameInput.trim(), dob, height)
+                    viewModel.saveProfile(nameInput.trim(), dob, height, sexInput)
                 } catch (e: Exception) {
                     // Let ViewModel / exception handle error
                 }
@@ -121,6 +141,7 @@ fun ProfileScreen(
             Text("Name: ${state.activeProfile?.name}")
             Text("Date of Birth: ${state.activeProfile?.dateOfBirth}")
             Text("Height: ${state.activeProfile?.height?.let { "${it.value} cm" } ?: "Not set"}")
+            Text("Sex: ${state.activeProfile?.sex?.name ?: "Not set"}")
         }
     }
 }

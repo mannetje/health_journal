@@ -15,7 +15,8 @@ class Profile private constructor(
     val id: ProfileId,
     val name: String,
     val dateOfBirth: LocalDate,
-    val height: HeightCm?
+    val height: HeightCm?,
+    val sex: Sex?
 ) {
     init {
         require(name.isNotBlank()) { "Profile name cannot be blank" }
@@ -28,11 +29,16 @@ class Profile private constructor(
     }
 
     fun updateName(newName: String): Profile {
-        return Profile(id = this.id, name = newName.trim(), dateOfBirth = this.dateOfBirth, height = this.height)
+        return Profile(id = this.id, name = newName.trim(), dateOfBirth = this.dateOfBirth, height = this.height, sex = this.sex)
     }
 
     fun updateHeight(newHeight: HeightCm?): Profile {
-        return Profile(id = this.id, name = this.name, dateOfBirth = this.dateOfBirth, height = newHeight)
+        return Profile(id = this.id, name = this.name, dateOfBirth = this.dateOfBirth, height = newHeight, sex = this.sex)
+    }
+
+    /** Sex is optional demographic data; it has no effect on BMI, blood pressure, or glucose classification. */
+    fun updateSex(newSex: Sex?): Profile {
+        return Profile(id = this.id, name = this.name, dateOfBirth = this.dateOfBirth, height = this.height, sex = newSex)
     }
 
     /**
@@ -55,7 +61,7 @@ class Profile private constructor(
 
     override fun hashCode(): Int = id.hashCode()
 
-    override fun toString(): String = "Profile(id=$id, name='$name', dateOfBirth=$dateOfBirth, height=$height)"
+    override fun toString(): String = "Profile(id=$id, name='$name', dateOfBirth=$dateOfBirth, height=$height, sex=$sex)"
 
     companion object {
         const val MAX_AGE_YEARS = 130L
@@ -64,24 +70,28 @@ class Profile private constructor(
             name: String,
             dateOfBirth: LocalDate,
             height: HeightCm? = null,
+            sex: Sex? = null,
             id: ProfileId = ProfileId.generate()
         ): Profile = Profile(
             id = id,
             name = name.trim(),
             dateOfBirth = dateOfBirth,
-            height = height
+            height = height,
+            sex = sex
         )
 
         fun reconstruct(
             id: ProfileId,
             name: String,
             dateOfBirth: LocalDate,
-            height: HeightCm?
+            height: HeightCm?,
+            sex: Sex? = null
         ): Profile = Profile(
             id = id,
             name = name,
             dateOfBirth = dateOfBirth,
-            height = height
+            height = height,
+            sex = sex
         )
     }
 }
