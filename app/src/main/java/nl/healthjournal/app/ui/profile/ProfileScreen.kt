@@ -7,9 +7,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import nl.healthjournal.app.ui.theme.onSuccessContainerColor
+import nl.healthjournal.app.ui.theme.successContainerColor
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.model.profile.Sex
 import java.time.LocalDate
@@ -62,11 +63,11 @@ fun ProfileScreen(
 
         state.successMessage?.let { success ->
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
+                colors = CardDefaults.cardColors(containerColor = successContainerColor)
             ) {
                 Text(
                     text = success,
-                    color = Color(0xFF2E7D32),
+                    color = onSuccessContainerColor,
                     modifier = Modifier.padding(12.dp)
                 )
             }

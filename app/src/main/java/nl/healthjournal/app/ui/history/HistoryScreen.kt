@@ -8,8 +8,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import nl.healthjournal.app.ui.theme.infoContainerColor
+import nl.healthjournal.app.ui.theme.onInfoContainerColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,10 +54,10 @@ fun HistoryScreen(
         }
 
         state.infoMessage?.let { info ->
-            Card(colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))) {
+            Card(colors = CardDefaults.cardColors(containerColor = infoContainerColor)) {
                 Text(
                     text = info,
-                    color = Color(0xFF1565C0),
+                    color = onInfoContainerColor,
                     modifier = Modifier.padding(12.dp)
                 )
             }
@@ -112,7 +113,7 @@ fun HistoryScreen(
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text("Weight: ${w.weight.value} kg", style = MaterialTheme.typography.titleMedium)
                                 w.bmi?.let { Text("BMI: $it") }
-                                Text("Time: ${w.timestamp}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                                Text("Time: ${w.timestamp}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -124,7 +125,7 @@ fun HistoryScreen(
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text("BP: ${bp.reading.systolic}/${bp.reading.diastolic} mmHg", style = MaterialTheme.typography.titleMedium)
                                 Text("Category: ${bp.category.name.replace('_', ' ')}")
-                                Text("Time: ${bp.timestamp}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                                Text("Time: ${bp.timestamp}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -136,7 +137,7 @@ fun HistoryScreen(
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text("Glucose: ${g.glucose.valueInMmolL} mmol/L (${g.context.name})", style = MaterialTheme.typography.titleMedium)
                                 Text("Category: ${g.category.name.replace('_', ' ')}")
-                                Text("Time: ${g.timestamp}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                                Text("Time: ${g.timestamp}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -147,7 +148,7 @@ fun HistoryScreen(
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text("Activity: ${a.distanceInMeters} m (${a.durationInSeconds} s)", style = MaterialTheme.typography.titleMedium)
-                                Text("Start: ${a.startTime}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                                Text("Start: ${a.startTime}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }

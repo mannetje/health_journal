@@ -27,6 +27,7 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Profile Sex Field (optional):** Selectable male/female on the Profile screen. Purely demographic — has no effect on BMI, blood pressure, or glucose classification (Dutch NHG guidelines do not differentiate these by sex).
 - **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
+- **Light & Dark Theme:** Automatically follows the device's system light/dark setting; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
 
 ---
 
@@ -191,7 +192,7 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
 - [x] **Phase 3: Jetpack Compose Presentation Layer** — Material 3 UI screens, metric entry forms, and NHG category feedback indicators.
 - [ ] **Phase 4: Trends, Theming, Localization & New Metrics** (proposed, not yet implemented — see linked OpenSpec change for each):
   - [ ] [Per-metric trend charts](openspec/changes/add-health-trend-visualizations/proposal.md) — Weight/BP/Glucose graphs on the History screen, shown when a single metric filter is selected.
-  - [ ] [Dark theme](openspec/changes/add-dark-theme/proposal.md) — full light/dark support following the system setting.
+  - [x] [Dark theme](openspec/changes/add-dark-theme/proposal.md) — full light/dark support following the system setting.
   - [ ] [Dutch/English localization](openspec/changes/add-localization/proposal.md) — system-language-following UI text, overridable from Profile settings.
   - [x] [Optional Profile sex field](openspec/changes/add-profile-sex-field/proposal.md) — selectable male/female, not required, no effect on existing BMI/BP/glucose calculations.
   - [ ] [Optional waist circumference tracking](openspec/changes/add-waist-circumference-tracking/proposal.md) — sex-specific Voedingscentrum thresholds; low-priority/optional.
