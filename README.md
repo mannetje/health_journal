@@ -187,4 +187,10 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
 - [x] **Phase 0: Specifications & Architecture Governance** — OpenSpec change definition, initial ADR, living README, Hexagonal boundary definition.
 - [x] **Phase 1: Gradle Build & Pure Kotlin Domain Model** — Multi-module Gradle build, Value Objects (`ProfileId`, `GlucoseLevel`, `BloodPressureReading`), `Profile` Aggregate Root, and Dutch NHG evaluation rules.
 - [x] **Phase 2: Data Infrastructure Layer** — Room SQLite Database, DAOs, Entity-to-Domain mappers, and CSV parser/generator adapters.
-- [x] **Phase 3: Jetpack Compose Presentation Layer** — Material 3 UI screens, metric entry forms, NHG category feedback indicators, and trend visualizations.
+- [x] **Phase 3: Jetpack Compose Presentation Layer** — Material 3 UI screens, metric entry forms, and NHG category feedback indicators.
+- [ ] **Phase 4: Trends, Theming, Localization & New Metrics** (proposed, not yet implemented — see linked OpenSpec change for each):
+  - [ ] [Per-metric trend charts](openspec/changes/add-health-trend-visualizations/proposal.md) — Weight/BP/Glucose graphs on the History screen, shown when a single metric filter is selected.
+  - [ ] [Dark theme](openspec/changes/add-dark-theme/proposal.md) — full light/dark support following the system setting.
+  - [ ] [Dutch/English localization](openspec/changes/add-localization/proposal.md) — system-language-following UI text, overridable from Profile settings.
+  - [ ] [Optional Profile sex field](openspec/changes/add-profile-sex-field/proposal.md) — selectable male/female, not required, no effect on existing BMI/BP/glucose calculations.
+  - [ ] [Optional waist circumference tracking](openspec/changes/add-waist-circumference-tracking/proposal.md) — sex-specific Voedingscentrum thresholds; low-priority/optional.
