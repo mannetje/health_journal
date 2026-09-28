@@ -18,6 +18,23 @@ import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.app.ui.theme.NhgNormalGreen
+import nl.healthjournal.app.ui.theme.NhgNormalGreenDark
+import nl.healthjournal.app.ui.theme.NhgOptimalGreen
+import nl.healthjournal.app.ui.theme.NhgOptimalGreenDark
+import nl.healthjournal.app.ui.theme.NhgOrange
+import nl.healthjournal.app.ui.theme.NhgOrangeDark
+import nl.healthjournal.app.ui.theme.NhgDeepOrange
+import nl.healthjournal.app.ui.theme.NhgDeepOrangeDark
+import nl.healthjournal.app.ui.theme.NhgRed
+import nl.healthjournal.app.ui.theme.NhgRedDark
+import nl.healthjournal.app.ui.theme.NhgSevereRed
+import nl.healthjournal.app.ui.theme.NhgSevereRedDark
+import nl.healthjournal.app.ui.theme.NhgWarningYellow
+import nl.healthjournal.app.ui.theme.NhgWarningYellowDark
+import nl.healthjournal.app.ui.theme.onSuccessContainerColor
+import nl.healthjournal.app.ui.theme.successContainerColor
+import androidx.compose.foundation.isSystemInDarkTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,11 +86,11 @@ fun LogMetricScreen(
 
         state.successMessage?.let { success ->
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
+                colors = CardDefaults.cardColors(containerColor = successContainerColor)
             ) {
                 Text(
                     text = success,
-                    color = Color(0xFF2E7D32),
+                    color = onSuccessContainerColor,
                     modifier = Modifier.padding(12.dp)
                 )
             }
@@ -255,24 +272,36 @@ fun CategoryBadge(label: String, color: Color) {
     }
 }
 
-private fun getBmiColor(category: NhgBmiCategory): Color = when (category) {
-    NhgBmiCategory.NORMAL -> Color(0xFF2E7D32)
-    NhgBmiCategory.UNDERWEIGHT -> Color(0xFFF9A825)
-    NhgBmiCategory.OVERWEIGHT -> Color(0xFFEF6C00)
-    NhgBmiCategory.OBESE -> Color(0xFFC62828)
+@Composable
+private fun getBmiColor(category: NhgBmiCategory): Color {
+    val dark = isSystemInDarkTheme()
+    return when (category) {
+        NhgBmiCategory.NORMAL -> if (dark) NhgOptimalGreenDark else NhgOptimalGreen
+        NhgBmiCategory.UNDERWEIGHT -> if (dark) NhgWarningYellowDark else NhgWarningYellow
+        NhgBmiCategory.OVERWEIGHT -> if (dark) NhgOrangeDark else NhgOrange
+        NhgBmiCategory.OBESE -> if (dark) NhgRedDark else NhgRed
+    }
 }
 
-private fun getBpColor(category: NhgBloodPressureCategory): Color = when (category) {
-    NhgBloodPressureCategory.OPTIMAL -> Color(0xFF2E7D32)
-    NhgBloodPressureCategory.NORMAL -> Color(0xFF43A047)
-    NhgBloodPressureCategory.HIGH_NORMAL -> Color(0xFFF9A825)
-    NhgBloodPressureCategory.HYPERTENSION_GRADE_1 -> Color(0xFFEF6C00)
-    NhgBloodPressureCategory.HYPERTENSION_GRADE_2 -> Color(0xFFD84315)
-    NhgBloodPressureCategory.HYPERTENSION_GRADE_3 -> Color(0xFFB71C1C)
+@Composable
+private fun getBpColor(category: NhgBloodPressureCategory): Color {
+    val dark = isSystemInDarkTheme()
+    return when (category) {
+        NhgBloodPressureCategory.OPTIMAL -> if (dark) NhgOptimalGreenDark else NhgOptimalGreen
+        NhgBloodPressureCategory.NORMAL -> if (dark) NhgNormalGreenDark else NhgNormalGreen
+        NhgBloodPressureCategory.HIGH_NORMAL -> if (dark) NhgWarningYellowDark else NhgWarningYellow
+        NhgBloodPressureCategory.HYPERTENSION_GRADE_1 -> if (dark) NhgOrangeDark else NhgOrange
+        NhgBloodPressureCategory.HYPERTENSION_GRADE_2 -> if (dark) NhgDeepOrangeDark else NhgDeepOrange
+        NhgBloodPressureCategory.HYPERTENSION_GRADE_3 -> if (dark) NhgSevereRedDark else NhgSevereRed
+    }
 }
 
-private fun getGlucoseColor(category: NhgGlucoseCategory): Color = when (category) {
-    NhgGlucoseCategory.NORMAL -> Color(0xFF2E7D32)
-    NhgGlucoseCategory.IMPAIRED_FASTING, NhgGlucoseCategory.IMPAIRED_GLUCOSE_TOLERANCE -> Color(0xFFEF6C00)
-    NhgGlucoseCategory.HYPOGLYCAEMIA, NhgGlucoseCategory.DIABETES_RANGE -> Color(0xFFC62828)
+@Composable
+private fun getGlucoseColor(category: NhgGlucoseCategory): Color {
+    val dark = isSystemInDarkTheme()
+    return when (category) {
+        NhgGlucoseCategory.NORMAL -> if (dark) NhgOptimalGreenDark else NhgOptimalGreen
+        NhgGlucoseCategory.IMPAIRED_FASTING, NhgGlucoseCategory.IMPAIRED_GLUCOSE_TOLERANCE -> if (dark) NhgOrangeDark else NhgOrange
+        NhgGlucoseCategory.HYPOGLYCAEMIA, NhgGlucoseCategory.DIABETES_RANGE -> if (dark) NhgRedDark else NhgRed
+    }
 }
