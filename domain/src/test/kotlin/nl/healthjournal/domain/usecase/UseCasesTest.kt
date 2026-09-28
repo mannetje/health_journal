@@ -15,6 +15,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDate
 
 class FakeProfileRepository : ProfileRepositoryPort {
@@ -141,6 +142,43 @@ class UseCasesTest {
 
         assertEquals(BigDecimal("25.0"), entry.bmi)
         assertEquals(1, healthRepo.weights.size)
+    }
+
+    @Test
+    fun `RecordActivityUseCase persists a valid session`() = runBlocking {
+        val profileUseCase = CreateProfileUseCase(profileRepo)
+        val profileId = profileUseCase("Test", LocalDate.of(1990, 1, 1), 180)
+
+        val activityUseCase = RecordActivityUseCase(healthRepo)
+        val start = Instant.parse("2026-01-01T10:00:00Z")
+        val end = Instant.parse("2026-01-01T10:30:00Z")
+        val session = activityUseCase(
+            profileId = profileId,
+            startTime = start,
+            endTime = end,
+            distanceInMeters = 5_000.0
+        )
+
+        assertEquals(1_800L, session.durationInSeconds)
+        assertEquals(1, healthRepo.activities.size)
+    }
+
+    @Test
+    fun `RecordActivityUseCase rejects end before start`() = runBlocking {
+        val activityUseCase = RecordActivityUseCase(healthRepo)
+        val now = Instant.parse("2026-01-01T10:00:00Z")
+
+        assertThrows(IllegalArgumentException::class.java) {
+            runBlocking {
+                activityUseCase(
+                    profileId = ProfileId.generate(),
+                    startTime = now,
+                    endTime = now.minusSeconds(60),
+                    distanceInMeters = 1_000.0
+                )
+            }
+        }
+        Unit
     }
 
     @Test

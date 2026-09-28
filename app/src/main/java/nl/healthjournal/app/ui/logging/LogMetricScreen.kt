@@ -96,6 +96,11 @@ fun LogMetricScreen(
                 onClick = { viewModel.selectMetric(MetricType.GLUCOSE) },
                 text = { Text("Glucose") }
             )
+            Tab(
+                selected = state.selectedMetric == MetricType.ACTIVITY,
+                onClick = { viewModel.selectMetric(MetricType.ACTIVITY) },
+                text = { Text("Activity") }
+            )
         }
 
         when (state.selectedMetric) {
@@ -201,6 +206,25 @@ fun LogMetricScreen(
                         color = getGlucoseColor(state.previewGlucoseCategory!!)
                     )
                 }
+            }
+
+            MetricType.ACTIVITY -> {
+                OutlinedTextField(
+                    value = state.activityDurationInput,
+                    onValueChange = { viewModel.onActivityDurationChanged(it) },
+                    label = { Text("Duration (minutes)") },
+                    placeholder = { Text("e.g. 30") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = state.activityDistanceInput,
+                    onValueChange = { viewModel.onActivityDistanceChanged(it) },
+                    label = { Text("Distance (km)") },
+                    placeholder = { Text("e.g. 5.0") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 

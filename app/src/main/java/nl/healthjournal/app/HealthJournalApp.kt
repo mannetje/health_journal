@@ -33,6 +33,8 @@ class HealthJournalApp : Application() {
         private set
     lateinit var recordGlucoseUseCase: RecordGlucoseUseCase
         private set
+    lateinit var recordActivityUseCase: RecordActivityUseCase
+        private set
     lateinit var getHealthHistoryUseCase: GetHealthHistoryUseCase
         private set
 
@@ -46,6 +48,7 @@ class HealthJournalApp : Application() {
         recordWeightUseCase = RecordWeightUseCase(healthLogRepository, profileRepository)
         recordBloodPressureUseCase = RecordBloodPressureUseCase(healthLogRepository)
         recordGlucoseUseCase = RecordGlucoseUseCase(healthLogRepository)
+        recordActivityUseCase = RecordActivityUseCase(healthLogRepository)
         getHealthHistoryUseCase = GetHealthHistoryUseCase(healthLogRepository)
     }
 

@@ -1,9 +1,6 @@
-# activity Specification
+# Spec Delta
 
-## Purpose
-Records physical activity sessions for a Profile, entered manually in the app or imported in bulk. Each session captures start time, end time, and total distance. Distance is stored in metres internally.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Record activity session
 The system SHALL allow recording a physical activity session with a start timestamp, end timestamp, and total distance in metres, associated with a Profile, both through bulk data import and through manual entry in the application's own UI.
@@ -23,17 +20,3 @@ The system SHALL allow recording a physical activity session with a start timest
 #### Scenario: Manual session entry via app
 - **WHEN** a user with an active Profile enters a duration and a distance for an activity in the logging screen and confirms
 - **THEN** the system SHALL derive a start timestamp of "now minus duration" and an end timestamp of "now", persist the session for the active Profile, and confirm the entry was recorded
-
-### Requirement: Calculate session duration
-The system SHALL derive the session duration in seconds from the start and end timestamps.
-
-#### Scenario: Duration computed correctly
-- **WHEN** a session has a valid start and end timestamp
-- **THEN** the system SHALL expose the duration as the difference in whole seconds between end and start
-
-### Requirement: Retrieve activity history
-The system SHALL allow retrieving all activity sessions for a Profile in reverse chronological order.
-
-#### Scenario: History returned for known profile
-- **WHEN** a client requests activity history for a Profile with sessions
-- **THEN** the system SHALL return all sessions ordered from most recent to oldest, each including start time, end time, distance, and duration
