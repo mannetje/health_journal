@@ -31,6 +31,7 @@ import nl.healthjournal.domain.port.secondary.ImportResult
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.CreateProfileUseCase
 import nl.healthjournal.domain.usecase.GetHealthHistoryUseCase
+import nl.healthjournal.domain.usecase.RecordActivityUseCase
 import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
 import nl.healthjournal.domain.usecase.RecordGlucoseUseCase
 import nl.healthjournal.domain.usecase.RecordWeightUseCase
@@ -132,7 +133,8 @@ class ViewModelsTest {
             profileRepo,
             RecordWeightUseCase(healthLogRepo, profileRepo),
             RecordBloodPressureUseCase(healthLogRepo),
-            RecordGlucoseUseCase(healthLogRepo)
+            RecordGlucoseUseCase(healthLogRepo),
+            RecordActivityUseCase(healthLogRepo)
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -160,7 +162,8 @@ class ViewModelsTest {
             profileRepo,
             RecordWeightUseCase(healthLogRepo, profileRepo),
             RecordBloodPressureUseCase(healthLogRepo),
-            RecordGlucoseUseCase(healthLogRepo)
+            RecordGlucoseUseCase(healthLogRepo),
+            RecordActivityUseCase(healthLogRepo)
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -188,7 +191,8 @@ class ViewModelsTest {
             profileRepo,
             RecordWeightUseCase(healthLogRepo, profileRepo),
             RecordBloodPressureUseCase(healthLogRepo),
-            RecordGlucoseUseCase(healthLogRepo)
+            RecordGlucoseUseCase(healthLogRepo),
+            RecordActivityUseCase(healthLogRepo)
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
