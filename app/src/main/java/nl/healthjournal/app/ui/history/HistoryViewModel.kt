@@ -17,6 +17,7 @@ import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.ImportResult
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.GetHealthHistoryUseCase
+import nl.healthjournal.app.ui.history.charts.TrendDateRange
 
 enum class HistoryFilter {
     ALL,
@@ -29,6 +30,7 @@ enum class HistoryFilter {
 data class HistoryUiState(
     val activeProfile: Profile? = null,
     val selectedFilter: HistoryFilter = HistoryFilter.ALL,
+    val selectedDateRange: TrendDateRange = TrendDateRange.THIRTY_DAYS,
     val weights: List<WeightEntry> = emptyList(),
     val bloodPressures: List<BloodPressureEntry> = emptyList(),
     val glucoses: List<GlucoseEntry> = emptyList(),
@@ -56,6 +58,10 @@ class HistoryViewModel(
 
     fun setFilter(filter: HistoryFilter) {
         _uiState.value = _uiState.value.copy(selectedFilter = filter)
+    }
+
+    fun setDateRange(range: TrendDateRange) {
+        _uiState.value = _uiState.value.copy(selectedDateRange = range)
     }
 
     fun loadHistory() {
