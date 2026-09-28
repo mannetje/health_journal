@@ -1,0 +1,3 @@
+<resources>
+    <style name="Theme.HealthJournal" parent="android:Theme.Material.NoActionBar" />
+</resources>
