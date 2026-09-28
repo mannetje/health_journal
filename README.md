@@ -23,7 +23,7 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Body Weight & BMI:** Record body weight in kilograms, automatically deriving Body Mass Index (BMI) based on profile height, categorized according to NHG/WHO standards.
 - **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, automatically classified against Dutch NHG blood pressure standards (Optimal, Normal, High Normal, Hypertension Grades 1–3).
 - **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) with built-in converter support for **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges (Hypoglycaemia, Normal, Impaired, Diabetes Range).
-- **Activity Tracking:** Log GPS-tracked workout and physical activity intervals (start time, end time, distance in metres).
+- **Activity Tracking:** Manually log workout and physical activity sessions from the Log screen (duration + distance), or bulk-import sessions; each session records start time, end time, and distance in metres.
 - **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
 

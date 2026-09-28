@@ -39,7 +39,8 @@ class MainActivity : ComponentActivity() {
             app.profileRepository,
             app.recordWeightUseCase,
             app.recordBloodPressureUseCase,
-            app.recordGlucoseUseCase
+            app.recordGlucoseUseCase,
+            app.recordActivityUseCase
         )
     }
 

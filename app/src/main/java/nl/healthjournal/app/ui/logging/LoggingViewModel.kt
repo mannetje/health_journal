@@ -13,15 +13,18 @@ import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.usecase.RecordActivityUseCase
 import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
 import nl.healthjournal.domain.usecase.RecordGlucoseUseCase
 import nl.healthjournal.domain.usecase.RecordWeightUseCase
 import java.math.BigDecimal
+import java.time.Instant
 
 enum class MetricType {
     WEIGHT,
     BLOOD_PRESSURE,
-    GLUCOSE
+    GLUCOSE,
+    ACTIVITY
 }
 
 data class LoggingUiState(
@@ -44,6 +47,10 @@ data class LoggingUiState(
     val glucoseContext: GlucoseContext = GlucoseContext.FASTING,
     val previewGlucoseCategory: NhgGlucoseCategory? = null,
 
+    // Activity inputs
+    val activityDurationInput: String = "",
+    val activityDistanceInput: String = "",
+
     val isSaving: Boolean = false,
     val successMessage: String? = null,
     val errorMessage: String? = null
@@ -53,7 +60,8 @@ class LoggingViewModel(
     private val profileRepository: ProfileRepositoryPort,
     private val recordWeightUseCase: RecordWeightUseCase,
     private val recordBloodPressureUseCase: RecordBloodPressureUseCase,
-    private val recordGlucoseUseCase: RecordGlucoseUseCase
+    private val recordGlucoseUseCase: RecordGlucoseUseCase,
+    private val recordActivityUseCase: RecordActivityUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoggingUiState())
@@ -130,6 +138,14 @@ class LoggingViewModel(
     fun toggleGlucoseUnit(isMgDl: Boolean) {
         _uiState.value = _uiState.value.copy(isGlucoseMgDl = isMgDl)
         updateGlucosePreview(_uiState.value.glucoseInput, isMgDl, _uiState.value.glucoseContext)
+    }
+
+    fun onActivityDurationChanged(input: String) {
+        _uiState.value = _uiState.value.copy(activityDurationInput = input, errorMessage = null)
+    }
+
+    fun onActivityDistanceChanged(input: String) {
+        _uiState.value = _uiState.value.copy(activityDistanceInput = input, errorMessage = null)
     }
 
     fun setGlucoseContext(context: GlucoseContext) {
@@ -210,6 +226,27 @@ class LoggingViewModel(
                             successMessage = "Blood glucose entry recorded!"
                         )
                     }
+                    MetricType.ACTIVITY -> {
+                        val durationMinutes = _uiState.value.activityDurationInput.toDoubleOrNull()
+                            ?.takeIf { it > 0 }
+                            ?: throw IllegalArgumentException("Please enter a valid duration in minutes")
+                        val distanceKm = _uiState.value.activityDistanceInput.toDoubleOrNull()
+                            ?.takeIf { it >= 0 }
+                            ?: throw IllegalArgumentException("Please enter a valid distance in km")
+                        val endTime = Instant.now()
+                        val startTime = endTime.minusSeconds((durationMinutes * 60).toLong())
+                        recordActivityUseCase(
+                            profileId = profile.id,
+                            startTime = startTime,
+                            endTime = endTime,
+                            distanceInMeters = distanceKm * 1000.0
+                        )
+                        _uiState.value = _uiState.value.copy(
+                            activityDurationInput = "",
+                            activityDistanceInput = "",
+                            successMessage = "Activity session recorded!"
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.message ?: "Failed to save entry")
@@ -227,7 +264,8 @@ class LoggingViewModel(
         private val profileRepository: ProfileRepositoryPort,
         private val recordWeightUseCase: RecordWeightUseCase,
         private val recordBloodPressureUseCase: RecordBloodPressureUseCase,
-        private val recordGlucoseUseCase: RecordGlucoseUseCase
+        private val recordGlucoseUseCase: RecordGlucoseUseCase,
+        private val recordActivityUseCase: RecordActivityUseCase
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -235,7 +273,8 @@ class LoggingViewModel(
                 profileRepository,
                 recordWeightUseCase,
                 recordBloodPressureUseCase,
-                recordGlucoseUseCase
+                recordGlucoseUseCase,
+                recordActivityUseCase
             ) as T
         }
     }
