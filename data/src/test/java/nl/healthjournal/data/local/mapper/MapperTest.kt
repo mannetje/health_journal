@@ -7,6 +7,7 @@ import nl.healthjournal.domain.model.metrics.*
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
 import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.model.profile.Sex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -21,7 +22,8 @@ class MapperTest {
         val profile = Profile.create(
             name = "Jane Doe",
             dateOfBirth = LocalDate.of(1990, 5, 15),
-            height = HeightCm(175)
+            height = HeightCm(175),
+            sex = Sex.FEMALE
         )
 
         val entity = ProfileMapper.toEntity(profile, isActive = true)
@@ -29,6 +31,7 @@ class MapperTest {
         assertEquals("Jane Doe", entity.name)
         assertEquals("1990-05-15", entity.dateOfBirth)
         assertEquals(175, entity.heightCm)
+        assertEquals("FEMALE", entity.sex)
         assertEquals(true, entity.isActive)
 
         val reconstructed = ProfileMapper.toDomain(entity)
@@ -36,6 +39,21 @@ class MapperTest {
         assertEquals(profile.name, reconstructed.name)
         assertEquals(profile.dateOfBirth, reconstructed.dateOfBirth)
         assertEquals(profile.height, reconstructed.height)
+        assertEquals(Sex.FEMALE, reconstructed.sex)
+    }
+
+    @Test
+    fun `ProfileMapper maps null sex to entity and back`() {
+        val profile = Profile.create(
+            name = "No Sex Set",
+            dateOfBirth = LocalDate.of(1990, 5, 15)
+        )
+
+        val entity = ProfileMapper.toEntity(profile)
+        assertNull(entity.sex)
+
+        val reconstructed = ProfileMapper.toDomain(entity)
+        assertNull(reconstructed.sex)
     }
 
     @Test

@@ -4,6 +4,7 @@ import nl.healthjournal.data.local.entity.ProfileEntity
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.HeightCm
 import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.model.profile.Sex
 import java.time.LocalDate
 
 object ProfileMapper {
@@ -13,6 +14,7 @@ object ProfileMapper {
             name = domain.name,
             dateOfBirth = domain.dateOfBirth.toString(),
             heightCm = domain.height?.value,
+            sex = domain.sex?.name,
             isActive = isActive
         )
     }
@@ -22,7 +24,8 @@ object ProfileMapper {
             id = ProfileId.fromString(entity.id),
             name = entity.name,
             dateOfBirth = LocalDate.parse(entity.dateOfBirth),
-            height = entity.heightCm?.let { HeightCm(it) }
+            height = entity.heightCm?.let { HeightCm(it) },
+            sex = entity.sex?.let { Sex.valueOf(it) }
         )
     }
 }

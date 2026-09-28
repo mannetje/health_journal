@@ -10,5 +10,6 @@ data class ProfileEntity(
     val name: String,
     val dateOfBirth: String, // ISO-8601 YYYY-MM-DD
     val heightCm: Int?,
+    val sex: String? = null,
     val isActive: Boolean = false
 )
