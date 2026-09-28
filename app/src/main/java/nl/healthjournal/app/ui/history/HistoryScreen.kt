@@ -11,6 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
+import nl.healthjournal.app.ui.history.charts.BloodPressureTrendSection
+import nl.healthjournal.app.ui.history.charts.DateRangeSelector
+import nl.healthjournal.app.ui.history.charts.GlucoseTrendSection
+import nl.healthjournal.app.ui.history.charts.WeightTrendSection
+import nl.healthjournal.app.ui.history.charts.filterByDateRange
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.app.ui.theme.infoContainerColor
 import nl.healthjournal.app.ui.theme.onInfoContainerColor
@@ -101,6 +106,25 @@ fun HistoryScreen(
                 onClick = { viewModel.setFilter(HistoryFilter.GLUCOSE) },
                 label = { Text(stringResource(R.string.history_filter_glucose)) }
             )
+        }
+
+        if (!state.isLoading && state.selectedFilter != HistoryFilter.ALL && state.selectedFilter != HistoryFilter.ACTIVITY) {
+            DateRangeSelector(
+                selected = state.selectedDateRange,
+                onSelect = { viewModel.setDateRange(it) }
+            )
+            when (state.selectedFilter) {
+                HistoryFilter.WEIGHT -> WeightTrendSection(
+                    entries = state.weights.filterByDateRange(state.selectedDateRange) { it.timestamp }
+                )
+                HistoryFilter.BLOOD_PRESSURE -> BloodPressureTrendSection(
+                    entries = state.bloodPressures.filterByDateRange(state.selectedDateRange) { it.timestamp }
+                )
+                HistoryFilter.GLUCOSE -> GlucoseTrendSection(
+                    entries = state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp }
+                )
+                else -> Unit
+            }
         }
 
         if (state.isLoading) {
