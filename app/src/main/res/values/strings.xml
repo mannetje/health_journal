@@ -1,0 +1,125 @@
+<resources>
+    <string name="app_name">Health Journal</string>
+
+    <!-- Common -->
+    <string name="common_not_set">Not set</string>
+    <string name="common_close">Close</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_import">Import</string>
+    <string name="common_weight">Weight</string>
+    <string name="common_glucose">Glucose</string>
+    <string name="common_activity">Activity</string>
+
+    <!-- App navigation -->
+    <string name="nav_title_log">Health Journal - Log</string>
+    <string name="nav_title_history">Health Journal - History</string>
+    <string name="nav_title_profile">Health Journal - Profile</string>
+    <string name="nav_tab_log">Log</string>
+    <string name="nav_tab_history">History</string>
+    <string name="nav_tab_profile">Profile</string>
+
+    <!-- Log screen -->
+    <string name="log_title">Log Health Metric</string>
+    <string name="log_no_profile">No profile found. Please set up your profile first.</string>
+    <string name="log_tab_weight">Weight</string>
+    <string name="log_tab_blood_pressure">Blood Pressure</string>
+    <string name="log_tab_glucose">Glucose</string>
+    <string name="log_tab_activity">Activity</string>
+    <string name="log_weight_label">Weight (kg)</string>
+    <string name="log_weight_placeholder">e.g. 74.5</string>
+    <string name="log_bmi_badge">BMI: %1$s — %2$s</string>
+    <string name="log_systolic_label">Systolic (mmHg)</string>
+    <string name="log_systolic_placeholder">120</string>
+    <string name="log_diastolic_label">Diastolic (mmHg)</string>
+    <string name="log_diastolic_placeholder">80</string>
+    <string name="log_nhg_badge">NHG: %1$s</string>
+    <string name="log_glucose_context_fasting">Fasting (Nuchter)</string>
+    <string name="log_glucose_context_postprandial">Postprandial (Na de maaltijd)</string>
+    <string name="log_unit_label">Unit:</string>
+    <string name="log_unit_mmol">mmol/L (NHG)</string>
+    <string name="log_unit_mgdl">mg/dL</string>
+    <string name="log_glucose_label_mgdl">Glucose (mg/dL)</string>
+    <string name="log_glucose_label_mmol">Glucose (mmol/L)</string>
+    <string name="log_glucose_placeholder_mgdl">e.g. 100</string>
+    <string name="log_glucose_placeholder_mmol">e.g. 5.4</string>
+    <string name="log_duration_label">Duration (minutes)</string>
+    <string name="log_duration_placeholder">e.g. 30</string>
+    <string name="log_distance_label">Distance (km)</string>
+    <string name="log_distance_placeholder">e.g. 5.0</string>
+    <string name="log_saving">Saving…</string>
+    <string name="log_record_entry">Record Entry</string>
+
+    <!-- History screen -->
+    <string name="history_title">Health History</string>
+    <string name="history_import_button">Import</string>
+    <string name="history_export_button">Export</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_weight">Weight</string>
+    <string name="history_filter_bp">BP</string>
+    <string name="history_filter_glucose">Glucose</string>
+    <string name="history_weight_line">Weight: %1$s kg</string>
+    <string name="history_bmi_line">BMI: %1$s</string>
+    <string name="history_category_line">Category: %1$s</string>
+    <string name="history_time_line">Time: %1$s</string>
+    <string name="history_bp_line">BP: %1$s/%2$s mmHg</string>
+    <string name="history_glucose_line">Glucose: %1$s mmol/L (%2$s)</string>
+    <string name="history_activity_line">Activity: %1$s m (%2$s s)</string>
+    <string name="history_start_line">Start: %1$s</string>
+    <string name="history_export_dialog_title">Export CSV</string>
+    <string name="history_export_weight">Export Weight CSV</string>
+    <string name="history_export_bp">Export Blood Pressure CSV</string>
+    <string name="history_export_glucose">Export Glucose CSV</string>
+    <string name="history_preview_label">Preview:</string>
+    <string name="history_import_dialog_title">Import CSV</string>
+    <string name="history_import_type_weight">Weight</string>
+    <string name="history_import_type_bp">BP</string>
+    <string name="history_import_type_glucose">Glucose</string>
+    <string name="history_import_type_libra">Libra (CSV)</string>
+    <string name="history_paste_csv_label">Paste CSV Content</string>
+    <string name="history_libra_placeholder">#Version: 6\n#Units: kg\n#date;weight;...\n2026-09-20T08:00:00Z;74.5;...</string>
+    <string name="history_csv_placeholder">timestamp,weight_kg,bmi\n...</string>
+
+    <!-- Profile screen -->
+    <string name="profile_title_edit">Edit Profile</string>
+    <string name="profile_title_create">Create Profile</string>
+    <string name="profile_name_label">Full Name *</string>
+    <string name="profile_dob_label">Date of Birth (YYYY-MM-DD) *</string>
+    <string name="profile_dob_placeholder">e.g. 1990-05-15</string>
+    <string name="profile_height_label">Height (cm, optional)</string>
+    <string name="profile_height_placeholder">e.g. 180</string>
+    <string name="profile_sex_label">Sex (optional)</string>
+    <string name="profile_sex_female">Female</string>
+    <string name="profile_sex_male">Male</string>
+    <string name="profile_update_button">Update Profile</string>
+    <string name="profile_summary_title">Active Profile Summary</string>
+    <string name="profile_summary_name">Name: %1$s</string>
+    <string name="profile_summary_dob">Date of Birth: %1$s</string>
+    <string name="profile_summary_height">Height: %1$s</string>
+    <string name="profile_height_value">%1$s cm</string>
+    <string name="profile_summary_sex">Sex: %1$s</string>
+    <string name="profile_language_label">Language</string>
+    <string name="profile_language_system">System default</string>
+    <string name="profile_language_english">English</string>
+    <string name="profile_language_dutch">Nederlands</string>
+
+    <!-- NHG BMI categories -->
+    <string name="nhg_bmi_underweight">Underweight</string>
+    <string name="nhg_bmi_normal">Normal</string>
+    <string name="nhg_bmi_overweight">Overweight</string>
+    <string name="nhg_bmi_obese">Obese</string>
+
+    <!-- NHG blood pressure categories -->
+    <string name="nhg_bp_optimal">Optimal</string>
+    <string name="nhg_bp_normal">Normal</string>
+    <string name="nhg_bp_high_normal">High Normal</string>
+    <string name="nhg_bp_grade1">Hypertension Grade 1</string>
+    <string name="nhg_bp_grade2">Hypertension Grade 2</string>
+    <string name="nhg_bp_grade3">Hypertension Grade 3</string>
+
+    <!-- NHG glucose categories -->
+    <string name="nhg_glucose_hypo">Hypoglycaemia</string>
+    <string name="nhg_glucose_normal">Normal</string>
+    <string name="nhg_glucose_impaired_fasting">Impaired Fasting Glucose</string>
+    <string name="nhg_glucose_impaired_tolerance">Impaired Glucose Tolerance</string>
+    <string name="nhg_glucose_diabetes_range">Diabetes Range</string>
+</resources>

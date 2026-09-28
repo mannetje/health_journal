@@ -8,7 +8,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import nl.healthjournal.app.R
+import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.app.ui.theme.infoContainerColor
 import nl.healthjournal.app.ui.theme.onInfoContainerColor
 
@@ -39,16 +42,16 @@ fun HistoryScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Health History",
+                text = stringResource(R.string.history_title),
                 style = MaterialTheme.typography.headlineSmall
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { showImportDialog = true }) {
-                    Text("Import")
+                    Text(stringResource(R.string.history_import_button))
                 }
                 Button(onClick = { showExportDialog = true }) {
-                    Text("Export")
+                    Text(stringResource(R.string.history_export_button))
                 }
             }
         }
@@ -81,22 +84,22 @@ fun HistoryScreen(
             FilterChip(
                 selected = state.selectedFilter == HistoryFilter.ALL,
                 onClick = { viewModel.setFilter(HistoryFilter.ALL) },
-                label = { Text("All") }
+                label = { Text(stringResource(R.string.history_filter_all)) }
             )
             FilterChip(
                 selected = state.selectedFilter == HistoryFilter.WEIGHT,
                 onClick = { viewModel.setFilter(HistoryFilter.WEIGHT) },
-                label = { Text("Weight") }
+                label = { Text(stringResource(R.string.history_filter_weight)) }
             )
             FilterChip(
                 selected = state.selectedFilter == HistoryFilter.BLOOD_PRESSURE,
                 onClick = { viewModel.setFilter(HistoryFilter.BLOOD_PRESSURE) },
-                label = { Text("BP") }
+                label = { Text(stringResource(R.string.history_filter_bp)) }
             )
             FilterChip(
                 selected = state.selectedFilter == HistoryFilter.GLUCOSE,
                 onClick = { viewModel.setFilter(HistoryFilter.GLUCOSE) },
-                label = { Text("Glucose") }
+                label = { Text(stringResource(R.string.history_filter_glucose)) }
             )
         }
 
@@ -111,9 +114,9 @@ fun HistoryScreen(
                     items(state.weights) { w ->
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Weight: ${w.weight.value} kg", style = MaterialTheme.typography.titleMedium)
-                                w.bmi?.let { Text("BMI: $it") }
-                                Text("Time: ${w.timestamp}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.history_weight_line, w.weight.value.toString()), style = MaterialTheme.typography.titleMedium)
+                                w.bmi?.let { Text(stringResource(R.string.history_bmi_line, it.toString())) }
+                                Text(stringResource(R.string.history_time_line, w.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -123,9 +126,9 @@ fun HistoryScreen(
                     items(state.bloodPressures) { bp ->
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text("BP: ${bp.reading.systolic}/${bp.reading.diastolic} mmHg", style = MaterialTheme.typography.titleMedium)
-                                Text("Category: ${bp.category.name.replace('_', ' ')}")
-                                Text("Time: ${bp.timestamp}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.history_bp_line, bp.reading.systolic.toString(), bp.reading.diastolic.toString()), style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.history_category_line, bp.category.label()))
+                                Text(stringResource(R.string.history_time_line, bp.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -135,9 +138,9 @@ fun HistoryScreen(
                     items(state.glucoses) { g ->
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Glucose: ${g.glucose.valueInMmolL} mmol/L (${g.context.name})", style = MaterialTheme.typography.titleMedium)
-                                Text("Category: ${g.category.name.replace('_', ' ')}")
-                                Text("Time: ${g.timestamp}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.history_glucose_line, g.glucose.valueInMmolL.toString(), g.context.label()), style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.history_category_line, g.category.label()))
+                                Text(stringResource(R.string.history_time_line, g.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -147,8 +150,8 @@ fun HistoryScreen(
                     items(state.activities) { a ->
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text("Activity: ${a.distanceInMeters} m (${a.durationInSeconds} s)", style = MaterialTheme.typography.titleMedium)
-                                Text("Start: ${a.startTime}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.history_activity_line, a.distanceInMeters.toString(), a.durationInSeconds.toString()), style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.history_start_line, a.startTime.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -161,28 +164,28 @@ fun HistoryScreen(
     if (showExportDialog) {
         AlertDialog(
             onDismissRequest = { showExportDialog = false },
-            title = { Text("Export CSV") },
+            title = { Text(stringResource(R.string.history_export_dialog_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = { viewModel.exportCsv("weight") }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Export Weight CSV")
+                        Text(stringResource(R.string.history_export_weight))
                     }
                     Button(onClick = { viewModel.exportCsv("blood_pressure") }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Export Blood Pressure CSV")
+                        Text(stringResource(R.string.history_export_bp))
                     }
                     Button(onClick = { viewModel.exportCsv("glucose") }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Export Glucose CSV")
+                        Text(stringResource(R.string.history_export_glucose))
                     }
                     state.exportedCsvContent?.let { content ->
                         HorizontalDivider()
-                        Text("Preview:", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(R.string.history_preview_label), style = MaterialTheme.typography.labelMedium)
                         Text(content, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             },
             confirmButton = {
                 TextButton(onClick = { showExportDialog = false }) {
-                    Text("Close")
+                    Text(stringResource(R.string.common_close))
                 }
             }
         )
@@ -192,7 +195,7 @@ fun HistoryScreen(
     if (showImportDialog) {
         AlertDialog(
             onDismissRequest = { showImportDialog = false },
-            title = { Text("Import CSV") },
+            title = { Text(stringResource(R.string.history_import_dialog_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(
@@ -202,33 +205,33 @@ fun HistoryScreen(
                         FilterChip(
                             selected = importMetricType == "weight",
                             onClick = { importMetricType = "weight" },
-                            label = { Text("Weight") }
+                            label = { Text(stringResource(R.string.history_import_type_weight)) }
                         )
                         FilterChip(
                             selected = importMetricType == "blood_pressure",
                             onClick = { importMetricType = "blood_pressure" },
-                            label = { Text("BP") }
+                            label = { Text(stringResource(R.string.history_import_type_bp)) }
                         )
                         FilterChip(
                             selected = importMetricType == "glucose",
                             onClick = { importMetricType = "glucose" },
-                            label = { Text("Glucose") }
+                            label = { Text(stringResource(R.string.history_import_type_glucose)) }
                         )
                         FilterChip(
                             selected = importMetricType == "libra",
                             onClick = { importMetricType = "libra" },
-                            label = { Text("Libra (CSV)") }
+                            label = { Text(stringResource(R.string.history_import_type_libra)) }
                         )
                     }
                     OutlinedTextField(
                         value = importCsvText,
                         onValueChange = { importCsvText = it },
-                        label = { Text("Paste CSV Content") },
+                        label = { Text(stringResource(R.string.history_paste_csv_label)) },
                         placeholder = {
                             if (importMetricType == "libra") {
-                                Text("#Version: 6\n#Units: kg\n#date;weight;...\n2026-09-20T08:00:00Z;74.5;...")
+                                Text(stringResource(R.string.history_libra_placeholder))
                             } else {
-                                Text("timestamp,weight_kg,bmi\n...")
+                                Text(stringResource(R.string.history_csv_placeholder))
                             }
                         },
                         modifier = Modifier
@@ -243,12 +246,12 @@ fun HistoryScreen(
                     showImportDialog = false
                     importCsvText = ""
                 }) {
-                    Text("Import")
+                    Text(stringResource(R.string.common_import))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showImportDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
