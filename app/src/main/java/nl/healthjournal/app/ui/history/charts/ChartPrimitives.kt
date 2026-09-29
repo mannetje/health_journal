@@ -17,6 +17,8 @@ import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.compose.cartesian.Zoom
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.lineModel
 import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
@@ -70,21 +72,30 @@ fun LineTrendChart(
         return
     }
 
-    // x-values are seconds relative to the earliest point, not raw epoch seconds: a Float's
-    // ~24-bit mantissa can't distinguish adjacent raw epoch-second values (~1.7e9), which would
-    // collide nearby timestamps onto the same x position.
+    // x-values are whole hours relative to the earliest point. Raw epoch seconds would give Vico
+    // a 1-second x step (it derives the step from the GCD of the deltas), which breaks zoom and
+    // axis label spacing; hours keep the step coarse while still separating same-day points.
     val referenceEpochSecond = remember(series) { allPoints.minOf { it.timestamp.epochSecond } }
+    // The aligned item placer counts in x-steps (the GCD of the x deltas), not in hours.
+    val labelSpacing = remember(series) {
+        val span = allPoints.maxOf { hoursSince(referenceEpochSecond, it.timestamp) }.toInt()
+        val step = series.flatMap { s ->
+            s.points.map { hoursSince(referenceEpochSecond, it.timestamp).toInt() }
+                .distinct().sorted().zipWithNext { a, b -> b - a }
+        }.fold(0) { acc, d -> gcd(acc, d) }.coerceAtLeast(1)
+        max(1, span / step / 4)
+    }
     val modelProducer = remember { CartesianChartModelProducer() }
 
     LaunchedEffect(series, referenceEpochSecond) {
         val xToInstant = allPoints.associate { point ->
-            (point.timestamp.epochSecond - referenceEpochSecond).toFloat() to point.timestamp
+            hoursSince(referenceEpochSecond, point.timestamp) to point.timestamp
         }
         modelProducer.runTransaction {
             lineModel {
                 series.forEach { s ->
                     series(
-                        x = s.points.map { (it.timestamp.epochSecond - referenceEpochSecond).toFloat() },
+                        x = s.points.map { hoursSince(referenceEpochSecond, it.timestamp) },
                         y = s.points.map { it.value }
                     )
                 }
@@ -96,7 +107,7 @@ fun LineTrendChart(
     val bottomAxisFormatter = remember(referenceEpochSecond) {
         CartesianValueFormatter { context, x, _ ->
             val instant = context.model.extraStore.getOrNull(xToInstantKey)?.get(x.toFloat())
-                ?: Instant.ofEpochSecond(referenceEpochSecond + x.toLong())
+                ?: Instant.ofEpochSecond(referenceEpochSecond + x.toLong() * SECONDS_PER_HOUR)
             axisLabelFormatter.format(instant)
         }
     }
@@ -113,18 +124,44 @@ fun LineTrendChart(
     ProvideVicoTheme(rememberM3VicoTheme()) {
         CartesianChartHost(
             chart = rememberCartesianChart(
-                rememberLineCartesianLayer(lineProvider = lineProvider),
-                startAxis = VerticalAxis.rememberStart(),
-                bottomAxis = HorizontalAxis.rememberBottom(valueFormatter = bottomAxisFormatter)
+                rememberLineCartesianLayer(lineProvider = lineProvider, rangeProvider = PaddedYRangeProvider),
+                startAxis = VerticalAxis.rememberStart(
+                    valueFormatter = CartesianValueFormatter.decimal(decimalCount = 1),
+                    itemPlacer = VerticalAxis.ItemPlacer.count(count = { 5 })
+                ),
+                bottomAxis = HorizontalAxis.rememberBottom(
+                    valueFormatter = bottomAxisFormatter,
+                    itemPlacer = remember(labelSpacing) {
+                        HorizontalAxis.ItemPlacer.aligned(spacing = { labelSpacing })
+                    }
+                )
             ),
             modelProducer = modelProducer,
             modifier = modifier
                 .fillMaxWidth()
                 .height(heightDp.dp),
             scrollState = rememberVicoScrollState(),
-            zoomState = rememberVicoZoomState()
+            zoomState = rememberVicoZoomState(initialZoom = Zoom.Content)
         )
     }
+}
+
+private tailrec fun gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
+
+private const val SECONDS_PER_HOUR = 3600L
+
+private fun hoursSince(referenceEpochSecond: Long, instant: Instant): Float =
+    ((instant.epochSecond - referenceEpochSecond) / SECONDS_PER_HOUR).toFloat()
+
+/** Fits the y-range to the data (10% padding) instead of Vico's default of always including 0. */
+private object PaddedYRangeProvider : CartesianLayerRangeProvider {
+    private fun padding(minY: Double, maxY: Double) = ((maxY - minY) * 0.1).takeIf { it > 0 } ?: 1.0
+
+    override fun getMinY(minY: Double, maxY: Double, extraStore: ExtraStore) =
+        minY - padding(minY, maxY)
+
+    override fun getMaxY(minY: Double, maxY: Double, extraStore: ExtraStore) =
+        maxY + padding(minY, maxY)
 }
 
 fun movingAverage(points: List<ChartPoint>, window: Int): List<ChartPoint> {

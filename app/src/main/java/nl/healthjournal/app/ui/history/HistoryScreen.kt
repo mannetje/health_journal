@@ -1,5 +1,8 @@
 package nl.healthjournal.app.ui.history
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
@@ -31,6 +35,16 @@ fun HistoryScreen(
     var showImportDialog by remember { mutableStateOf(false) }
     var importMetricType by remember { mutableStateOf("weight") }
     var importCsvText by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val pickFileError = stringResource(R.string.history_pick_file_error)
+    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            val text = runCatching {
+                context.contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }
+            }.getOrNull()
+            if (text != null) importCsvText = text else Toast.makeText(context, pickFileError, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadHistory()
@@ -108,24 +122,12 @@ fun HistoryScreen(
             )
         }
 
-        if (!state.isLoading && state.selectedFilter != HistoryFilter.ALL && state.selectedFilter != HistoryFilter.ACTIVITY) {
-            DateRangeSelector(
-                selected = state.selectedDateRange,
-                onSelect = { viewModel.setDateRange(it) }
-            )
-            when (state.selectedFilter) {
-                HistoryFilter.WEIGHT -> WeightTrendSection(
-                    entries = state.weights.filterByDateRange(state.selectedDateRange) { it.timestamp }
-                )
-                HistoryFilter.BLOOD_PRESSURE -> BloodPressureTrendSection(
-                    entries = state.bloodPressures.filterByDateRange(state.selectedDateRange) { it.timestamp }
-                )
-                HistoryFilter.GLUCOSE -> GlucoseTrendSection(
-                    entries = state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp }
-                )
-                else -> Unit
-            }
-        }
+        // Under a single-metric filter the entries follow the selected date range, like the chart;
+        // under "All" the full list is shown.
+        val ranged = state.selectedFilter != HistoryFilter.ALL
+        val weights = if (ranged) state.weights.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.weights
+        val bloodPressures = if (ranged) state.bloodPressures.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.bloodPressures
+        val glucoses = if (ranged) state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.glucoses
 
         if (state.isLoading) {
             CircularProgressIndicator(modifier = Modifier.padding(16.dp))
@@ -134,8 +136,26 @@ fun HistoryScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
+                // Trend chart scrolls together with the entries below it, so the entries stay reachable.
+                if (state.selectedFilter != HistoryFilter.ALL && state.selectedFilter != HistoryFilter.ACTIVITY) {
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            DateRangeSelector(
+                                selected = state.selectedDateRange,
+                                onSelect = { viewModel.setDateRange(it) }
+                            )
+                            when (state.selectedFilter) {
+                                HistoryFilter.WEIGHT -> WeightTrendSection(entries = weights)
+                                HistoryFilter.BLOOD_PRESSURE -> BloodPressureTrendSection(entries = bloodPressures)
+                                HistoryFilter.GLUCOSE -> GlucoseTrendSection(entries = glucoses)
+                                else -> Unit
+                            }
+                        }
+                    }
+                }
+
                 if (state.selectedFilter == HistoryFilter.ALL || state.selectedFilter == HistoryFilter.WEIGHT) {
-                    items(state.weights) { w ->
+                    items(weights) { w ->
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(stringResource(R.string.history_weight_line, w.weight.value.toString()), style = MaterialTheme.typography.titleMedium)
@@ -147,7 +167,7 @@ fun HistoryScreen(
                 }
 
                 if (state.selectedFilter == HistoryFilter.ALL || state.selectedFilter == HistoryFilter.BLOOD_PRESSURE) {
-                    items(state.bloodPressures) { bp ->
+                    items(bloodPressures) { bp ->
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(stringResource(R.string.history_bp_line, bp.reading.systolic.toString(), bp.reading.diastolic.toString()), style = MaterialTheme.typography.titleMedium)
@@ -159,7 +179,7 @@ fun HistoryScreen(
                 }
 
                 if (state.selectedFilter == HistoryFilter.ALL || state.selectedFilter == HistoryFilter.GLUCOSE) {
-                    items(state.glucoses) { g ->
+                    items(glucoses) { g ->
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(stringResource(R.string.history_glucose_line, g.glucose.valueInMmolL.toString(), g.context.label()), style = MaterialTheme.typography.titleMedium)
@@ -246,6 +266,9 @@ fun HistoryScreen(
                             onClick = { importMetricType = "libra" },
                             label = { Text(stringResource(R.string.history_import_type_libra)) }
                         )
+                    }
+                    OutlinedButton(onClick = { filePicker.launch(arrayOf("text/*", "application/octet-stream")) }) {
+                        Text(stringResource(R.string.history_pick_file_button))
                     }
                     OutlinedTextField(
                         value = importCsvText,

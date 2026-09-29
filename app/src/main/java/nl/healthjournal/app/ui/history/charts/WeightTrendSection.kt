@@ -1,6 +1,8 @@
 package nl.healthjournal.app.ui.history.charts
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -44,7 +46,10 @@ fun WeightTrendSection(entries: List<WeightEntry>, modifier: Modifier = Modifier
             emptyMessage = stringResource(R.string.trend_insufficient_data)
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             listOf(3, 5, 7, 10).forEach { size ->
                 FilterChip(
                     selected = windowSize == size,

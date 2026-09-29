@@ -76,6 +76,8 @@
     <string name="history_import_type_glucose">Glucose</string>
     <string name="history_import_type_libra">Libra (CSV)</string>
     <string name="history_paste_csv_label">Paste CSV Content</string>
+    <string name="history_pick_file_button">Choose file…</string>
+    <string name="history_pick_file_error">Could not read the selected file</string>
     <string name="history_libra_placeholder">#Version: 6\n#Units: kg\n#date;weight;...\n2026-09-20T08:00:00Z;74.5;...</string>
     <string name="history_csv_placeholder">timestamp,weight_kg,bmi\n...</string>
 

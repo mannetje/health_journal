@@ -44,3 +44,13 @@ When the user selects the **Weight**, **Blood Pressure**, or **Glucose** filter 
 - The glucose chart's line is now a single color instead of per-point NHG-category coloring: Vico's line-styling primitives (`PointProvider`, `LineFill.colorScale`) style points individually or by a continuous value-scale gradient, neither of which cleanly reproduces the previous per-segment coloring against the app's discrete NHG category thresholds. Out-of-range excursions remain visible via the Time-in-Range distribution bars and the color-coded "Latest" stat chip, so no clinical information is lost, but the line itself no longer visually flags individual excursions.
 - Scope remained intentionally limited to what the spec required (no HbA1c estimation, no goal-weight lines, no chart export, no tooltips).
 - The blood-pressure gauge bar's display range (80–200 mmHg systolic, 40–120 mmHg diastolic) is a presentation-only choice, not a domain constant — chosen because the existing `BloodPressureReading` min/max (40–300/20–200) represent physiologic extremes, not a useful visual scale.
+
+## Update (2026-09-29): rendering fixes and layout
+
+Verifying the charts on an emulator found several defects, fixed in `ChartPrimitives.kt` and `HistoryScreen.kt`:
+
+- **X-axis unit:** x-values are whole hours since the earliest point instead of seconds. Vico derives its x step from the GCD of the x deltas, so seconds gave a 1-second step, a tiny default zoom window and identical axis labels. The axis item placer's spacing is counted in that step, so label spacing is computed from the GCD of the hour deltas.
+- **Zoom:** the chart opens with `Zoom.Content`, showing the whole selected range.
+- **Y-range:** a custom `CartesianLayerRangeProvider` fits the y-axis to the data with 10% padding. Vico's default always includes 0, which flattened weight and BP lines. The y-axis shows about 5 labels with one decimal.
+- **Layout:** the date-range selector and trend section are now the first item of the History `LazyColumn`, so the chart scrolls together with the entries below it. Entries under a single-metric filter follow the selected date range; "All" still lists everything.
+- **Moving-average chips** in the weight card scroll horizontally so the 10-day chip is no longer squeezed.

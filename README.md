@@ -11,7 +11,7 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.4.0)](https://github.com/mannetje/health_journal/releases/latest)**
+👉 **[Download Latest APK (v1.4.2)](https://github.com/mannetje/health_journal/releases/latest)**
 
 ---
 
@@ -25,7 +25,7 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) with built-in converter support for **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges (Hypoglycaemia, Normal, Impaired, Diabetes Range).
 - **Activity Tracking:** Manually log workout and physical activity sessions from the Log screen (duration + distance), or bulk-import sessions; each session records start time, end time, and distance in metres.
 - **Profile Sex Field (optional):** Selectable male/female on the Profile screen. Purely demographic — has no effect on BMI, blood pressure, or glucose classification (Dutch NHG guidelines do not differentiate these by sex).
-- **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities.
+- **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities. Import accepts a file chosen with the system file picker or pasted CSV text.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
 - **Light & Dark Theme:** Automatically follows the device's system light/dark setting; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
 - **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen.
@@ -103,7 +103,7 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.4.0-debug.apk`.
+2. Download `health-journal-v1.4.2-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
