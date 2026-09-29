@@ -2,6 +2,7 @@ package nl.healthjournal.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,7 +70,12 @@ class MainActivity : ComponentActivity() {
                 baseContext.withAppLocale(currentLanguage)
             }
 
-            CompositionLocalProvider(LocalContext provides localizedContext) {
+            // The localized context is not an Activity, so activity-result launchers (the CSV file picker)
+            // can no longer find their registry through LocalContext; provide it explicitly.
+            CompositionLocalProvider(
+                LocalContext provides localizedContext,
+                LocalActivityResultRegistryOwner provides this@MainActivity
+            ) {
                 HealthJournalTheme {
                     var currentTab by remember { mutableStateOf(AppNavDestination.LOG) }
 

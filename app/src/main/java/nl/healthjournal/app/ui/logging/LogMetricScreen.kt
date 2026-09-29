@@ -85,26 +85,26 @@ fun LogMetricScreen(
         }
 
         // Metric Selector Tabs
-        TabRow(selectedTabIndex = state.selectedMetric.ordinal) {
+        PrimaryScrollableTabRow(selectedTabIndex = state.selectedMetric.ordinal, edgePadding = 0.dp) {
             Tab(
                 selected = state.selectedMetric == MetricType.WEIGHT,
                 onClick = { viewModel.selectMetric(MetricType.WEIGHT) },
-                text = { Text(stringResource(R.string.log_tab_weight)) }
+                text = { Text(stringResource(R.string.log_tab_weight), maxLines = 1, softWrap = false) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.BLOOD_PRESSURE,
                 onClick = { viewModel.selectMetric(MetricType.BLOOD_PRESSURE) },
-                text = { Text(stringResource(R.string.log_tab_blood_pressure)) }
+                text = { Text(stringResource(R.string.log_tab_blood_pressure), maxLines = 1, softWrap = false) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.GLUCOSE,
                 onClick = { viewModel.selectMetric(MetricType.GLUCOSE) },
-                text = { Text(stringResource(R.string.log_tab_glucose)) }
+                text = { Text(stringResource(R.string.log_tab_glucose), maxLines = 1, softWrap = false) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.ACTIVITY,
                 onClick = { viewModel.selectMetric(MetricType.ACTIVITY) },
-                text = { Text(stringResource(R.string.log_tab_activity)) }
+                text = { Text(stringResource(R.string.log_tab_activity), maxLines = 1, softWrap = false) }
             )
         }
 

@@ -97,7 +97,7 @@ fun HistoryScreen(
 
         // Filter chips
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             FilterChip(
@@ -119,6 +119,11 @@ fun HistoryScreen(
                 selected = state.selectedFilter == HistoryFilter.GLUCOSE,
                 onClick = { viewModel.setFilter(HistoryFilter.GLUCOSE) },
                 label = { Text(stringResource(R.string.history_filter_glucose)) }
+            )
+            FilterChip(
+                selected = state.selectedFilter == HistoryFilter.ACTIVITY,
+                onClick = { viewModel.setFilter(HistoryFilter.ACTIVITY) },
+                label = { Text(stringResource(R.string.history_filter_activity)) }
             )
         }
 
@@ -154,52 +159,62 @@ fun HistoryScreen(
                     }
                 }
 
-                if (state.selectedFilter == HistoryFilter.ALL || state.selectedFilter == HistoryFilter.WEIGHT) {
-                    items(weights) { w ->
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text(stringResource(R.string.history_weight_line, w.weight.value.toString()), style = MaterialTheme.typography.titleMedium)
-                                w.bmi?.let { Text(stringResource(R.string.history_bmi_line, it.toString())) }
-                                Text(stringResource(R.string.history_time_line, w.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
+                // One chronological list (newest first) so no metric hides below a long run of another.
+                val filter = state.selectedFilter
+                val rows = buildList<Pair<java.time.Instant, @Composable () -> Unit>> {
+                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.WEIGHT) {
+                        weights.forEach { w ->
+                            add(w.timestamp to {
+                                Card(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(stringResource(R.string.history_weight_line, w.weight.value.toString()), style = MaterialTheme.typography.titleMedium)
+                                        w.bmi?.let { Text(stringResource(R.string.history_bmi_line, it.toString())) }
+                                        Text(stringResource(R.string.history_time_line, w.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            })
                         }
                     }
-                }
-
-                if (state.selectedFilter == HistoryFilter.ALL || state.selectedFilter == HistoryFilter.BLOOD_PRESSURE) {
-                    items(bloodPressures) { bp ->
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text(stringResource(R.string.history_bp_line, bp.reading.systolic.toString(), bp.reading.diastolic.toString()), style = MaterialTheme.typography.titleMedium)
-                                Text(stringResource(R.string.history_category_line, bp.category.label()))
-                                Text(stringResource(R.string.history_time_line, bp.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
+                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.BLOOD_PRESSURE) {
+                        bloodPressures.forEach { bp ->
+                            add(bp.timestamp to {
+                                Card(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(stringResource(R.string.history_bp_line, bp.reading.systolic.toString(), bp.reading.diastolic.toString()), style = MaterialTheme.typography.titleMedium)
+                                        Text(stringResource(R.string.history_category_line, bp.category.label()))
+                                        Text(stringResource(R.string.history_time_line, bp.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            })
                         }
                     }
-                }
-
-                if (state.selectedFilter == HistoryFilter.ALL || state.selectedFilter == HistoryFilter.GLUCOSE) {
-                    items(glucoses) { g ->
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text(stringResource(R.string.history_glucose_line, g.glucose.valueInMmolL.toString(), g.context.label()), style = MaterialTheme.typography.titleMedium)
-                                Text(stringResource(R.string.history_category_line, g.category.label()))
-                                Text(stringResource(R.string.history_time_line, g.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
+                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.GLUCOSE) {
+                        glucoses.forEach { g ->
+                            add(g.timestamp to {
+                                Card(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(stringResource(R.string.history_glucose_line, g.glucose.valueInMmolL.toString(), g.context.label()), style = MaterialTheme.typography.titleMedium)
+                                        Text(stringResource(R.string.history_category_line, g.category.label()))
+                                        Text(stringResource(R.string.history_time_line, g.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            })
                         }
                     }
-                }
-
-                if (state.selectedFilter == HistoryFilter.ALL || state.selectedFilter == HistoryFilter.ACTIVITY) {
-                    items(state.activities) { a ->
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text(stringResource(R.string.history_activity_line, a.distanceInMeters.toString(), a.durationInSeconds.toString()), style = MaterialTheme.typography.titleMedium)
-                                Text(stringResource(R.string.history_start_line, a.startTime.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
+                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.ACTIVITY) {
+                        state.activities.forEach { a ->
+                            add(a.startTime to {
+                                Card(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(stringResource(R.string.history_activity_line, a.distanceInMeters.toString(), a.durationInSeconds.toString()), style = MaterialTheme.typography.titleMedium)
+                                        Text(stringResource(R.string.history_start_line, a.startTime.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            })
                         }
                     }
-                }
+                }.sortedByDescending { it.first }
+                items(rows) { row -> row.second() }
             }
         }
     }

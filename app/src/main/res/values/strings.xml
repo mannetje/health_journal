@@ -57,6 +57,7 @@
     <string name="history_filter_weight">Weight</string>
     <string name="history_filter_bp">BP</string>
     <string name="history_filter_glucose">Glucose</string>
+    <string name="history_filter_activity">Activity</string>
     <string name="history_weight_line">Weight: %1$s kg</string>
     <string name="history_bmi_line">BMI: %1$s</string>
     <string name="history_category_line">Category: %1$s</string>

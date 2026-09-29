@@ -27,4 +27,4 @@ All versions stay centralized in `gradle/libs.versions.toml` ([ADR 0003](0003-de
 
 ### Negative / Trade-offs
 - Kotlin, KSP and Room must now be upgraded together; a mismatch fails at build time.
-- The `TabRow` deprecation warning in `LogMetricScreen.kt` remains. Its replacement (`PrimaryTabRow`) needs a newer Compose BOM than the current one, so it is deferred until the BOM is upgraded.
+- The `TabRow`/`ScrollableTabRow` deprecation warning in `LogMetricScreen.kt` remains. Its replacement (`PrimaryTabRow`) needs a newer Compose BOM than the current one, so it is deferred until the BOM is upgraded.

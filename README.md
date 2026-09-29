@@ -40,6 +40,7 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Light & Dark Theme:** Automatically follows the device's system light/dark setting; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
 - **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen.
 - **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range), a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
+- **History Filters:** All, Weight, BP, Glucose, and Activity. "All" shows every entry type in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
 
 ## Technical Architecture
 
@@ -115,6 +116,8 @@ flowchart TD
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
+> **Updating:** builds signed from the next release onward share one fixed signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)) and install over the previous version. If your installed copy is v1.4.3 or older, Android will report a signature conflict once: export your data as CSV (History → Export), uninstall, install the new APK, then import the CSV again.
+
 ---
 
 ### Method 2: Sideload via ADB
@@ -182,6 +185,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0007: Build Toolchain Upgrade (Kotlin 2.3.0, KSP 2.3.0, Room 2.8.5)](docs/adr/0007-build-toolchain-upgrade.md)
 - [ADR 0005: Dutch NHG Clinical Guidelines](docs/adr/0005-dutch-nhg-guidelines.md)
 - [ADR 0006: Health Trend Visualizations](docs/adr/0006-health-trend-visualizations.md)
+- [ADR 0008: Fixed Debug Signing Key for Sideloaded APKs](docs/adr/0008-fixed-debug-signing-key.md)
 
 ---
 
