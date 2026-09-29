@@ -56,22 +56,26 @@ fun HistoryScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        Text(
+            text = stringResource(R.string.history_title),
+            style = MaterialTheme.typography.headlineSmall
+        )
+
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = stringResource(R.string.history_title),
-                style = MaterialTheme.typography.headlineSmall
-            )
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { showImportDialog = true }) {
-                    Text(stringResource(R.string.history_import_button))
-                }
-                Button(onClick = { showExportDialog = true }) {
-                    Text(stringResource(R.string.history_export_button))
-                }
+            OutlinedButton(
+                onClick = { showImportDialog = true },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.history_import_button), maxLines = 1)
+            }
+            Button(
+                onClick = { showExportDialog = true },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.history_export_button), maxLines = 1)
             }
         }
 

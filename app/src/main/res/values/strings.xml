@@ -101,7 +101,7 @@
     <string name="profile_height_value">%1$s cm</string>
     <string name="profile_summary_sex">Sex: %1$s</string>
     <string name="profile_language_label">Language</string>
-    <string name="profile_language_system">System default</string>
+    <string name="profile_language_system">System</string>
     <string name="profile_language_english">English</string>
     <string name="profile_language_dutch">Nederlands</string>
 

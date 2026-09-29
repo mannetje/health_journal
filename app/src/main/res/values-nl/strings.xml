@@ -12,14 +12,14 @@
 
     <!-- App navigation -->
     <string name="nav_title_log">Health Journal - Loggen</string>
-    <string name="nav_title_history">Health Journal - Geschiedenis</string>
+    <string name="nav_title_history">Health Journal - Historie</string>
     <string name="nav_title_profile">Health Journal - Profiel</string>
     <string name="nav_tab_log">Loggen</string>
-    <string name="nav_tab_history">Geschiedenis</string>
+    <string name="nav_tab_history">Historie</string>
     <string name="nav_tab_profile">Profiel</string>
 
     <!-- Log screen -->
-    <string name="log_title">Gezondheidswaarde Loggen</string>
+    <string name="log_title">Gezondheidswaarde loggen</string>
     <string name="log_no_profile">Geen profiel gevonden. Stel eerst je profiel in.</string>
     <string name="log_tab_weight">Gewicht</string>
     <string name="log_tab_blood_pressure">Bloeddruk</string>
@@ -50,7 +50,7 @@
     <string name="log_record_entry">Opslaan</string>
 
     <!-- History screen -->
-    <string name="history_title">Gezondheidsgeschiedenis</string>
+    <string name="history_title">Gezondheidshistorie</string>
     <string name="history_import_button">Importeren</string>
     <string name="history_export_button">Exporteren</string>
     <string name="history_filter_all">Alles</string>
@@ -101,7 +101,7 @@
     <string name="profile_height_value">%1$s cm</string>
     <string name="profile_summary_sex">Geslacht: %1$s</string>
     <string name="profile_language_label">Taal</string>
-    <string name="profile_language_system">Systeeminstelling</string>
+    <string name="profile_language_system">Systeem</string>
     <string name="profile_language_english">English</string>
     <string name="profile_language_dutch">Nederlands</string>
 

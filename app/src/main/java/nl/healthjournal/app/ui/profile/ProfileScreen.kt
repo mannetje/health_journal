@@ -120,7 +120,7 @@ fun ProfileScreen(
                         onClick = { sexInput = option },
                         shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)
                     ) {
-                        Text(labels[index])
+                        Text(labels[index], maxLines = 1, softWrap = false)
                     }
                 }
             }
@@ -141,7 +141,7 @@ fun ProfileScreen(
                         onClick = { onLanguageChange(option) },
                         shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)
                     ) {
-                        Text(labels[index])
+                        Text(labels[index], maxLines = 1, softWrap = false)
                     }
                 }
             }

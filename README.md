@@ -11,7 +11,7 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.4.3)](https://github.com/mannetje/health_journal/releases/latest)**
+👉 **[Download Latest APK (v1.4.4)](https://github.com/mannetje/health_journal/releases/latest)**
 
 ---
 
@@ -38,9 +38,9 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities. Import accepts a file chosen with the system file picker or pasted CSV text.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
 - **Light & Dark Theme:** Automatically follows the device's system light/dark setting; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
-- **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen.
+- **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen. Layouts are checked in Dutch so labels stay on one line ([ADR 0010](docs/adr/0010-responsive-dutch-ui-layout.md)).
 - **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range), a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
-- **History Filters:** All, Weight, BP, Glucose, and Activity. "All" shows every entry type in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
+- **History Filters:** All, Weight, BP, Glucose, and Activity. "All" shows weight, blood pressure, glucose, and activity entries interleaved in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
 
 ## Technical Architecture
 
@@ -59,7 +59,7 @@ flowchart TD
     subgraph Presentation["Presentation Adapter (:app)"]
         UI["Jetpack Compose UI (Screens & Theme)"]
         VM["AndroidX ViewModel & UI State"]
-        LANG["LanguagePreference (SharedPreferences) & Locale Override"]
+        LANG["LanguagePreference (SharedPreferences), Locale Override & Activity result registry (ADR 0009)"]
         UI --> VM
         UI --> LANG
     end
@@ -112,11 +112,11 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.4.3-debug.apk`.
+2. Download `health-journal-v1.4.4-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
-> **Updating:** builds signed from the next release onward share one fixed signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)) and install over the previous version. If your installed copy is v1.4.3 or older, Android will report a signature conflict once: export your data as CSV (History → Export), uninstall, install the new APK, then import the CSV again.
+> **Updating:** builds from v1.4.4 onward share one fixed signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)) and install over the previous version. If your installed copy is v1.4.3 or older, Android will report a signature conflict once: export your data as CSV (History → Export), uninstall, install the new APK, then import the CSV again.
 
 ---
 
@@ -130,6 +130,23 @@ If you build locally or have the Android SDK:
 
 # Install to connected device or emulator
 adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+### Release & Signing Flow
+
+Pushing a `vX.Y.Z` tag builds and publishes the APK. Every build, local or CI, is signed with the committed debug key so that updates install in place ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
+
+```mermaid
+flowchart LR
+    Dev["Bump versionCode / versionName<br/>+ update docs"] --> Commit["git commit + push master"]
+    Commit --> Tag["git tag vX.Y.Z + push tag"]
+    Tag --> CI["GitHub Actions:<br/>tests + assembleDebug"]
+    KS[("app/debug.keystore<br/>fixed debug key")] --> CI
+    KS --> Local["Local ./gradlew installDebug"]
+    CI --> APK["health-journal-vX.Y.Z-debug.apk"]
+    APK --> Rel["GitHub Release"]
+    Rel --> Phone["Sideload on phone<br/>(same signature = in-place update)"]
+    Local --> Phone
 ```
 
 ---
@@ -182,10 +199,12 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0002: Hexagonal Architecture (Ports and Adapters)](docs/adr/0002-hexagonal-architecture.md)
 - [ADR 0003: Dependency Minimization Policy](docs/adr/0003-dependency-minimization.md)
 - [ADR 0004: Room SQLite for Offline-First Persistence](docs/adr/0004-room-for-offline-first-persistence.md)
-- [ADR 0007: Build Toolchain Upgrade (Kotlin 2.3.0, KSP 2.3.0, Room 2.8.5)](docs/adr/0007-build-toolchain-upgrade.md)
 - [ADR 0005: Dutch NHG Clinical Guidelines](docs/adr/0005-dutch-nhg-guidelines.md)
 - [ADR 0006: Health Trend Visualizations](docs/adr/0006-health-trend-visualizations.md)
+- [ADR 0007: Build Toolchain Upgrade (Kotlin 2.3.0, KSP 2.3.0, Room 2.8.5)](docs/adr/0007-build-toolchain-upgrade.md)
 - [ADR 0008: Fixed Debug Signing Key for Sideloaded APKs](docs/adr/0008-fixed-debug-signing-key.md)
+- [ADR 0009: Localized Context and the Activity Result Registry](docs/adr/0009-localized-context-activity-result-registry.md)
+- [ADR 0010: Responsive Layout and Dutch UI Wording](docs/adr/0010-responsive-dutch-ui-layout.md)
 
 ---
 

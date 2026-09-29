@@ -54,3 +54,7 @@ Verifying the charts on an emulator found several defects, fixed in `ChartPrimit
 - **Y-range:** a custom `CartesianLayerRangeProvider` fits the y-axis to the data with 10% padding. Vico's default always includes 0, which flattened weight and BP lines. The y-axis shows about 5 labels with one decimal.
 - **Layout:** the date-range selector and trend section are now the first item of the History `LazyColumn`, so the chart scrolls together with the entries below it. Entries under a single-metric filter follow the selected date range; "All" still lists everything.
 - **Moving-average chips** in the weight card scroll horizontally so the 10-day chip is no longer squeezed.
+
+## Update (2026-09-29): "All" and Activity filters
+
+The History **All** filter now merges weight, blood pressure, glucose and activity entries into one chronological list, and an **Activity** chip shows activity sessions alone. The trend chart and date-range selector still appear only for the single-metric Weight, Blood Pressure and Glucose filters. See [ADR 0010](0010-responsive-dutch-ui-layout.md) for the data flow. The History title and the Import/Export buttons were also re-laid-out so they stay aligned in Dutch.
