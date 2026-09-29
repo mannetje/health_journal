@@ -25,3 +25,7 @@ We use **Jetpack Room** on top of SQLite in the `:data` infrastructure module:
 
 ### Negative / Trade-offs
 - Requires boilerplate mapping between database entities and domain entities.
+
+## Update (2026-09-29)
+
+Room was upgraded from 2.6.1 to 2.8.5 so its annotation processor works with KSP2 (Kotlin/KSP 2.3.0). No entity, DAO or schema changes were needed. See [ADR 0007](0007-build-toolchain-upgrade.md).

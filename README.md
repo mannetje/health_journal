@@ -127,7 +127,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 | Category | Technology | Rationale / Constraints |
 |---|---|---|
-| **Language** | Kotlin 2.x | Modern, concise, expressive, type-safe language. |
+| **Language** | Kotlin 2.3 (KSP 2.3, Room 2.8) | Modern, concise, expressive, type-safe language. |
 | **Domain Layer** | Pure Kotlin (JVM) | Completely isolated from Android SDK and UI frameworks. |
 | **Presentation** | Jetpack Compose (BOM) | Declarative UI framework with reactive state management. |
 | **Architecture** | AndroidX ViewModel & Flow | Reactive state holding aligned with lifecycle management. |
@@ -171,6 +171,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0002: Hexagonal Architecture (Ports and Adapters)](docs/adr/0002-hexagonal-architecture.md)
 - [ADR 0003: Dependency Minimization Policy](docs/adr/0003-dependency-minimization.md)
 - [ADR 0004: Room SQLite for Offline-First Persistence](docs/adr/0004-room-for-offline-first-persistence.md)
+- [ADR 0007: Build Toolchain Upgrade (Kotlin 2.3.0, KSP 2.3.0, Room 2.8.5)](docs/adr/0007-build-toolchain-upgrade.md)
 - [ADR 0005: Dutch NHG Clinical Guidelines](docs/adr/0005-dutch-nhg-guidelines.md)
 - [ADR 0006: Health Trend Visualizations](docs/adr/0006-health-trend-visualizations.md)
 

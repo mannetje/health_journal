@@ -19,7 +19,7 @@ fun GlucoseTrendSection(entries: List<GlucoseEntry>, modifier: Modifier = Modifi
 
     TrendCard(title = stringResource(R.string.trend_glucose_title), modifier = modifier) {
         val points = sorted.map {
-            ChartPoint(it.timestamp, it.glucose.valueInMmolL.toFloat(), getGlucoseColor(it.category))
+            ChartPoint(it.timestamp, it.glucose.valueInMmolL.toFloat())
         }
 
         LineTrendChart(

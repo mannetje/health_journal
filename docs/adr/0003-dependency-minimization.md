@@ -25,3 +25,11 @@ We enforce a strict **Dependency Minimization Policy**:
 
 ### Negative / Trade-offs
 - Certain utility features (e.g., lightweight CSV parsing/generation) are implemented directly rather than importing large third-party libraries.
+
+## Approved Exceptions
+
+### Vico (charting)
+- **Date:** 2026-09-29
+- **Library:** [`com.patrykandpatrick.vico`](https://github.com/patrykandpatrick/vico) (`compose` + `compose-m3` artifacts), version 3.2.3. (Not 3.3.x: Vico's own AAR metadata requires `compileSdk 37` from 3.3.0 onward — a much larger jump than this project's dependency-minimization spirit calls for. 3.2.3 is the newest release that only requires `compileSdk 36`, which this project adopted alongside this dependency; Vico's 3.3.0 release notes confirm "breaking changes: none" versus 3.2.3, so no application code differs by version.)
+- **Why it clears the bar in Decision #2:** [ADR 0006 (Health Trend Visualizations)](0006-health-trend-visualizations.md) originally hand-rolled Weight/BP/Glucose trend charts with Compose `Canvas` plus a custom `detectTransformGestures` pan/zoom handler specifically to avoid a third-party dependency. In practice that meant maintaining bespoke pixel math, gesture math, and axis-label layout — exactly the kind of "more code to maintain than a library" trade-off this ADR's own "Negative" section warned about elsewhere. Vico was evaluated against MPAndroidChart (View-based, maintenance-mode) and YCharts/Compose Charts (smaller communities, less mature scroll/zoom support) and chosen because it is: Compose-native (no View interop bridge), MIT-licensed, actively maintained, ships a `compose-m3` theme integration that reads directly from `MaterialTheme.colorScheme`, and provides pinch-zoom/pan natively so the app's own gesture code could be deleted.
+- **What it replaced:** the `Canvas`-based `LineTrendChart` in `ChartPrimitives.kt` and its hand-rolled axis/gridline/gesture code (see ADR 0006 for the technical detail).
