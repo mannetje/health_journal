@@ -19,7 +19,7 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.4.5)](https://github.com/mannetje/health_journal/releases/latest)**
+👉 **[Download Latest APK (v1.4.6)](https://github.com/mannetje/health_journal/releases/latest)**
 
 ---
 
@@ -140,7 +140,7 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.4.5-debug.apk`.
+2. Download `health-journal-v1.4.6-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
