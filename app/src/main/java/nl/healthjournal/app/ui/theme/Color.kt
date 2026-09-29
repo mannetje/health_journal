@@ -23,6 +23,9 @@ val OnSecondaryDark = Color(0xFF00332D)
 val TextPrimaryDark = Color(0xFFECECEC)
 val TextSecondaryDark = Color(0xFFB0B0B0)
 
+// Brand navy: the launcher-icon tile and the top app bar, so the logo always sits on the colour it was designed for
+val BrandNavy = Color(0xFF0B1D3A)
+
 // NHG Category Status Colors (light) — hue is the category's identity, kept identical across themes
 val NhgOptimalGreen = Color(0xFF2E7D32)
 val NhgNormalGreen = Color(0xFF43A047)

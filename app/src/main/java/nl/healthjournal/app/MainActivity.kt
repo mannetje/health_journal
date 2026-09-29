@@ -5,13 +5,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.settings.LanguagePreference
 import nl.healthjournal.app.settings.withAppLocale
 import nl.healthjournal.app.ui.history.HistoryScreen
@@ -20,6 +25,7 @@ import nl.healthjournal.app.ui.logging.LogMetricScreen
 import nl.healthjournal.app.ui.logging.LoggingViewModel
 import nl.healthjournal.app.ui.profile.ProfileScreen
 import nl.healthjournal.app.ui.profile.ProfileViewModel
+import nl.healthjournal.app.ui.theme.BrandNavy
 import nl.healthjournal.app.ui.theme.HealthJournalTheme
 
 enum class AppNavDestination {
@@ -91,9 +97,18 @@ class MainActivity : ComponentActivity() {
                                         }
                                     )
                                 },
+                                actions = {
+                                    Image(
+                                        painter = painterResource(R.drawable.logo_health_journal_on_navy),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .padding(end = 16.dp)
+                                            .height(40.dp)
+                                    )
+                                },
                                 colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                                    containerColor = BrandNavy,
+                                    titleContentColor = Color.White
                                 )
                             )
                         },

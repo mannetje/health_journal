@@ -1,7 +1,15 @@
+<div align="center">
+
+<img src="design/app-icon/health-journal-512.png" width="160" alt="Health Journal logo">
+
 # Health Journal
+
+**An offline-first, privacy-focused Android health journal.**
 
 [![Android CI](https://github.com/mannetje/health_journal/actions/workflows/android.yml/badge.svg)](https://github.com/mannetje/health_journal/actions/workflows/android.yml)
 [![Latest Release](https://img.shields.io/github/v/release/mannetje/health_journal?include_prereleases&color=blue&label=APK%20Release)](https://github.com/mannetje/health_journal/releases/latest)
+
+</div>
 
 An offline-first, privacy-focused Android health logging application built with Kotlin, Jetpack Compose, and Hexagonal Architecture (Ports and Adapters).
 
@@ -17,11 +25,31 @@ You can download the ready-to-install Android APK directly from GitHub:
 
 ## Screenshots
 
+**Light theme**
+
+| Log | History | Profile |
+|---|---|---|
+| <img src="docs/screenshots/light-log.png" width="250" alt="Log screen, light theme"> | <img src="docs/screenshots/light-history.png" width="250" alt="History list with all entries, light theme"> | <img src="docs/screenshots/light-profile.png" width="250" alt="Profile screen, light theme"> |
+
 | Weight trend | Blood pressure trend | Glucose trend |
 |---|---|---|
-| <img src="docs/screenshots/history-weight.png" width="250" alt="Weight trend chart with moving average"> | <img src="docs/screenshots/history-blood-pressure.png" width="250" alt="Blood pressure trend chart with systolic and diastolic lines"> | <img src="docs/screenshots/history-glucose.png" width="250" alt="Glucose trend chart with time-in-range bars"> |
+| <img src="docs/screenshots/light-weight.png" width="250" alt="Weight trend chart with moving average, light theme"> | <img src="docs/screenshots/light-blood-pressure.png" width="250" alt="Blood pressure trend chart, light theme"> | <img src="docs/screenshots/light-glucose.png" width="250" alt="Glucose trend chart with time-in-range bars, light theme"> |
 
-> The screenshots use synthetic sample data.
+**Dark theme**
+
+| Log | History | Profile |
+|---|---|---|
+| <img src="docs/screenshots/dark-log.png" width="250" alt="Log screen, dark theme"> | <img src="docs/screenshots/dark-history.png" width="250" alt="History list with all entries, dark theme"> | <img src="docs/screenshots/dark-profile.png" width="250" alt="Profile screen, dark theme"> |
+
+| Weight trend | Blood pressure trend | Glucose trend |
+|---|---|---|
+| <img src="docs/screenshots/dark-weight.png" width="250" alt="Weight trend chart with moving average, dark theme"> | <img src="docs/screenshots/dark-blood-pressure.png" width="250" alt="Blood pressure trend chart, dark theme"> | <img src="docs/screenshots/dark-glucose.png" width="250" alt="Glucose trend chart with time-in-range bars, dark theme"> |
+
+> The screenshots use synthetic sample data. The top bar uses the brand navy with the Health Journal logo in both themes ([ADR 0011](docs/adr/0011-app-icon-and-adaptive-layers.md)).
+
+**App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](docs/adr/0011-app-icon-and-adaptive-layers.md)):
+
+<img src="docs/screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">
 
 ---
 
@@ -37,7 +65,7 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Profile Sex Field (optional):** Selectable male/female on the Profile screen. Purely demographic — has no effect on BMI, blood pressure, or glucose classification (Dutch NHG guidelines do not differentiate these by sex).
 - **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities. Import accepts a file chosen with the system file picker or pasted CSV text.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
-- **Light & Dark Theme:** Automatically follows the device's system light/dark setting; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
+- **Light & Dark Theme:** Automatically follows the device's system light/dark setting, with a brand-navy top bar and logo in both themes; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
 - **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen. Layouts are checked in Dutch so labels stay on one line ([ADR 0010](docs/adr/0010-responsive-dutch-ui-layout.md)).
 - **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range), a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
 - **History Filters:** All, Weight, BP, Glucose, and Activity. "All" shows weight, blood pressure, glucose, and activity entries interleaved in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
@@ -57,7 +85,7 @@ The application enforces **Hexagonal Architecture** (Ports and Adapters) paired 
 ```mermaid
 flowchart TD
     subgraph Presentation["Presentation Adapter (:app)"]
-        UI["Jetpack Compose UI (Screens & Theme)"]
+        UI["Jetpack Compose UI (Screens, Theme & branded top bar)"]
         VM["AndroidX ViewModel & UI State"]
         LANG["LanguagePreference (SharedPreferences), Locale Override & Activity result registry (ADR 0009)"]
         UI --> VM
@@ -205,6 +233,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0008: Fixed Debug Signing Key for Sideloaded APKs](docs/adr/0008-fixed-debug-signing-key.md)
 - [ADR 0009: Localized Context and the Activity Result Registry](docs/adr/0009-localized-context-activity-result-registry.md)
 - [ADR 0010: Responsive Layout and Dutch UI Wording](docs/adr/0010-responsive-dutch-ui-layout.md)
+- [ADR 0011: App Icon, Dark-Tile Adaptive Icon and Branded Top Bar](docs/adr/0011-app-icon-and-adaptive-layers.md)
 
 ---
 
