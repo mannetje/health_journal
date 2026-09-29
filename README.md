@@ -15,6 +15,16 @@ You can download the ready-to-install Android APK directly from GitHub:
 
 ---
 
+## Screenshots
+
+| Weight trend | Blood pressure trend | Glucose trend |
+|---|---|---|
+| <img src="docs/screenshots/history-weight.png" width="250" alt="Weight trend chart with moving average"> | <img src="docs/screenshots/history-blood-pressure.png" width="250" alt="Blood pressure trend chart with systolic and diastolic lines"> | <img src="docs/screenshots/history-glucose.png" width="250" alt="Glucose trend chart with time-in-range bars"> |
+
+> The screenshots use synthetic sample data.
+
+---
+
 ## Overview & Vision
 
 **Health Journal** empowers individuals to track and understand their vital health metrics locally on their device, with zero reliance on cloud services or external servers. All evaluation logic adheres strictly to clinical standards, defaulting to the official guidelines of the **Dutch College of General Practitioners** (*Nederlands Huisartsen Genootschap* / NHG).
@@ -30,8 +40,6 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Light & Dark Theme:** Automatically follows the device's system light/dark setting; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
 - **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen.
 - **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range), a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
-
----
 
 ## Technical Architecture
 
