@@ -16,7 +16,22 @@ import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.ImportResult
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.model.common.MeasurementId
+import nl.healthjournal.domain.model.metrics.GlucoseContext
+import nl.healthjournal.domain.usecase.DeleteActivityUseCase
+import nl.healthjournal.domain.usecase.DeleteBloodPressureUseCase
+import nl.healthjournal.domain.usecase.DeleteGlucoseUseCase
+import nl.healthjournal.domain.usecase.DeleteWeightUseCase
 import nl.healthjournal.domain.usecase.GetHealthHistoryUseCase
+import nl.healthjournal.domain.usecase.UpdateActivityUseCase
+import nl.healthjournal.domain.usecase.UpdateBloodPressureUseCase
+import nl.healthjournal.domain.usecase.UpdateGlucoseUseCase
+import nl.healthjournal.domain.usecase.UpdateWeightUseCase
+import java.math.BigDecimal
+import java.time.Instant
+import nl.healthjournal.app.R
+import nl.healthjournal.app.ui.common.UiText
+import nl.healthjournal.app.ui.common.toUiText
 import nl.healthjournal.app.ui.history.charts.TrendDateRange
 
 enum class HistoryFilter {
@@ -25,6 +40,27 @@ enum class HistoryFilter {
     BLOOD_PRESSURE,
     GLUCOSE,
     ACTIVITY
+}
+
+/** The update and delete use cases the History screen needs, bundled to keep the constructor small. */
+data class EntryUseCases(
+    val updateWeight: UpdateWeightUseCase,
+    val updateBloodPressure: UpdateBloodPressureUseCase,
+    val updateGlucose: UpdateGlucoseUseCase,
+    val updateActivity: UpdateActivityUseCase,
+    val deleteWeight: DeleteWeightUseCase,
+    val deleteBloodPressure: DeleteBloodPressureUseCase,
+    val deleteGlucose: DeleteGlucoseUseCase,
+    val deleteActivity: DeleteActivityUseCase
+)
+
+/** A reference to one History entry, used to track which entry is being edited or deleted. */
+sealed interface EntryRef {
+    val id: MeasurementId
+    data class Weight(val entry: WeightEntry) : EntryRef { override val id get() = entry.id }
+    data class BloodPressure(val entry: BloodPressureEntry) : EntryRef { override val id get() = entry.id }
+    data class Glucose(val entry: GlucoseEntry) : EntryRef { override val id get() = entry.id }
+    data class Activity(val session: ActivitySession) : EntryRef { override val id get() = session.id }
 }
 
 data class HistoryUiState(
@@ -38,15 +74,19 @@ data class HistoryUiState(
     val isLoading: Boolean = false,
     val exportedCsvContent: String? = null,
     val importResult: ImportResult? = null,
-    val errorMessage: String? = null,
-    val infoMessage: String? = null
+    val errorMessage: UiText? = null,
+    val infoMessage: UiText? = null,
+    val editing: EntryRef? = null,
+    val editError: UiText? = null,
+    val pendingDelete: EntryRef? = null
 )
 
 class HistoryViewModel(
     private val profileRepository: ProfileRepositoryPort,
     private val getHealthHistoryUseCase: GetHealthHistoryUseCase,
     private val dataExportPort: DataExportPort,
-    private val dataImportPort: DataImportPort
+    private val dataImportPort: DataImportPort,
+    private val entryUseCases: EntryUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryUiState(isLoading = true))
@@ -89,7 +129,7 @@ class HistoryViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = e.message ?: "Failed to load history"
+                    errorMessage = e.toUiText(R.string.history_err_load_failed)
                 )
             }
         }
@@ -108,10 +148,10 @@ class HistoryViewModel(
                 }
                 _uiState.value = _uiState.value.copy(
                     exportedCsvContent = csv,
-                    infoMessage = "CSV Export generated ($metric)!"
+                    infoMessage = UiText.Res(R.string.history_msg_export_done, metric)
                 )
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(errorMessage = "Export failed: ${e.message}")
+                _uiState.value = _uiState.value.copy(errorMessage = UiText.Res(R.string.history_err_export, e.message.orEmpty()))
             }
         }
     }
@@ -123,17 +163,89 @@ class HistoryViewModel(
                 val result = dataImportPort.importCsv(profile.id, metricType, csvContent)
                 _uiState.value = _uiState.value.copy(
                     importResult = result,
-                    infoMessage = "Imported ${result.importedCount} rows (${result.skippedRows.size} skipped)"
+                    infoMessage = UiText.Res(R.string.history_msg_import_done, result.importedCount, result.skippedRows.size)
                 )
                 loadHistory()
             } catch (e: Exception) {
                 val errorMessage = if (metricType.lowercase() == "libra") {
-                    "Libra import failed: ${e.message ?: "Unknown error"}. " +
-                        "Ensure the file starts with #Version:, #Units:, and a #date;weight;... header."
+                    UiText.Res(R.string.history_err_import_libra, e.toUiText(R.string.history_err_unknown))
                 } else {
-                    "Import failed: ${e.message}"
+                    UiText.Res(R.string.history_err_import, e.message.orEmpty())
                 }
                 _uiState.value = _uiState.value.copy(errorMessage = errorMessage)
+            }
+        }
+    }
+
+    fun startEdit(entry: EntryRef) {
+        _uiState.value = _uiState.value.copy(editing = entry, editError = null)
+    }
+
+    fun cancelEdit() {
+        _uiState.value = _uiState.value.copy(editing = null, editError = null)
+    }
+
+    fun requestDelete(entry: EntryRef) {
+        _uiState.value = _uiState.value.copy(pendingDelete = entry)
+    }
+
+    fun cancelDelete() {
+        _uiState.value = _uiState.value.copy(pendingDelete = null)
+    }
+
+    fun confirmDelete() {
+        val target = _uiState.value.pendingDelete ?: return
+        viewModelScope.launch {
+            try {
+                val deleted = when (target) {
+                    is EntryRef.Weight -> entryUseCases.deleteWeight(target.id)
+                    is EntryRef.BloodPressure -> entryUseCases.deleteBloodPressure(target.id)
+                    is EntryRef.Glucose -> entryUseCases.deleteGlucose(target.id)
+                    is EntryRef.Activity -> entryUseCases.deleteActivity(target.id)
+                }
+                _uiState.value = _uiState.value.copy(
+                    pendingDelete = null,
+                    errorMessage = if (deleted) null else UiText.Res(R.string.history_err_not_found)
+                )
+                loadHistory()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(pendingDelete = null, errorMessage = UiText.Res(R.string.history_err_delete, e.message.orEmpty()))
+            }
+        }
+    }
+
+    fun updateWeight(entry: WeightEntry, weightKg: BigDecimal, timestamp: Instant) =
+        runUpdate { entryUseCases.updateWeight(entry.id, entry.profileId, weightKg, timestamp) }
+
+    fun updateBloodPressure(entry: BloodPressureEntry, systolic: Int, diastolic: Int, timestamp: Instant) =
+        runUpdate { entryUseCases.updateBloodPressure(entry.id, entry.profileId, systolic, diastolic, timestamp) }
+
+    fun updateGlucose(entry: GlucoseEntry, context: GlucoseContext, valueInMmolL: BigDecimal, timestamp: Instant) =
+        runUpdate { entryUseCases.updateGlucose(entry.id, entry.profileId, context, valueInMmolL, timestamp) }
+
+    fun updateActivity(session: ActivitySession, durationSeconds: Long, distanceInMeters: Double) =
+        runUpdate {
+            entryUseCases.updateActivity(
+                session.id,
+                session.profileId,
+                session.startTime,
+                session.startTime.plusSeconds(durationSeconds),
+                distanceInMeters
+            )
+        }
+
+    /** Runs an update; on success closes the edit dialog and reloads so list and charts refresh. */
+    private fun runUpdate(block: suspend () -> Any?) {
+        viewModelScope.launch {
+            try {
+                if (block() == null) {
+                    _uiState.value = _uiState.value.copy(editError = UiText.Res(R.string.history_err_not_found))
+                    return@launch
+                }
+                _uiState.value = _uiState.value.copy(editing = null, editError = null)
+                loadHistory()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(editError = e.toUiText(R.string.history_err_update_failed))
             }
         }
     }
@@ -151,7 +263,8 @@ class HistoryViewModel(
         private val profileRepository: ProfileRepositoryPort,
         private val getHealthHistoryUseCase: GetHealthHistoryUseCase,
         private val dataExportPort: DataExportPort,
-        private val dataImportPort: DataImportPort
+        private val dataImportPort: DataImportPort,
+        private val entryUseCases: EntryUseCases
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -159,7 +272,8 @@ class HistoryViewModel(
                 profileRepository,
                 getHealthHistoryUseCase,
                 dataExportPort,
-                dataImportPort
+                dataImportPort,
+                entryUseCases
             ) as T
         }
     }

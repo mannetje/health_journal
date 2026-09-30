@@ -1,66 +1,60 @@
 # glucose Specification
 
 ## Purpose
-Records blood glucose measurements for a Profile. The primary unit is mmol/L (as required by Dutch NHG guidelines). Supports optional conversion from mg/dL. Classifies readings as fasting or postprandial and evaluates them against NHG reference ranges.
+Defines blood glucose logging, unit conversion and the NHG classification. The canonical (stored) unit is mmol/L; users may enter and view mg/dL (see units-presentation).
 
 ## Requirements
 
-### Requirement: Record glucose measurement
-The system SHALL allow recording a blood glucose measurement expressed in mmol/L, associated with a Profile, a context (fasting or postprandial), and a timestamp.
+### Requirement: Canonical value and range
+A glucose level SHALL be stored in mmol/L, rounded to 2 decimals (half up), and SHALL be within the inclusive range 0.5 to 55.0. Values outside are rejected.
 
-#### Scenario: Valid fasting measurement recorded
-- **WHEN** a client provides a glucose value in mmol/L between 0.5 and 55.0, context FASTING, and a timestamp
-- **THEN** the system SHALL persist the measurement and return its identifier
+#### Scenario: Boundaries
+- **WHEN** a level is 0.49 or 55.01 mmol/L
+- **THEN** it is rejected
+- **WHEN** a level is 0.5 or 55.0 mmol/L
+- **THEN** it is accepted
 
-#### Scenario: Valid postprandial measurement recorded
-- **WHEN** a client provides a glucose value in mmol/L between 0.5 and 55.0, context POSTPRANDIAL, and a timestamp
-- **THEN** the system SHALL persist the measurement and return its identifier
+### Requirement: mg/dL conversion
+mg/dL input SHALL be converted with mmol/L = mg/dL x 0.0555, rounded to 2 decimals (half up). Display conversion from mmol/L to mg/dL SHALL divide by 0.0555. Recording requires either an mmol/L or an mg/dL value; updating an entry takes mmol/L.
 
-#### Scenario: Value out of range rejected
-- **WHEN** a client provides a glucose value outside 0.5–55.0 mmol/L
-- **THEN** the system SHALL reject the measurement with a validation error
+#### Scenario: Conversion on record
+- **WHEN** 100 mg/dL is recorded
+- **THEN** 5.55 mmol/L is stored
 
-### Requirement: Convert mg/dL input to mmol/L
-The system SHALL accept an input in mg/dL and store the value converted to mmol/L using the factor 1 mg/dL = 0.0555 mmol/L, rounded to two decimal places.
+#### Scenario: Neither value supplied
+- **WHEN** a record is attempted without any value
+- **THEN** it is rejected
 
-#### Scenario: mg/dL converted and stored as mmol/L
-- **WHEN** a client provides a glucose value in mg/dL
-- **THEN** the system SHALL convert it to mmol/L before persistence and expose only mmol/L externally
+### Requirement: Measurement context
+Each entry SHALL have a context: FASTING or POSTPRANDIAL. Labels are localized (see localization). The context is stored as its enum name.
 
-### Requirement: Classify glucose against NHG thresholds
-The system SHALL classify a glucose reading against NHG reference ranges based on its measurement context.
+#### Scenario: Context stored
+- **WHEN** a postprandial reading is saved
+- **THEN** the context POSTPRANDIAL is stored
 
-#### Scenario: Fasting glucose classified as normal
-- **WHEN** a fasting reading is between 3.5 and 6.0 mmol/L (inclusive)
-- **THEN** the system SHALL classify it as NORMAL
+### Requirement: NHG classification
+FASTING: HYPOGLYCAEMIA below 3.5; NORMAL from 3.5 to 6.0 inclusive; IMPAIRED_FASTING above 6.0 up to 6.9 inclusive; DIABETES_RANGE above 6.9.
+POSTPRANDIAL: HYPOGLYCAEMIA below 3.5; NORMAL from 3.5 up to but excluding 7.8; IMPAIRED_GLUCOSE_TOLERANCE from 7.8 to 11.0 inclusive; DIABETES_RANGE above 11.0.
+The category is computed on the stored mmol/L value, stored with the entry, and recomputed on update.
 
-#### Scenario: Fasting glucose classified as impaired fasting glucose
-- **WHEN** a fasting reading is between 6.1 and 6.9 mmol/L (inclusive)
-- **THEN** the system SHALL classify it as IMPAIRED_FASTING
+#### Scenario: Fasting boundaries
+- **WHEN** fasting levels are 3.4, 3.5, 6.0, 6.1, 6.9 and 7.0
+- **THEN** categories are HYPOGLYCAEMIA, NORMAL, NORMAL, IMPAIRED_FASTING, IMPAIRED_FASTING and DIABETES_RANGE
 
-#### Scenario: Fasting glucose classified as diabetic range
-- **WHEN** a fasting reading is 7.0 mmol/L or above
-- **THEN** the system SHALL classify it as DIABETES_RANGE
+#### Scenario: Postprandial boundaries
+- **WHEN** postprandial levels are 7.7, 7.8, 11.0 and 11.1
+- **THEN** categories are NORMAL, IMPAIRED_GLUCOSE_TOLERANCE, IMPAIRED_GLUCOSE_TOLERANCE and DIABETES_RANGE
 
-#### Scenario: Fasting glucose classified as hypoglycaemia
-- **WHEN** a fasting reading is below 3.5 mmol/L
-- **THEN** the system SHALL classify it as HYPOGLYCAEMIA
+### Requirement: Live preview and validation
+The UI SHALL show a category preview only when the entered value is greater than 0 and the resulting level is within range. Invalid input SHALL show a localized validation error and store nothing.
 
-#### Scenario: Postprandial glucose classified as normal
-- **WHEN** a postprandial reading (2h post-meal) is below 7.8 mmol/L
-- **THEN** the system SHALL classify it as NORMAL
+#### Scenario: Out-of-range preview
+- **WHEN** 0.1 mmol/L is typed
+- **THEN** no preview is shown
 
-#### Scenario: Postprandial glucose classified as impaired
-- **WHEN** a postprandial reading is between 7.8 and 11.0 mmol/L (inclusive)
-- **THEN** the system SHALL classify it as IMPAIRED_GLUCOSE_TOLERANCE
+### Requirement: Persistence contract
+Readings SHALL be stored in table "glucoses": id, profile id, timestamp (epoch ms), level in mmol/L (floating point), context (enum name), category (enum name). Storage is always mmol/L regardless of display unit.
 
-#### Scenario: Postprandial glucose classified as diabetic range
-- **WHEN** a postprandial reading is above 11.0 mmol/L
-- **THEN** the system SHALL classify it as DIABETES_RANGE
-
-### Requirement: Retrieve glucose history
-The system SHALL allow retrieving all glucose measurements for a Profile in reverse chronological order.
-
-#### Scenario: History returned for known profile
-- **WHEN** a client requests glucose history for a Profile with measurements
-- **THEN** the system SHALL return all measurements ordered from most recent to oldest, each including its context and classification
+#### Scenario: Round trip
+- **WHEN** a reading is stored and read back
+- **THEN** level, context and category are equal

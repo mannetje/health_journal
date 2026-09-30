@@ -7,6 +7,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.DisplayUnits
+import nl.healthjournal.app.ui.common.UiText
+import nl.healthjournal.app.ui.common.UiTextException
+import nl.healthjournal.app.ui.common.toUiText
+import nl.healthjournal.app.ui.common.distanceToMeters
+import nl.healthjournal.app.ui.common.glucoseToMmol
+import nl.healthjournal.app.ui.common.parseDecimal
+import nl.healthjournal.app.ui.common.weightToKg
+import nl.healthjournal.domain.model.common.GlucoseUnit
+import nl.healthjournal.domain.model.common.UnitConversion
 import nl.healthjournal.domain.model.metrics.*
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgBmiCategory
@@ -43,7 +54,6 @@ data class LoggingUiState(
 
     // Glucose inputs & feedback
     val glucoseInput: String = "",
-    val isGlucoseMgDl: Boolean = false,
     val glucoseContext: GlucoseContext = GlucoseContext.FASTING,
     val previewGlucoseCategory: NhgGlucoseCategory? = null,
 
@@ -52,8 +62,8 @@ data class LoggingUiState(
     val activityDistanceInput: String = "",
 
     val isSaving: Boolean = false,
-    val successMessage: String? = null,
-    val errorMessage: String? = null
+    val successMessage: UiText? = null,
+    val errorMessage: UiText? = null
 )
 
 class LoggingViewModel(
@@ -61,7 +71,9 @@ class LoggingViewModel(
     private val recordWeightUseCase: RecordWeightUseCase,
     private val recordBloodPressureUseCase: RecordBloodPressureUseCase,
     private val recordGlucoseUseCase: RecordGlucoseUseCase,
-    private val recordActivityUseCase: RecordActivityUseCase
+    private val recordActivityUseCase: RecordActivityUseCase,
+    /** Reads the units currently chosen, so typed values are converted to metric before validation. */
+    private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT }
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoggingUiState())
@@ -93,10 +105,10 @@ class LoggingViewModel(
     }
 
     private fun updateWeightPreview(input: String) {
-        val weightVal = input.toDoubleOrNull()
+        val weightVal = input.parseDecimal()?.let { units().weightToKg(it) }
         val profile = _uiState.value.activeProfile
         if (weightVal != null && weightVal in 1.0..700.0 && profile != null) {
-            val weight = WeightKg(weightVal)
+            val weight = WeightKg(UnitConversion.toStoredKg(weightVal))
             val bmiResult = profile.calculateBmi(weight)
             if (bmiResult != null) {
                 _uiState.value = _uiState.value.copy(
@@ -132,12 +144,13 @@ class LoggingViewModel(
 
     fun onGlucoseChanged(input: String) {
         _uiState.value = _uiState.value.copy(glucoseInput = input, errorMessage = null)
-        updateGlucosePreview(input, _uiState.value.isGlucoseMgDl, _uiState.value.glucoseContext)
+        updateGlucosePreview(input, _uiState.value.glucoseContext)
     }
 
-    fun toggleGlucoseUnit(isMgDl: Boolean) {
-        _uiState.value = _uiState.value.copy(isGlucoseMgDl = isMgDl)
-        updateGlucosePreview(_uiState.value.glucoseInput, isMgDl, _uiState.value.glucoseContext)
+    /** Re-runs the live previews after the display units changed, since typed numbers mean something else now. */
+    fun onUnitsChanged() {
+        updateWeightPreview(_uiState.value.weightInput)
+        updateGlucosePreview(_uiState.value.glucoseInput, _uiState.value.glucoseContext)
     }
 
     fun onActivityDurationChanged(input: String) {
@@ -150,14 +163,14 @@ class LoggingViewModel(
 
     fun setGlucoseContext(context: GlucoseContext) {
         _uiState.value = _uiState.value.copy(glucoseContext = context)
-        updateGlucosePreview(_uiState.value.glucoseInput, _uiState.value.isGlucoseMgDl, context)
+        updateGlucosePreview(_uiState.value.glucoseInput, context)
     }
 
-    private fun updateGlucosePreview(input: String, isMgDl: Boolean, context: GlucoseContext) {
-        val value = input.toDoubleOrNull()
+    private fun updateGlucosePreview(input: String, context: GlucoseContext) {
+        val value = input.parseDecimal()
         if (value != null && value > 0) {
             try {
-                val level = if (isMgDl) GlucoseLevel.fromMgDl(value) else GlucoseLevel(value)
+                val level = if (units().glucose == GlucoseUnit.MG_PER_DL) GlucoseLevel.fromMgDl(value) else GlucoseLevel(value)
                 _uiState.value = _uiState.value.copy(
                     previewGlucoseCategory = NhgGlucoseCategory.classify(level, context)
                 )
@@ -172,7 +185,7 @@ class LoggingViewModel(
     fun saveCurrentMetric() {
         val profile = _uiState.value.activeProfile
         if (profile == null) {
-            _uiState.value = _uiState.value.copy(errorMessage = "Please create a profile first.")
+            _uiState.value = _uiState.value.copy(errorMessage = UiText.Res(R.string.log_msg_no_profile_first))
             return
         }
 
@@ -181,33 +194,34 @@ class LoggingViewModel(
             try {
                 when (_uiState.value.selectedMetric) {
                     MetricType.WEIGHT -> {
-                        val weightVal = _uiState.value.weightInput.toDoubleOrNull()
-                            ?: throw IllegalArgumentException("Please enter a valid weight in kg")
-                        recordWeightUseCase(profile.id, BigDecimal.valueOf(weightVal))
+                        val current = units()
+                        val weightKg = _uiState.value.weightInput.parseDecimal()?.let { current.weightToKg(it) }
+                            ?: throw UiTextException(UiText.Res(R.string.log_err_weight, current.weightSymbol))
+                        recordWeightUseCase(profile.id, UnitConversion.toStoredKg(weightKg))
                         _uiState.value = _uiState.value.copy(
                             weightInput = "",
                             previewBmi = null,
                             previewBmiCategory = null,
-                            successMessage = "Weight entry recorded successfully!"
+                            successMessage = UiText.Res(R.string.log_msg_weight_saved)
                         )
                     }
                     MetricType.BLOOD_PRESSURE -> {
                         val sys = _uiState.value.systolicInput.toIntOrNull()
-                            ?: throw IllegalArgumentException("Please enter systolic value (mmHg)")
+                            ?: throw UiTextException(UiText.Res(R.string.log_err_systolic))
                         val dia = _uiState.value.diastolicInput.toIntOrNull()
-                            ?: throw IllegalArgumentException("Please enter diastolic value (mmHg)")
+                            ?: throw UiTextException(UiText.Res(R.string.log_err_diastolic))
                         recordBloodPressureUseCase(profile.id, sys, dia)
                         _uiState.value = _uiState.value.copy(
                             systolicInput = "",
                             diastolicInput = "",
                             previewBpCategory = null,
-                            successMessage = "Blood pressure reading recorded!"
+                            successMessage = UiText.Res(R.string.log_msg_bp_saved)
                         )
                     }
                     MetricType.GLUCOSE -> {
-                        val gVal = _uiState.value.glucoseInput.toDoubleOrNull()
-                            ?: throw IllegalArgumentException("Please enter glucose value")
-                        if (_uiState.value.isGlucoseMgDl) {
+                        val gVal = _uiState.value.glucoseInput.parseDecimal()
+                            ?: throw UiTextException(UiText.Res(R.string.log_err_glucose))
+                        if (units().glucose == GlucoseUnit.MG_PER_DL) {
                             recordGlucoseUseCase(
                                 profileId = profile.id,
                                 context = _uiState.value.glucoseContext,
@@ -223,33 +237,34 @@ class LoggingViewModel(
                         _uiState.value = _uiState.value.copy(
                             glucoseInput = "",
                             previewGlucoseCategory = null,
-                            successMessage = "Blood glucose entry recorded!"
+                            successMessage = UiText.Res(R.string.log_msg_glucose_saved)
                         )
                     }
                     MetricType.ACTIVITY -> {
-                        val durationMinutes = _uiState.value.activityDurationInput.toDoubleOrNull()
+                        val durationMinutes = _uiState.value.activityDurationInput.parseDecimal()
                             ?.takeIf { it > 0 }
-                            ?: throw IllegalArgumentException("Please enter a valid duration in minutes")
-                        val distanceKm = _uiState.value.activityDistanceInput.toDoubleOrNull()
+                            ?: throw UiTextException(UiText.Res(R.string.log_err_duration))
+                        val distanceMeters = _uiState.value.activityDistanceInput.parseDecimal()
                             ?.takeIf { it >= 0 }
-                            ?: throw IllegalArgumentException("Please enter a valid distance in km")
+                            ?.let { units().distanceToMeters(it) }
+                            ?: throw UiTextException(UiText.Res(R.string.log_err_distance, units().distanceSymbol))
                         val endTime = Instant.now()
                         val startTime = endTime.minusSeconds((durationMinutes * 60).toLong())
                         recordActivityUseCase(
                             profileId = profile.id,
                             startTime = startTime,
                             endTime = endTime,
-                            distanceInMeters = distanceKm * 1000.0
+                            distanceInMeters = distanceMeters
                         )
                         _uiState.value = _uiState.value.copy(
                             activityDurationInput = "",
                             activityDistanceInput = "",
-                            successMessage = "Activity session recorded!"
+                            successMessage = UiText.Res(R.string.log_msg_activity_saved)
                         )
                     }
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(errorMessage = e.message ?: "Failed to save entry")
+                _uiState.value = _uiState.value.copy(errorMessage = e.toUiText(R.string.log_err_save_failed))
             } finally {
                 _uiState.value = _uiState.value.copy(isSaving = false)
             }
@@ -265,7 +280,8 @@ class LoggingViewModel(
         private val recordWeightUseCase: RecordWeightUseCase,
         private val recordBloodPressureUseCase: RecordBloodPressureUseCase,
         private val recordGlucoseUseCase: RecordGlucoseUseCase,
-        private val recordActivityUseCase: RecordActivityUseCase
+        private val recordActivityUseCase: RecordActivityUseCase,
+        private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT }
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -274,7 +290,8 @@ class LoggingViewModel(
                 recordWeightUseCase,
                 recordBloodPressureUseCase,
                 recordGlucoseUseCase,
-                recordActivityUseCase
+                recordActivityUseCase,
+                units
             ) as T
         }
     }

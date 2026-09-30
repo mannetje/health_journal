@@ -7,6 +7,7 @@ import nl.healthjournal.data.local.dao.BloodPressureDao
 import nl.healthjournal.data.local.dao.GlucoseDao
 import nl.healthjournal.data.local.dao.WeightDao
 import nl.healthjournal.data.local.mapper.HealthLogMapper
+import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
@@ -26,6 +27,12 @@ class RoomHealthLogRepository(
         weightDao.insert(HealthLogMapper.toEntity(entry))
     }
 
+    override suspend fun updateWeight(entry: WeightEntry): Boolean =
+        weightDao.update(HealthLogMapper.toEntity(entry)) > 0
+
+    override suspend fun deleteWeight(id: MeasurementId): Boolean =
+        weightDao.deleteById(id.value.toString()) > 0
+
     override suspend fun getWeightHistory(profileId: ProfileId): List<WeightEntry> {
         return weightDao.getByProfileId(profileId.value.toString()).map { HealthLogMapper.toDomain(it) }
     }
@@ -40,6 +47,12 @@ class RoomHealthLogRepository(
     override suspend fun saveBloodPressure(entry: BloodPressureEntry) {
         bloodPressureDao.insert(HealthLogMapper.toEntity(entry))
     }
+
+    override suspend fun updateBloodPressure(entry: BloodPressureEntry): Boolean =
+        bloodPressureDao.update(HealthLogMapper.toEntity(entry)) > 0
+
+    override suspend fun deleteBloodPressure(id: MeasurementId): Boolean =
+        bloodPressureDao.deleteById(id.value.toString()) > 0
 
     override suspend fun getBloodPressureHistory(profileId: ProfileId): List<BloodPressureEntry> {
         return bloodPressureDao.getByProfileId(profileId.value.toString()).map { HealthLogMapper.toDomain(it) }
@@ -56,6 +69,12 @@ class RoomHealthLogRepository(
         glucoseDao.insert(HealthLogMapper.toEntity(entry))
     }
 
+    override suspend fun updateGlucose(entry: GlucoseEntry): Boolean =
+        glucoseDao.update(HealthLogMapper.toEntity(entry)) > 0
+
+    override suspend fun deleteGlucose(id: MeasurementId): Boolean =
+        glucoseDao.deleteById(id.value.toString()) > 0
+
     override suspend fun getGlucoseHistory(profileId: ProfileId): List<GlucoseEntry> {
         return glucoseDao.getByProfileId(profileId.value.toString()).map { HealthLogMapper.toDomain(it) }
     }
@@ -70,6 +89,12 @@ class RoomHealthLogRepository(
     override suspend fun saveActivity(session: ActivitySession) {
         activityDao.insert(HealthLogMapper.toEntity(session))
     }
+
+    override suspend fun updateActivity(session: ActivitySession): Boolean =
+        activityDao.update(HealthLogMapper.toEntity(session)) > 0
+
+    override suspend fun deleteActivity(id: MeasurementId): Boolean =
+        activityDao.deleteById(id.value.toString()) > 0
 
     override suspend fun getActivityHistory(profileId: ProfileId): List<ActivitySession> {
         return activityDao.getByProfileId(profileId.value.toString()).map { HealthLogMapper.toDomain(it) }

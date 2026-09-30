@@ -25,8 +25,9 @@
     <string name="log_tab_blood_pressure">Bloeddruk</string>
     <string name="log_tab_glucose">Glucose</string>
     <string name="log_tab_activity">Activiteit</string>
-    <string name="log_weight_label">Gewicht (kg)</string>
+    <string name="log_weight_label">Gewicht (%1$s)</string>
     <string name="log_weight_placeholder">bijv. 74,5</string>
+    <string name="log_weight_placeholder_imperial">bijv. 165</string>
     <string name="log_bmi_badge">BMI: %1$s — %2$s</string>
     <string name="log_systolic_label">Systolisch (mmHg)</string>
     <string name="log_systolic_placeholder">120</string>
@@ -38,14 +39,14 @@
     <string name="log_unit_label">Eenheid:</string>
     <string name="log_unit_mmol">mmol/L (NHG)</string>
     <string name="log_unit_mgdl">mg/dL</string>
-    <string name="log_glucose_label_mgdl">Glucose (mg/dL)</string>
-    <string name="log_glucose_label_mmol">Glucose (mmol/L)</string>
+    <string name="log_glucose_label">Glucose (%1$s)</string>
     <string name="log_glucose_placeholder_mgdl">bijv. 100</string>
     <string name="log_glucose_placeholder_mmol">bijv. 5,4</string>
     <string name="log_duration_label">Duur (minuten)</string>
     <string name="log_duration_placeholder">bijv. 30</string>
-    <string name="log_distance_label">Afstand (km)</string>
+    <string name="log_distance_label">Afstand (%1$s)</string>
     <string name="log_distance_placeholder">bijv. 5,0</string>
+    <string name="log_distance_placeholder_imperial">bijv. 3,1</string>
     <string name="log_saving">Opslaan…</string>
     <string name="log_record_entry">Opslaan</string>
 
@@ -58,13 +59,13 @@
     <string name="history_filter_bp">Bloeddruk</string>
     <string name="history_filter_glucose">Glucose</string>
     <string name="history_filter_activity">Activiteit</string>
-    <string name="history_weight_line">Gewicht: %1$s kg</string>
+    <string name="history_weight_line">Gewicht: %1$s</string>
     <string name="history_bmi_line">BMI: %1$s</string>
     <string name="history_category_line">Categorie: %1$s</string>
     <string name="history_time_line">Tijd: %1$s</string>
     <string name="history_bp_line">Bloeddruk: %1$s/%2$s mmHg</string>
-    <string name="history_glucose_line">Glucose: %1$s mmol/L (%2$s)</string>
-    <string name="history_activity_line">Activiteit: %1$s m (%2$s s)</string>
+    <string name="history_glucose_line">Glucose: %1$s (%2$s)</string>
+    <string name="history_activity_line">Activiteit: %1$s (%2$s)</string>
     <string name="history_start_line">Start: %1$s</string>
     <string name="history_export_dialog_title">CSV Exporteren</string>
     <string name="history_export_weight">Gewicht CSV Exporteren</string>
@@ -86,10 +87,13 @@
     <string name="profile_title_edit">Profiel Bewerken</string>
     <string name="profile_title_create">Profiel Aanmaken</string>
     <string name="profile_name_label">Volledige Naam *</string>
-    <string name="profile_dob_label">Geboortedatum (JJJJ-MM-DD) *</string>
-    <string name="profile_dob_placeholder">bijv. 1990-05-15</string>
-    <string name="profile_height_label">Lengte (cm, optioneel)</string>
+    <string name="profile_dob_label">Geboortedatum *</string>
+    <string name="profile_dob_pick">Kies geboortedatum</string>
+    <string name="profile_height_label">Lengte (%1$s, optioneel)</string>
     <string name="profile_height_placeholder">bijv. 180</string>
+    <string name="profile_height_feet_label">Voet</string>
+    <string name="profile_height_inches_label">Duim</string>
+    <string name="profile_height_label_imperial">Lengte (ft/in, optioneel)</string>
     <string name="profile_sex_label">Geslacht (optioneel)</string>
     <string name="profile_sex_female">Vrouw</string>
     <string name="profile_sex_male">Man</string>
@@ -98,12 +102,21 @@
     <string name="profile_summary_name">Naam: %1$s</string>
     <string name="profile_summary_dob">Geboortedatum: %1$s</string>
     <string name="profile_summary_height">Lengte: %1$s</string>
-    <string name="profile_height_value">%1$s cm</string>
+    <string name="profile_height_value">%1$s</string>
     <string name="profile_summary_sex">Geslacht: %1$s</string>
     <string name="profile_language_label">Taal</string>
     <string name="profile_language_system">Systeem</string>
     <string name="profile_language_english">English</string>
     <string name="profile_language_dutch">Nederlands</string>
+    <string name="profile_region_label">Regionale notatie (datums, getallen)</string>
+    <string name="profile_region_netherlands">Nederland</string>
+    <string name="profile_region_us">VS</string>
+    <string name="profile_region_hint">Los van de taal. Systeem volgt je apparaat, bijvoorbeeld Engels met Nederlandse notatie.</string>
+    <string name="profile_units_label">Eenheden</string>
+    <string name="profile_units_metric">Metrisch</string>
+    <string name="profile_units_imperial">Imperiaal</string>
+    <string name="profile_units_hint">Systeem volgt de regio. Gegevens worden altijd metrisch opgeslagen.</string>
+    <string name="profile_glucose_unit_label">Glucose-eenheid</string>
 
     <!-- Trend charts -->
     <string name="trend_range_7d">7d</string>
@@ -154,4 +167,39 @@
     <string name="nhg_glucose_impaired_fasting">Gestoord Nuchtere Glucose</string>
     <string name="nhg_glucose_impaired_tolerance">Gestoorde Glucosetolerantie</string>
     <string name="nhg_glucose_diabetes_range">Diabetesbereik</string>
+    <string name="common_save">Opslaan</string>
+    <string name="common_delete">Verwijderen</string>
+    <string name="history_edit_entry">Meting bewerken</string>
+    <string name="history_delete_entry">Meting verwijderen</string>
+    <string name="history_edit_title">Meting bewerken</string>
+    <string name="history_edit_invalid">Voer geldige waarden in.</string>
+    <string name="history_delete_title">Deze meting verwijderen?</string>
+    <string name="history_delete_message">Hiermee wordt de meting definitief verwijderd. Dit kan niet ongedaan worden gemaakt.</string>
+
+    <!-- Messages (banners and errors) -->
+    <string name="profile_msg_saved">Profiel opgeslagen!</string>
+    <string name="profile_err_load_failed">Profiel laden mislukt</string>
+    <string name="profile_err_save_failed">Profiel opslaan mislukt</string>
+    <string name="log_msg_no_profile_first">Maak eerst een profiel aan.</string>
+    <string name="log_msg_weight_saved">Gewicht opgeslagen!</string>
+    <string name="log_msg_bp_saved">Bloeddruk opgeslagen!</string>
+    <string name="log_msg_glucose_saved">Glucose opgeslagen!</string>
+    <string name="log_msg_activity_saved">Activiteit opgeslagen!</string>
+    <string name="log_err_weight">Voer een geldig gewicht in (%1$s)</string>
+    <string name="log_err_systolic">Voer de systolische waarde in (mmHg)</string>
+    <string name="log_err_diastolic">Voer de diastolische waarde in (mmHg)</string>
+    <string name="log_err_glucose">Voer een glucosewaarde in</string>
+    <string name="log_err_duration">Voer een geldige duur in minuten in</string>
+    <string name="log_err_distance">Voer een geldige afstand in (%1$s)</string>
+    <string name="log_err_save_failed">Opslaan mislukt</string>
+    <string name="history_msg_export_done">CSV-export gemaakt (%1$s)!</string>
+    <string name="history_msg_import_done">%1$d rijen geïmporteerd (%2$d overgeslagen)</string>
+    <string name="history_err_load_failed">Historie laden mislukt</string>
+    <string name="history_err_export">Exporteren mislukt: %1$s</string>
+    <string name="history_err_import">Importeren mislukt: %1$s</string>
+    <string name="history_err_import_libra">Libra-import mislukt: %1$s. Controleer of het bestand begint met #Version:, #Units: en een #date;weight;...-kop.</string>
+    <string name="history_err_unknown">Onbekende fout</string>
+    <string name="history_err_not_found">Registratie niet gevonden</string>
+    <string name="history_err_delete">Verwijderen mislukt: %1$s</string>
+    <string name="history_err_update_failed">Bijwerken mislukt</string>
 </resources>

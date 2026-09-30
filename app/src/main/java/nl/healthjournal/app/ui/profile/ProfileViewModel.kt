@@ -7,6 +7,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import nl.healthjournal.app.R
+import nl.healthjournal.app.ui.common.UiText
+import nl.healthjournal.app.ui.common.toUiText
+import nl.healthjournal.domain.model.metrics.HeightCm
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.model.profile.Sex
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
@@ -16,8 +20,8 @@ import java.time.LocalDate
 data class ProfileUiState(
     val activeProfile: Profile? = null,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val successMessage: String? = null
+    val errorMessage: UiText? = null,
+    val successMessage: UiText? = null
 )
 
 class ProfileViewModel(
@@ -44,7 +48,7 @@ class ProfileViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = e.message ?: "Failed to load profile"
+                    errorMessage = e.toUiText(R.string.profile_err_load_failed)
                 )
             }
         }
@@ -54,17 +58,23 @@ class ProfileViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null, successMessage = null)
             try {
-                createProfileUseCase(name = name, dateOfBirth = birthDate, heightCm = heightCm, sex = sex)
+                val existing = profileRepository.getActiveProfile()
+                if (existing != null) {
+                    // Editing: keep the id (and active flag) so the update replaces the profile instead of adding one.
+                    profileRepository.save(Profile.reconstruct(existing.id, name, birthDate, heightCm?.let { HeightCm(it) }, sex))
+                } else {
+                    createProfileUseCase(name = name, dateOfBirth = birthDate, heightCm = heightCm, sex = sex)
+                }
                 val updatedProfile = profileRepository.getActiveProfile()
                 _uiState.value = _uiState.value.copy(
                     activeProfile = updatedProfile,
                     isLoading = false,
-                    successMessage = "Profile saved successfully!"
+                    successMessage = UiText.Res(R.string.profile_msg_saved)
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = e.message ?: "Error saving profile"
+                    errorMessage = e.toUiText(R.string.profile_err_save_failed)
                 )
             }
         }

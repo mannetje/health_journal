@@ -19,7 +19,8 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.4.7)](https://github.com/mannetje/health_journal/releases/latest)**
+👉 **[Download Latest APK (v1.4.8)](https://github.com/mannetje/health_journal/releases/latest)**  
+See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ---
 
@@ -60,14 +61,17 @@ You can download the ready-to-install Android APK directly from GitHub:
 ### Key Features
 - **Body Weight & BMI:** Record body weight in kilograms, automatically deriving Body Mass Index (BMI) based on profile height, categorized according to NHG/WHO standards.
 - **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, automatically classified against Dutch NHG blood pressure standards (Optimal, Normal, High Normal, Hypertension Grades 1–3).
-- **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) with built-in converter support for **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges (Hypoglycaemia, Normal, Impaired, Diabetes Range).
+- **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) and show it as **mmol/L** or **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges (Hypoglycaemia, Normal, Impaired, Diabetes Range).
 - **Activity Tracking:** Manually log workout and physical activity sessions from the Log screen (duration + distance), or bulk-import sessions; each session records start time, end time, and distance in metres.
 - **Profile Sex Field (optional):** Selectable male/female on the Profile screen. Purely demographic — has no effect on BMI, blood pressure, or glucose classification (Dutch NHG guidelines do not differentiate these by sex).
 - **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities. Import accepts a file chosen with the system file picker or pasted CSV text.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
 - **Light & Dark Theme:** Automatically follows the device's system light/dark setting, with a brand-navy top bar and logo in both themes; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
-- **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen. Layouts are checked in Dutch so labels stay on one line ([ADR 0010](docs/adr/0010-responsive-dutch-ui-layout.md)).
+- **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen. Layouts are checked in Dutch so labels stay on one line ([ADR 0010](docs/adr/0010-responsive-dutch-ui-layout.md)); dialogs and pickers follow the app language too. A separate *Regional formats* setting (System / Netherlands / US) controls date and number formats independently of the language, so English text with Dutch dates works ([ADR 0013](docs/adr/0013-activity-base-context-for-app-language.md)). The Profile date of birth is chosen with a Material date picker that opens in text-entry mode.
 - **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range, counted back from the newest entry so imported historical data still shows). The time axis follows the zoom level: years, months, weeks or days, with labels on calendar boundaries, a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
+- **Units:** data is always stored in metric (kg, cm, mmol/L, meters). What you see and type is a separate Profile setting: Metric or Imperial (lb, mi, ft/in) and mmol/L or mg/dL, defaulting from the region (US and UK imperial, mg/dL in the US, Germany, France and others). Every input shows its unit, and History, charts and statistics follow it ([ADR 0014](docs/adr/0014-units-presentation.md)). CSV files stay metric.
+- **Localized messages and profile edits:** success and error banners follow the app language (English/Dutch) because ViewModels pass resource ids instead of text ([ADR 0015](docs/adr/0015-localized-viewmodel-messages.md)). *Update Profile* edits the existing profile in place instead of adding another ([ADR 0016](docs/adr/0016-profile-update-edits-active-profile.md)).
+- **Edit and Delete Entries:** every History entry has an Edit and a Delete icon button (48 dp targets, localized TalkBack descriptions; no swipe gestures). Edit opens a pre-filled dialog to change the values and the date/time (activities keep their start time); delete asks for confirmation first and is permanent. The list, trend charts and statistics refresh immediately ([ADR 0012](docs/adr/0012-edit-and-delete-entries.md)).
 - **History Filters:** All, Weight, BP, Glucose, and Activity. "All" shows weight, blood pressure, glucose, and activity entries interleaved in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
 
 ## Technical Architecture
@@ -87,14 +91,18 @@ flowchart TD
     subgraph Presentation["Presentation Adapter (:app)"]
         UI["Jetpack Compose UI (Screens, Theme & branded top bar)"]
         VM["AndroidX ViewModel & UI State"]
-        LANG["LanguagePreference (SharedPreferences), Locale Override & Activity result registry (ADR 0009)"]
+        LANG["LanguagePreference (SharedPreferences), Language + region applied on the Activity base context (ADR 0013)"]
+        UNITS["UnitPreference + LocalDisplayUnits, display units only, storage stays metric (ADR 0014)"]
+        UITEXT["UiText: ViewModels hold message resource ids, screens resolve them (ADR 0015)"]
         UI --> VM
         UI --> LANG
+        UI --> UNITS
+        VM --> UITEXT
     end
 
     subgraph Domain["Hexagonal Core (:domain - Pure Kotlin)"]
         subgraph PrimaryPorts["Driving / Primary Ports"]
-            UC["Use Cases (e.g. RecordGlucoseUseCase)"]
+            UC["Use Cases (Record, Update, Delete per metric)"]
         end
 
         subgraph DomainModel["Domain Model"]
@@ -107,7 +115,7 @@ flowchart TD
 
         subgraph SecondaryPorts["Driven / Secondary Ports"]
             PRP["ProfileRepositoryPort (interface)"]
-            HLP["HealthLogRepositoryPort (interface)"]
+            HLP["HealthLogRepositoryPort (save, update, delete, history)"]
             DEP["DataExportPort / DataImportPort (interface)"]
         end
 
@@ -140,7 +148,7 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.4.7-debug.apk`.
+2. Download `health-journal-v1.4.8-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
@@ -234,13 +242,19 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0009: Localized Context and the Activity Result Registry](docs/adr/0009-localized-context-activity-result-registry.md)
 - [ADR 0010: Responsive Layout and Dutch UI Wording](docs/adr/0010-responsive-dutch-ui-layout.md)
 - [ADR 0011: App Icon, Dark-Tile Adaptive Icon and Branded Top Bar](docs/adr/0011-app-icon-and-adaptive-layers.md)
+- [ADR 0012: Edit and Delete Entries](docs/adr/0012-edit-and-delete-entries.md)
+- [ADR 0013: Apply the App Language and Region on the Activity Base Context](docs/adr/0013-activity-base-context-for-app-language.md)
+- [ADR 0014: Units: Metric Storage, Locale-Aware Presentation](docs/adr/0014-units-presentation.md)
+- [ADR 0015: Localized ViewModel Messages (UiText)](docs/adr/0015-localized-viewmodel-messages.md)
+- [ADR 0016: Updating the Profile Edits the Active Profile](docs/adr/0016-profile-update-edits-active-profile.md)
 
 ---
 
 ## Development Workflow & OpenSpec
 
 This project uses [OpenSpec](https://openspec.dev/) to drive specification, design, and implementation workflows:
-- **Active change:** [`openspec/changes/init-core-health-features/`](openspec/changes/init-core-health-features/)
+- **Specs:** [`openspec/specs/`](openspec/specs/README.md) hold every business rule in platform-neutral form (enough to rebuild the app on another platform); Android-only choices are in [`platform-android`](openspec/specs/platform-android/spec.md).
+- **Changes:** proposals and deltas live in [`openspec/changes/`](openspec/changes/).
 - **Workflows:**
   - `/opsx-propose`: Formulate new capabilities and specifications.
   - `/opsx-apply`: Implement verified changes in code.
@@ -261,4 +275,5 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
   - [x] [Dark theme](openspec/changes/add-dark-theme/proposal.md) — full light/dark support following the system setting.
   - [x] [Dutch/English localization](openspec/changes/add-localization/proposal.md) — system-language-following UI text, overridable from Profile settings.
   - [x] [Optional Profile sex field](openspec/changes/add-profile-sex-field/proposal.md) — selectable male/female, not required, no effect on existing BMI/BP/glucose calculations.
+  - [x] [Edit and delete entries](openspec/changes/feature-edit-delete-entries/proposal.md) — Edit/Delete icon buttons on History entries, pre-filled edit dialog, delete confirmation (implemented; pending emulator verification).
   - [ ] [Optional waist circumference tracking](openspec/changes/add-waist-circumference-tracking/proposal.md) — sex-specific Voedingscentrum thresholds; low-priority/optional.

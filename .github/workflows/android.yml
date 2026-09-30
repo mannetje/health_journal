@@ -52,21 +52,29 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
 
+      - name: Extract release notes from CHANGELOG
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v h="## [$VERSION]" 'index($0,h)==1{f=1;next} index($0,"## [")==1{f=0} f' CHANGELOG.md > RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "No CHANGELOG section for $VERSION; release notes will be generated from commits"
+          fi
+          {
+            echo
+            echo '### Install'
+            echo "1. Download health-journal-${GITHUB_REF_NAME}-debug.apk below."
+            echo '2. On your Android device, open the file and tap **Install**.'
+            echo '3. Enable *Install from unknown sources* if prompted. Updating over an earlier release keeps your data.'
+          } >> RELEASE_NOTES.md
+
       - name: Create GitHub Release & upload APK
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           name: "Health Journal ${{ github.ref_name }}"
-          body: |
-            ## Health Journal ${{ github.ref_name }}
-
-            ### What's new
-            See [CHANGELOG](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}) for full details.
-
-            ### Install
-            1. Download `health-journal-${{ github.ref_name }}-debug.apk` below.
-            2. On your Android device, open the file and tap **Install**.
-            3. Enable *Install from unknown sources* if prompted.
+          body_path: RELEASE_NOTES.md
+          generate_release_notes: true
           files: app/build/outputs/apk/debug/health-journal-${{ github.ref_name }}-debug.apk
           draft: false
           prerelease: false

@@ -1,6 +1,7 @@
 package nl.healthjournal.app
 
 import android.app.Application
+import nl.healthjournal.app.ui.history.EntryUseCases
 import nl.healthjournal.data.DataModule
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
@@ -34,6 +35,7 @@ class HealthJournalApp : Application() {
     lateinit var recordGlucoseUseCase: RecordGlucoseUseCase
         private set
     lateinit var recordActivityUseCase: RecordActivityUseCase
+    lateinit var entryUseCases: EntryUseCases
         private set
     lateinit var getHealthHistoryUseCase: GetHealthHistoryUseCase
         private set
@@ -49,6 +51,16 @@ class HealthJournalApp : Application() {
         recordBloodPressureUseCase = RecordBloodPressureUseCase(healthLogRepository)
         recordGlucoseUseCase = RecordGlucoseUseCase(healthLogRepository)
         recordActivityUseCase = RecordActivityUseCase(healthLogRepository)
+        entryUseCases = EntryUseCases(
+            updateWeight = UpdateWeightUseCase(healthLogRepository, profileRepository),
+            updateBloodPressure = UpdateBloodPressureUseCase(healthLogRepository),
+            updateGlucose = UpdateGlucoseUseCase(healthLogRepository),
+            updateActivity = UpdateActivityUseCase(healthLogRepository),
+            deleteWeight = DeleteWeightUseCase(healthLogRepository),
+            deleteBloodPressure = DeleteBloodPressureUseCase(healthLogRepository),
+            deleteGlucose = DeleteGlucoseUseCase(healthLogRepository),
+            deleteActivity = DeleteActivityUseCase(healthLogRepository)
+        )
         getHealthHistoryUseCase = GetHealthHistoryUseCase(healthLogRepository)
     }
 

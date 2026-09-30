@@ -17,20 +17,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.DisplayUnits
+import nl.healthjournal.app.ui.common.LocalDisplayUnits
+import nl.healthjournal.app.ui.common.formatDecimal
+import nl.healthjournal.app.ui.common.weightFromKg
 import nl.healthjournal.app.ui.nhg.getBmiColor
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import nl.healthjournal.domain.model.nhg.NhgBmiCategory
-import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeightTrendSection(entries: List<WeightEntry>, modifier: Modifier = Modifier) {
     val sorted = remember(entries) { entries.sortedBy { it.timestamp } }
     var windowSize by remember { mutableIntStateOf(5) }
+    val units = LocalDisplayUnits.current
 
-    TrendCard(title = stringResource(R.string.trend_weight_title), modifier = modifier) {
-        val rawPoints = sorted.map { ChartPoint(it.timestamp, it.weight.value.toFloat()) }
+    TrendCard(title = "${stringResource(R.string.trend_weight_title)} (${units.weightSymbol})", modifier = modifier) {
+        val rawPoints = sorted.map { ChartPoint(it.timestamp, units.weightFromKg(it.weight.value.toDouble()).toFloat()) }
         val averagePoints = movingAverage(rawPoints, windowSize)
         val averageColor = MaterialTheme.colorScheme.primary
 
@@ -61,16 +65,17 @@ fun WeightTrendSection(entries: List<WeightEntry>, modifier: Modifier = Modifier
 
         if (sorted.isNotEmpty()) {
             val latest = sorted.last()
-            val min = sorted.minOf { it.weight.value }
-            val max = sorted.maxOf { it.weight.value }
-            val change = if (sorted.size >= 2) latest.weight.value - sorted.first().weight.value else BigDecimal.ZERO
+            val shown = sorted.map { units.weightFromKg(it.weight.value.toDouble()) }
+            val min = shown.min()
+            val max = shown.max()
+            val change = if (sorted.size >= 2) shown.last() - shown.first() else 0.0
 
             StatChipRow(
                 chips = listOf(
-                    StatChip(stringResource(R.string.trend_stat_latest), formatKg(latest.weight.value)),
-                    StatChip(stringResource(R.string.trend_stat_change), formatSignedKg(change)),
-                    StatChip(stringResource(R.string.trend_stat_min), formatKg(min)),
-                    StatChip(stringResource(R.string.trend_stat_max), formatKg(max))
+                    StatChip(stringResource(R.string.trend_stat_latest), formatWeight(shown.last(), units)),
+                    StatChip(stringResource(R.string.trend_stat_change), formatSignedWeight(change, units)),
+                    StatChip(stringResource(R.string.trend_stat_min), formatWeight(min, units)),
+                    StatChip(stringResource(R.string.trend_stat_max), formatWeight(max, units))
                 )
             )
 
@@ -78,7 +83,7 @@ fun WeightTrendSection(entries: List<WeightEntry>, modifier: Modifier = Modifier
             if (latestBmi != null) {
                 val category = NhgBmiCategory.classify(latestBmi)
                 Text(
-                    text = stringResource(R.string.trend_weight_latest_bmi, latestBmi.toString(), category.label()),
+                    text = stringResource(R.string.trend_weight_latest_bmi, formatDecimal(latestBmi.toDouble(), 1), category.label()),
                     color = getBmiColor(category),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -87,8 +92,8 @@ fun WeightTrendSection(entries: List<WeightEntry>, modifier: Modifier = Modifier
     }
 }
 
-private fun formatKg(value: BigDecimal): String = "%.1f kg".format(value)
-private fun formatSignedKg(value: BigDecimal): String {
-    val sign = if (value.signum() > 0) "+" else ""
-    return "$sign%.1f kg".format(value)
+private fun formatWeight(shown: Double, units: DisplayUnits): String = "${formatDecimal(shown, 1)} ${units.weightSymbol}"
+private fun formatSignedWeight(shown: Double, units: DisplayUnits): String {
+    val sign = if (shown > 0) "+" else ""
+    return "$sign${formatDecimal(shown, 1)} ${units.weightSymbol}"
 }

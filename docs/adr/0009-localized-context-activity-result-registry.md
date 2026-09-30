@@ -1,7 +1,7 @@
 # 9. Localized Context and the Activity Result Registry
 
 - **Date:** 2026-09-29
-- **Status:** Accepted
+- **Status:** Superseded by [ADR 0013](0013-activity-base-context-for-app-language.md)
 - **Deciders:** Architecture Team, AI Coding Assistant
 
 ## Context

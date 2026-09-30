@@ -27,21 +27,53 @@ class CsvAdaptersTest {
         val activities = mutableListOf<ActivitySession>()
 
         override suspend fun saveWeight(entry: WeightEntry) { weights.add(entry) }
+        override suspend fun updateWeight(entry: WeightEntry): Boolean {
+            val i = weights.indexOfFirst { it.id == entry.id }
+            if (i < 0) return false
+            weights[i] = entry
+            return true
+        }
+        override suspend fun deleteWeight(id: MeasurementId): Boolean = weights.removeAll { it.id == id }
+
         override suspend fun getWeightHistory(profileId: ProfileId): List<WeightEntry> =
             weights.filter { it.profileId == profileId }
         override fun observeWeightHistory(profileId: ProfileId): Flow<List<WeightEntry>> = emptyFlow()
 
         override suspend fun saveBloodPressure(entry: BloodPressureEntry) { bloodPressures.add(entry) }
+        override suspend fun updateBloodPressure(entry: BloodPressureEntry): Boolean {
+            val i = bloodPressures.indexOfFirst { it.id == entry.id }
+            if (i < 0) return false
+            bloodPressures[i] = entry
+            return true
+        }
+        override suspend fun deleteBloodPressure(id: MeasurementId): Boolean = bloodPressures.removeAll { it.id == id }
+
         override suspend fun getBloodPressureHistory(profileId: ProfileId): List<BloodPressureEntry> =
             bloodPressures.filter { it.profileId == profileId }
         override fun observeBloodPressureHistory(profileId: ProfileId): Flow<List<BloodPressureEntry>> = emptyFlow()
 
         override suspend fun saveGlucose(entry: GlucoseEntry) { glucoses.add(entry) }
+        override suspend fun updateGlucose(entry: GlucoseEntry): Boolean {
+            val i = glucoses.indexOfFirst { it.id == entry.id }
+            if (i < 0) return false
+            glucoses[i] = entry
+            return true
+        }
+        override suspend fun deleteGlucose(id: MeasurementId): Boolean = glucoses.removeAll { it.id == id }
+
         override suspend fun getGlucoseHistory(profileId: ProfileId): List<GlucoseEntry> =
             glucoses.filter { it.profileId == profileId }
         override fun observeGlucoseHistory(profileId: ProfileId): Flow<List<GlucoseEntry>> = emptyFlow()
 
         override suspend fun saveActivity(session: ActivitySession) { activities.add(session) }
+        override suspend fun updateActivity(session: ActivitySession): Boolean {
+            val i = activities.indexOfFirst { it.id == session.id }
+            if (i < 0) return false
+            activities[i] = session
+            return true
+        }
+        override suspend fun deleteActivity(id: MeasurementId): Boolean = activities.removeAll { it.id == id }
+
         override suspend fun getActivityHistory(profileId: ProfileId): List<ActivitySession> =
             activities.filter { it.profileId == profileId }
         override fun observeActivityHistory(profileId: ProfileId): Flow<List<ActivitySession>> = emptyFlow()

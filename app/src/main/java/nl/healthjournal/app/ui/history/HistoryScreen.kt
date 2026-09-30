@@ -15,6 +15,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
+import nl.healthjournal.app.ui.common.LocalDisplayUnits
+import nl.healthjournal.app.ui.common.asString
+import nl.healthjournal.app.ui.common.formatDecimal
+import nl.healthjournal.app.ui.common.formatDistance
+import nl.healthjournal.app.ui.common.formatGlucose
+import nl.healthjournal.app.ui.common.formatMinutes
+import nl.healthjournal.app.ui.common.formatWeight
 import nl.healthjournal.app.ui.history.charts.BloodPressureTrendSection
 import nl.healthjournal.app.ui.history.charts.DateRangeSelector
 import nl.healthjournal.app.ui.history.charts.GlucoseTrendSection
@@ -31,6 +38,7 @@ fun HistoryScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
+    val units = LocalDisplayUnits.current
     var showExportDialog by remember { mutableStateOf(false) }
     var showImportDialog by remember { mutableStateOf(false) }
     var importMetricType by remember { mutableStateOf("weight") }
@@ -82,7 +90,7 @@ fun HistoryScreen(
         state.infoMessage?.let { info ->
             Card(colors = CardDefaults.cardColors(containerColor = infoContainerColor)) {
                 Text(
-                    text = info,
+                    text = info.asString(),
                     color = onInfoContainerColor,
                     modifier = Modifier.padding(12.dp)
                 )
@@ -92,7 +100,7 @@ fun HistoryScreen(
         state.errorMessage?.let { error ->
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
                 Text(
-                    text = error,
+                    text = error.asString(),
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.padding(12.dp)
                 )
@@ -169,12 +177,13 @@ fun HistoryScreen(
                     if (filter == HistoryFilter.ALL || filter == HistoryFilter.WEIGHT) {
                         weights.forEach { w ->
                             add(w.timestamp to {
-                                Card(modifier = Modifier.fillMaxWidth()) {
-                                    Column(modifier = Modifier.padding(12.dp)) {
-                                        Text(stringResource(R.string.history_weight_line, w.weight.value.toString()), style = MaterialTheme.typography.titleMedium)
-                                        w.bmi?.let { Text(stringResource(R.string.history_bmi_line, it.toString())) }
-                                        Text(stringResource(R.string.history_time_line, w.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
+                                EntryCard(
+                                    onEdit = { viewModel.startEdit(EntryRef.Weight(w)) },
+                                    onDelete = { viewModel.requestDelete(EntryRef.Weight(w)) }
+                                ) {
+                                        Text(stringResource(R.string.history_weight_line, units.formatWeight(w.weight.value.toDouble())), style = MaterialTheme.typography.titleMedium)
+                                        w.bmi?.let { Text(stringResource(R.string.history_bmi_line, formatDecimal(it.toDouble(), 1))) }
+                                        Text(stringResource(R.string.history_time_line, w.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             })
                         }
@@ -182,12 +191,13 @@ fun HistoryScreen(
                     if (filter == HistoryFilter.ALL || filter == HistoryFilter.BLOOD_PRESSURE) {
                         bloodPressures.forEach { bp ->
                             add(bp.timestamp to {
-                                Card(modifier = Modifier.fillMaxWidth()) {
-                                    Column(modifier = Modifier.padding(12.dp)) {
+                                EntryCard(
+                                    onEdit = { viewModel.startEdit(EntryRef.BloodPressure(bp)) },
+                                    onDelete = { viewModel.requestDelete(EntryRef.BloodPressure(bp)) }
+                                ) {
                                         Text(stringResource(R.string.history_bp_line, bp.reading.systolic.toString(), bp.reading.diastolic.toString()), style = MaterialTheme.typography.titleMedium)
                                         Text(stringResource(R.string.history_category_line, bp.category.label()))
-                                        Text(stringResource(R.string.history_time_line, bp.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
+                                        Text(stringResource(R.string.history_time_line, bp.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             })
                         }
@@ -195,12 +205,13 @@ fun HistoryScreen(
                     if (filter == HistoryFilter.ALL || filter == HistoryFilter.GLUCOSE) {
                         glucoses.forEach { g ->
                             add(g.timestamp to {
-                                Card(modifier = Modifier.fillMaxWidth()) {
-                                    Column(modifier = Modifier.padding(12.dp)) {
-                                        Text(stringResource(R.string.history_glucose_line, g.glucose.valueInMmolL.toString(), g.context.label()), style = MaterialTheme.typography.titleMedium)
+                                EntryCard(
+                                    onEdit = { viewModel.startEdit(EntryRef.Glucose(g)) },
+                                    onDelete = { viewModel.requestDelete(EntryRef.Glucose(g)) }
+                                ) {
+                                        Text(stringResource(R.string.history_glucose_line, units.formatGlucose(g.glucose.valueInMmolL.toDouble()), g.context.label()), style = MaterialTheme.typography.titleMedium)
                                         Text(stringResource(R.string.history_category_line, g.category.label()))
-                                        Text(stringResource(R.string.history_time_line, g.timestamp.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
+                                        Text(stringResource(R.string.history_time_line, g.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             })
                         }
@@ -208,11 +219,12 @@ fun HistoryScreen(
                     if (filter == HistoryFilter.ALL || filter == HistoryFilter.ACTIVITY) {
                         state.activities.forEach { a ->
                             add(a.startTime to {
-                                Card(modifier = Modifier.fillMaxWidth()) {
-                                    Column(modifier = Modifier.padding(12.dp)) {
-                                        Text(stringResource(R.string.history_activity_line, a.distanceInMeters.toString(), a.durationInSeconds.toString()), style = MaterialTheme.typography.titleMedium)
-                                        Text(stringResource(R.string.history_start_line, a.startTime.toString()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
+                                EntryCard(
+                                    onEdit = { viewModel.startEdit(EntryRef.Activity(a)) },
+                                    onDelete = { viewModel.requestDelete(EntryRef.Activity(a)) }
+                                ) {
+                                        Text(stringResource(R.string.history_activity_line, units.formatDistance(a.distanceInMeters), formatMinutes(a.durationInSeconds)), style = MaterialTheme.typography.titleMedium)
+                                        Text(stringResource(R.string.history_start_line, a.startTime.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             })
                         }
@@ -222,6 +234,8 @@ fun HistoryScreen(
             }
         }
     }
+
+    EntryDialogs(state = state, viewModel = viewModel)
 
     // Export Dialog
     if (showExportDialog) {

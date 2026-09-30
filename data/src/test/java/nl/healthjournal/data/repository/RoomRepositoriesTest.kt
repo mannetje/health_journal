@@ -46,6 +46,18 @@ class RoomRepositoriesTest {
             list.add(entry)
             flow.value = list.sortedByDescending { it.timestamp }
         }
+        override suspend fun update(entry: WeightEntity): Int {
+            val i = list.indexOfFirst { it.id == entry.id }
+            if (i < 0) return 0
+            list[i] = entry
+            flow.value = list.sortedByDescending { it.timestamp }
+            return 1
+        }
+        override suspend fun deleteById(id: String): Int {
+            val removed = list.removeAll { it.id == id }
+            flow.value = list.sortedByDescending { it.timestamp }
+            return if (removed) 1 else 0
+        }
         override suspend fun getByProfileId(profileId: String): List<WeightEntity> =
             list.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
 
@@ -60,6 +72,18 @@ class RoomRepositoriesTest {
             list.removeAll { it.id == entry.id }
             list.add(entry)
             flow.value = list.sortedByDescending { it.timestamp }
+        }
+        override suspend fun update(entry: BloodPressureEntity): Int {
+            val i = list.indexOfFirst { it.id == entry.id }
+            if (i < 0) return 0
+            list[i] = entry
+            flow.value = list.sortedByDescending { it.timestamp }
+            return 1
+        }
+        override suspend fun deleteById(id: String): Int {
+            val removed = list.removeAll { it.id == id }
+            flow.value = list.sortedByDescending { it.timestamp }
+            return if (removed) 1 else 0
         }
         override suspend fun getByProfileId(profileId: String): List<BloodPressureEntity> =
             list.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
@@ -76,6 +100,18 @@ class RoomRepositoriesTest {
             list.add(entry)
             flow.value = list.sortedByDescending { it.timestamp }
         }
+        override suspend fun update(entry: GlucoseEntity): Int {
+            val i = list.indexOfFirst { it.id == entry.id }
+            if (i < 0) return 0
+            list[i] = entry
+            flow.value = list.sortedByDescending { it.timestamp }
+            return 1
+        }
+        override suspend fun deleteById(id: String): Int {
+            val removed = list.removeAll { it.id == id }
+            flow.value = list.sortedByDescending { it.timestamp }
+            return if (removed) 1 else 0
+        }
         override suspend fun getByProfileId(profileId: String): List<GlucoseEntity> =
             list.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
 
@@ -90,6 +126,18 @@ class RoomRepositoriesTest {
             list.removeAll { it.id == entry.id }
             list.add(entry)
             flow.value = list.sortedByDescending { it.startTime }
+        }
+        override suspend fun update(entry: ActivityEntity): Int {
+            val i = list.indexOfFirst { it.id == entry.id }
+            if (i < 0) return 0
+            list[i] = entry
+            flow.value = list.sortedByDescending { it.startTime }
+            return 1
+        }
+        override suspend fun deleteById(id: String): Int {
+            val removed = list.removeAll { it.id == id }
+            flow.value = list.sortedByDescending { it.startTime }
+            return if (removed) 1 else 0
         }
         override suspend fun getByProfileId(profileId: String): List<ActivityEntity> =
             list.filter { it.profileId == profileId }.sortedByDescending { it.startTime }

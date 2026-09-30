@@ -1,0 +1,87 @@
+# Changelog
+
+All notable changes to Health Journal. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/). Each release is tagged `vX.Y.Z`; the section below is published as the GitHub Release notes.
+
+## [Unreleased]
+
+## [1.4.8] - 2026-09-30
+
+### Added
+- **Units:** choose Metric or Imperial (lb, mi, ft/in) and mmol/L or mg/dL in Profile. The default follows the region. Every input shows its unit, and History, trend charts and statistics follow the choice. Data is always stored in metric and CSV files stay metric ([ADR 0014](docs/adr/0014-units-presentation.md)).
+- **Regional formats:** a region setting for dates and numbers that is independent of the language, so English can be combined with Dutch formats.
+- **Activity distance** is entered in km or mi instead of meters.
+- **Edit and delete** entries from History for weight, blood pressure, glucose and activity ([ADR 0012](docs/adr/0012-edit-and-delete-entries.md)).
+- Specs are now a complete, platform-neutral description of all business rules, plus an Android-specific spec (`openspec/specs/`).
+
+### Fixed
+- Updating the profile no longer creates a second profile; it edits the active one ([ADR 0016](docs/adr/0016-profile-update-edits-active-profile.md)).
+- Success and error banners are translated in the Dutch UI, and re-translate when the language changes ([ADR 0015](docs/adr/0015-localized-viewmodel-messages.md)).
+- "Postprandial" glucose label in English.
+
+## [1.4.7] - 2026-09-30
+
+### Fixed
+- Trend ranges are anchored to the newest entry instead of today, so old data still shows a chart.
+- Calendar axis follows the zoom level.
+
+## [1.4.6] - 2026-09-29
+
+### Added
+- New app icon and a branded top bar with the logo.
+- Light and dark screenshots in the README.
+
+## [1.4.5] - 2026-09-29
+
+### Changed
+- Version bump for the release pipeline.
+
+## [1.4.4] - 2026-09-29
+
+### Fixed
+- History crash on real devices when the app language was overridden.
+- "All" filter and the Activity chip in History; Dutch tab labels.
+- Releases are signed with a fixed debug key, so a new APK installs over the old one and keeps your data ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
+
+### Changed
+- Dutch UI polish and a responsive History layout ([ADR 0010](docs/adr/0010-responsive-dutch-ui-layout.md)).
+
+## [1.4.3] - 2026-09-29
+
+### Added
+- System file picker for CSV import.
+
+### Fixed
+- Trend chart axes and layout.
+
+## [1.4.2] - 2026-09-29
+
+### Changed
+- Version bump; Kotlin/KSP 2.3.0, Room 2.8.5 and Gradle 8.13 toolchain upgrade ([ADR 0007](docs/adr/0007-build-toolchain-upgrade.md)).
+
+## [1.4.0] - 2026-09-28
+
+### Added
+- Trend charts in History for weight (with moving average), blood pressure and glucose ([ADR 0006](docs/adr/0006-health-trend-visualizations.md)).
+
+## [1.3.0] - 2026-09-28
+
+### Added
+- Dutch and English UI with a language override in Profile.
+- Dark theme that follows the system setting.
+- Optional sex field in the profile (first database migration).
+
+## [1.1.0] - 2026-09-27
+
+### Added
+- Manual activity recording.
+- Libra weight CSV import.
+
+## [1.0.0] - 2026-09-27
+
+### Added
+- Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
+- Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
+
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.4.7...HEAD
+[1.4.8]: https://github.com/mannetje/health_journal/compare/v1.4.7...v1.4.8
+[1.4.7]: https://github.com/mannetje/health_journal/compare/v1.4.6...v1.4.7

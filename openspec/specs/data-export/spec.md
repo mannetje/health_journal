@@ -1,63 +1,84 @@
 # data-export Specification
 
 ## Purpose
-Enables export of a Profile's measurement history for a given metric type as a CSV file, and import of measurements from a CSV file into the application.
+Defines the CSV contract for exporting a profile's measurement history and importing measurements (including the Libra weight format). The CSV format is a stable interchange contract; a port to another platform SHALL read and write identical files.
 
 ## Requirements
 
-### Requirement: Export metric history as CSV
-The system SHALL allow exporting all measurements of a given metric type for a Profile as a UTF-8 encoded CSV file.
+### Requirement: CSV conventions
+Exported files SHALL be UTF-8. Every row, including the header, SHALL end with a line feed. The separator is a comma and the decimal separator is always a point, independent of region. All values are metric canonical units regardless of display settings. Timestamps SHALL be ISO-8601 in UTC with a trailing Z (for example 2026-09-20T08:00:00Z); fractional seconds appear only when non-zero.
 
-#### Scenario: Weight history exported
-- **WHEN** a client requests a CSV export for the weight metric of a Profile
-- **THEN** the system SHALL produce a CSV with headers: `timestamp,weight_kg,bmi` and one row per measurement in chronological order
+#### Scenario: Locale independence
+- **WHEN** the region uses a decimal comma and weight is exported
+- **THEN** the weight in the file still uses a decimal point
 
-#### Scenario: Blood pressure history exported
-- **WHEN** a client requests a CSV export for the blood pressure metric
-- **THEN** the system SHALL produce a CSV with headers: `timestamp,systolic_mmhg,diastolic_mmhg,classification`
+### Requirement: Export metric history
+Export SHALL write the header row followed by one row per measurement of the profile, sorted ascending by timestamp (activity by start timestamp). Headers and columns:
+- weight: `timestamp,weight_kg,bmi` (weight as plain decimal; bmi empty when absent)
+- blood pressure: `timestamp,systolic_mmhg,diastolic_mmhg,classification` (classification is the category name)
+- glucose: `timestamp,glucose_mmol_l,context,classification` (context FASTING or POSTPRANDIAL; classification is the category name)
+- activity: `start_timestamp,end_timestamp,distance_m,duration_s` (distance in meters as decimal such as 5000.0; duration in whole seconds)
 
-#### Scenario: Glucose history exported
-- **WHEN** a client requests a CSV export for the glucose metric
-- **THEN** the system SHALL produce a CSV with headers: `timestamp,glucose_mmol_l,context,classification`
+The UI SHALL offer export for weight, blood pressure and glucose. Activity export is supported by the contract but has no UI entry point.
 
-#### Scenario: Activity history exported
-- **WHEN** a client requests a CSV export for the activity metric
-- **THEN** the system SHALL produce a CSV with headers: `start_timestamp,end_timestamp,distance_m,duration_s`
+#### Scenario: Weight exported
+- **WHEN** two weights are exported
+- **THEN** the file has the header `timestamp,weight_kg,bmi` and two rows, oldest first
 
-#### Scenario: Empty history produces header-only CSV
-- **WHEN** a Profile has no measurements for the requested metric
-- **THEN** the system SHALL produce a CSV file containing only the header row
+#### Scenario: Empty history
+- **WHEN** the profile has no measurements of the metric
+- **THEN** the file contains only the header row
 
-### Requirement: Import measurements from CSV
-The system SHALL allow importing measurements into a Profile from a UTF-8 encoded CSV file whose format matches the export schema for that metric.
+### Requirement: Import measurements
+Import SHALL take a metric type name and the file content and return an import result: the number of rows imported and the list of skipped rows (line number, reason). The metric type name is lowercased with "-" replaced by "_"; accepted names are `weight`, `blood_pressure` (also `bloodpressure`, `bp`), `glucose`, `activity`, and `libra` / `libra_weight`. Any other name skips every row with reason "Unsupported metric type: X". Blank content imports nothing and skips nothing. Blank lines are removed before line numbers are assigned; the header is line 1 and the first data row is line 2. A file with only a header imports 0 rows. Each imported row SHALL receive a new identifier and be linked to the active profile. Import with no active profile SHALL do nothing. Skip reasons are technical English text and are not localized.
 
-#### Scenario: Valid CSV imported
-- **WHEN** a client provides a valid CSV file matching the expected schema for a metric
-- **THEN** the system SHALL persist each row as a measurement linked to the specified Profile and return a count of rows imported
+#### Scenario: Valid file
+- **WHEN** a weight file with two valid rows is imported
+- **THEN** the result is 2 imported and no skipped rows
 
-#### Scenario: Malformed row skipped with error report
-- **WHEN** a CSV file contains one or more rows with invalid data (missing fields, unparseable values, out-of-range values)
-- **THEN** the system SHALL skip those rows, import the valid rows, and return an error report listing skipped row numbers and reasons
+#### Scenario: Unknown metric
+- **WHEN** the metric name is "steps"
+- **THEN** all rows are skipped with "Unsupported metric type: steps"
 
-#### Scenario: Duplicate timestamp not prevented
-- **WHEN** a CSV file contains a row whose timestamp already exists for that Profile and metric
-- **THEN** the system SHALL import it as an additional measurement (duplicates are allowed)
+### Requirement: Standard row rules
+Cells are split on commas and trimmed. Timestamps SHALL be parsed as an ISO-8601 instant, otherwise as epoch milliseconds. Rows failing a rule are skipped and the rest imported; a row with too few columns is skipped with "Expected at least N columns (...), got M"; any other failure is skipped with the error message or "Invalid data format".
+- weight: at least 2 columns; weight must be within 1.0 to 700.0 kg; a non-blank bmi column is used as given, otherwise BMI is computed from the profile height
+- blood pressure: at least 3 columns; values are whole numbers subject to the blood-pressure ranges; an optional 4th column category name (case-insensitive) is used when valid, otherwise the category is computed
+- glucose: at least 3 columns; value in mmol/L within range; context name case-insensitive; an optional 4th column category used when valid, otherwise computed
+- activity: at least 3 columns (start, end, distance in meters); subject to activity rules
+
+An imported category or BMI from the file is trusted as given, even if it differs from the computed value.
+
+#### Scenario: Malformed row skipped
+- **WHEN** a row has an unparseable timestamp or an out-of-range value
+- **THEN** it is skipped with its line number and reason and the valid rows are imported
+
+#### Scenario: Duplicates allowed
+- **WHEN** a row has the same timestamp as an existing entry
+- **THEN** it is imported as an additional entry
 
 ### Requirement: Import weight from Libra CSV
-The system SHALL support importing weight measurements from UTF-8 encoded CSV files exported by the Libra Android application (`net.cachapa.libra`).
+When the metric is `libra`/`libra_weight`, or the metric is `weight` and the content looks like Libra (any line starting with `#Version:`, `#Units:`, `#date;` or `date;`), the Libra rules apply. Fields are semicolon-separated, cells trimmed and surrounding quotes removed. Lines starting with `#` are skipped; `#date;`/`#date,` marks the header, and a plain `date;`/`date,` header line is skipped. Unit is read from `#Units:`: the value `lbs` (case-insensitive) means pounds, anything else or absent means kilograms. Pounds convert with 1 lb = 0.45359237 kg rounded to 2 decimals (half up). The weight is in the second column; other columns are ignored. A decimal comma is accepted. Timestamps may be a full ISO instant (with Z or offset), a local date-time without offset (interpreted as UTC) or a date only (start of day UTC). BMI is computed from the profile height. Line numbers count non-blank lines including comment lines. When a Libra import is explicitly chosen, UI errors use a Libra-specific message.
 
-#### Scenario: Valid Libra CSV in kilograms imported
-- **WHEN** a client imports a Libra CSV file with `#Units: kg` (or default kilograms) and semicolon-delimited rows containing valid ISO dates and weights
-- **THEN** the system SHALL parse each data row, persist the weight measurement associated with the active Profile, and return the count of successfully imported rows
+#### Scenario: Pounds converted
+- **WHEN** a Libra file has `#Units: lbs` and a row weight of 165.0
+- **THEN** 74.84 kg is stored
 
-#### Scenario: Libra CSV with imperial pounds converted to kilograms
-- **WHEN** a client imports a Libra CSV file specifying `#Units: lbs`
-- **THEN** the system SHALL convert each weight entry from pounds to kilograms using factor 1 lb = 0.45359237 kg rounded to two decimal places and persist the weight measurement
+#### Scenario: Blank weight
+- **WHEN** a row has a blank weight
+- **THEN** it is skipped with reason "Weight value is blank"
 
-#### Scenario: Metadata comments and optional columns ignored
-- **WHEN** a Libra CSV contains header comments (such as `#Version:`, `#Units:`, or `#date;weight;...`) and optional trailing columns (weight trend, body fat, muscle mass, notes)
-- **THEN** the system SHALL safely ignore non-essential metadata and optional columns while extracting date and weight
+#### Scenario: Out of range after conversion
+- **WHEN** the converted weight is outside 1.0 to 700.0 kg
+- **THEN** the row is skipped with a message stating the weight is outside the physiological range [1.0, 700.0] kg
 
-#### Scenario: Malformed Libra row skipped with error report
-- **WHEN** a Libra CSV row contains an unparseable timestamp, non-numeric weight, or weight outside the physiological range of 1.0 kg to 700.0 kg
-- **THEN** the system SHALL skip the malformed row, continue importing remaining rows, and include the line number and error reason in the skipped rows report
+#### Scenario: Metadata ignored
+- **WHEN** the file contains `#Version:` and `#Units:` comments and extra columns
+- **THEN** they are ignored while date and weight are read
+
+### Requirement: Import feedback in the UI
+After an import the UI SHALL show the number of imported rows and the number of skipped rows. Activity import has no UI entry point.
+
+#### Scenario: Summary shown
+- **WHEN** 3 rows import and 1 is skipped
+- **THEN** the UI reports 3 imported and 1 skipped

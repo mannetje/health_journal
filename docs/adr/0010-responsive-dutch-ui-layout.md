@@ -56,4 +56,5 @@ flowchart LR
 
 ### Negative / Trade-offs
 - `softWrap = false` truncates instead of wrapping if a future translation is much longer, so new strings must be checked in the Dutch locale on a ~360 dp wide device.
+- Text the ViewModels produce (success and error banners) must also be translated: it is passed as a resource id and resolved on the screen, see [ADR 0015](0015-localized-viewmodel-messages.md). A label that repeats its translation in brackets ("Fasting (Nuchter)") is a defect in either language.
 - The merged **All** list builds row lambdas per entry; for very large histories a per-type paging strategy may be needed.

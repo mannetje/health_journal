@@ -1,55 +1,55 @@
 # blood-pressure Specification
 
 ## Purpose
-Records systolic and diastolic blood pressure readings in mmHg for a Profile and classifies them against Dutch NHG (Nederlands Huisartsen Genootschap) guideline thresholds.
+Defines blood pressure logging and the NHG classification. Values are in mmHg.
 
 ## Requirements
 
-### Requirement: Record blood pressure measurement
-The system SHALL allow recording a blood pressure reading consisting of a systolic and diastolic value in mmHg, associated with a Profile and a timestamp.
+### Requirement: Reading ranges
+A reading SHALL have systolic in the inclusive range 40 to 300 and diastolic in the inclusive range 20 to 200 (whole numbers, mmHg), and systolic SHALL be strictly greater than diastolic. Violations SHALL be rejected.
 
-#### Scenario: Valid reading recorded
-- **WHEN** a client provides a Profile identifier, a systolic value between 40 and 300 mmHg, a diastolic value between 20 and 200 mmHg, and a timestamp
-- **THEN** the system SHALL persist the reading and return its identifier
+#### Scenario: Systolic not above diastolic
+- **WHEN** 80/80 is recorded
+- **THEN** it is rejected
 
-#### Scenario: Systolic below diastolic rejected
-- **WHEN** a client provides a systolic value that is less than or equal to the diastolic value
-- **THEN** the system SHALL reject the reading with a validation error
+#### Scenario: Range boundaries
+- **WHEN** systolic is 39 or 301, or diastolic is 19 or 201
+- **THEN** it is rejected
+- **WHEN** 300/200 or 40/20 is recorded
+- **THEN** it is accepted
 
-#### Scenario: Value out of physiological range rejected
-- **WHEN** either value falls outside the accepted physiological range
-- **THEN** the system SHALL reject the reading with a validation error
+### Requirement: NHG classification
+The category SHALL be evaluated top-down, the first matching rule wins:
+1. GRADE_3 when systolic >= 180 or diastolic >= 110
+2. GRADE_2 when systolic >= 160 or diastolic >= 100
+3. GRADE_1 when systolic >= 140 or diastolic >= 90
+4. HIGH_NORMAL when systolic is 130 to 139 or diastolic is 85 to 89
+5. NORMAL when (systolic 120 to 129 and diastolic < 80) or (systolic < 130 and diastolic 80 to 84)
+6. OPTIMAL when systolic < 120 and diastolic < 80
 
-### Requirement: Classify blood pressure against NHG thresholds
-The system SHALL classify a blood pressure reading against NHG guideline categories.
+The higher of the systolic and diastolic categories therefore wins.
 
-#### Scenario: Classified as optimal
-- **WHEN** systolic is below 120 AND diastolic is below 80
-- **THEN** the system SHALL classify the reading as OPTIMAL
+#### Scenario: Examples
+- **WHEN** readings are 115/75, 125/78, 118/82, 135/80, 128/88, 145/85, 150/100, 165/90, 185/95 and 120/112
+- **THEN** categories are OPTIMAL, NORMAL, NORMAL, HIGH_NORMAL, HIGH_NORMAL, GRADE_1, GRADE_2, GRADE_2, GRADE_3 and GRADE_3
 
-#### Scenario: Classified as normal
-- **WHEN** systolic is between 120 and 129 (inclusive) AND diastolic is below 80, OR systolic is below 130 AND diastolic is between 80 and 84 (inclusive)
-- **THEN** the system SHALL classify the reading as NORMAL
+### Requirement: Stored category
+The category SHALL be computed and stored with the entry when it is recorded and recomputed when the entry is updated. Recording uses the current time as timestamp.
 
-#### Scenario: Classified as high normal
-- **WHEN** systolic is between 130 and 139 (inclusive) OR diastolic is between 85 and 89 (inclusive)
-- **THEN** the system SHALL classify the reading as HIGH_NORMAL
+#### Scenario: Update reclassifies
+- **WHEN** an entry of 118/75 is edited to 150/95
+- **THEN** its stored category becomes GRADE_1
 
-#### Scenario: Classified as hypertension grade 1
-- **WHEN** systolic is between 140 and 159 (inclusive) OR diastolic is between 90 and 99 (inclusive)
-- **THEN** the system SHALL classify the reading as HYPERTENSION_GRADE_1
+### Requirement: Live preview and validation feedback
+The UI SHALL show a category preview only when systolic is 40 to 300, diastolic is 20 to 200 and systolic > diastolic. Blank, non-numeric or invalid values SHALL show localized validation errors for systolic and diastolic and store nothing.
 
-#### Scenario: Classified as hypertension grade 2
-- **WHEN** systolic is between 160 and 179 (inclusive) OR diastolic is between 100 and 109 (inclusive)
-- **THEN** the system SHALL classify the reading as HYPERTENSION_GRADE_2
+#### Scenario: Preview hidden for invalid pair
+- **WHEN** 90/95 is typed
+- **THEN** no preview is shown
 
-#### Scenario: Classified as hypertension grade 3
-- **WHEN** systolic is 180 or above OR diastolic is 110 or above
-- **THEN** the system SHALL classify the reading as HYPERTENSION_GRADE_3
+### Requirement: Persistence contract
+Readings SHALL be stored in table "blood_pressures": id, profile id, timestamp (epoch ms), systolic, diastolic, category (enum name as text).
 
-### Requirement: Retrieve blood pressure history
-The system SHALL allow retrieving all blood pressure readings for a Profile in reverse chronological order.
-
-#### Scenario: History returned for known profile
-- **WHEN** a client requests blood pressure history for a Profile with readings
-- **THEN** the system SHALL return all readings ordered from most recent to oldest, each including classification
+#### Scenario: Round trip
+- **WHEN** a reading is stored and read back
+- **THEN** all fields including the category name are equal

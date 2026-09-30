@@ -1,54 +1,61 @@
 # weight Specification
 
 ## Purpose
-Records body weight measurements over time for a Profile. Supports BMI calculation when the Profile has a height set. Evaluates weight status against WHO/NHG BMI categories.
+Defines weight logging, BMI calculation and the NHG BMI categories. Weight is always stored in kilograms.
 
 ## Requirements
 
-### Requirement: Record weight measurement
-The system SHALL allow recording a body weight measurement in kilograms for a Profile at a given timestamp.
+### Requirement: Weight value range
+A weight SHALL be a decimal number of kilograms in the inclusive range 1.0 to 700.0. Values outside the range SHALL be rejected. Weights entered in pounds are converted to kilograms first (see units-presentation) and stored rounded to 2 decimals (half up).
 
-#### Scenario: Valid weight recorded
-- **WHEN** a client provides a Profile identifier, a weight between 1.0 kg and 700.0 kg, and a measurement timestamp
-- **THEN** the system SHALL persist the measurement and return its identifier
+#### Scenario: Boundaries
+- **WHEN** weight is 0.9 or 700.1 kg
+- **THEN** it is rejected
+- **WHEN** weight is 1.0 or 700.0 kg
+- **THEN** it is accepted
 
-#### Scenario: Weight out of range rejected
-- **WHEN** a client provides a weight value less than 1.0 kg or greater than 700.0 kg
-- **THEN** the system SHALL reject the request with a validation error
+### Requirement: Weight entry
+A weight entry SHALL consist of an identifier (UUID v4 or v7), the owning profile, a timestamp (instant), the weight in kg and an optional BMI. Recording SHALL use the current time as timestamp.
 
-### Requirement: Calculate BMI
-The system SHALL calculate BMI (Body Mass Index) from a weight measurement when the Profile has a height recorded.
+#### Scenario: Record weight
+- **WHEN** 75 kg is recorded for the active profile
+- **THEN** an entry with the current timestamp and 75 kg is stored and appears in history
 
-#### Scenario: BMI calculated with height available
-- **WHEN** a weight measurement is recorded and the Profile has a height set
-- **THEN** the system SHALL return the BMI value rounded to one decimal place using the formula: weight(kg) / (height(m))²
+### Requirement: BMI calculation
+BMI SHALL be weight (kg) divided by the square of height in meters. Height in meters is centimeters divided by 100 computed to 4 decimals (half up). The BMI result SHALL be rounded to 1 decimal (half up). When the profile has no height, or the profile cannot be found, BMI SHALL be absent. BMI SHALL be computed and stored on the entry when it is recorded and recomputed when the entry is updated; it SHALL NOT be recomputed when the profile height later changes.
 
-#### Scenario: BMI unavailable without height
-- **WHEN** a weight measurement is recorded and the Profile has no height set
-- **THEN** the system SHALL return a null/absent BMI value, not an error
+#### Scenario: BMI with height
+- **WHEN** 75 kg is recorded for a profile of 180 cm
+- **THEN** the stored BMI is 23.1
 
-### Requirement: Classify BMI against NHG categories
-The system SHALL classify a calculated BMI value against NHG/WHO standard categories.
+#### Scenario: No height
+- **WHEN** a weight is recorded for a profile without height
+- **THEN** BMI is absent
 
-#### Scenario: BMI classified as underweight
-- **WHEN** BMI is below 18.5
-- **THEN** the system SHALL classify it as UNDERWEIGHT
+### Requirement: NHG BMI categories
+The BMI category SHALL be UNDERWEIGHT below 18.5; NORMAL from 18.5 up to but excluding 25.0; OVERWEIGHT from 25.0 up to but excluding 30.0; OBESE from 30.0 upward.
 
-#### Scenario: BMI classified as normal
-- **WHEN** BMI is between 18.5 (inclusive) and 25.0 (exclusive)
-- **THEN** the system SHALL classify it as NORMAL
+#### Scenario: Boundaries
+- **WHEN** BMI is 18.4, 18.5, 24.9, 25.0, 29.9 or 30.0
+- **THEN** the categories are UNDERWEIGHT, NORMAL, NORMAL, OVERWEIGHT, OVERWEIGHT and OBESE respectively
 
-#### Scenario: BMI classified as overweight
-- **WHEN** BMI is between 25.0 (inclusive) and 30.0 (exclusive)
-- **THEN** the system SHALL classify it as OVERWEIGHT
+### Requirement: Live BMI preview
+While logging, the UI SHALL show a BMI preview only when the entered weight is within 1 to 700 kg, an active profile exists and that profile has a height. Otherwise no preview is shown.
 
-#### Scenario: BMI classified as obese
-- **WHEN** BMI is 30.0 or above
-- **THEN** the system SHALL classify it as OBESE
+#### Scenario: No preview without height
+- **WHEN** the profile has no height
+- **THEN** no BMI preview is shown
 
-### Requirement: Retrieve weight history
-The system SHALL allow retrieving all weight measurements for a Profile in reverse chronological order.
+### Requirement: Weight logging validation feedback
+A blank, non-numeric or out-of-range weight SHALL show a localized validation error and SHALL NOT be stored. Without an active profile the record action is disabled and the UI asks to create a profile first.
 
-#### Scenario: History returned for known profile
-- **WHEN** a client requests weight history for a Profile with measurements
-- **THEN** the system SHALL return all measurements ordered from most recent to oldest
+#### Scenario: Invalid input
+- **WHEN** the user records "abc"
+- **THEN** a weight validation error is shown and nothing is stored
+
+### Requirement: Persistence contract
+Weights SHALL be stored in table "weights": id, profile id, timestamp (epoch milliseconds), weight in kg (floating point) and BMI (nullable floating point). History ordering is by timestamp descending.
+
+#### Scenario: Round trip
+- **WHEN** an entry is stored and read back
+- **THEN** id, profile, timestamp, weight and BMI are equal to those stored

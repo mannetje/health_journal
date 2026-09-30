@@ -1,39 +1,56 @@
 # activity Specification
 
 ## Purpose
-Records physical activity sessions for a Profile, entered manually in the app or imported in bulk. Each session captures start time, end time, and total distance. Distance is stored in metres internally.
+Records physical activity sessions for a profile, entered manually in the app or imported in bulk. Each session captures start time, end time and total distance. Distance is stored in meters and duration is derived.
 
 ## Requirements
 
 ### Requirement: Record activity session
-The system SHALL allow recording a physical activity session with a start timestamp, end timestamp, and total distance in metres, associated with a Profile, both through bulk data import and through manual entry in the application's own UI.
+The system SHALL allow recording a session with a start timestamp, an end timestamp and a distance in meters, owned by a profile. The end SHALL be strictly after the start. Distance SHALL be within 0 to 1,000,000 meters inclusive.
 
 #### Scenario: Valid session recorded
-- **WHEN** a client provides a Profile identifier, a start timestamp, an end timestamp after the start, and a distance between 0 and 1,000,000 metres
-- **THEN** the system SHALL persist the session and return its identifier
+- **WHEN** a profile id, a start, an end after the start and a distance of 5000 m are provided
+- **THEN** the session is persisted and its identifier returned
 
-#### Scenario: End before start rejected
-- **WHEN** the end timestamp is at or before the start timestamp
-- **THEN** the system SHALL reject the session with a validation error
+#### Scenario: End before or equal to start rejected
+- **WHEN** the end is at or before the start
+- **THEN** the session is rejected with a validation error and nothing is stored
 
-#### Scenario: Negative distance rejected
-- **WHEN** the distance value is negative
-- **THEN** the system SHALL reject the session with a validation error
+#### Scenario: Distance out of range rejected
+- **WHEN** the distance is negative or above 1,000,000 m
+- **THEN** the session is rejected
 
-#### Scenario: Manual session entry via app
-- **WHEN** a user with an active Profile enters a duration and a distance for an activity in the logging screen and confirms
-- **THEN** the system SHALL derive a start timestamp of "now minus duration" and an end timestamp of "now", persist the session for the active Profile, and confirm the entry was recorded
+### Requirement: Session duration
+The duration in seconds SHALL be derived as the whole seconds between start and end. It is not stored independently of the timestamps.
 
-### Requirement: Calculate session duration
-The system SHALL derive the session duration in seconds from the start and end timestamps.
+#### Scenario: Duration computed
+- **WHEN** a session runs from 08:00:00 to 08:30:00
+- **THEN** its duration is 1800 seconds
 
-#### Scenario: Duration computed correctly
-- **WHEN** a session has a valid start and end timestamp
-- **THEN** the system SHALL expose the duration as the difference in whole seconds between end and start
+### Requirement: Manual logging
+In the logging screen the user enters a duration in minutes and a distance. The duration SHALL be greater than 0 and the distance SHALL be 0 or more; otherwise a localized validation error is shown and nothing is stored. The end timestamp SHALL be the current time and the start SHALL be the current time minus the duration (minutes x 60, truncated to whole seconds). Distance is entered in kilometers or miles according to the unit setting (see units-presentation) and stored in meters. Without an active profile, recording is unavailable.
+
+#### Scenario: Manual session
+- **WHEN** 30 minutes and 5 km are entered
+- **THEN** a session ending now, starting 30 minutes earlier, with 5000 m is stored
 
 ### Requirement: Retrieve activity history
-The system SHALL allow retrieving all activity sessions for a Profile in reverse chronological order.
+Sessions for a profile SHALL be returned ordered by start time, most recent first, each including start, end, distance and duration.
 
-#### Scenario: History returned for known profile
-- **WHEN** a client requests activity history for a Profile with sessions
-- **THEN** the system SHALL return all sessions ordered from most recent to oldest, each including start time, end time, distance, and duration
+#### Scenario: History order
+- **WHEN** sessions exist
+- **THEN** they are listed newest start first
+
+### Requirement: Editing a session
+Editing (see entry-management) allows changing the duration and the distance. The start time is kept; the new end is start plus the entered duration (minutes x 60, rounded to whole seconds). The duration SHALL be greater than 0 and the distance 0 or more. Activity entries are not range-filtered by the trend range.
+
+#### Scenario: Edit duration
+- **WHEN** a session starting 08:00 is edited to 45 minutes
+- **THEN** its end becomes 08:45 and its start stays 08:00
+
+### Requirement: Persistence contract
+Sessions SHALL be stored in table "activities": id, profile id, start timestamp (epoch ms), end timestamp (epoch ms), distance in meters (floating point). Ordering is by start descending.
+
+#### Scenario: Round trip
+- **WHEN** a session is stored and read back
+- **THEN** start, end and distance are equal
