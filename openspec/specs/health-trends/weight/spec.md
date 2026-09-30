@@ -24,7 +24,7 @@ The user SHALL be able to choose a moving-average window of 3, 5, 7 or 10 points
 - **THEN** the third average is the mean of the first three points
 
 ### Requirement: Window label
-The UI label for the window currently reads "N-day avg" although the window counts entries. A port SHOULD label it as a number of entries (open question, see README).
+The window counts entries, not days, and the UI label SHALL say so ("N-entry avg"; Dutch "N-metingen gem.").
 
 #### Scenario: Label
 - **WHEN** window 5 is selected

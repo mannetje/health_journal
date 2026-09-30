@@ -90,6 +90,7 @@
     <string name="profile_dob_label">Date of Birth *</string>
     <string name="profile_dob_pick">Choose date of birth</string>
     <string name="profile_height_label">Height (%1$s, optional)</string>
+    <string name="profile_height_invalid">Enter the height as whole numbers.</string>
     <string name="profile_height_placeholder">e.g. 180</string>
     <string name="profile_height_feet_label">Feet</string>
     <string name="profile_height_inches_label">Inches</string>
@@ -132,7 +133,7 @@
     <string name="trend_stat_average">Average</string>
     <string name="trend_stat_tir">Time in Range</string>
     <string name="trend_stat_count">Entries</string>
-    <string name="trend_moving_average_n">%1$d-day avg</string>
+    <string name="trend_moving_average_n">%1$d-entry avg</string>
     <string name="trend_weight_title">Weight Trend</string>
     <string name="trend_weight_latest_bmi">Latest BMI: %1$s — %2$s</string>
     <string name="trend_bp_title">Blood Pressure Trend</string>

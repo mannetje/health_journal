@@ -13,11 +13,11 @@ The chart SHALL draw a systolic line and a diastolic line over the range-filtere
 - **THEN** systolic and diastolic lines are drawn
 
 ### Requirement: Average and classification
-The average systolic and diastolic over the range SHALL be computed and TRUNCATED to whole numbers (not rounded), then classified with the standard blood-pressure rules. The average is shown with its category and category color.
+The average systolic and diastolic over the range SHALL be computed and each ROUNDED to the nearest whole number (half up), then classified with the standard blood-pressure rules. The average is shown with its category and category color.
 
-#### Scenario: Truncation
-- **WHEN** systolic values average 129.9
-- **THEN** 129 is used for classification
+#### Scenario: Rounding
+- **WHEN** systolic values average 129.6
+- **THEN** 130 is used for classification and display
 
 ### Requirement: Gauges
 A gauge for systolic SHALL map the range 80 to 200 and for diastolic 40 to 120; the filled fraction is (value - min) / (max - min) clamped to 0..1, colored by the average category.

@@ -31,7 +31,7 @@ Updating an entry SHALL take the entry id, the owning profile and the new values
 Each entry can be edited in a dialog that pre-fills the current values in the user's display units. Validation in the dialog:
 - weight: 1 to 700 kg, else an "invalid value" message
 - blood pressure: systolic 40 to 300, diastolic 20 to 200, systolic > diastolic
-- glucose: value greater than 0 in the dialog; the domain range (0.5 to 55.0 mmol/L) is enforced afterwards and its error message is shown
+- glucose: 0.5 to 55.0 mmol/L (after conversion from the display unit), else an "invalid value" message
 - activity: duration greater than 0 minutes, distance 0 or more; start time is not editable
 Weight, blood pressure and glucose expose an editable date and time; activity does not.
 If the update fails or the entry is gone, the dialog SHALL stay open and show an error ("Entry not found" when missing). On success the dialog closes and history and trend data refresh.

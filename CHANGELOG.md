@@ -4,6 +4,18 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.4.9] - 2026-09-30
+
+### Fixed
+- Blood pressure averages in the trend view are rounded to the nearest whole mmHg instead of truncated, so the shown value and category no longer lean low.
+- A non-numeric height in Profile now shows an error instead of silently clearing the height.
+- The weight moving-average chip says "N-entry avg" (it counts entries, not days).
+- The glucose edit dialog checks the full 0.5 to 55 mmol/L range itself.
+- Profile names are trimmed in the domain as well as in the UI.
+- CSV import: skipped rows report the physical file line number, BMI and categories are always recomputed instead of trusted from the file, and Libra files with a unit other than kg or lbs are rejected instead of being read as kilograms.
+- The birth-date picker no longer offers today, which the profile rules reject.
+- Success, info and error banners no longer stay visible after switching to another tab.
+
 ## [1.4.8] - 2026-09-30
 
 ### Added
@@ -82,6 +94,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.4.7...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.4.9...HEAD
+[1.4.9]: https://github.com/mannetje/health_journal/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/mannetje/health_journal/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/mannetje/health_journal/compare/v1.4.6...v1.4.7

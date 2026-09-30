@@ -124,4 +124,10 @@ class ProfileTest {
         assertEquals(profile.id, updated.id)
         assertEquals(profile.name, updated.name)
     }
+
+    @Test
+    fun `reconstruct trims the name`() {
+        val p = Profile.reconstruct(ProfileId.generate(), "  Jan  ", LocalDate.of(1990, 5, 15), null)
+        assertEquals("Jan", p.name)
+    }
 }

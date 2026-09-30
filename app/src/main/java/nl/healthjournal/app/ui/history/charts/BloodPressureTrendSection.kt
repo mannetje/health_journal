@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.nhg.getBpColor
 import nl.healthjournal.app.ui.nhg.label
@@ -55,9 +56,7 @@ fun BloodPressureTrendSection(entries: List<BloodPressureEntry>, modifier: Modif
         }
 
         if (sorted.isNotEmpty()) {
-            val avgSystolic = sorted.map { it.reading.systolic }.average()
-            val avgDiastolic = sorted.map { it.reading.diastolic }.average()
-            val avgReading = BloodPressureReading(avgSystolic.toInt(), avgDiastolic.toInt())
+            val avgReading = averageBloodPressure(sorted.map { it.reading })
             val avgCategory = NhgBloodPressureCategory.classify(avgReading)
             val avgColor = getBpColor(avgCategory)
 
@@ -125,3 +124,10 @@ private fun LegendDot(color: Color, label: String) {
         Text(label, style = MaterialTheme.typography.labelSmall)
     }
 }
+
+/** Mean systolic and diastolic, each rounded to the nearest whole mmHg (half up). */
+internal fun averageBloodPressure(readings: List<BloodPressureReading>): BloodPressureReading =
+    BloodPressureReading(
+        readings.map { it.systolic }.average().roundToInt(),
+        readings.map { it.diastolic }.average().roundToInt()
+    )

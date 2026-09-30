@@ -49,6 +49,10 @@ ViewModels SHALL NOT hold translated text. They SHALL expose a `UiText` value, e
 - **WHEN** a success banner is showing and the language is switched
 - **THEN** the banner SHALL show in the new language (ADR 0015)
 
+#### Scenario: Switching tabs clears banners
+- **WHEN** a success, info or error banner is showing and the user switches to another tab
+- **THEN** the banners of all screens are cleared; a banner is not carried to another screen
+
 ### Requirement: Screens fit narrow phones and Dutch text
 Segmented buttons, tab rows and filter chips SHALL fit a phone width of about 360 dp in Dutch without overlap or broken words, using scrolling rows or wrapping instead of truncation (ADR 0010).
 

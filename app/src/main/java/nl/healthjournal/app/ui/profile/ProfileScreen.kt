@@ -134,6 +134,14 @@ fun ProfileScreen(
 
         BirthDateField(value = birthDate, onChange = { birthDate = it })
 
+        // A non-numeric height is an error, not "no height": saving would otherwise silently clear it.
+        val heightInvalid = if (units.isImperial) {
+            (feetInput.isNotBlank() && feetInput.trim().toIntOrNull() == null) ||
+                (inchesInput.isNotBlank() && inchesInput.trim().toIntOrNull() == null)
+        } else {
+            heightInput.isNotBlank() && heightInput.trim().toIntOrNull() == null
+        }
+
         if (units.isImperial) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(stringResource(R.string.profile_height_label_imperial), style = MaterialTheme.typography.labelLarge)
@@ -143,6 +151,7 @@ fun ProfileScreen(
                         onValueChange = { updateImperialHeight(it, inchesInput) },
                         label = { Text(stringResource(R.string.profile_height_feet_label)) },
                         suffix = { Text("ft") },
+                        isError = heightInvalid,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f),
                         singleLine = true
@@ -152,9 +161,17 @@ fun ProfileScreen(
                         onValueChange = { updateImperialHeight(feetInput, it) },
                         label = { Text(stringResource(R.string.profile_height_inches_label)) },
                         suffix = { Text("in") },
+                        isError = heightInvalid,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f),
                         singleLine = true
+                    )
+                }
+                if (heightInvalid) {
+                    Text(
+                        stringResource(R.string.profile_height_invalid),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -164,6 +181,10 @@ fun ProfileScreen(
                 onValueChange = { heightInput = it },
                 label = { Text(stringResource(R.string.profile_height_label, "cm")) },
                 placeholder = { Text(stringResource(R.string.profile_height_placeholder)) },
+                isError = heightInvalid,
+                supportingText = if (heightInvalid) {
+                    { Text(stringResource(R.string.profile_height_invalid)) }
+                } else null,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -286,7 +307,7 @@ fun ProfileScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isLoading && nameInput.isNotBlank() && birthDate != null
+            enabled = !state.isLoading && nameInput.isNotBlank() && birthDate != null && !heightInvalid
         ) {
             Text(stringResource(if (state.activeProfile != null) R.string.profile_update_button else R.string.profile_title_create))
         }
@@ -350,7 +371,7 @@ private fun BirthDateField(value: LocalDate?, onChange: (LocalDate) -> Unit) {
             initialDisplayMode = DisplayMode.Input,
             yearRange = 1900..today.year,
             selectableDates = object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis <= todayUtcMillis
+                override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis < todayUtcMillis
                 override fun isSelectableYear(year: Int) = year <= today.year
             }
         )

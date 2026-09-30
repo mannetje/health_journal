@@ -48,7 +48,10 @@ class CsvDataImportAdapter(
             return ImportResult(0, emptyList())
         }
 
-        val allLines = csvContent.lines().map { it.trim() }.filter { it.isNotEmpty() }
+        // Keep the physical line number of every non-blank line, so skipped rows point at the real file line.
+        val numbered = csvContent.lines().mapIndexed { i, l -> (i + 1) to l.trim() }.filter { it.second.isNotEmpty() }
+        val allLines = numbered.map { it.second }
+        val lineNumbers = numbered.map { it.first }
         if (allLines.isEmpty()) {
             return ImportResult(0, emptyList())
         }
@@ -60,7 +63,7 @@ class CsvDataImportAdapter(
             (normalizedType == "weight" && isLibraFormat(allLines))
 
         if (isLibra) {
-            return importLibraCsv(profileId, allLines)
+            return importLibraCsv(profileId, allLines, lineNumbers)
         }
 
         // Standard comma-separated import path
@@ -75,7 +78,7 @@ class CsvDataImportAdapter(
         var importedCount = 0
 
         for ((index, line) in dataLines.withIndex()) {
-            val lineNumber = index + 2 // 1-indexed, header is line 1
+            val lineNumber = lineNumbers[index + 1] // physical line; the header is the first non-blank line
             val parts = line.split(",").map { it.trim() }
 
             try {
@@ -87,11 +90,8 @@ class CsvDataImportAdapter(
                         }
                         val timestamp = parseInstant(parts[0])
                         val weightKg = WeightKg(BigDecimal(parts[1]))
-                        val bmi = if (parts.size >= 3 && parts[2].isNotBlank()) {
-                            BigDecimal(parts[2])
-                        } else {
-                            profile?.calculateBmi(weightKg)?.bmi
-                        }
+                        // BMI is derived data: always recomputed from the profile height, the file's value is ignored.
+                        val bmi = profile?.calculateBmi(weightKg)?.bmi
                         val entry = WeightEntry(
                             id = MeasurementId.generate(),
                             profileId = profileId,
@@ -111,15 +111,7 @@ class CsvDataImportAdapter(
                         val systolic = parts[1].toInt()
                         val diastolic = parts[2].toInt()
                         val reading = BloodPressureReading(systolic, diastolic)
-                        val category = if (parts.size >= 4 && parts[3].isNotBlank()) {
-                            try {
-                                NhgBloodPressureCategory.valueOf(parts[3].uppercase())
-                            } catch (e: Exception) {
-                                NhgBloodPressureCategory.classify(reading)
-                            }
-                        } else {
-                            NhgBloodPressureCategory.classify(reading)
-                        }
+                        val category = NhgBloodPressureCategory.classify(reading)
                         val entry = BloodPressureEntry(
                             id = MeasurementId.generate(),
                             profileId = profileId,
@@ -138,15 +130,7 @@ class CsvDataImportAdapter(
                         val timestamp = parseInstant(parts[0])
                         val glucoseLevel = GlucoseLevel(BigDecimal(parts[1]))
                         val context = GlucoseContext.valueOf(parts[2].uppercase())
-                        val category = if (parts.size >= 4 && parts[3].isNotBlank()) {
-                            try {
-                                NhgGlucoseCategory.valueOf(parts[3].uppercase())
-                            } catch (e: Exception) {
-                                NhgGlucoseCategory.classify(glucoseLevel, context)
-                            }
-                        } else {
-                            NhgGlucoseCategory.classify(glucoseLevel, context)
-                        }
+                        val category = NhgGlucoseCategory.classify(glucoseLevel, context)
                         val entry = GlucoseEntry(
                             id = MeasurementId.generate(),
                             profileId = profileId,
@@ -199,27 +183,33 @@ class CsvDataImportAdapter(
      * 2026-09-20T08:00:00.000+02:00;74.5;;;;;;;
      * ```
      */
-    private suspend fun importLibraCsv(profileId: ProfileId, allLines: List<String>): ImportResult {
+    private suspend fun importLibraCsv(profileId: ProfileId, allLines: List<String>, lineNumbers: List<Int>): ImportResult {
         val profile = profileRepository.getById(profileId)
         val skippedRows = mutableListOf<SkippedRow>()
         var importedCount = 0
 
         // Extract unit from metadata; default to kg if absent
+        // Only kg and lbs are known; any other unit skips the data rows instead of guessing a conversion.
         var useKg = true
+        var unsupportedUnit: String? = null
         for (line in allLines) {
             if (line.startsWith("#Units:")) {
                 val unit = line.removePrefix("#Units:").trim().lowercase()
-                useKg = unit != "lbs"
+                when (unit) {
+                    "kg" -> useKg = true
+                    "lbs" -> useKg = false
+                    else -> unsupportedUnit = line.removePrefix("#Units:").trim()
+                }
                 break
             }
         }
 
         // Find the column header line (starts with '#date;' or 'date;') and all data lines after it
         var headerFound = false
-        var currentLineNumber = 0
+        var currentLineNumber: Int
 
-        for (line in allLines) {
-            currentLineNumber++
+        for ((lineIndex, line) in allLines.withIndex()) {
+            currentLineNumber = lineNumbers[lineIndex]
 
             // Skip all comment/metadata lines
             if (line.startsWith("#")) {
@@ -239,6 +229,10 @@ class CsvDataImportAdapter(
             }
 
             // Data row
+            if (unsupportedUnit != null) {
+                skippedRows.add(SkippedRow(currentLineNumber, "Unsupported Libra unit: $unsupportedUnit (expected kg or lbs)"))
+                continue
+            }
             val parts = line.split(";").map { it.trim().removeSurrounding("\"") }
 
             if (parts.size < 2) {

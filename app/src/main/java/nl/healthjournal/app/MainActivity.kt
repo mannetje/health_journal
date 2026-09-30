@@ -94,6 +94,18 @@ class MainActivity : ComponentActivity() {
             HealthJournalTheme {
                 var currentTab by rememberSaveable { mutableStateOf(AppNavDestination.LOG) }
 
+                // Banners belong to the screen that raised them. Skip the first run so a banner survives the
+                // Activity recreation caused by a language change (ADR 0015).
+                var previousTab by remember { mutableStateOf(currentTab) }
+                LaunchedEffect(currentTab) {
+                    if (currentTab != previousTab) {
+                        previousTab = currentTab
+                        loggingViewModel.clearMessages()
+                        profileViewModel.clearMessages()
+                        historyViewModel.clearMessages()
+                    }
+                }
+
                 Scaffold(
                     topBar = {
                         TopAppBar(

@@ -86,15 +86,6 @@ Platform choice (free): UI toolkit, persistence engine, navigation, chart render
 ## Discrepancies and open questions
 
 - Waist circumference is planned (change `add-waist-circumference-tracking`) but not implemented; there is no spec for it.
-- The weight moving-average label says "N-day avg" but counts entries.
-- The date picker allows today as birth date but the domain rejects it.
-- A non-numeric height silently clears the height.
-- Blood pressure averages are truncated, not rounded.
-- Imported BMI and categories from files are trusted, not recomputed.
-- Libra units other than "lbs" are treated as kilograms.
-- Blank lines shift reported import line numbers.
-- The glucose edit dialog validates only value > 0 before the domain range check.
 - Activity export and import have no UI entry point.
 - Older installs may contain an extra profile row created by the bug fixed in ADR 0016.
-- Profile.reconstruct does not trim the name (the UI does).
 - Activity tests and Dutch string content were not exhaustively verified against these specs.

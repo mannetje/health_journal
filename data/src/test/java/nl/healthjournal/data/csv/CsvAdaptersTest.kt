@@ -381,4 +381,65 @@ class CsvAdaptersTest {
         assertEquals(1, result.importedCount)     // only the 74.5 row
         assertEquals(2, result.skippedRows.size)  // 0.5 and 800.0 out of range
     }
+
+    private fun importSetup(height: Int? = 180): Triple<InMemoryHealthLogRepository, Profile, CsvDataImportAdapter> {
+        val logRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1), height?.let { HeightCm(it) })
+        runBlocking { profileRepo.save(profile) }
+        return Triple(logRepo, profile, CsvDataImportAdapter(logRepo, profileRepo))
+    }
+
+    private fun lines(vararg l: String) = l.joinToString("\n")
+
+    @Test
+    fun `skipped row line numbers are physical file lines even with blank lines`() = runBlocking {
+        val (_, profile, importer) = importSetup()
+        val csv = lines("timestamp,weight_kg,bmi", "", "2026-09-20T08:00:00Z,75.0,", "", "", "bad-time,80.0,", "")
+        val result = importer.importCsv(profile.id, "weight", csv)
+        assertEquals(1, result.importedCount)
+        assertEquals(6, result.skippedRows.single().lineNumber)
+    }
+
+    @Test
+    fun `imported BMI is recomputed from the profile height, not trusted from the file`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup(height = 180)
+        importer.importCsv(profile.id, "weight", lines("timestamp,weight_kg,bmi", "2026-09-20T08:00:00Z,81.0,99.9"))
+        assertEquals(BigDecimal("25.0"), logRepo.weights.single().bmi)
+    }
+
+    @Test
+    fun `imported categories are recomputed, not trusted from the file`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        importer.importCsv(profile.id, "blood_pressure", lines("timestamp,systolic,diastolic,classification", "2026-09-20T08:00:00Z,120,80,STAGE_2"))
+        assertEquals(NhgBloodPressureCategory.classify(BloodPressureReading(120, 80)), logRepo.bloodPressures.single().category)
+        importer.importCsv(profile.id, "glucose", lines("timestamp,glucose_mmol_l,context,category", "2026-09-20T08:00:00Z,5.4,FASTING,HIGH"))
+        assertEquals(
+            NhgGlucoseCategory.classify(GlucoseLevel(BigDecimal("5.4")), GlucoseContext.FASTING),
+            logRepo.glucoses.single().category
+        )
+    }
+
+    @Test
+    fun `libra CSV with an unknown unit skips the rows instead of assuming kilograms`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        val csv = lines(
+            "#Version: 6", "#Units: st", "#date;weight;comments",
+            "2026-09-20T08:00:00.000Z;12.0;", "2026-09-21T08:00:00.000Z;11.9;"
+        )
+        val result = importer.importCsv(profile.id, "libra", csv)
+        assertEquals(0, result.importedCount)
+        assertEquals(2, result.skippedRows.size)
+        assertEquals(4, result.skippedRows[0].lineNumber)
+        assertTrue(result.skippedRows[0].reason.contains("st"))
+        assertTrue(logRepo.weights.isEmpty())
+    }
+
+    @Test
+    fun `libra CSV with explicit kg unit is imported`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        val csv = lines("#Version: 6", "#Units: KG", "#date;weight;comments", "2026-09-20T08:00:00.000Z;74.5;")
+        assertEquals(1, importer.importCsv(profile.id, "libra", csv).importedCount)
+        assertEquals(BigDecimal("74.5"), logRepo.weights.single().weight.value)
+    }
 }

@@ -13,7 +13,7 @@ A profile SHALL have an identifier (UUID, version 4 or 7), a name, a date of bir
 - **THEN** it is stored with height absent and sex absent
 
 ### Requirement: Name validation
-The profile name SHALL NOT be blank (empty or whitespace only). Creating a profile SHALL trim surrounding whitespace from the name. The UI layer SHALL also trim the name before saving.
+The profile name SHALL NOT be blank (empty or whitespace only). Creating or reconstructing a profile SHALL trim surrounding whitespace from the name. The UI layer SHALL also trim the name before saving.
 
 #### Scenario: Blank name rejected
 - **WHEN** a profile is saved with name "   "
@@ -24,7 +24,7 @@ The profile name SHALL NOT be blank (empty or whitespace only). Creating a profi
 - **THEN** the stored name is "Anna"
 
 ### Requirement: Date of birth validation
-The date of birth SHALL be strictly before today (today itself is rejected) and strictly after the date exactly 130 years ago (that exact date is rejected). The UI date picker SHALL offer dates from the year 1900 up to and including today; a selected date of today is then rejected by the domain rule.
+The date of birth SHALL be strictly before today (today itself is rejected) and strictly after the date exactly 130 years ago (that exact date is rejected). The UI date picker SHALL offer dates from the year 1900 up to yesterday; today is not selectable, matching the domain rule.
 
 #### Scenario: Birth date today rejected
 - **WHEN** the date of birth equals today
@@ -39,7 +39,7 @@ The date of birth SHALL be strictly before today (today itself is rejected) and 
 - **THEN** the profile is accepted
 
 ### Requirement: Height validation
-When present, height SHALL be a whole number of centimeters in the inclusive range 50 to 300. A blank or non-numeric height input SHALL be interpreted as "no height" (the stored height is cleared). Height in the UI MAY be entered in feet and inches (see units-presentation); it SHALL be converted to centimeters only when the user edits it, so an untouched height is never rewritten.
+When present, height SHALL be a whole number of centimeters in the inclusive range 50 to 300. A blank height input means "no height" (the stored height is cleared). A non-blank input that is not a whole number SHALL show a validation error and block saving, so a height is never cleared by a typo. Height in the UI MAY be entered in feet and inches (see units-presentation); it SHALL be converted to centimeters only when the user edits it, so an untouched height is never rewritten.
 
 #### Scenario: Height boundaries
 - **WHEN** height is 49 or 301
@@ -47,9 +47,13 @@ When present, height SHALL be a whole number of centimeters in the inclusive ran
 - **WHEN** height is 50 or 300
 - **THEN** the profile is accepted
 
-#### Scenario: Non-numeric height clears height
-- **WHEN** the height field contains "abc" or is blank and the profile is saved
+#### Scenario: Blank height clears height
+- **WHEN** the height field is blank and the profile is saved
 - **THEN** the profile is stored without a height
+
+#### Scenario: Non-numeric height rejected
+- **WHEN** the height field contains "abc"
+- **THEN** an error is shown, saving is disabled and the stored height is unchanged
 
 ### Requirement: Active profile
 Exactly one profile SHALL be active at a time. Creating a profile SHALL make it active only if no active profile exists yet. Setting a profile active SHALL clear the active flag on all others and set it on the chosen one atomically. All logging and history operate on the active profile. The application SHALL offer a Profile screen as one of three main tabs (Log, History, Profile).

@@ -88,7 +88,7 @@ class Profile private constructor(
             sex: Sex? = null
         ): Profile = Profile(
             id = id,
-            name = name,
+            name = name.trim(),
             dateOfBirth = dateOfBirth,
             height = height,
             sex = sex

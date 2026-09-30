@@ -29,6 +29,7 @@ import nl.healthjournal.app.ui.common.weightFromKg
 import nl.healthjournal.app.ui.common.weightToKg
 import nl.healthjournal.domain.model.common.UnitConversion
 import nl.healthjournal.domain.model.metrics.GlucoseContext
+import nl.healthjournal.domain.model.metrics.GlucoseLevel
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -149,7 +150,7 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
             is EntryRef.Glucose -> {
                 val unchanged = glucose == initialGlucose
                 val mmol = if (unchanged) ref.entry.glucose.valueInMmolL.toDouble() else glucose.parseDecimal()?.let { units.glucoseToMmol(it) }
-                if (mmol == null || mmol <= 0) invalid = true
+                if (mmol == null || mmol < GlucoseLevel.MIN_GLUCOSE.toDouble() || mmol > GlucoseLevel.MAX_GLUCOSE.toDouble()) invalid = true
                 else {
                     val stored = if (unchanged) ref.entry.glucose.valueInMmolL else BigDecimal.valueOf(mmol).setScale(2, java.math.RoundingMode.HALF_UP)
                     viewModel.updateGlucose(ref.entry, glucoseContext, stored, dateTime.atZone(zone).toInstant())
