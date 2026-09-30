@@ -32,15 +32,11 @@ import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import kotlin.math.max
 
 data class ChartPoint(val timestamp: Instant, val value: Float)
 
 data class ChartSeries(val points: List<ChartPoint>, val color: Color, val strokeWidthDp: Float = 3f)
-
-private val axisLabelFormatter = DateTimeFormatter.ofPattern("d MMM").withZone(ZoneId.systemDefault())
-private val xToInstantKey = ExtraStore.Key<Map<Float, Instant>>()
 
 /**
  * A [Vico](https://github.com/patrykandpatrick/vico)-backed line chart drawing one or more
@@ -76,21 +72,9 @@ fun LineTrendChart(
     // a 1-second x step (it derives the step from the GCD of the deltas), which breaks zoom and
     // axis label spacing; hours keep the step coarse while still separating same-day points.
     val referenceEpochSecond = remember(series) { allPoints.minOf { it.timestamp.epochSecond } }
-    // The aligned item placer counts in x-steps (the GCD of the x deltas), not in hours.
-    val labelSpacing = remember(series) {
-        val span = allPoints.maxOf { hoursSince(referenceEpochSecond, it.timestamp) }.toInt()
-        val step = series.flatMap { s ->
-            s.points.map { hoursSince(referenceEpochSecond, it.timestamp).toInt() }
-                .distinct().sorted().zipWithNext { a, b -> b - a }
-        }.fold(0) { acc, d -> gcd(acc, d) }.coerceAtLeast(1)
-        max(1, span / step / 4)
-    }
     val modelProducer = remember { CartesianChartModelProducer() }
 
     LaunchedEffect(series, referenceEpochSecond) {
-        val xToInstant = allPoints.associate { point ->
-            hoursSince(referenceEpochSecond, point.timestamp) to point.timestamp
-        }
         modelProducer.runTransaction {
             lineModel {
                 series.forEach { s ->
@@ -100,15 +84,16 @@ fun LineTrendChart(
                     )
                 }
             }
-            extras { extraStore -> extraStore[xToInstantKey] = xToInstant }
         }
     }
 
-    val bottomAxisFormatter = remember(referenceEpochSecond) {
+    val tickState = remember(referenceEpochSecond) { AxisTickState() }
+    val bottomAxisFormatter = remember(referenceEpochSecond, tickState) {
+        val zone = ZoneId.systemDefault()
         CartesianValueFormatter { context, x, _ ->
-            val instant = context.model.extraStore.getOrNull(xToInstantKey)?.get(x.toFloat())
-                ?: Instant.ofEpochSecond(referenceEpochSecond + x.toLong() * SECONDS_PER_HOUR)
-            axisLabelFormatter.format(instant)
+            val instant = Instant.ofEpochSecond(referenceEpochSecond + Math.round(x * SECONDS_PER_HOUR))
+            val step = tickState.step ?: chooseTickStep((context.ranges.maxX - context.ranges.minX) / 24.0)
+            formatTick(step, instant, showYear = x in tickState.yearLabelXs, zone = zone)
         }
     }
 
@@ -131,8 +116,8 @@ fun LineTrendChart(
                 ),
                 bottomAxis = HorizontalAxis.rememberBottom(
                     valueFormatter = bottomAxisFormatter,
-                    itemPlacer = remember(labelSpacing) {
-                        HorizontalAxis.ItemPlacer.aligned(spacing = { labelSpacing })
+                    itemPlacer = remember(referenceEpochSecond, tickState) {
+                        CalendarItemPlacer(referenceEpochSecond, tickState)
                     }
                 )
             ),
@@ -145,8 +130,6 @@ fun LineTrendChart(
         )
     }
 }
-
-private tailrec fun gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
 
 private const val SECONDS_PER_HOUR = 3600L
 

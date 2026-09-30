@@ -19,7 +19,7 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.4.6)](https://github.com/mannetje/health_journal/releases/latest)**
+👉 **[Download Latest APK (v1.4.7)](https://github.com/mannetje/health_journal/releases/latest)**
 
 ---
 
@@ -67,7 +67,7 @@ You can download the ready-to-install Android APK directly from GitHub:
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
 - **Light & Dark Theme:** Automatically follows the device's system light/dark setting, with a brand-navy top bar and logo in both themes; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
 - **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen. Layouts are checked in Dutch so labels stay on one line ([ADR 0010](docs/adr/0010-responsive-dutch-ui-layout.md)).
-- **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range), a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
+- **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range, counted back from the newest entry so imported historical data still shows). The time axis follows the zoom level: years, months, weeks or days, with labels on calendar boundaries, a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
 - **History Filters:** All, Weight, BP, Glucose, and Activity. "All" shows weight, blood pressure, glucose, and activity entries interleaved in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
 
 ## Technical Architecture
@@ -140,7 +140,7 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.4.6-debug.apk`.
+2. Download `health-journal-v1.4.7-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
