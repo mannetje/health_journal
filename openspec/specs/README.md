@@ -24,6 +24,32 @@ These specs are the platform-neutral source of truth for every business rule. A 
 | [architecture-governance](architecture-governance/spec.md) | Layers, ADRs, README |
 | [platform-android](platform-android/spec.md) | **Android-only** decisions (SDK levels, Room, SharedPreferences, Compose, signing). Not business rules; replace on other platforms |
 
+## Porting guide (iPhone or another platform)
+
+The neutral specs (everything except `platform-*`) hold all business rules: they say what must happen, never which API does it. A port writes its own `platform-<name>` spec and reuses the rest unchanged. Where a neutral requirement needs a platform mechanism, this table shows where the mechanism lives for Android and what to choose on iOS.
+
+| Neutral requirement | Android (`platform-android`) | iOS (suggested for a port) |
+|---|---|---|
+| Offline local storage, metric, migrations | Room (SQLite), hand-written migrations | SwiftData or Core Data, or SQLite with GRDB, explicit migrations |
+| Encrypted database at rest | SQLCipher, key wrapped by Android Keystore | SQLCipher or data protection class `complete`, key in Keychain (`ThisDeviceOnly`) |
+| Optional app lock, no own secret | `BiometricPrompt` with device credential | `LocalAuthentication` with `deviceOwnerAuthentication` |
+| No network | no `INTERNET` permission, build check | no networking code or entitlement, App Transport Security left strict, build check |
+| No backup of the database | `allowBackup=false`, data extraction rules | mark the files `isExcludedFromBackup`, no iCloud container |
+| Time-based local reminders with Taken and Snooze | `AlarmManager`, `BroadcastReceiver`, boot receiver | `UNUserNotificationCenter` with notification actions, scheduled requests (64 pending limit: schedule the next ones only) |
+| Hide details on a locked device | notification visibility private, public version | notification content previews, generic text in the notification |
+| App switcher and screenshot protection | `FLAG_SECURE` | blur or cover view when the scene becomes inactive |
+| Preferences (language, region, units) | `SharedPreferences` | `UserDefaults` |
+| In-app language | `attachBaseContext` with locale | per-app language setting or a locale override in the bundle |
+| Localized messages without stored text | `UiText` over string resources | message key plus arguments over `Localizable.strings` and `.stringsdict` for plurals |
+| Charts, icons, theming | Vico, Compose `Canvas`, Material 3 | Swift Charts, SwiftUI `Canvas` or SF Symbols, system colours |
+| Distribution | debug-signed APK on GitHub Releases | TestFlight or App Store, with its health-app review and privacy label rules |
+
+Rules for keeping specs portable:
+- Neutral specs name **behaviour and data**, not classes, permissions or APIs. Platform words (manifest, permission names, Room, Keystore, Compose) belong in `platform-<name>`.
+- Domain rules are pure and portable: schedules, adherence, units, ranges, CSV contract. A port reimplements them against the same scenarios, which can be reused as test cases.
+- Data contracts are shared: the CSV format (including enum names that are language-independent) and the rule that stored values are never converted.
+- Store and legal rules (Google Play, App Store review, MDR, AVG) are per distribution channel and are recorded in the compliance ADR, with a section per store.
+
 ## Glossary
 
 - **Metric storage / canonical units**: all stored and exchanged values are metric: kg, cm, mmol/L, meters, mmHg. Display units are a UI concern only.

@@ -277,3 +277,9 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
   - [x] [Optional Profile sex field](openspec/changes/add-profile-sex-field/proposal.md) — selectable male/female, not required, no effect on existing BMI/BP/glucose calculations.
   - [x] [Edit and delete entries](openspec/changes/feature-edit-delete-entries/proposal.md) — Edit/Delete icon buttons on History entries, pre-filled edit dialog, delete confirmation (implemented; pending emulator verification).
   - [ ] [Optional waist circumference tracking](openspec/changes/add-waist-circumference-tracking/proposal.md) — sex-specific Voedingscentrum thresholds; low-priority/optional.
+- [ ] **Phase 5: Medication management (💊 tab)** (proposed, see the [OpenSpec change](openspec/changes/add-medication-management/proposal.md)). A personal reminder and logging tool, never a medical device, with no advice and no medicine names built in:
+  - [ ] Phase 5a: Medications (any form: tablets, liquids, sprays, injectables; custom doses and units) and the pillbox day view, in English and Dutch.
+  - [ ] Phase 5b: Reminders with Taken and Snooze actions.
+  - [ ] Phase 5c: Adherence tracking.
+  - [ ] Phase 5d: Privacy hardening (no network, no backup), opt-in app lock (fingerprint or device PIN), encrypted database, and CSV export and import of medication data.
+  - [ ] Phase 5e: Compliance record (ADR) and neutral wording of the existing range labels.
