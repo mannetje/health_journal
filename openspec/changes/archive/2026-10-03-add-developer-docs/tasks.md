@@ -21,4 +21,4 @@
 
 ## 4. Wrap-up
 - [x] 4.1 `openspec validate add-developer-docs --strict`
-- [ ] 4.2 Apply the delta spec on archive
+- [x] 4.2 Apply the delta spec on archive
