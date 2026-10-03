@@ -20,63 +20,52 @@ class NhgClassificationTest {
         assertEquals(NhgBmiCategory.OBESE, NhgBmiCategory.classify(BigDecimal("35.2")))
     }
 
+    private fun bp(sys: Int, dia: Int) = NhgBloodPressureCategory.classify(BloodPressureReading(sys, dia))
+
     @Test
-    fun `Blood Pressure NHG classification scenarios`() {
-        // Optimal: <120 and <80
-        assertEquals(
-            NhgBloodPressureCategory.OPTIMAL,
-            NhgBloodPressureCategory.classify(BloodPressureReading(118, 76))
-        )
+    fun `Blood Pressure three band boundaries`() {
+        assertEquals(NhgBloodPressureCategory.NORMAL, bp(139, 89))
+        assertEquals(NhgBloodPressureCategory.HIGH, bp(140, 80))
+        assertEquals(NhgBloodPressureCategory.HIGH, bp(120, 90))
+        assertEquals(NhgBloodPressureCategory.HIGH, bp(179, 109))
+        assertEquals(NhgBloodPressureCategory.SERIOUSLY_RAISED, bp(180, 80))
+        assertEquals(NhgBloodPressureCategory.SERIOUSLY_RAISED, bp(120, 110))
+        assertEquals(NhgBloodPressureCategory.NORMAL, bp(90, 60))
+    }
 
-        // Normal: 120-129 and <80, or <130 and 80-84
-        assertEquals(
-            NhgBloodPressureCategory.NORMAL,
-            NhgBloodPressureCategory.classify(BloodPressureReading(125, 78))
+    @Test
+    fun `Blood Pressure legacy names map to the new bands`() {
+        val expected = mapOf(
+            "OPTIMAL" to NhgBloodPressureCategory.NORMAL,
+            "NORMAL" to NhgBloodPressureCategory.NORMAL,
+            "HIGH_NORMAL" to NhgBloodPressureCategory.NORMAL,
+            "HYPERTENSION_GRADE_1" to NhgBloodPressureCategory.HIGH,
+            "HYPERTENSION_GRADE_2" to NhgBloodPressureCategory.HIGH,
+            "HYPERTENSION_GRADE_3" to NhgBloodPressureCategory.SERIOUSLY_RAISED,
+            "HIGH" to NhgBloodPressureCategory.HIGH,
+            "SERIOUSLY_RAISED" to NhgBloodPressureCategory.SERIOUSLY_RAISED
         )
-        assertEquals(
-            NhgBloodPressureCategory.NORMAL,
-            NhgBloodPressureCategory.classify(BloodPressureReading(119, 82))
-        )
+        expected.forEach { (name, band) -> assertEquals(name, band, NhgBloodPressureCategory.fromStoredName(name)) }
+    }
 
-        // High Normal: 130-139 or 85-89
-        assertEquals(
-            NhgBloodPressureCategory.HIGH_NORMAL,
-            NhgBloodPressureCategory.classify(BloodPressureReading(135, 82))
-        )
-        assertEquals(
-            NhgBloodPressureCategory.HIGH_NORMAL,
-            NhgBloodPressureCategory.classify(BloodPressureReading(122, 87))
-        )
+    @Test(expected = IllegalArgumentException::class)
+    fun `Blood Pressure unknown stored name is rejected`() {
+        NhgBloodPressureCategory.fromStoredName("LOW")
+    }
 
-        // Hypertension Grade 1: 140-159 or 90-99
-        assertEquals(
-            NhgBloodPressureCategory.HYPERTENSION_GRADE_1,
-            NhgBloodPressureCategory.classify(BloodPressureReading(145, 85))
-        )
-        assertEquals(
-            NhgBloodPressureCategory.HYPERTENSION_GRADE_1,
-            NhgBloodPressureCategory.classify(BloodPressureReading(132, 94))
-        )
-
-        // Hypertension Grade 2: 160-179 or 100-109
-        assertEquals(
-            NhgBloodPressureCategory.HYPERTENSION_GRADE_2,
-            NhgBloodPressureCategory.classify(BloodPressureReading(165, 95))
-        )
-        assertEquals(
-            NhgBloodPressureCategory.HYPERTENSION_GRADE_2,
-            NhgBloodPressureCategory.classify(BloodPressureReading(142, 104))
-        )
-
-        // Hypertension Grade 3: >=180 or >=110
-        assertEquals(
-            NhgBloodPressureCategory.HYPERTENSION_GRADE_3,
-            NhgBloodPressureCategory.classify(BloodPressureReading(182, 90))
-        )
-        assertEquals(
-            NhgBloodPressureCategory.HYPERTENSION_GRADE_3,
-            NhgBloodPressureCategory.classify(BloodPressureReading(150, 112))
-        )
+    @Test
+    fun `Old six-band rule plus legacy mapping equals the new rule`() {
+        fun old(sys: Int, dia: Int) = when {
+            sys >= 180 || dia >= 110 -> "HYPERTENSION_GRADE_3"
+            sys >= 160 || dia >= 100 -> "HYPERTENSION_GRADE_2"
+            sys >= 140 || dia >= 90 -> "HYPERTENSION_GRADE_1"
+            (sys in 130..139) || (dia in 85..89) -> "HIGH_NORMAL"
+            (sys in 120..129 && dia < 80) || (sys < 130 && dia in 80..84) -> "NORMAL"
+            else -> "OPTIMAL"
+        }
+        for (sys in 70..230) for (dia in 40..minOf(sys - 1, 200)) {
+            assertEquals("$sys/$dia", bp(sys, dia), NhgBloodPressureCategory.fromStoredName(old(sys, dia)))
+        }
     }
 
     @Test

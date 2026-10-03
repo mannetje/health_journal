@@ -30,21 +30,21 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 | Log | History | Profile |
 |---|---|---|
-| <img src="docs/screenshots/light-log.png" width="250" alt="Log screen, light theme"> | <img src="docs/screenshots/light-history.png" width="250" alt="History list with all entries, light theme"> | <img src="docs/screenshots/light-profile.png" width="250" alt="Profile screen, light theme"> |
+| <img src="docs/screenshots/light-log.png" width="250" alt="Log screen with a neutral blood pressure range label, light theme"> | <img src="docs/screenshots/light-history.png" width="250" alt="History list with name and range labels, light theme"> | <img src="docs/screenshots/light-profile.png" width="250" alt="Profile screen, light theme"> |
 
 | Weight trend | Blood pressure trend | Glucose trend |
 |---|---|---|
-| <img src="docs/screenshots/light-weight.png" width="250" alt="Weight trend chart with moving average, light theme"> | <img src="docs/screenshots/light-blood-pressure.png" width="250" alt="Blood pressure trend chart, light theme"> | <img src="docs/screenshots/light-glucose.png" width="250" alt="Glucose trend chart with time-in-range bars, light theme"> |
+| <img src="docs/screenshots/light-weight.png" width="250" alt="Weight trend chart with moving average, light theme"> | <img src="docs/screenshots/light-blood-pressure.png" width="250" alt="Blood pressure trend with average label and distribution by band, light theme"> | <img src="docs/screenshots/light-glucose.png" width="250" alt="Glucose trend chart with time-in-range bars, light theme"> |
 
 **Dark theme**
 
 | Log | History | Profile |
 |---|---|---|
-| <img src="docs/screenshots/dark-log.png" width="250" alt="Log screen, dark theme"> | <img src="docs/screenshots/dark-history.png" width="250" alt="History list with all entries, dark theme"> | <img src="docs/screenshots/dark-profile.png" width="250" alt="Profile screen, dark theme"> |
+| <img src="docs/screenshots/dark-log.png" width="250" alt="Log screen with a neutral blood pressure range label, dark theme"> | <img src="docs/screenshots/dark-history.png" width="250" alt="History list with name and range labels, dark theme"> | <img src="docs/screenshots/dark-profile.png" width="250" alt="Profile screen, dark theme"> |
 
 | Weight trend | Blood pressure trend | Glucose trend |
 |---|---|---|
-| <img src="docs/screenshots/dark-weight.png" width="250" alt="Weight trend chart with moving average, dark theme"> | <img src="docs/screenshots/dark-blood-pressure.png" width="250" alt="Blood pressure trend chart, dark theme"> | <img src="docs/screenshots/dark-glucose.png" width="250" alt="Glucose trend chart with time-in-range bars, dark theme"> |
+| <img src="docs/screenshots/dark-weight.png" width="250" alt="Weight trend chart with moving average, dark theme"> | <img src="docs/screenshots/dark-blood-pressure.png" width="250" alt="Blood pressure trend with average label and distribution by band, dark theme"> | <img src="docs/screenshots/dark-glucose.png" width="250" alt="Glucose trend chart with time-in-range bars, dark theme"> |
 
 > The screenshots use synthetic sample data. The top bar uses the brand navy with the Health Journal logo in both themes ([ADR 0011](docs/adr/0011-app-icon-and-adaptive-layers.md)).
 
@@ -60,13 +60,13 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ### Key Features
 - **Body Weight & BMI:** Record body weight in kilograms, automatically deriving Body Mass Index (BMI) based on profile height, categorized according to NHG/WHO standards.
-- **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, automatically classified against Dutch NHG blood pressure standards (Optimal, Normal, High Normal, Hypertension Grades 1–3).
+- **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, automatically shown against three bands from the Dutch NHG standard: Normal (below 140/90), High (from 140/90) and Seriously raised (from 180/110). Labels name the band with its range and never a condition; an "About these ranges" note links the sources. Older entries keep working: the six previous names are read as the new bands.
 - **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) and show it as **mmol/L** or **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges (Hypoglycaemia, Normal, Impaired, Diabetes Range).
 - **Activity Tracking:** Manually log workout and physical activity sessions from the Log screen (duration + distance), or bulk-import sessions; each session records start time, end time, and distance in metres.
 - **Profile Sex Field (optional):** Selectable male/female on the Profile screen. Purely demographic — has no effect on BMI, blood pressure, or glucose classification (Dutch NHG guidelines do not differentiate these by sex).
 - **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities. Import accepts a file chosen with the system file picker or pasted CSV text.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
-- **Light & Dark Theme:** Automatically follows the device's system light/dark setting, with a brand-navy top bar and logo in both themes; NHG category colors (green/yellow/orange/red) keep the same meaning in both themes.
+- **Light & Dark Theme:** Automatically follows the device's system light/dark setting, with a brand-navy top bar and logo in both themes; range colors are a neutral blue-grey ramp (a darker step is a higher band, never a warning), with lighter variants in dark mode.
 - **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen. Layouts are checked in Dutch so labels stay on one line ([ADR 0010](docs/adr/0010-responsive-dutch-ui-layout.md)); dialogs and pickers follow the app language too. A separate *Regional formats* setting (System / Netherlands / US) controls date and number formats independently of the language, so English text with Dutch dates works ([ADR 0013](docs/adr/0013-activity-base-context-for-app-language.md)). The Profile date of birth is chosen with a Material date picker that opens in text-entry mode.
 - **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range, counted back from the newest entry so imported historical data still shows). The time axis follows the zoom level: years, months, weeks or days, with labels on calendar boundaries, a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
 - **Units:** data is always stored in metric (kg, cm, mmol/L, meters). What you see and type is a separate Profile setting: Metric or Imperial (lb, mi, ft/in) and mmol/L or mg/dL, defaulting from the region (US and UK imperial, mg/dL in the US, Germany, France and others). Every input shows its unit, and History, charts and statistics follow it ([ADR 0014](docs/adr/0014-units-presentation.md)). CSV files stay metric.

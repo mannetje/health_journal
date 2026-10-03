@@ -26,23 +26,23 @@ val TextSecondaryDark = Color(0xFFB0B0B0)
 // Brand navy: the launcher-icon tile and the top app bar, so the logo always sits on the colour it was designed for
 val BrandNavy = Color(0xFF0B1D3A)
 
-// NHG Category Status Colors (light) — hue is the category's identity, kept identical across themes
-val NhgOptimalGreen = Color(0xFF2E7D32)
-val NhgNormalGreen = Color(0xFF43A047)
-val NhgWarningYellow = Color(0xFFF9A825)
-val NhgOrange = Color(0xFFEF6C00)
-val NhgDeepOrange = Color(0xFFD84315)
-val NhgRed = Color(0xFFC62828)
-val NhgSevereRed = Color(0xFFB71C1C)
+// Neutral sequential range ramp (light): a darker step is a higher band, never a verdict (range-labels)
+val RangeStep0 = Color(0xFF546E7A)
+val RangeStep1 = Color(0xFF1E6FB5)
+val RangeStep2 = Color(0xFF3949AB)
+val RangeStep3 = Color(0xFF283593)
+val RangeStep4 = Color(0xFF1A237E)
 
-// NHG Category Status Colors (dark) — lightened/desaturated for WCAG contrast on a dark surface
-val NhgOptimalGreenDark = Color(0xFF66BB6A)
-val NhgNormalGreenDark = Color(0xFF81C784)
-val NhgWarningYellowDark = Color(0xFFFFD54F)
-val NhgOrangeDark = Color(0xFFFF8A50)
-val NhgDeepOrangeDark = Color(0xFFFF7043)
-val NhgRedDark = Color(0xFFE57373)
-val NhgSevereRedDark = Color(0xFFEF5350)
+// Neutral sequential range ramp (dark): lighter steps for contrast on a dark surface, same order
+val RangeStep0Dark = Color(0xFFB0BEC5)
+val RangeStep1Dark = Color(0xFF64B5F6)
+val RangeStep2Dark = Color(0xFF7986CB)
+val RangeStep3Dark = Color(0xFF9FA8DA)
+val RangeStep4Dark = Color(0xFFC5CAE9)
+
+// Success confirmation green
+val SuccessGreen = Color(0xFF2E7D32)
+val SuccessGreenDark = Color(0xFF66BB6A)
 
 // Success message container (Profile/Log screens' confirmation card)
 val SuccessContainerLight = Color(0xFFE8F5E9)
@@ -58,7 +58,7 @@ val successContainerColor: Color
 
 /** Theme-aware text/icon color on a success confirmation card. */
 val onSuccessContainerColor: Color
-    @Composable get() = if (isSystemInDarkTheme()) NhgOptimalGreenDark else NhgOptimalGreen
+    @Composable get() = if (isSystemInDarkTheme()) SuccessGreenDark else SuccessGreen
 
 /** Theme-aware container color for an informational hint card. */
 val infoContainerColor: Color

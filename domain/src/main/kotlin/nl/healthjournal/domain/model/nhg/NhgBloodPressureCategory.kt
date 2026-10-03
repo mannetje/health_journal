@@ -3,12 +3,9 @@ package nl.healthjournal.domain.model.nhg
 import nl.healthjournal.domain.model.metrics.BloodPressureReading
 
 enum class NhgBloodPressureCategory {
-    OPTIMAL,
     NORMAL,
-    HIGH_NORMAL,
-    HYPERTENSION_GRADE_1,
-    HYPERTENSION_GRADE_2,
-    HYPERTENSION_GRADE_3;
+    HIGH,
+    SERIOUSLY_RAISED;
 
     companion object {
         fun classify(reading: BloodPressureReading): NhgBloodPressureCategory {
@@ -16,20 +13,21 @@ enum class NhgBloodPressureCategory {
             val dia = reading.diastolic
 
             return when {
-                // Hypertension grade 3
-                sys >= 180 || dia >= 110 -> HYPERTENSION_GRADE_3
-                // Hypertension grade 2
-                sys >= 160 || dia >= 100 -> HYPERTENSION_GRADE_2
-                // Hypertension grade 1
-                sys >= 140 || dia >= 90 -> HYPERTENSION_GRADE_1
-                // High normal
-                (sys in 130..139) || (dia in 85..89) -> HIGH_NORMAL
-                // Normal
-                (sys in 120..129 && dia < 80) || (sys < 130 && dia in 80..84) -> NORMAL
-                // Optimal
-                sys < 120 && dia < 80 -> OPTIMAL
+                sys >= 180 || dia >= 110 -> SERIOUSLY_RAISED
+                sys >= 140 || dia >= 90 -> HIGH
                 else -> NORMAL
             }
+        }
+
+        /**
+         * Reads a stored or imported category name, including the six names written by builds
+         * before the three-band change. Unknown names still throw, like [valueOf].
+         */
+        fun fromStoredName(name: String): NhgBloodPressureCategory = when (name) {
+            "OPTIMAL", "NORMAL", "HIGH_NORMAL" -> NORMAL
+            "HYPERTENSION_GRADE_1", "HYPERTENSION_GRADE_2", "HIGH" -> HIGH
+            "HYPERTENSION_GRADE_3", "SERIOUSLY_RAISED" -> SERIOUSLY_RAISED
+            else -> throw IllegalArgumentException("Unknown blood pressure category: $name")
         }
     }
 }

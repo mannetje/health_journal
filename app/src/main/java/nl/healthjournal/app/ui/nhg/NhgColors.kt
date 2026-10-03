@@ -3,54 +3,58 @@ package nl.healthjournal.app.ui.nhg
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import nl.healthjournal.app.ui.theme.NhgDeepOrange
-import nl.healthjournal.app.ui.theme.NhgDeepOrangeDark
-import nl.healthjournal.app.ui.theme.NhgNormalGreen
-import nl.healthjournal.app.ui.theme.NhgNormalGreenDark
-import nl.healthjournal.app.ui.theme.NhgOptimalGreen
-import nl.healthjournal.app.ui.theme.NhgOptimalGreenDark
-import nl.healthjournal.app.ui.theme.NhgOrange
-import nl.healthjournal.app.ui.theme.NhgOrangeDark
-import nl.healthjournal.app.ui.theme.NhgRed
-import nl.healthjournal.app.ui.theme.NhgRedDark
-import nl.healthjournal.app.ui.theme.NhgSevereRed
-import nl.healthjournal.app.ui.theme.NhgSevereRedDark
-import nl.healthjournal.app.ui.theme.NhgWarningYellow
-import nl.healthjournal.app.ui.theme.NhgWarningYellowDark
+import nl.healthjournal.app.ui.theme.RangeStep0
+import nl.healthjournal.app.ui.theme.RangeStep0Dark
+import nl.healthjournal.app.ui.theme.RangeStep1
+import nl.healthjournal.app.ui.theme.RangeStep1Dark
+import nl.healthjournal.app.ui.theme.RangeStep2
+import nl.healthjournal.app.ui.theme.RangeStep2Dark
+import nl.healthjournal.app.ui.theme.RangeStep3
+import nl.healthjournal.app.ui.theme.RangeStep3Dark
+import nl.healthjournal.app.ui.theme.RangeStep4
+import nl.healthjournal.app.ui.theme.RangeStep4Dark
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
 
+/** Position on the neutral ramp: a higher step is a higher band, not a warning. */
+internal fun NhgBmiCategory.rampStep(): Int = when (this) {
+    NhgBmiCategory.UNDERWEIGHT -> 0
+    NhgBmiCategory.NORMAL -> 1
+    NhgBmiCategory.OVERWEIGHT -> 2
+    NhgBmiCategory.OBESE -> 3
+}
+
+internal fun NhgBloodPressureCategory.rampStep(): Int = when (this) {
+    NhgBloodPressureCategory.NORMAL -> 1
+    NhgBloodPressureCategory.HIGH -> 3
+    NhgBloodPressureCategory.SERIOUSLY_RAISED -> 4
+}
+
+internal fun NhgGlucoseCategory.rampStep(): Int = when (this) {
+    NhgGlucoseCategory.HYPOGLYCAEMIA -> 0
+    NhgGlucoseCategory.NORMAL -> 1
+    NhgGlucoseCategory.IMPAIRED_FASTING, NhgGlucoseCategory.IMPAIRED_GLUCOSE_TOLERANCE -> 2
+    NhgGlucoseCategory.DIABETES_RANGE -> 3
+}
+
 @Composable
-fun getBmiColor(category: NhgBmiCategory): Color {
+private fun rampColor(step: Int): Color {
     val dark = isSystemInDarkTheme()
-    return when (category) {
-        NhgBmiCategory.NORMAL -> if (dark) NhgOptimalGreenDark else NhgOptimalGreen
-        NhgBmiCategory.UNDERWEIGHT -> if (dark) NhgWarningYellowDark else NhgWarningYellow
-        NhgBmiCategory.OVERWEIGHT -> if (dark) NhgOrangeDark else NhgOrange
-        NhgBmiCategory.OBESE -> if (dark) NhgRedDark else NhgRed
+    return when (step) {
+        0 -> if (dark) RangeStep0Dark else RangeStep0
+        1 -> if (dark) RangeStep1Dark else RangeStep1
+        2 -> if (dark) RangeStep2Dark else RangeStep2
+        3 -> if (dark) RangeStep3Dark else RangeStep3
+        else -> if (dark) RangeStep4Dark else RangeStep4
     }
 }
 
 @Composable
-fun getBpColor(category: NhgBloodPressureCategory): Color {
-    val dark = isSystemInDarkTheme()
-    return when (category) {
-        NhgBloodPressureCategory.OPTIMAL -> if (dark) NhgOptimalGreenDark else NhgOptimalGreen
-        NhgBloodPressureCategory.NORMAL -> if (dark) NhgNormalGreenDark else NhgNormalGreen
-        NhgBloodPressureCategory.HIGH_NORMAL -> if (dark) NhgWarningYellowDark else NhgWarningYellow
-        NhgBloodPressureCategory.HYPERTENSION_GRADE_1 -> if (dark) NhgOrangeDark else NhgOrange
-        NhgBloodPressureCategory.HYPERTENSION_GRADE_2 -> if (dark) NhgDeepOrangeDark else NhgDeepOrange
-        NhgBloodPressureCategory.HYPERTENSION_GRADE_3 -> if (dark) NhgSevereRedDark else NhgSevereRed
-    }
-}
+fun getBmiColor(category: NhgBmiCategory): Color = rampColor(category.rampStep())
 
 @Composable
-fun getGlucoseColor(category: NhgGlucoseCategory): Color {
-    val dark = isSystemInDarkTheme()
-    return when (category) {
-        NhgGlucoseCategory.NORMAL -> if (dark) NhgOptimalGreenDark else NhgOptimalGreen
-        NhgGlucoseCategory.IMPAIRED_FASTING, NhgGlucoseCategory.IMPAIRED_GLUCOSE_TOLERANCE -> if (dark) NhgOrangeDark else NhgOrange
-        NhgGlucoseCategory.HYPOGLYCAEMIA, NhgGlucoseCategory.DIABETES_RANGE -> if (dark) NhgRedDark else NhgRed
-    }
-}
+fun getBpColor(category: NhgBloodPressureCategory): Color = rampColor(category.rampStep())
+
+@Composable
+fun getGlucoseColor(category: NhgGlucoseCategory): Color = rampColor(category.rampStep())

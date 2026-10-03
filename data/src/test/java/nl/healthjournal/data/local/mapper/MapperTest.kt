@@ -105,6 +105,29 @@ class MapperTest {
     }
 
     @Test
+    fun `legacy blood pressure rows are read as the new bands`() {
+        val legacy = mapOf(
+            "OPTIMAL" to NhgBloodPressureCategory.NORMAL,
+            "HIGH_NORMAL" to NhgBloodPressureCategory.NORMAL,
+            "HYPERTENSION_GRADE_1" to NhgBloodPressureCategory.HIGH,
+            "HYPERTENSION_GRADE_2" to NhgBloodPressureCategory.HIGH,
+            "HYPERTENSION_GRADE_3" to NhgBloodPressureCategory.SERIOUSLY_RAISED
+        )
+        val base = HealthLogMapper.toEntity(
+            BloodPressureEntry(
+                id = MeasurementId.generate(),
+                profileId = ProfileId.generate(),
+                timestamp = Instant.parse("2026-09-27T10:00:00Z"),
+                reading = BloodPressureReading(120, 80),
+                category = NhgBloodPressureCategory.NORMAL
+            )
+        )
+        legacy.forEach { (stored, expected) ->
+            assertEquals(stored, expected, HealthLogMapper.toDomain(base.copy(category = stored)).category)
+        }
+    }
+
+    @Test
     fun `GlucoseEntry maps to entity and back`() {
         val profileId = ProfileId.generate()
         val entry = GlucoseEntry(

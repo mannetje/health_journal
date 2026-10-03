@@ -33,7 +33,6 @@
     <string name="log_systolic_placeholder">120</string>
     <string name="log_diastolic_label">Diastolic (mmHg)</string>
     <string name="log_diastolic_placeholder">80</string>
-    <string name="log_nhg_badge">NHG: %1$s</string>
     <string name="log_glucose_context_fasting">Fasting</string>
     <string name="log_glucose_context_postprandial">Postprandial</string>
     <string name="log_unit_label">Unit:</string>
@@ -61,7 +60,6 @@
     <string name="history_filter_activity">Activity</string>
     <string name="history_weight_line">Weight: %1$s</string>
     <string name="history_bmi_line">BMI: %1$s</string>
-    <string name="history_category_line">Category: %1$s</string>
     <string name="history_time_line">Time: %1$s</string>
     <string name="history_bp_line">BP: %1$s/%2$s mmHg</string>
     <string name="history_glucose_line">Glucose: %1$s (%2$s)</string>
@@ -148,26 +146,38 @@
     <string name="trend_glucose_tir_normal">%1$s — In range</string>
     <string name="trend_glucose_tir_out_of_range">%1$s — Out of range</string>
 
-    <!-- NHG BMI categories -->
-    <string name="nhg_bmi_underweight">Underweight</string>
-    <string name="nhg_bmi_normal">Normal</string>
-    <string name="nhg_bmi_overweight">Overweight</string>
-    <string name="nhg_bmi_obese">Obese</string>
+    <!-- Range labels: name · range (reword-range-labels) -->
+    <string name="nhg_bmi_underweight">Underweight · BMI below 18.5</string>
+    <string name="nhg_bmi_normal">Normal · BMI 18.5 to 24.9</string>
+    <string name="nhg_bmi_overweight">Overweight · BMI 25.0 to 29.9</string>
+    <string name="nhg_bmi_obese">Obese · BMI 30 and above</string>
 
-    <!-- NHG blood pressure categories -->
-    <string name="nhg_bp_optimal">Optimal</string>
-    <string name="nhg_bp_normal">Normal</string>
-    <string name="nhg_bp_high_normal">High Normal</string>
-    <string name="nhg_bp_grade1">Hypertension Grade 1</string>
-    <string name="nhg_bp_grade2">Hypertension Grade 2</string>
-    <string name="nhg_bp_grade3">Hypertension Grade 3</string>
+    <string name="nhg_bp_normal">Normal blood pressure · below 140/90</string>
+    <string name="nhg_bp_high">High blood pressure · from 140/90</string>
+    <string name="nhg_bp_seriously_raised">Seriously raised blood pressure · from 180/110</string>
 
-    <!-- NHG glucose categories -->
-    <string name="nhg_glucose_hypo">Hypoglycaemia</string>
-    <string name="nhg_glucose_normal">Normal</string>
-    <string name="nhg_glucose_impaired_fasting">Impaired Fasting Glucose</string>
-    <string name="nhg_glucose_impaired_tolerance">Impaired Glucose Tolerance</string>
-    <string name="nhg_glucose_diabetes_range">Diabetes Range</string>
+    <string name="nhg_glucose_name_low">Low blood glucose</string>
+    <string name="nhg_glucose_name_normal">Normal blood glucose</string>
+    <string name="nhg_glucose_name_slightly_raised">Slightly raised blood glucose</string>
+    <string name="nhg_glucose_name_high">High blood glucose</string>
+    <string name="nhg_glucose_label">%1$s · %2$s</string>
+    <string name="nhg_glucose_range_below">%1$s below %2$s %3$s</string>
+    <string name="nhg_glucose_range_between">%1$s %2$s to %3$s %4$s</string>
+    <string name="nhg_glucose_range_between_below">%1$s %2$s to below %3$s %4$s</string>
+    <string name="nhg_glucose_range_above_to">%1$s above %2$s to %3$s %4$s</string>
+    <string name="nhg_glucose_range_above">%1$s above %2$s %3$s</string>
+    <string name="nhg_context_fasting">fasting</string>
+    <string name="nhg_context_postprandial">after a meal</string>
+
+    <string name="ranges_about">About these ranges</string>
+    <string name="ranges_about_title">About these ranges</string>
+    <string name="ranges_about_body">The ranges follow published guidelines, mainly the NHG standards. Wording is also taken from Diabetes Fonds, DVN and Hartstichting. A label is not a diagnosis, and this app is not a medical device. Questions about your values go to your doctor or pharmacist.</string>
+    <string name="ranges_link_nhg">NHG</string>
+    <string name="ranges_link_thuisarts">Thuisarts</string>
+    <string name="ranges_link_diabetesfonds">Diabetes Fonds</string>
+    <string name="ranges_link_dvn">DVN</string>
+    <string name="ranges_link_hartstichting">Hartstichting (blood pressure)</string>
+    <string name="ranges_close">Close</string>
     <string name="common_save">Save</string>
     <string name="common_delete">Delete</string>
     <string name="history_edit_entry">Edit entry</string>

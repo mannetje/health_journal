@@ -4,6 +4,15 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Changed
+- **Range labels:** BMI, blood pressure and glucose labels now read "name · range", for example "High blood pressure · from 140/90", and no longer name a condition. Glucose shows only the range for the entry's context (fasting or after a meal), in your chosen unit.
+- **Blood pressure has three bands:** Normal (below 140/90), High (from 140/90) and Seriously raised (from 180/110). Thresholds are unchanged; the six old bands are merged. Stored entries are mapped on read, so existing data and old CSV files keep working and no data changes.
+- **Neutral colours:** a calm blue-to-indigo ramp replaces the green, orange and red range colours.
+- **About these ranges:** a new note on the Log, History and trend screens names the sources (NHG first, also Thuisarts, Diabetes Fonds, DVN, Hartstichting) and states that a label is not a diagnosis.
+
+### Upgrade note
+- Downgrading to an older build is not supported: older builds cannot read the new blood pressure names.
+
 ## [1.4.9] - 2026-09-30
 
 ### Fixed

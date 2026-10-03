@@ -17,6 +17,7 @@ These specs are the platform-neutral source of truth for every business rule. A 
 | [health-trends/weight](health-trends/weight/spec.md) | Weight stats, moving average |
 | [health-trends/blood-pressure](health-trends/blood-pressure/spec.md) | Averages, gauges, distribution |
 | [health-trends/glucose](health-trends/glucose/spec.md) | In-range bars, chips |
+| health-metrics/range-labels (added when `reword-range-labels` is archived) | Neutral "name · range" labels, three blood pressure bands, source order, neutral colours |
 | [data-export](data-export/spec.md) | CSV export and import, Libra |
 | [localization](localization/spec.md) | Languages, region, message resolution |
 | [theming](theming/spec.md) | Light/dark palette, top bar |
@@ -54,6 +55,9 @@ Rules for keeping specs portable:
 
 - **Metric storage / canonical units**: all stored and exchanged values are metric: kg, cm, mmol/L, meters, mmHg. Display units are a UI concern only.
 - **NHG**: Nederlands Huisartsen Genootschap, the Dutch GP guideline whose thresholds define the BMI, blood pressure and glucose categories.
+- **Range label**: the neutral "name · range" text shown for a BMI, blood pressure or glucose value. It never names a condition.
+- **Blood pressure bands**: Normal (below 140/90), High (from 140/90), Seriously raised (from 180/110). Old six-band names are mapped on read.
+- **Source order**: NHG leads; Thuisarts, Diabetes Fonds, DVN and Hartstichting inform the wording.
 - **Active profile**: the one profile currently used for logging and history.
 - **Range anchor**: trend ranges count back from the newest entry, not the clock.
 

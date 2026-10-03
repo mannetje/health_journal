@@ -33,7 +33,6 @@
     <string name="log_systolic_placeholder">120</string>
     <string name="log_diastolic_label">Diastolisch (mmHg)</string>
     <string name="log_diastolic_placeholder">80</string>
-    <string name="log_nhg_badge">NHG: %1$s</string>
     <string name="log_glucose_context_fasting">Nuchter</string>
     <string name="log_glucose_context_postprandial">Na de maaltijd</string>
     <string name="log_unit_label">Eenheid:</string>
@@ -61,7 +60,6 @@
     <string name="history_filter_activity">Activiteit</string>
     <string name="history_weight_line">Gewicht: %1$s</string>
     <string name="history_bmi_line">BMI: %1$s</string>
-    <string name="history_category_line">Categorie: %1$s</string>
     <string name="history_time_line">Tijd: %1$s</string>
     <string name="history_bp_line">Bloeddruk: %1$s/%2$s mmHg</string>
     <string name="history_glucose_line">Glucose: %1$s (%2$s)</string>
@@ -148,26 +146,38 @@
     <string name="trend_glucose_tir_normal">%1$s — Binnen bereik</string>
     <string name="trend_glucose_tir_out_of_range">%1$s — Buiten bereik</string>
 
-    <!-- NHG BMI categories -->
-    <string name="nhg_bmi_underweight">Ondergewicht</string>
-    <string name="nhg_bmi_normal">Normaal</string>
-    <string name="nhg_bmi_overweight">Overgewicht</string>
-    <string name="nhg_bmi_obese">Obesitas</string>
+    <!-- Range labels: name · range (reword-range-labels) -->
+    <string name="nhg_bmi_underweight">Ondergewicht · BMI onder 18,5</string>
+    <string name="nhg_bmi_normal">Normaal · BMI 18,5 tot 24,9</string>
+    <string name="nhg_bmi_overweight">Overgewicht · BMI 25,0 tot 29,9</string>
+    <string name="nhg_bmi_obese">Obesitas · BMI 30 en hoger</string>
 
-    <!-- NHG blood pressure categories -->
-    <string name="nhg_bp_optimal">Optimaal</string>
-    <string name="nhg_bp_normal">Normaal</string>
-    <string name="nhg_bp_high_normal">Hoog-normaal</string>
-    <string name="nhg_bp_grade1">Hypertensie Graad 1</string>
-    <string name="nhg_bp_grade2">Hypertensie Graad 2</string>
-    <string name="nhg_bp_grade3">Hypertensie Graad 3</string>
+    <string name="nhg_bp_normal">Normale bloeddruk · onder 140/90</string>
+    <string name="nhg_bp_high">Hoge bloeddruk · vanaf 140/90</string>
+    <string name="nhg_bp_seriously_raised">Ernstig verhoogde bloeddruk · vanaf 180/110</string>
 
-    <!-- NHG glucose categories -->
-    <string name="nhg_glucose_hypo">Hypoglykemie</string>
-    <string name="nhg_glucose_normal">Normaal</string>
-    <string name="nhg_glucose_impaired_fasting">Gestoord Nuchtere Glucose</string>
-    <string name="nhg_glucose_impaired_tolerance">Gestoorde Glucosetolerantie</string>
-    <string name="nhg_glucose_diabetes_range">Diabetesbereik</string>
+    <string name="nhg_glucose_name_low">Lage bloedsuiker</string>
+    <string name="nhg_glucose_name_normal">Normale bloedsuiker</string>
+    <string name="nhg_glucose_name_slightly_raised">Iets hogere bloedsuiker</string>
+    <string name="nhg_glucose_name_high">Hoge bloedsuiker</string>
+    <string name="nhg_glucose_label">%1$s · %2$s</string>
+    <string name="nhg_glucose_range_below">%1$s onder %2$s %3$s</string>
+    <string name="nhg_glucose_range_between">%1$s %2$s tot %3$s %4$s</string>
+    <string name="nhg_glucose_range_between_below">%1$s %2$s tot onder %3$s %4$s</string>
+    <string name="nhg_glucose_range_above_to">%1$s boven %2$s tot %3$s %4$s</string>
+    <string name="nhg_glucose_range_above">%1$s boven %2$s %3$s</string>
+    <string name="nhg_context_fasting">nuchter</string>
+    <string name="nhg_context_postprandial">na een maaltijd</string>
+
+    <string name="ranges_about">Over deze waarden</string>
+    <string name="ranges_about_title">Over deze waarden</string>
+    <string name="ranges_about_body">De waarden volgen gepubliceerde richtlijnen, vooral de NHG-standaarden. Formuleringen komen ook van Diabetes Fonds, DVN en Hartstichting. Een label is geen diagnose en deze app is geen medisch hulpmiddel. Vragen over je waarden stel je aan je huisarts of apotheker.</string>
+    <string name="ranges_link_nhg">NHG</string>
+    <string name="ranges_link_thuisarts">Thuisarts</string>
+    <string name="ranges_link_diabetesfonds">Diabetes Fonds</string>
+    <string name="ranges_link_dvn">DVN</string>
+    <string name="ranges_link_hartstichting">Hartstichting (bloeddruk)</string>
+    <string name="ranges_close">Sluiten</string>
     <string name="common_save">Opslaan</string>
     <string name="common_delete">Verwijderen</string>
     <string name="history_edit_entry">Meting bewerken</string>

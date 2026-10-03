@@ -421,6 +421,27 @@ class CsvAdaptersTest {
     }
 
     @Test
+    fun `export writes the new blood pressure names and an old-name file still imports`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        logRepo.saveBloodPressure(
+            BloodPressureEntry(
+                MeasurementId.generate(), profile.id, Instant.parse("2026-09-20T08:00:00Z"),
+                BloodPressureReading(185, 95), NhgBloodPressureCategory.SERIOUSLY_RAISED
+            )
+        )
+        val csv = CsvDataExportAdapter(logRepo).exportBloodPressureCsv(profile.id)
+        assertTrue(csv.contains("2026-09-20T08:00:00Z,185,95,SERIOUSLY_RAISED"))
+
+        logRepo.bloodPressures.clear()
+        val result = importer.importCsv(
+            profile.id, "blood_pressure",
+            lines("timestamp,systolic_mmhg,diastolic_mmhg,classification", "2026-09-20T08:00:00Z,150,95,HYPERTENSION_GRADE_1")
+        )
+        assertEquals(1, result.importedCount)
+        assertEquals(NhgBloodPressureCategory.HIGH, logRepo.bloodPressures.single().category)
+    }
+
+    @Test
     fun `libra CSV with an unknown unit skips the rows instead of assuming kilograms`() = runBlocking {
         val (logRepo, profile, importer) = importSetup()
         val csv = lines(

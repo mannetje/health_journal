@@ -86,7 +86,7 @@ fun CategoryDistributionBar(segments: List<DistributionSegment>, modifier: Modif
         segments.forEach { segment ->
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(text = segment.label, style = MaterialTheme.typography.bodySmall)
+                    Text(text = segment.label, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f).padding(end = 8.dp))
                     Text(
                         text = stringResource(R.string.trend_distribution_percent, (segment.fraction * 100).roundToInt(), segment.count),
                         style = MaterialTheme.typography.bodySmall

@@ -20,6 +20,7 @@ import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.asString
 import nl.healthjournal.domain.model.common.GlucoseUnit
 import nl.healthjournal.domain.model.metrics.GlucoseContext
+import nl.healthjournal.app.ui.nhg.RangeSourceNote
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.app.ui.nhg.getBmiColor
 import nl.healthjournal.app.ui.nhg.getBpColor
@@ -165,7 +166,7 @@ fun LogMetricScreen(
 
                 if (state.previewBpCategory != null) {
                     CategoryBadge(
-                        label = stringResource(R.string.log_nhg_badge, state.previewBpCategory!!.label()),
+                        label = state.previewBpCategory!!.label(),
                         color = getBpColor(state.previewBpCategory!!)
                     )
                 }
@@ -226,7 +227,7 @@ fun LogMetricScreen(
 
                 if (state.previewGlucoseCategory != null) {
                     CategoryBadge(
-                        label = stringResource(R.string.log_nhg_badge, state.previewGlucoseCategory!!.label()),
+                        label = state.previewGlucoseCategory!!.label(state.glucoseContext),
                         color = getGlucoseColor(state.previewGlucoseCategory!!)
                     )
                 }
@@ -252,6 +253,10 @@ fun LogMetricScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+        }
+
+        if (state.selectedMetric != MetricType.ACTIVITY) {
+            RangeSourceNote()
         }
 
         Button(

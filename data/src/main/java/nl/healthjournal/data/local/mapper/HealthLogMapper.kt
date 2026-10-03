@@ -53,7 +53,7 @@ object HealthLogMapper {
             profileId = ProfileId.fromString(entity.profileId),
             timestamp = Instant.ofEpochMilli(entity.timestamp),
             reading = BloodPressureReading(entity.systolic, entity.diastolic),
-            category = NhgBloodPressureCategory.valueOf(entity.category)
+            category = NhgBloodPressureCategory.fromStoredName(entity.category)
         )
     }
 

@@ -27,6 +27,7 @@ import nl.healthjournal.app.ui.history.charts.DateRangeSelector
 import nl.healthjournal.app.ui.history.charts.GlucoseTrendSection
 import nl.healthjournal.app.ui.history.charts.WeightTrendSection
 import nl.healthjournal.app.ui.history.charts.filterByDateRange
+import nl.healthjournal.app.ui.nhg.RangeSourceNote
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.app.ui.theme.infoContainerColor
 import nl.healthjournal.app.ui.theme.onInfoContainerColor
@@ -139,6 +140,10 @@ fun HistoryScreen(
             )
         }
 
+        if (state.selectedFilter != HistoryFilter.ACTIVITY) {
+            RangeSourceNote()
+        }
+
         // Under a single-metric filter the entries follow the selected date range, like the chart;
         // under "All" the full list is shown.
         val ranged = state.selectedFilter != HistoryFilter.ALL
@@ -196,7 +201,7 @@ fun HistoryScreen(
                                     onDelete = { viewModel.requestDelete(EntryRef.BloodPressure(bp)) }
                                 ) {
                                         Text(stringResource(R.string.history_bp_line, bp.reading.systolic.toString(), bp.reading.diastolic.toString()), style = MaterialTheme.typography.titleMedium)
-                                        Text(stringResource(R.string.history_category_line, bp.category.label()))
+                                        Text(bp.category.label())
                                         Text(stringResource(R.string.history_time_line, bp.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             })
@@ -210,7 +215,7 @@ fun HistoryScreen(
                                     onDelete = { viewModel.requestDelete(EntryRef.Glucose(g)) }
                                 ) {
                                         Text(stringResource(R.string.history_glucose_line, units.formatGlucose(g.glucose.valueInMmolL.toDouble()), g.context.label()), style = MaterialTheme.typography.titleMedium)
-                                        Text(stringResource(R.string.history_category_line, g.category.label()))
+                                        Text(g.category.label(g.context))
                                         Text(stringResource(R.string.history_time_line, g.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             })

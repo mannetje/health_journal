@@ -136,7 +136,7 @@ class UseCasesTest {
             diastolic = 92
         )
 
-        assertEquals(NhgBloodPressureCategory.HYPERTENSION_GRADE_1, entry.category)
+        assertEquals(NhgBloodPressureCategory.HIGH, entry.category)
         assertEquals(1, healthRepo.bloodPressures.size)
     }
 
@@ -279,7 +279,7 @@ class UseCasesTest {
         val profileId = CreateProfileUseCase(profileRepo)("Test", LocalDate.of(1990, 1, 1), 180)
         val bp = RecordBloodPressureUseCase(healthRepo)(profileId, 120, 80)
         val updatedBp = UpdateBloodPressureUseCase(healthRepo)(bp.id, profileId, 145, 92, bp.timestamp)
-        assertEquals(NhgBloodPressureCategory.HYPERTENSION_GRADE_1, updatedBp?.category)
+        assertEquals(NhgBloodPressureCategory.HIGH, updatedBp?.category)
         assertEquals(1, healthRepo.bloodPressures.size)
 
         val g = RecordGlucoseUseCase(healthRepo)(profileId, GlucoseContext.FASTING, valueInMmolL = BigDecimal("5.0"))
