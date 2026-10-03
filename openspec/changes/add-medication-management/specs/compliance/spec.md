@@ -57,7 +57,7 @@ The system SHALL NOT give advice, instructions, recommendations, warnings, tips,
 - **THEN** it SHALL be reviewed against this requirement before merge, and strings in English and Dutch SHALL both comply
 
 ### Requirement: Reference ranges are informational and neutral
-The system SHALL present guideline ranges (BMI classes, blood pressure and glucose bands) as informational context, with the range and a named source, in neutral wording that does not name a medical condition and does not read as a diagnosis. The exact wording, source order (NHG first) and colours are defined by the `range-labels` capability of the change `reword-range-labels`.
+The system SHALL present guideline ranges (BMI classes, blood pressure and glucose bands) as informational context, with the range and a named source, in neutral wording that does not name a medical condition and does not read as a diagnosis. The exact wording, source order (NHG first) and colours are defined by the `range-labels` capability (`openspec/specs/health-metrics/range-labels/spec.md`).
 
 #### Scenario: Neutral wording with source
 - **WHEN** a value is shown with a range label

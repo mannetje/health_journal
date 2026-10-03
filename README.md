@@ -61,7 +61,7 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 ### Key Features
 - **Body Weight & BMI:** Record body weight in kilograms, automatically deriving Body Mass Index (BMI) based on profile height, categorized according to NHG/WHO standards.
 - **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, automatically shown against three bands from the Dutch NHG standard: Normal (below 140/90), High (from 140/90) and Seriously raised (from 180/110). Labels name the band with its range and never a condition; an "About these ranges" note links the sources. Older entries keep working: the six previous names are read as the new bands.
-- **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) and show it as **mmol/L** or **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges (Hypoglycaemia, Normal, Impaired, Diabetes Range).
+- **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) and show it as **mmol/L** or **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges and shown as "name · range" (Low, Normal, Slightly raised, High blood glucose) with only the range for the entry's context.
 - **Activity Tracking:** Manually log workout and physical activity sessions from the Log screen (duration + distance), or bulk-import sessions; each session records start time, end time, and distance in metres.
 - **Profile Sex Field (optional):** Selectable male/female on the Profile screen. Purely demographic — has no effect on BMI, blood pressure, or glucose classification (Dutch NHG guidelines do not differentiate these by sex).
 - **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities. Import accepts a file chosen with the system file picker or pasted CSV text.
@@ -282,4 +282,4 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
   - [ ] Phase 5b: Reminders with Taken and Snooze actions.
   - [ ] Phase 5c: Adherence tracking.
   - [ ] Phase 5d: Privacy hardening (no network, no backup), opt-in app lock (fingerprint or device PIN), encrypted database, and CSV export and import of medication data.
-  - [ ] Phase 5e: Compliance record (ADR) and neutral wording of the existing range labels.
+  - [ ] Phase 5e: Compliance record (ADR). The neutral wording of the range labels shipped in 1.5.0.

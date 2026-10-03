@@ -45,7 +45,7 @@
 - [ ] 4b.1 Intended-purpose statement (personal logging and reminder tool, not a medical device) in the app (first run and settings), README and ADR 0019
 - [ ] 4b.2 Missed intake shows the status only (no instruction); a neutral "Sources" list with apotheek.nl and Thuisarts links on the information screen, in English and Dutch
 - [ ] 4b.2b No-advice audit of every existing and new user-visible string in English and Dutch (notifications, errors, empty states, banners, dialogs, README), and a unit or lint check that lists strings for review when they change
-- [ ] 4b.3 Range labels (BMI, blood pressure, glucose): done by the separate change `reword-range-labels` (NHG leading), which ships before any medication code
+- [x] 4b.3 Range labels (BMI, blood pressure, glucose): done by the separate change `reword-range-labels` (shipped in 1.5.0) (NHG leading), which ships before any medication code
 - [ ] 4b.4 Wording check of README, CHANGELOG, store listing and screenshots against the claims rules
 - [ ] 4b.5 Confirm there is no alert, urgency or reminder driven by a health value
 - [ ] 4b.6 ADR 0019 compliance record (intended purpose, MDR, AVG, Play requirements, review gate, date of last review)
