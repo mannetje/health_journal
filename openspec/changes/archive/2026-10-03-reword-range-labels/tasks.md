@@ -24,7 +24,7 @@
 - [x] 3.7 Label text tests in both languages (`RangeLabelStringsTest`, from the resource files, no condition names, matching placeholders and limits) and glucose limits in mmol/L (`GlucoseRangesTest`); the mg/dL display was checked on the emulator only (no automated test, as the label is a Composable)
 
 ## 4. Specs and docs
-- [ ] 4.1 Apply the delta specs on archive (`range-labels` added; `blood-pressure`, `glucose`, `weight`, `health-trends`, `data-export` modified)
+- [x] 4.1 Apply the delta specs on archive (`range-labels` added; `blood-pressure`, `glucose`, `weight`, `health-trends`, `data-export` modified)
 - [x] 4.2 Update the `add-medication-management` compliance delta so "Reference ranges are informational and neutral" points to `range-labels` (done in this change), and mark its task 4b.3 as covered by this change
 - [x] 4.3 README: blood pressure bands and screenshots of the log, history and trend screens (English; Dutch labels are covered by the emulator check)
 - [x] 4.4 ADR 0005: source order (NHG first) and the three-band decision; ADR 0006: neutral colours
@@ -34,5 +34,5 @@
 ## 5. Verification and release
 - [ ] 5.1 Check every band, limit and name against the NHG text (CVRM, diabetes type 2, BMI) and the three other sources, record the result in ADR 0005, correct the spec if NHG differs (open points: diastolic 110 limit, the low glucose limit 3.5, the BMI class wording) — partly done 2026-10-03: see ADR 0005; the NHG text is still not reachable, three points stay open
 - [x] 5.2 Emulator check in English and Dutch, light and dark, fasting and after a meal, mg/dL and mmol/L
-- [ ] 5.3 `openspec validate reword-range-labels --strict`
+- [x] 5.3 `openspec validate reword-range-labels --strict`
 - [x] 5.4 Version bump to 1.5.0 (versionCode 15); tag and release only when asked
