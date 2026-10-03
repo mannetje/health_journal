@@ -9,9 +9,13 @@
 [![Android CI](https://github.com/mannetje/health_journal/actions/workflows/android.yml/badge.svg)](https://github.com/mannetje/health_journal/actions/workflows/android.yml)
 [![Latest Release](https://img.shields.io/github/v/release/mannetje/health_journal?include_prereleases&color=blue&label=APK%20Release)](https://github.com/mannetje/health_journal/releases/latest)
 
+[Download](#-download-apk) · [Developer docs](docs/dev/README.md) · [Contributing](CONTRIBUTING.md) · [Architecture decisions](docs/adr/) · [Changelog](CHANGELOG.md)
+
 </div>
 
 An offline-first, privacy-focused Android health logging application built with Kotlin, Jetpack Compose, and Hexagonal Architecture (Ports and Adapters).
+
+> **Want to build on it or contribute?** Start with the [Developer Docs](docs/dev/README.md): getting started, an architecture tour and how-to guides. See also [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
@@ -225,6 +229,12 @@ All data files must be encoded in **UTF-8**.
 | **Weight (Libra)** | Libra CSV (`net.cachapa.libra`) | `#Units: kg\|lbs`, `#date;weight;...` (semicolon-delimited) | `2026-09-09T08:00:00.000Z;74.5;;;` |
 
 > **Libra auto-detection:** Pasting a Libra export into the Weight import or selecting "Libra (CSV)" in the import dialog will both work. Unit conversion from lbs to kg (factor: 1 lb = 0.45359237 kg) is applied automatically when `#Units: lbs` is present.
+
+---
+
+## Developer Documentation
+
+New here? The [developer docs](docs/dev/README.md) explain how the code and the architecture fit together (with a walk-through of one entry from screen to database) and include how-to guides. Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
