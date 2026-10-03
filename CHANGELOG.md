@@ -4,6 +4,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-10-03
+
 ### Changed
 - **Range labels:** BMI, blood pressure and glucose labels now read "name · range", for example "High blood pressure · from 140/90", and no longer name a condition. Glucose shows only the range for the entry's context (fasting or after a meal), in your chosen unit.
 - **Blood pressure has three bands:** Normal (below 140/90), High (from 140/90) and Seriously raised (from 180/110). Thresholds are unchanged; the six old bands are merged. Stored entries are mapped on read, so existing data and old CSV files keep working and no data changes.
