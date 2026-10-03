@@ -6,7 +6,7 @@
 
 ## Context
 
-Users could only see their Weight, Blood Pressure, and Glucose measurements as a flat, reverse-chronological list on the History screen. There was no way to spot a trend (e.g. "is my blood pressure improving?") without mentally comparing many rows. [`openspec/changes/add-health-trend-visualizations/`](../../openspec/changes/add-health-trend-visualizations/) specified per-metric trend visualizations, attached to the existing History filter chips rather than a separate "Trends" tab, so the feature stays discoverable without adding new navigation.
+Users could only see their Weight, Blood Pressure, and Glucose measurements as a flat, reverse-chronological list on the History screen. There was no way to spot a trend (e.g. "is my blood pressure improving?") without mentally comparing many rows. [`openspec/changes/archive/2026-09-28-add-health-trend-visualizations/`](../../openspec/changes/archive/2026-09-28-add-health-trend-visualizations/) specified per-metric trend visualizations, attached to the existing History filter chips rather than a separate "Trends" tab, so the feature stays discoverable without adding new navigation.
 
 ## Functionally, what changed
 
@@ -18,7 +18,7 @@ When the user selects the **Weight**, **Blood Pressure**, or **Glucose** filter 
 - **Glucose:** a single-color trend line (out-of-range excursions are conveyed by the Time-in-Range breakdown and the color-coded "Latest" stat chip rather than per-point line coloring — see Trade-offs), a Time-in-Range breakdown split by measurement context (Fasting vs. Postprandial), and Latest/Average/Time-in-Range%/Entry-count stat chips.
 - All charts support **pinch-to-zoom and drag-to-pan** to inspect a narrower slice of the visible range.
 - Every chart shows a localized "not enough data yet" message instead of an empty canvas when fewer than two entries are available.
-- All new UI text is fully localized (English/Dutch, reusing the existing [Dutch/English localization](../../openspec/changes/add-localization/proposal.md) mechanism) and all colors follow the existing NHG category palette and the light/dark theme, so a chart never introduces a new hardcoded color.
+- All new UI text is fully localized (English/Dutch, reusing the existing [Dutch/English localization](../../openspec/changes/archive/2026-09-28-add-localization/proposal.md) mechanism) and all colors follow the existing NHG category palette and the light/dark theme, so a chart never introduces a new hardcoded color.
 
 ## Technically, how it was built
 

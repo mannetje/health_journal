@@ -6,7 +6,7 @@
 
 ## Context
 
-The in-app language override (System / English / Dutch, see the [localization proposal](../../openspec/changes/add-localization/proposal.md)) is applied in `MainActivity` by wrapping the Activity in a locale-configured context (`Context.withAppLocale()` → `createConfigurationContext`) and providing it to Compose as `LocalContext`.
+The in-app language override (System / English / Dutch, see the [localization proposal](../../openspec/changes/archive/2026-09-28-add-localization/proposal.md)) is applied in `MainActivity` by wrapping the Activity in a locale-configured context (`Context.withAppLocale()` → `createConfigurationContext`) and providing it to Compose as `LocalContext`.
 
 Version 1.4.3 added a system file picker for CSV import (`rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument())`). On a real Pixel, opening the **History** screen crashed with `No ActivityResultRegistryOwner was provided via LocalActivityResultRegistryOwner`. It reproduced only when the app language was overridden and so used the wrapped context; on the emulator with the *System* language `withAppLocale()` returns the Activity itself, which hid the bug. The trigger looked unrelated (Log → Weight → Glucose → Weight → History) because History is only composed after the user navigates there.
 

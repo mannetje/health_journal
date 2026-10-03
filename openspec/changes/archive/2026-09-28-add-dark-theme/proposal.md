@@ -16,3 +16,6 @@
 - Affected code: `app/src/main/java/nl/healthjournal/app/ui/theme/Theme.kt`, `Color.kt`, plus any screen composable found to hard-code a non-theme-aware color during the audit.
 - No domain/data module changes.
 - This is a prerequisite for `add-health-trend-visualizations`' shared building blocks (`TrendCard`, `LineTrendChart`, etc.), which must render correctly in both themes; that change's design should reference this one rather than duplicate theme decisions.
+
+## Status
+Implemented. The rules are in the canonical specs under `openspec/specs/`.

@@ -33,6 +33,7 @@ Each entry SHALL have a context: FASTING or POSTPRANDIAL. Labels are localized (
 - **THEN** the context POSTPRANDIAL is stored
 
 ### Requirement: NHG classification
+The classifier SHALL use these bands.
 FASTING: HYPOGLYCAEMIA below 3.5; NORMAL from 3.5 to 6.0 inclusive; IMPAIRED_FASTING above 6.0 up to 6.9 inclusive; DIABETES_RANGE above 6.9.
 POSTPRANDIAL: HYPOGLYCAEMIA below 3.5; NORMAL from 3.5 up to but excluding 7.8; IMPAIRED_GLUCOSE_TOLERANCE from 7.8 to 11.0 inclusive; DIABETES_RANGE above 11.0.
 The category is computed on the stored mmol/L value, stored with the entry, and recomputed on update.

@@ -13,7 +13,7 @@ The application SHALL follow the system light/dark setting. There SHALL be no in
 - **THEN** the dark palette is applied
 
 ### Requirement: Palette
-Colors (hex RGB):
+The app SHALL use these colors (hex RGB):
 - Light: primary 1E88E5, secondary 00897B, background F8F9FA, surface FFFFFF, text 212121
 - Dark: primary 90CAF9, secondary 80CBC4, background 121212, surface 1E1E1E, text ECECEC
 - Success container: light E8F5E9, dark 1B3A1E

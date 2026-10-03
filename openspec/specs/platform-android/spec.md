@@ -56,11 +56,23 @@ ViewModels SHALL NOT hold translated text. They SHALL expose a `UiText` value, e
 ### Requirement: Screens fit narrow phones and Dutch text
 Segmented buttons, tab rows and filter chips SHALL fit a phone width of about 360 dp in Dutch without overlap or broken words, using scrolling rows or wrapping instead of truncation (ADR 0010).
 
+#### Scenario: Dutch on a narrow phone
+- **WHEN** the language is Dutch and the screen is 360 dp wide
+- **THEN** no label overlaps or breaks inside a word
+
 ### Requirement: Theme follows the system
 The app SHALL use the DayNight theme with Compose colour schemes that follow the system light or dark setting, and the launcher icon SHALL be an adaptive icon with the navy background and recoloured logo defined in [app-identity](../app-identity/spec.md) (ADR 0011).
 
+#### Scenario: Launcher icon
+- **WHEN** the app is installed
+- **THEN** the launcher shows the adaptive icon with the navy background and recoloured logo
+
 ### Requirement: Charts
 Trend charts SHALL be drawn with Vico 3, with the calendar axis and zoom rules from [health-trends](../health-trends/spec.md).
+
+#### Scenario: Chart library
+- **WHEN** a trend chart is shown
+- **THEN** it is drawn with Vico 3 and follows the axis and zoom rules of health-trends
 
 ### Requirement: Distribution and signing
 Releases SHALL be debug-signed APKs built by GitHub Actions on a `v*` tag and attached to a GitHub Release. Local and CI builds SHALL be signed with the committed `app/debug.keystore`, so a new APK installs over an older one and keeps user data (ADR 0008). Installing on a phone with an APK signed by a different key requires an uninstall first, which erases the data.
@@ -71,3 +83,7 @@ Releases SHALL be debug-signed APKs built by GitHub Actions on a `v*` tag and at
 
 ### Requirement: Versioning
 `versionName` SHALL follow `MAJOR.MINOR.PATCH`, `versionCode` SHALL increase with every release, and each release SHALL be tagged `vMAJOR.MINOR.PATCH` and described in `CHANGELOG.md`.
+
+#### Scenario: Release tag
+- **WHEN** version 1.4.9 is released
+- **THEN** `versionName` is 1.4.9, `versionCode` is higher than the previous release, the tag is v1.4.9 and `CHANGELOG.md` describes it

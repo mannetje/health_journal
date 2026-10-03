@@ -57,15 +57,15 @@ The system SHALL NOT give advice, instructions, recommendations, warnings, tips,
 - **THEN** it SHALL be reviewed against this requirement before merge, and strings in English and Dutch SHALL both comply
 
 ### Requirement: Reference ranges are informational and neutral
-The system SHALL present guideline ranges (for example NHG ranges for blood pressure and glucose, and BMI classes) as informational context with the named source, in neutral wording that does not read as a diagnosis, and SHALL NOT use diagnostic labels as the verdict on the user.
+The system SHALL present guideline ranges (BMI classes, blood pressure and glucose bands) as informational context, with the range and a named source, in neutral wording that does not name a medical condition and does not read as a diagnosis. The exact wording, source order (NHG first) and colours are defined by the `range-labels` capability of the change `reword-range-labels`.
 
 #### Scenario: Neutral wording with source
 - **WHEN** a value is shown with a range label
-- **THEN** the label SHALL be worded as a range according to a named guideline (for example "in the range X according to the NHG guideline") and not as a medical condition, and a not-a-diagnosis note and a link to Thuisarts SHALL be reachable from that screen
+- **THEN** the label SHALL name the band together with its range, SHALL NOT name a medical condition, and a not-a-diagnosis note with links to the named sources and Thuisarts SHALL be reachable from that screen
 
 #### Scenario: No coloured warning verdicts
-- **WHEN** a value falls outside the healthy range
-- **THEN** the system SHALL NOT present it with alarm wording or imagery suggesting danger or a need for treatment
+- **WHEN** a value falls outside the usual range
+- **THEN** the system SHALL NOT present it with alarm wording, warning colours or imagery suggesting danger or a need for treatment
 
 ### Requirement: Claims and marketing stay within the intended purpose
 The system and all material about it (README, store listing, screenshots, changelog, release notes) SHALL NOT claim to improve health outcomes, treat, cure, prevent or diagnose any condition, SHALL NOT claim certification, endorsement or approval by NHG, KNMP, Voedingscentrum, the IGJ or any other body, and SHALL NOT use those bodies' logos.

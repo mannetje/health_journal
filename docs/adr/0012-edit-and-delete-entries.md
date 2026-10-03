@@ -6,7 +6,7 @@
 
 ## Context
 
-Entries could only be created (Log screen) or bulk-imported (CSV). A mistyped weight, a wrong glucose context or a duplicated import row could not be corrected or removed, and with 1000+ imported entries there was no way to clean up. The OpenSpec change is in `openspec/changes/feature-edit-delete-entries/`.
+Entries could only be created (Log screen) or bulk-imported (CSV). A mistyped weight, a wrong glucose context or a duplicated import row could not be corrected or removed, and with 1000+ imported entries there was no way to clean up. The OpenSpec change is in `openspec/changes/archive/2026-09-30-feature-edit-delete-entries/`.
 
 ## Decision
 

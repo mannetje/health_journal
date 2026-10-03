@@ -17,3 +17,6 @@ Every user-facing string in the app today is a hard-coded literal inside a Compo
 - Affected code: every composable file under `app/src/main/java/nl/healthjournal/app/ui/**`, new `app/src/main/res/values/strings.xml` and `app/src/main/res/values-nl/strings.xml`, `ProfileScreen.kt`/`ProfileViewModel.kt` (new language setting UI + persistence), and a new small `LanguagePreference`/locale-override helper in `:app`.
 - No domain/data module changes — language preference is an app/device-level UI setting, not a clinical `Profile` field, so it is stored separately from the domain `Profile` model via a lightweight local preference store in `:app`.
 - `add-health-trend-visualizations`' new Trends composables should be written against string resources from the start rather than adding new hard-coded literals that would need retrofitting.
+
+## Status
+Implemented. The rules are in the canonical specs under `openspec/specs/`.

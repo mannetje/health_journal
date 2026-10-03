@@ -36,3 +36,6 @@ These are new presentation-layer capabilities (built on top of the existing, unc
 - Sequencing: `add-dark-theme` and `add-localization` should land first (or at least be implemented alongside), since this change's new composables are written to depend on both.
 
 This proposal intentionally stops at design/specification. Implementation tasks will be drafted once the visual design in `design.md` is confirmed.
+
+## Status
+Implemented. The rules are in `openspec/specs/health-trends/`. One deviation: charts use Vico 3 instead of custom Canvas drawings, documented in ADR 0006 and as an exception in ADR 0003.

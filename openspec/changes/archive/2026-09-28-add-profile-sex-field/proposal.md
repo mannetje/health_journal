@@ -23,3 +23,6 @@ So **no existing calculation in this app currently requires sex**, and adding it
 - Affected code: `domain/src/main/kotlin/nl/healthjournal/domain/model/profile/Profile.kt` (new `Sex` enum + field), `CreateProfileUseCase`, `:data` module's Profile persistence (new nullable column + migration), `app/.../ui/profile/ProfileScreen.kt` and `ProfileViewModel.kt`.
 - No change to `health-metrics/*` calculation specs — this proposal explicitly does not touch BMI/BP/glucose classification, since none of them use sex.
 - Should read against `add-localization`'s string resources for the new selector's labels, and `add-dark-theme`'s tokens for its styling, since both are in flight alongside this change.
+
+## Status
+Implemented. The rules are in the canonical specs under `openspec/specs/`.
