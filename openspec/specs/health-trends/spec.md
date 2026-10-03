@@ -55,12 +55,19 @@ Charts SHALL support pinch zoom and pan. The initial zoom SHALL fit all plotted 
 - **WHEN** a chart first appears
 - **THEN** all points are visible
 
-### Requirement: Category colors
-Category colors SHALL keep their hue identity in both themes, with a lighter variant in dark mode. Palette (light / dark, hex RGB): optimal green 2E7D32 / 66BB6A; normal green 43A047 / 81C784; yellow F9A825 / FFD54F; orange EF6C00 / FF8A50; deep orange D84315 / FF7043; red C62828 / E57373; severe red B71C1C / EF5350.
-- BMI: NORMAL optimal green, UNDERWEIGHT yellow, OVERWEIGHT orange, OBESE red
-- Blood pressure: OPTIMAL optimal green, NORMAL normal green, HIGH_NORMAL yellow, GRADE_1 orange, GRADE_2 deep orange, GRADE_3 severe red
-- Glucose: NORMAL green, IMPAIRED_FASTING and IMPAIRED_GLUCOSE_TOLERANCE orange, HYPOGLYCAEMIA and DIABETES_RANGE red
+### Requirement: Neutral category colors
+Category colors SHALL follow the neutral sequential ramp of `range-labels`, with a lighter variant in dark mode. Palette (light / dark, hex RGB): step 0 546E7A / B0BEC5; step 1 1E6FB5 / 64B5F6; step 2 3949AB / 7986CB; step 3 283593 / 9FA8DA; step 4 1A237E / C5CAE9. A step MAY be adjusted slightly to reach the required text contrast, and the order SHALL stay.
+- BMI: UNDERWEIGHT step 0, NORMAL step 1, OVERWEIGHT step 2, OBESE step 3
+- Blood pressure: NORMAL step 1, HIGH step 3, SERIOUSLY_RAISED step 4
+- Glucose: HYPOGLYCAEMIA step 0, NORMAL step 1, IMPAIRED_FASTING and IMPAIRED_GLUCOSE_TOLERANCE step 2, DIABETES_RANGE step 3
 
-#### Scenario: Grade 3 color
-- **WHEN** a GRADE_3 reading is shown in dark mode
-- **THEN** it uses EF5350
+#### Scenario: Highest blood pressure color
+- **WHEN** a SERIOUSLY_RAISED reading is shown in dark mode
+- **THEN** it uses C5CAE9
+
+### Requirement: Category distribution by band
+The blood pressure distribution bar and its legend SHALL group entries by band (three groups at most), show each band's name and range, and wrap long labels.
+
+#### Scenario: Old rows grouped
+- **WHEN** a profile has rows stored as OPTIMAL, NORMAL and HIGH_NORMAL
+- **THEN** the bar shows one Normal segment with their combined count

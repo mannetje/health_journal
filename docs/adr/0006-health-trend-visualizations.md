@@ -66,4 +66,4 @@ The History **All** filter now merges weight, blood pressure, glucose and activi
 
 ## Update (2026-10-03): neutral range colours
 
-Category colours no longer use the green, yellow, orange and red traffic-light palette. They follow a neutral five-step blue-grey ramp (light and dark variants, label contrast at least 4.5:1): a darker step is a higher band and never a verdict. Blood pressure uses steps 1, 3 and 4, BMI steps 0 to 3, glucose steps 0 to 3. The blood pressure distribution groups entries by the three bands and wraps long labels. See `openspec/changes/reword-range-labels/`.
+Category colours no longer use the green, yellow, orange and red traffic-light palette. They follow a neutral five-step blue-grey ramp (light and dark variants, label contrast at least 4.5:1): a darker step is a higher band and never a verdict. Blood pressure uses steps 1, 3 and 4, BMI steps 0 to 3, glucose steps 0 to 3. The blood pressure distribution groups entries by the three bands and wraps long labels. See `openspec/changes/archive/2026-10-03-reword-range-labels/`.
