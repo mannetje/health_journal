@@ -279,7 +279,7 @@ private fun DateTimeFields(value: LocalDateTime, onChange: (LocalDateTime) -> Un
             confirmButton = {
                 TextButton(onClick = {
                     pickerState.selectedDateMillis?.let { ms ->
-                        val date = LocalDate.ofInstant(Instant.ofEpochMilli(ms), ZoneOffset.UTC)
+                        val date = Instant.ofEpochMilli(ms).atZone(ZoneOffset.UTC).toLocalDate()
                         onChange(LocalDateTime.of(date, value.toLocalTime()))
                     }
                     showDate = false

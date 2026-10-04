@@ -382,7 +382,7 @@ private fun BirthDateField(value: LocalDate?, onChange: (LocalDate) -> Unit) {
                     enabled = pickerState.selectedDateMillis != null,
                     onClick = {
                         pickerState.selectedDateMillis?.let { ms ->
-                            onChange(LocalDate.ofInstant(Instant.ofEpochMilli(ms), ZoneOffset.UTC))
+                            onChange(Instant.ofEpochMilli(ms).atZone(ZoneOffset.UTC).toLocalDate())
                         }
                         showPicker = false
                     }
