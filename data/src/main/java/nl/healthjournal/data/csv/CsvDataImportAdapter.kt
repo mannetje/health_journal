@@ -111,7 +111,8 @@ class CsvDataImportAdapter(
                         val timestamp = parseInstant(parts[0])
                         val systolic = parts[1].toInt()
                         val diastolic = parts[2].toInt()
-                        val reading = BloodPressureReading(systolic, diastolic)
+                        val pulse = if (parts.size >= 4) parts[3].toIntOrNull() else null
+                        val reading = BloodPressureReading(systolic = systolic, diastolic = diastolic, pulse = pulse)
                         val category = NhgBloodPressureCategory.classify(reading)
                         val entry = BloodPressureEntry(
                             id = MeasurementId.generate(),

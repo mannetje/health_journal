@@ -20,6 +20,8 @@ import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.asString
 import nl.healthjournal.domain.model.common.GlucoseUnit
 import nl.healthjournal.domain.model.metrics.GlucoseContext
+import nl.healthjournal.app.ui.logging.components.HorizontalRulerPicker
+import nl.healthjournal.app.ui.logging.components.StackedBpPulsePicker
 import nl.healthjournal.app.ui.nhg.RangeSourceNote
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.app.ui.nhg.getBmiColor
@@ -124,16 +126,20 @@ fun LogMetricScreen(
 
         when (state.selectedMetric) {
             MetricType.WEIGHT -> {
-                OutlinedTextField(
-                    value = state.weightInput,
-                    onValueChange = { viewModel.onWeightChanged(it) },
-                    label = { Text(stringResource(R.string.log_weight_label, units.weightSymbol)) },
-                    placeholder = {
-                        Text(stringResource(if (units.isImperial) R.string.log_weight_placeholder_imperial else R.string.log_weight_placeholder))
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.log_weight_label, units.weightSymbol) + ": ${state.weightInput}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    HorizontalRulerPicker(
+                        value = state.weightValue,
+                        onValueChange = { viewModel.onWeightValueChanged(it) },
+                        range = 20.0..250.0,
+                        step = 0.5,
+                        unitLabel = units.weightSymbol
+                    )
+                }
 
                 if (state.previewBmi != null && state.previewBmiCategory != null) {
                     CategoryBadge(
@@ -168,27 +174,17 @@ fun LogMetricScreen(
             }
 
             MetricType.BLOOD_PRESSURE -> {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = state.systolicInput,
-                        onValueChange = { viewModel.onSystolicChanged(it) },
-                        label = { Text(stringResource(R.string.log_systolic_label)) },
-                        placeholder = { Text(stringResource(R.string.log_systolic_placeholder)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f)
-                    )
-                    OutlinedTextField(
-                        value = state.diastolicInput,
-                        onValueChange = { viewModel.onDiastolicChanged(it) },
-                        label = { Text(stringResource(R.string.log_diastolic_label)) },
-                        placeholder = { Text(stringResource(R.string.log_diastolic_placeholder)) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+                StackedBpPulsePicker(
+                    systolic = state.systolicValue,
+                    onSystolicChange = { viewModel.onSystolicValueChanged(it) },
+                    diastolic = state.diastolicValue,
+                    onDiastolicChange = { viewModel.onDiastolicValueChanged(it) },
+                    pulse = state.pulseValue,
+                    onPulseChange = { viewModel.onPulseValueChanged(it) },
+                    systolicLabel = stringResource(R.string.log_systolic_label),
+                    diastolicLabel = stringResource(R.string.log_diastolic_label),
+                    pulseLabel = stringResource(R.string.log_pulse_label)
+                )
 
                 if (state.previewBpCategory != null) {
                     CategoryBadge(
@@ -281,14 +277,20 @@ fun LogMetricScreen(
             }
 
             MetricType.WAIST_CIRCUMFERENCE -> {
-                OutlinedTextField(
-                    value = state.waistInput,
-                    onValueChange = { viewModel.onWaistChanged(it) },
-                    label = { Text(stringResource(R.string.log_waist_label)) },
-                    placeholder = { Text(stringResource(R.string.log_waist_placeholder)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.log_waist_label) + ": ${state.waistInput} cm",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    HorizontalRulerPicker(
+                        value = state.waistValue,
+                        onValueChange = { viewModel.onWaistValueChanged(it) },
+                        range = 40.0..200.0,
+                        step = 0.5,
+                        unitLabel = "cm"
+                    )
+                }
 
                 if (state.previewWaistCategory != null) {
                     CategoryBadge(

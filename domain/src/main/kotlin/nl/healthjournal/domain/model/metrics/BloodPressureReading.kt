@@ -2,7 +2,8 @@ package nl.healthjournal.domain.model.metrics
 
 data class BloodPressureReading(
     val systolic: Int,
-    val diastolic: Int
+    val diastolic: Int,
+    val pulse: Int? = null
 ) {
     init {
         require(systolic in MIN_SYSTOLIC..MAX_SYSTOLIC) {
@@ -14,6 +15,11 @@ data class BloodPressureReading(
         require(systolic > diastolic) {
             "Systolic pressure ($systolic mmHg) must be strictly greater than diastolic pressure ($diastolic mmHg)"
         }
+        pulse?.let {
+            require(it in MIN_PULSE..MAX_PULSE) {
+                "Pulse must be between $MIN_PULSE and $MAX_PULSE bpm, got: $it"
+            }
+        }
     }
 
     companion object {
@@ -21,5 +27,7 @@ data class BloodPressureReading(
         const val MAX_SYSTOLIC = 300
         const val MIN_DIASTOLIC = 20
         const val MAX_DIASTOLIC = 200
+        const val MIN_PULSE = 30
+        const val MAX_PULSE = 250
     }
 }

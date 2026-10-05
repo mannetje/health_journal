@@ -15,10 +15,11 @@ class RecordBloodPressureUseCase(
         profileId: ProfileId,
         systolic: Int,
         diastolic: Int,
+        pulse: Int? = null,
         timestamp: Instant = Instant.now(),
         measurementId: MeasurementId = MeasurementId.generate()
     ): BloodPressureEntry {
-        val reading = BloodPressureReading(systolic = systolic, diastolic = diastolic)
+        val reading = BloodPressureReading(systolic = systolic, diastolic = diastolic, pulse = pulse)
         val category = NhgBloodPressureCategory.classify(reading)
 
         val entry = BloodPressureEntry(

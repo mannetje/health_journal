@@ -45,7 +45,8 @@ object HealthLogMapper {
             timestamp = domain.timestamp.toEpochMilli(),
             systolic = domain.reading.systolic,
             diastolic = domain.reading.diastolic,
-            category = domain.category.name
+            category = domain.category.name,
+            pulse = domain.reading.pulse
         )
     }
 
@@ -54,7 +55,7 @@ object HealthLogMapper {
             id = MeasurementId.fromString(entity.id),
             profileId = ProfileId.fromString(entity.profileId),
             timestamp = Instant.ofEpochMilli(entity.timestamp),
-            reading = BloodPressureReading(entity.systolic, entity.diastolic),
+            reading = BloodPressureReading(entity.systolic, entity.diastolic, entity.pulse),
             category = NhgBloodPressureCategory.fromStoredName(entity.category)
         )
     }

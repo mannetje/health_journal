@@ -22,9 +22,10 @@ class CsvDataExportAdapter(
     override suspend fun exportBloodPressureCsv(profileId: ProfileId): String {
         val history = healthLogRepository.getBloodPressureHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
-        sb.append("timestamp,systolic_mmhg,diastolic_mmhg,classification\n")
+        sb.append("timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification\n")
         for (entry in history) {
-            sb.append("${entry.timestamp},${entry.reading.systolic},${entry.reading.diastolic},${entry.category.name}\n")
+            val pulseStr = entry.reading.pulse?.toString() ?: ""
+            sb.append("${entry.timestamp},${entry.reading.systolic},${entry.reading.diastolic},$pulseStr,${entry.category.name}\n")
         }
         return sb.toString()
     }

@@ -34,6 +34,8 @@
     <string name="log_systolic_placeholder">120</string>
     <string name="log_diastolic_label">Diastolic (mmHg)</string>
     <string name="log_diastolic_placeholder">80</string>
+    <string name="log_pulse_label">Pulse (bpm)</string>
+    <string name="log_pulse_placeholder">70</string>
     <string name="log_glucose_context_fasting">Fasting</string>
     <string name="log_glucose_context_postprandial">Postprandial</string>
     <string name="log_unit_label">Unit:</string>

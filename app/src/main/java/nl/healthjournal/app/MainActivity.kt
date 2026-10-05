@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
             app.recordGlucoseUseCase,
             app.recordActivityUseCase,
             app.recordWaistCircumferenceUseCase,
+            app.healthLogRepository,
             units = { unitPreference.resolve() }
         )
     }

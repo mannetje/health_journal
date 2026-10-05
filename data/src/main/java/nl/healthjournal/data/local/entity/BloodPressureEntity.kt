@@ -15,5 +15,6 @@ data class BloodPressureEntity(
     val timestamp: Long,
     val systolic: Int,
     val diastolic: Int,
-    val category: String
+    val category: String,
+    val pulse: Int? = null
 )

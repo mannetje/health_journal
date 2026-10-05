@@ -24,6 +24,8 @@ import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
 import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.model.profile.Sex
+import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.RecordActivityUseCase
 import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
@@ -32,6 +34,7 @@ import nl.healthjournal.domain.usecase.RecordWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.RecordWeightUseCase
 import java.math.BigDecimal
 import java.time.Instant
+import java.util.Locale
 
 enum class MetricType {
     WEIGHT,
@@ -46,19 +49,25 @@ data class LoggingUiState(
     val selectedMetric: MetricType = MetricType.WEIGHT,
 
     // Weight inputs & feedback
-    val weightInput: String = "",
+    val weightValue: Double = 75.0,
+    val weightInput: String = "75.0",
     val previewBmi: BigDecimal? = null,
     val previewBmiCategory: NhgBmiCategory? = null,
+    val weightWaistValue: Double? = null,
     val weightWaistInput: String = "",
     val previewWeightWaistCategory: NhgWaistCircumferenceCategory? = null,
 
     // BP inputs & feedback
-    val systolicInput: String = "",
-    val diastolicInput: String = "",
+    val systolicValue: Int = 120,
+    val systolicInput: String = "120",
+    val diastolicValue: Int = 80,
+    val diastolicInput: String = "80",
+    val pulseValue: Int = 70,
     val previewBpCategory: NhgBloodPressureCategory? = null,
 
     // Glucose inputs & feedback
-    val glucoseInput: String = "",
+    val glucoseValue: Double = 5.5,
+    val glucoseInput: String = "5.5",
     val glucoseContext: GlucoseContext = GlucoseContext.FASTING,
     val previewGlucoseCategory: NhgGlucoseCategory? = null,
 
@@ -67,7 +76,8 @@ data class LoggingUiState(
     val activityDistanceInput: String = "",
 
     // Waist inputs & feedback
-    val waistInput: String = "",
+    val waistValue: Double = 90.0,
+    val waistInput: String = "90.0",
     val previewWaistCategory: NhgWaistCircumferenceCategory? = null,
 
     val isSaving: Boolean = false,
@@ -82,6 +92,7 @@ class LoggingViewModel(
     private val recordGlucoseUseCase: RecordGlucoseUseCase,
     private val recordActivityUseCase: RecordActivityUseCase,
     private val recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
+    private val healthLogRepository: HealthLogRepositoryPort? = null,
     /** Reads the units currently chosen, so typed values are converted to metric before validation. */
     private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT }
 ) : ViewModel() {
@@ -96,10 +107,65 @@ class LoggingViewModel(
     fun loadProfile() {
         viewModelScope.launch {
             val profile = profileRepository.getActiveProfile()
-            _uiState.value = _uiState.value.copy(activeProfile = profile)
-            updateWeightPreview(_uiState.value.weightInput)
+            val history = profile?.let { healthLogRepository?.getWeightHistory(it.id) }
+            val bpHistory = profile?.let { healthLogRepository?.getBloodPressureHistory(it.id) }
+            val glucoseHistory = profile?.let { healthLogRepository?.getGlucoseHistory(it.id) }
+            val waistHistory = profile?.let { healthLogRepository?.getWaistCircumferenceHistory(it.id) }
+
+            // Pre-fill Weight
+            val latestWeight = history?.maxByOrNull { it.timestamp }
+            val profileHeight = profile?.height
+            val prefilledWeightKg = when {
+                latestWeight != null -> latestWeight.weight.value.toDouble()
+                profileHeight != null -> {
+                    val hMeters = profileHeight.value / 100.0
+                    22.5 * hMeters * hMeters
+                }
+                else -> 75.0
+            }
+
+            // Pre-fill Waist
+            val latestWaist = waistHistory?.maxByOrNull { it.timestamp }
+            val prefilledWaistCm = when {
+                latestWaist != null -> latestWaist.waist.value
+                profile?.sex == Sex.FEMALE -> 74.0
+                profile?.sex == Sex.MALE -> 86.5
+                else -> 90.0
+            }
+
+            // Pre-fill Blood Pressure & Pulse
+            val latestBp = bpHistory?.maxByOrNull { it.timestamp }
+            val prefilledSystolic = latestBp?.reading?.systolic ?: 120
+            val prefilledDiastolic = latestBp?.reading?.diastolic ?: 80
+            val prefilledPulse = latestBp?.reading?.pulse ?: 70
+
+            // Pre-fill Glucose
+            val latestGlucose = glucoseHistory?.maxByOrNull { it.timestamp }
+            val prefilledGlucoseMmol = latestGlucose?.glucose?.valueInMmolL?.toDouble() ?: 5.5
+
+            val formattedWeight = String.format(Locale.US, "%.1f", prefilledWeightKg)
+            val formattedWaist = String.format(Locale.US, "%.1f", prefilledWaistCm)
+            val formattedGlucose = String.format(Locale.US, "%.1f", prefilledGlucoseMmol)
+
+            _uiState.value = _uiState.value.copy(
+                activeProfile = profile,
+                weightValue = prefilledWeightKg,
+                weightInput = formattedWeight,
+                waistValue = prefilledWaistCm,
+                waistInput = formattedWaist,
+                systolicValue = prefilledSystolic,
+                systolicInput = prefilledSystolic.toString(),
+                diastolicValue = prefilledDiastolic,
+                diastolicInput = prefilledDiastolic.toString(),
+                pulseValue = prefilledPulse,
+                glucoseValue = prefilledGlucoseMmol,
+                glucoseInput = formattedGlucose
+            )
+
+            updateWeightPreview(formattedWeight)
             updateWeightWaistPreview(_uiState.value.weightWaistInput)
-            updateWaistPreview(_uiState.value.waistInput)
+            updateWaistPreview(formattedWaist)
+            updateBpPreview(prefilledSystolic.toString(), prefilledDiastolic.toString())
         }
     }
 
@@ -111,8 +177,19 @@ class LoggingViewModel(
         )
     }
 
+    fun onWeightValueChanged(value: Double) {
+        val str = String.format(Locale.US, "%.1f", value)
+        _uiState.value = _uiState.value.copy(weightValue = value, weightInput = str, errorMessage = null)
+        updateWeightPreview(str)
+    }
+
     fun onWeightChanged(input: String) {
-        _uiState.value = _uiState.value.copy(weightInput = input, errorMessage = null)
+        val parsed = input.toDoubleOrNull()
+        _uiState.value = _uiState.value.copy(
+            weightInput = input,
+            weightValue = parsed ?: _uiState.value.weightValue,
+            errorMessage = null
+        )
         updateWeightPreview(input)
     }
 
@@ -133,13 +210,45 @@ class LoggingViewModel(
         _uiState.value = _uiState.value.copy(previewBmi = null, previewBmiCategory = null)
     }
 
+    fun onSystolicValueChanged(value: Int) {
+        _uiState.value = _uiState.value.copy(
+            systolicValue = value,
+            systolicInput = value.toString(),
+            errorMessage = null
+        )
+        updateBpPreview(value.toString(), _uiState.value.diastolicInput)
+    }
+
+    fun onDiastolicValueChanged(value: Int) {
+        _uiState.value = _uiState.value.copy(
+            diastolicValue = value,
+            diastolicInput = value.toString(),
+            errorMessage = null
+        )
+        updateBpPreview(_uiState.value.systolicInput, value.toString())
+    }
+
+    fun onPulseValueChanged(value: Int) {
+        _uiState.value = _uiState.value.copy(pulseValue = value, errorMessage = null)
+    }
+
     fun onSystolicChanged(input: String) {
-        _uiState.value = _uiState.value.copy(systolicInput = input, errorMessage = null)
+        val parsed = input.toIntOrNull()
+        _uiState.value = _uiState.value.copy(
+            systolicInput = input,
+            systolicValue = parsed ?: _uiState.value.systolicValue,
+            errorMessage = null
+        )
         updateBpPreview(input, _uiState.value.diastolicInput)
     }
 
     fun onDiastolicChanged(input: String) {
-        _uiState.value = _uiState.value.copy(diastolicInput = input, errorMessage = null)
+        val parsed = input.toIntOrNull()
+        _uiState.value = _uiState.value.copy(
+            diastolicInput = input,
+            diastolicValue = parsed ?: _uiState.value.diastolicValue,
+            errorMessage = null
+        )
         updateBpPreview(_uiState.value.systolicInput, input)
     }
 
@@ -147,7 +256,7 @@ class LoggingViewModel(
         val sys = sysStr.toIntOrNull()
         val dia = diaStr.toIntOrNull()
         if (sys != null && dia != null && sys in 40..300 && dia in 20..200 && sys > dia) {
-            val reading = BloodPressureReading(sys, dia)
+            val reading = BloodPressureReading(systolic = sys, diastolic = dia, pulse = _uiState.value.pulseValue)
             _uiState.value = _uiState.value.copy(previewBpCategory = NhgBloodPressureCategory.classify(reading))
         } else {
             _uiState.value = _uiState.value.copy(previewBpCategory = null)
@@ -155,7 +264,12 @@ class LoggingViewModel(
     }
 
     fun onGlucoseChanged(input: String) {
-        _uiState.value = _uiState.value.copy(glucoseInput = input, errorMessage = null)
+        val parsed = input.toDoubleOrNull()
+        _uiState.value = _uiState.value.copy(
+            glucoseInput = input,
+            glucoseValue = parsed ?: _uiState.value.glucoseValue,
+            errorMessage = null
+        )
         updateGlucosePreview(input, _uiState.value.glucoseContext)
     }
 
@@ -173,8 +287,19 @@ class LoggingViewModel(
         _uiState.value = _uiState.value.copy(activityDistanceInput = input, errorMessage = null)
     }
 
+    fun onWaistValueChanged(value: Double) {
+        val str = String.format(Locale.US, "%.1f", value)
+        _uiState.value = _uiState.value.copy(waistValue = value, waistInput = str, errorMessage = null)
+        updateWaistPreview(str)
+    }
+
     fun onWaistChanged(input: String) {
-        _uiState.value = _uiState.value.copy(waistInput = input, errorMessage = null)
+        val parsed = input.toDoubleOrNull()
+        _uiState.value = _uiState.value.copy(
+            waistInput = input,
+            waistValue = parsed ?: _uiState.value.waistValue,
+            errorMessage = null
+        )
         updateWaistPreview(input)
     }
 
@@ -191,8 +316,19 @@ class LoggingViewModel(
         }
     }
 
+    fun onWeightWaistValueChanged(value: Double) {
+        val str = String.format(Locale.US, "%.1f", value)
+        _uiState.value = _uiState.value.copy(weightWaistValue = value, weightWaistInput = str, errorMessage = null)
+        updateWeightWaistPreview(str)
+    }
+
     fun onWeightWaistChanged(input: String) {
-        _uiState.value = _uiState.value.copy(weightWaistInput = input, errorMessage = null)
+        val parsed = input.toDoubleOrNull()
+        _uiState.value = _uiState.value.copy(
+            weightWaistInput = input,
+            weightWaistValue = parsed ?: (_uiState.value.weightWaistValue ?: 0.0),
+            errorMessage = null
+        )
         updateWeightWaistPreview(input)
     }
 
@@ -255,8 +391,6 @@ class LoggingViewModel(
                             recordWaistCircumferenceUseCase(profile.id, waistCm, timestamp)
                         }
                         _uiState.value = _uiState.value.copy(
-                            weightInput = "",
-                            weightWaistInput = "",
                             previewBmi = null,
                             previewBmiCategory = null,
                             previewWeightWaistCategory = null,
@@ -268,11 +402,9 @@ class LoggingViewModel(
                             ?: throw UiTextException(UiText.Res(R.string.log_err_systolic))
                         val dia = _uiState.value.diastolicInput.toIntOrNull()
                             ?: throw UiTextException(UiText.Res(R.string.log_err_diastolic))
-                        recordBloodPressureUseCase(profile.id, sys, dia)
+                        val pulse = _uiState.value.pulseValue
+                        recordBloodPressureUseCase(profile.id, sys, dia, pulse)
                         _uiState.value = _uiState.value.copy(
-                            systolicInput = "",
-                            diastolicInput = "",
-                            previewBpCategory = null,
                             successMessage = UiText.Res(R.string.log_msg_bp_saved)
                         )
                     }
@@ -293,7 +425,6 @@ class LoggingViewModel(
                             )
                         }
                         _uiState.value = _uiState.value.copy(
-                            glucoseInput = "",
                             previewGlucoseCategory = null,
                             successMessage = UiText.Res(R.string.log_msg_glucose_saved)
                         )
@@ -326,7 +457,6 @@ class LoggingViewModel(
                             ?: throw UiTextException(UiText.Res(R.string.log_err_waist))
                         recordWaistCircumferenceUseCase(profile.id, cm)
                         _uiState.value = _uiState.value.copy(
-                            waistInput = "",
                             previewWaistCategory = null,
                             successMessage = UiText.Res(R.string.log_msg_waist_saved)
                         )
@@ -351,6 +481,7 @@ class LoggingViewModel(
         private val recordGlucoseUseCase: RecordGlucoseUseCase,
         private val recordActivityUseCase: RecordActivityUseCase,
         private val recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
+        private val healthLogRepository: HealthLogRepositoryPort? = null,
         private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT }
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -362,6 +493,7 @@ class LoggingViewModel(
                 recordGlucoseUseCase,
                 recordActivityUseCase,
                 recordWaistCircumferenceUseCase,
+                healthLogRepository,
                 units
             ) as T
         }

@@ -24,6 +24,7 @@ import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.common.UnitSystem
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
+import nl.healthjournal.domain.model.metrics.BloodPressureReading
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.HeightCm
@@ -220,6 +221,7 @@ class ViewModelsTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.selectMetric(MetricType.WEIGHT)
+        vm.onWeightChanged("")
         vm.saveCurrentMetric()
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(UiText.Res(R.string.log_err_weight, listOf("kg")), vm.uiState.value.errorMessage)
@@ -241,8 +243,45 @@ class ViewModelsTest {
         RecordGlucoseUseCase(healthLogRepo),
         RecordActivityUseCase(healthLogRepo),
         RecordWaistCircumferenceUseCase(healthLogRepo, profileRepo),
+        healthLogRepo,
         units = { units }
     )
+
+    @Test
+    fun `LoggingViewModel smart pre-fill uses 3-tier fallback chain`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepo()
+
+        // Tier 3: No profile, no history -> Standard defaults
+        val vm1 = loggingViewModel(profileRepo, healthLogRepo)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(75.0, vm1.uiState.value.weightValue, 0.01)
+        assertEquals(120, vm1.uiState.value.systolicValue)
+        assertEquals(80, vm1.uiState.value.diastolicValue)
+        assertEquals(70, vm1.uiState.value.pulseValue)
+        assertEquals(90.0, vm1.uiState.value.waistValue, 0.01)
+
+        // Tier 2: Profile height = 180cm, sex = Female -> Personalized defaults
+        val profile = Profile.create("Bob", LocalDate.of(1990, 1, 1), height = HeightCm(180), sex = Sex.FEMALE)
+        profileRepo.save(profile)
+        val vm2 = loggingViewModel(profileRepo, healthLogRepo)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(72.9, vm2.uiState.value.weightValue, 0.01)
+        assertEquals(74.0, vm2.uiState.value.waistValue, 0.01)
+
+        // Tier 1: Latest entry takes precedence
+        val weightEntry = WeightEntry(MeasurementId.generate(), profile.id, Instant.now(), WeightKg(BigDecimal("82.5")), null)
+        val bpEntry = BloodPressureEntry(MeasurementId.generate(), profile.id, Instant.now(), BloodPressureReading(130, 85, 68), NhgBloodPressureCategory.NORMAL)
+        healthLogRepo.saveWeight(weightEntry)
+        healthLogRepo.saveBloodPressure(bpEntry)
+
+        val vm3 = loggingViewModel(profileRepo, healthLogRepo)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(82.5, vm3.uiState.value.weightValue, 0.01)
+        assertEquals(130, vm3.uiState.value.systolicValue)
+        assertEquals(85, vm3.uiState.value.diastolicValue)
+        assertEquals(68, vm3.uiState.value.pulseValue)
+    }
 
     @Test
     fun `LoggingViewModel previews and records weight with BMI`() = runTest {

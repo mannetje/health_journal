@@ -17,9 +17,10 @@ class UpdateBloodPressureUseCase(
         profileId: ProfileId,
         systolic: Int,
         diastolic: Int,
-        timestamp: Instant
+        timestamp: Instant,
+        pulse: Int? = null
     ): BloodPressureEntry? {
-        val reading = BloodPressureReading(systolic = systolic, diastolic = diastolic)
+        val reading = BloodPressureReading(systolic = systolic, diastolic = diastolic, pulse = pulse)
         val entry = BloodPressureEntry(
             id = id,
             profileId = profileId,

@@ -159,8 +159,8 @@ class CsvAdaptersTest {
         healthLogRepo.saveBloodPressure(entry)
 
         val csv = exportAdapter.exportBloodPressureCsv(profile.id)
-        assertTrue(csv.startsWith("timestamp,systolic_mmhg,diastolic_mmhg,classification\n"))
-        assertTrue(csv.contains("2026-09-20T08:00:00Z,120,80,NORMAL"))
+        assertTrue(csv.startsWith("timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification\n"))
+        assertTrue(csv.contains("2026-09-20T08:00:00Z,120,80,,NORMAL"))
 
         healthLogRepo.bloodPressures.clear()
         val result = importAdapter.importCsv(profile.id, "blood_pressure", csv)
@@ -445,7 +445,7 @@ class CsvAdaptersTest {
             )
         )
         val csv = CsvDataExportAdapter(logRepo).exportBloodPressureCsv(profile.id)
-        assertTrue(csv.contains("2026-09-20T08:00:00Z,185,95,SERIOUSLY_RAISED"))
+        assertTrue(csv.contains("2026-09-20T08:00:00Z,185,95,,SERIOUSLY_RAISED"))
 
         logRepo.bloodPressures.clear()
         val result = importer.importCsv(

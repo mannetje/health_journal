@@ -36,6 +36,13 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
+/** Adds the optional `pulse` column to `blood_pressures`. */
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE blood_pressures ADD COLUMN pulse INTEGER")
+    }
+}
+
 @Database(
     entities = [
         ProfileEntity::class,
@@ -45,7 +52,7 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         ActivityEntity::class,
         WaistCircumferenceEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class HealthJournalDatabase : RoomDatabase() {
@@ -71,7 +78,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 context,
                 HealthJournalDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
         }
     }
 }
