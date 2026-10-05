@@ -10,6 +10,10 @@
 - [ ] 3.1 Implement `StackedBpPulsePicker` Compose component featuring three stacked horizontal `LazyRow` components (Systolic in Red, Diastolic in Blue, Pulse in Green) with selection bounding boxes and faded unselected states.
 - [ ] 3.2 Wire `StackedBpPulsePicker` into `LogMetricScreen` for Blood Pressure tab.
 
-## 4. State Integration & Verification
-- [ ] 4.1 Bind initial picker scroll positions to pre-filled values and connect scroll/snap state changes to ViewModel inputs.
-- [ ] 4.2 Verify implementation with UI and ViewModel unit tests.
+## 4. Internationalization & Guidelines Compliance
+- [ ] 4.1 Add all English and Dutch string resources (`values/strings.xml` and `values-nl/strings.xml`) for labels, units, and accessibility/TalkBack descriptions.
+- [ ] 4.2 Ensure Material 3 compliance, 48dp touch targets, and Hexagonal architecture boundary separation.
+
+## 5. State Integration & Verification
+- [ ] 5.1 Bind initial picker scroll positions to pre-filled values and connect scroll/snap state changes to ViewModel inputs.
+- [ ] 5.2 Verify implementation with UI and ViewModel unit tests.

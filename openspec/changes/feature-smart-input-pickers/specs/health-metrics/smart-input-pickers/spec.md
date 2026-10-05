@@ -32,3 +32,14 @@ The system SHALL provide horizontal ruler pickers for continuous metrics (weight
 #### Scenario: Stacked BP and pulse picker interaction
 - **WHEN** viewing the blood pressure and pulse input screen
 - **THEN** three distinct horizontal scrolling rows (Systolic in Red, Diastolic in Blue, Pulse in Green) highlight selected values in colored bounding boxes.
+
+### Requirement: Internationalization and design guideline adherence
+The system SHALL provide English and Dutch localization for all UI components and adhere strictly to project guidelines (Hexagonal architecture, Material 3, offline-first, and accessibility standards).
+
+#### Scenario: Bilingual localization displayed
+- **WHEN** switching between English and Dutch in app settings
+- **THEN** all picker labels, unit indicators, and category descriptions update immediately to the selected language.
+
+#### Scenario: Accessibility and touch targets
+- **WHEN** interacting with the pickers using TalkBack or touch
+- **THEN** touch targets meet the 48dp minimum and semantic descriptions accurately state the selected values.
