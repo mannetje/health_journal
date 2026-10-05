@@ -48,4 +48,15 @@ class CsvDataExportAdapter(
         }
         return sb.toString()
     }
+
+    override suspend fun exportWaistCircumferenceCsv(profileId: ProfileId): String {
+        val history = healthLogRepository.getWaistCircumferenceHistory(profileId).sortedBy { it.timestamp }
+        val sb = StringBuilder()
+        sb.append("timestamp,waist_cm,classification\n")
+        for (entry in history) {
+            val categoryStr = entry.category?.name ?: ""
+            sb.append("${entry.timestamp},${entry.waist.value},$categoryStr\n")
+        }
+        return sb.toString()
+    }
 }

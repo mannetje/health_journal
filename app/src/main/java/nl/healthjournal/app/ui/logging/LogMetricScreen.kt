@@ -25,6 +25,7 @@ import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.app.ui.nhg.getBmiColor
 import nl.healthjournal.app.ui.nhg.getBpColor
 import nl.healthjournal.app.ui.nhg.getGlucoseColor
+import nl.healthjournal.app.ui.nhg.getWaistColor
 import nl.healthjournal.app.ui.theme.onSuccessContainerColor
 import nl.healthjournal.app.ui.theme.successContainerColor
 
@@ -114,6 +115,11 @@ fun LogMetricScreen(
                 onClick = { viewModel.selectMetric(MetricType.ACTIVITY) },
                 text = { Text(stringResource(R.string.log_tab_activity), maxLines = 1, softWrap = false) }
             )
+            Tab(
+                selected = state.selectedMetric == MetricType.WAIST_CIRCUMFERENCE,
+                onClick = { viewModel.selectMetric(MetricType.WAIST_CIRCUMFERENCE) },
+                text = { Text(stringResource(R.string.log_tab_waist_circumference), maxLines = 1, softWrap = false) }
+            )
         }
 
         when (state.selectedMetric) {
@@ -137,6 +143,26 @@ fun LogMetricScreen(
                             state.previewBmiCategory!!.label()
                         ),
                         color = getBmiColor(state.previewBmiCategory!!)
+                    )
+                }
+
+                OutlinedTextField(
+                    value = state.weightWaistInput,
+                    onValueChange = { viewModel.onWeightWaistChanged(it) },
+                    label = { Text(stringResource(R.string.log_waist_optional_label)) },
+                    placeholder = { Text(stringResource(R.string.log_waist_placeholder)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (state.previewWeightWaistCategory != null) {
+                    CategoryBadge(
+                        label = stringResource(
+                            R.string.log_waist_badge,
+                            state.weightWaistInput,
+                            state.previewWeightWaistCategory!!.label(state.activeProfile?.sex)
+                        ),
+                        color = getWaistColor(state.previewWeightWaistCategory!!)
                     )
                 }
             }
@@ -252,6 +278,28 @@ fun LogMetricScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
+            }
+
+            MetricType.WAIST_CIRCUMFERENCE -> {
+                OutlinedTextField(
+                    value = state.waistInput,
+                    onValueChange = { viewModel.onWaistChanged(it) },
+                    label = { Text(stringResource(R.string.log_waist_label)) },
+                    placeholder = { Text(stringResource(R.string.log_waist_placeholder)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (state.previewWaistCategory != null) {
+                    CategoryBadge(
+                        label = stringResource(
+                            R.string.log_waist_badge,
+                            state.waistInput,
+                            state.previewWaistCategory!!.label(state.activeProfile?.sex)
+                        ),
+                        color = getWaistColor(state.previewWaistCategory!!)
+                    )
+                }
             }
         }
 

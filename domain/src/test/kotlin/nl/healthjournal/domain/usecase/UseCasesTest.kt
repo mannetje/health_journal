@@ -43,6 +43,7 @@ class FakeHealthLogRepository : HealthLogRepositoryPort {
     val bloodPressures = mutableListOf<BloodPressureEntry>()
     val glucoses = mutableListOf<GlucoseEntry>()
     val activities = mutableListOf<ActivitySession>()
+    val waistCircumferences = mutableListOf<WaistCircumferenceEntry>()
 
     override suspend fun saveWeight(entry: WeightEntry) { weights.add(entry) }
     override suspend fun updateWeight(entry: WeightEntry): Boolean {
@@ -95,6 +96,19 @@ class FakeHealthLogRepository : HealthLogRepositoryPort {
         activities.filter { it.profileId == profileId }
     override fun observeActivityHistory(profileId: ProfileId): Flow<List<ActivitySession>> =
         flow { emit(getActivityHistory(profileId)) }
+
+    override suspend fun saveWaistCircumference(entry: WaistCircumferenceEntry) { waistCircumferences.add(entry) }
+    override suspend fun updateWaistCircumference(entry: WaistCircumferenceEntry): Boolean {
+        val i = waistCircumferences.indexOfFirst { it.id == entry.id }
+        if (i < 0) return false
+        waistCircumferences[i] = entry
+        return true
+    }
+    override suspend fun deleteWaistCircumference(id: MeasurementId): Boolean = waistCircumferences.removeAll { it.id == id }
+    override suspend fun getWaistCircumferenceHistory(profileId: ProfileId): List<WaistCircumferenceEntry> =
+        waistCircumferences.filter { it.profileId == profileId }
+    override fun observeWaistCircumferenceHistory(profileId: ProfileId): Flow<List<WaistCircumferenceEntry>> =
+        flow { emit(getWaistCircumferenceHistory(profileId)) }
 }
 
 class UseCasesTest {
@@ -319,5 +333,33 @@ class UseCasesTest {
         assertTrue(healthRepo.bloodPressures.isEmpty())
         assertFalse(DeleteGlucoseUseCase(healthRepo)(MeasurementId.generate()))
         assertFalse(DeleteActivityUseCase(healthRepo)(MeasurementId.generate()))
+        assertFalse(DeleteWaistCircumferenceUseCase(healthRepo)(MeasurementId.generate()))
+    }
+
+    @Test
+    fun `Waist circumference record, update, delete and classification without sex`() = runBlocking {
+        val profileId = CreateProfileUseCase(profileRepo)("Test Person", LocalDate.of(1990, 1, 1), 175) // sex is null
+        val record = RecordWaistCircumferenceUseCase(healthRepo, profileRepo)
+        val update = UpdateWaistCircumferenceUseCase(healthRepo, profileRepo)
+        val delete = DeleteWaistCircumferenceUseCase(healthRepo)
+
+        val entry = record(profileId, 85.0)
+        assertEquals(85.0, entry.waist.value, 0.01)
+        assertNull(entry.category) // null category when sex is unset
+
+        val updated = update(entry.id, profileId, 95.0, entry.timestamp)
+        assertNotNull(updated)
+        assertEquals(95.0, updated?.waist?.value ?: 0.0, 0.01)
+        assertNull(updated?.category)
+
+        // Set sex on profile
+        val profile = profileRepo.getById(profileId)!!
+        profileRepo.save(profile.updateSex(nl.healthjournal.domain.model.profile.Sex.FEMALE))
+
+        val updatedWithSex = update(entry.id, profileId, 85.0, entry.timestamp)
+        assertEquals(nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory.INCREASED_RISK, updatedWithSex?.category)
+
+        assertTrue(delete(entry.id))
+        assertTrue(healthRepo.waistCircumferences.isEmpty())
     }
 }

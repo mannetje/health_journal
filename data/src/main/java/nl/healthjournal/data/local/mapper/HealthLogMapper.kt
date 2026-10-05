@@ -3,12 +3,14 @@ package nl.healthjournal.data.local.mapper
 import nl.healthjournal.data.local.entity.ActivityEntity
 import nl.healthjournal.data.local.entity.BloodPressureEntity
 import nl.healthjournal.data.local.entity.GlucoseEntity
+import nl.healthjournal.data.local.entity.WaistCircumferenceEntity
 import nl.healthjournal.data.local.entity.WeightEntity
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.*
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -98,6 +100,27 @@ object HealthLogMapper {
             startTime = Instant.ofEpochMilli(entity.startTime),
             endTime = Instant.ofEpochMilli(entity.endTime),
             distanceInMeters = entity.distanceMeters
+        )
+    }
+
+    // Waist Circumference
+    fun toEntity(domain: WaistCircumferenceEntry): WaistCircumferenceEntity {
+        return WaistCircumferenceEntity(
+            id = domain.id.value.toString(),
+            profileId = domain.profileId.value.toString(),
+            timestamp = domain.timestamp.toEpochMilli(),
+            waistCm = domain.waist.value,
+            category = domain.category?.name
+        )
+    }
+
+    fun toDomain(entity: WaistCircumferenceEntity): WaistCircumferenceEntry {
+        return WaistCircumferenceEntry(
+            id = MeasurementId.fromString(entity.id),
+            profileId = ProfileId.fromString(entity.profileId),
+            timestamp = Instant.ofEpochMilli(entity.timestamp),
+            waist = WaistCircumferenceCm(entity.waistCm),
+            category = entity.category?.let { NhgWaistCircumferenceCategory.valueOf(it) }
         )
     }
 }

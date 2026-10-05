@@ -11,9 +11,11 @@ import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.*
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -145,6 +147,33 @@ class RoomRepositoriesTest {
         override fun observeByProfileId(profileId: String): Flow<List<ActivityEntity>> = flow
     }
 
+    private class FakeWaistCircumferenceDao : WaistCircumferenceDao {
+        private val list = mutableListOf<WaistCircumferenceEntity>()
+        private val flow = MutableStateFlow<List<WaistCircumferenceEntity>>(emptyList())
+
+        override suspend fun insert(entry: WaistCircumferenceEntity) {
+            list.removeAll { it.id == entry.id }
+            list.add(entry)
+            flow.value = list.sortedByDescending { it.timestamp }
+        }
+        override suspend fun update(entry: WaistCircumferenceEntity): Int {
+            val i = list.indexOfFirst { it.id == entry.id }
+            if (i < 0) return 0
+            list[i] = entry
+            flow.value = list.sortedByDescending { it.timestamp }
+            return 1
+        }
+        override suspend fun deleteById(id: String): Int {
+            val removed = list.removeAll { it.id == id }
+            flow.value = list.sortedByDescending { it.timestamp }
+            return if (removed) 1 else 0
+        }
+        override suspend fun getByProfileId(profileId: String): List<WaistCircumferenceEntity> =
+            list.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
+
+        override fun observeByProfileId(profileId: String): Flow<List<WaistCircumferenceEntity>> = flow
+    }
+
     @Test
     fun `RoomProfileRepository saves and retrieves active profile`() = runBlocking {
         val dao = FakeProfileDao()
@@ -171,8 +200,9 @@ class RoomRepositoriesTest {
         val bpDao = FakeBloodPressureDao()
         val glucoseDao = FakeGlucoseDao()
         val activityDao = FakeActivityDao()
+        val waistDao = FakeWaistCircumferenceDao()
 
-        val repo = RoomHealthLogRepository(weightDao, bpDao, glucoseDao, activityDao)
+        val repo = RoomHealthLogRepository(weightDao, bpDao, glucoseDao, activityDao, waistDao)
         val profileId = ProfileId.generate()
 
         // Weight
@@ -228,5 +258,44 @@ class RoomRepositoriesTest {
         val activities = repo.getActivityHistory(profileId)
         assertEquals(1, activities.size)
         assertEquals(10000.0, activities[0].distanceInMeters, 0.01)
+
+        // Waist Circumference
+        val waistEntry = WaistCircumferenceEntry(
+            id = MeasurementId.generate(),
+            profileId = profileId,
+            timestamp = Instant.now(),
+            waist = WaistCircumferenceCm(82.0),
+            category = NhgWaistCircumferenceCategory.INCREASED_RISK
+        )
+        repo.saveWaistCircumference(waistEntry)
+        val waists = repo.getWaistCircumferenceHistory(profileId)
+        assertEquals(1, waists.size)
+        assertEquals(82.0, waists[0].waist.value, 0.01)
+        assertEquals(NhgWaistCircumferenceCategory.INCREASED_RISK, waists[0].category)
+
+        // Update waist circumference
+        val updatedWaist = waistEntry.copy(waist = WaistCircumferenceCm(78.0), category = NhgWaistCircumferenceCategory.HEALTHY)
+        val updateResult = repo.updateWaistCircumference(updatedWaist)
+        assertEquals(true, updateResult)
+        assertEquals(78.0, repo.getWaistCircumferenceHistory(profileId)[0].waist.value, 0.01)
+
+        // Delete waist circumference
+        val deleteResult = repo.deleteWaistCircumference(waistEntry.id)
+        assertEquals(true, deleteResult)
+        assertEquals(0, repo.getWaistCircumferenceHistory(profileId).size)
+
+        // Category is null when sex is not set
+        val noSexEntry = WaistCircumferenceEntry(
+            id = MeasurementId.generate(),
+            profileId = profileId,
+            timestamp = Instant.now(),
+            waist = WaistCircumferenceCm(85.0),
+            category = null
+        )
+        repo.saveWaistCircumference(noSexEntry)
+        val nullCatWaists = repo.getWaistCircumferenceHistory(profileId)
+        assertEquals(1, nullCatWaists.size)
+        assertNull(nullCatWaists[0].category)
     }
 }
+

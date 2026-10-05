@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.map
 import nl.healthjournal.data.local.dao.ActivityDao
 import nl.healthjournal.data.local.dao.BloodPressureDao
 import nl.healthjournal.data.local.dao.GlucoseDao
+import nl.healthjournal.data.local.dao.WaistCircumferenceDao
 import nl.healthjournal.data.local.dao.WeightDao
 import nl.healthjournal.data.local.mapper.HealthLogMapper
 import nl.healthjournal.domain.model.common.MeasurementId
@@ -12,6 +13,7 @@ import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
+import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 
@@ -19,7 +21,8 @@ class RoomHealthLogRepository(
     private val weightDao: WeightDao,
     private val bloodPressureDao: BloodPressureDao,
     private val glucoseDao: GlucoseDao,
-    private val activityDao: ActivityDao
+    private val activityDao: ActivityDao,
+    private val waistCircumferenceDao: WaistCircumferenceDao
 ) : HealthLogRepositoryPort {
 
     // Weight
@@ -102,6 +105,27 @@ class RoomHealthLogRepository(
 
     override fun observeActivityHistory(profileId: ProfileId): Flow<List<ActivitySession>> {
         return activityDao.observeByProfileId(profileId.value.toString()).map { list ->
+            list.map { HealthLogMapper.toDomain(it) }
+        }
+    }
+
+    // Waist Circumference
+    override suspend fun saveWaistCircumference(entry: WaistCircumferenceEntry) {
+        waistCircumferenceDao.insert(HealthLogMapper.toEntity(entry))
+    }
+
+    override suspend fun updateWaistCircumference(entry: WaistCircumferenceEntry): Boolean =
+        waistCircumferenceDao.update(HealthLogMapper.toEntity(entry)) > 0
+
+    override suspend fun deleteWaistCircumference(id: MeasurementId): Boolean =
+        waistCircumferenceDao.deleteById(id.value.toString()) > 0
+
+    override suspend fun getWaistCircumferenceHistory(profileId: ProfileId): List<WaistCircumferenceEntry> {
+        return waistCircumferenceDao.getByProfileId(profileId.value.toString()).map { HealthLogMapper.toDomain(it) }
+    }
+
+    override fun observeWaistCircumferenceHistory(profileId: ProfileId): Flow<List<WaistCircumferenceEntry>> {
+        return waistCircumferenceDao.observeByProfileId(profileId.value.toString()).map { list ->
             list.map { HealthLogMapper.toDomain(it) }
         }
     }

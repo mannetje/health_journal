@@ -138,6 +138,11 @@ fun HistoryScreen(
                 onClick = { viewModel.setFilter(HistoryFilter.ACTIVITY) },
                 label = { Text(stringResource(R.string.history_filter_activity)) }
             )
+            FilterChip(
+                selected = state.selectedFilter == HistoryFilter.WAIST_CIRCUMFERENCE,
+                onClick = { viewModel.setFilter(HistoryFilter.WAIST_CIRCUMFERENCE) },
+                label = { Text(stringResource(R.string.history_filter_waist)) }
+            )
         }
 
         if (state.selectedFilter != HistoryFilter.ACTIVITY) {
@@ -150,6 +155,7 @@ fun HistoryScreen(
         val weights = if (ranged) state.weights.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.weights
         val bloodPressures = if (ranged) state.bloodPressures.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.bloodPressures
         val glucoses = if (ranged) state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.glucoses
+        val waists = if (ranged) state.waistCircumferences.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.waistCircumferences
 
         if (state.isLoading) {
             CircularProgressIndicator(modifier = Modifier.padding(16.dp))
@@ -159,7 +165,7 @@ fun HistoryScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 // Trend chart scrolls together with the entries below it, so the entries stay reachable.
-                if (state.selectedFilter != HistoryFilter.ALL && state.selectedFilter != HistoryFilter.ACTIVITY) {
+                if (state.selectedFilter != HistoryFilter.ALL && state.selectedFilter != HistoryFilter.ACTIVITY && state.selectedFilter != HistoryFilter.WAIST_CIRCUMFERENCE) {
                     item {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             DateRangeSelector(
@@ -234,6 +240,20 @@ fun HistoryScreen(
                             })
                         }
                     }
+                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.WAIST_CIRCUMFERENCE) {
+                        waists.forEach { wc ->
+                            add(wc.timestamp to {
+                                EntryCard(
+                                    onEdit = { viewModel.startEdit(EntryRef.WaistCircumference(wc)) },
+                                    onDelete = { viewModel.requestDelete(EntryRef.WaistCircumference(wc)) }
+                                ) {
+                                    Text(stringResource(R.string.history_waist_line, wc.waist.value.toString()), style = MaterialTheme.typography.titleMedium)
+                                    wc.category?.let { Text(it.label(state.activeProfile?.sex)) }
+                                    Text(stringResource(R.string.history_time_line, wc.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            })
+                        }
+                    }
                 }.sortedByDescending { it.first }
                 items(rows) { row -> row.second() }
             }
@@ -257,6 +277,9 @@ fun HistoryScreen(
                     }
                     Button(onClick = { viewModel.exportCsv("glucose") }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.history_export_glucose))
+                    }
+                    Button(onClick = { viewModel.exportCsv("waist_circumference") }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.history_export_waist))
                     }
                     state.exportedCsvContent?.let { content ->
                         HorizontalDivider()
@@ -304,6 +327,11 @@ fun HistoryScreen(
                             onClick = { importMetricType = "libra" },
                             label = { Text(stringResource(R.string.history_import_type_libra)) }
                         )
+                        FilterChip(
+                            selected = importMetricType == "waist_circumference",
+                            onClick = { importMetricType = "waist_circumference" },
+                            label = { Text(stringResource(R.string.history_import_type_waist)) }
+                        )
                     }
                     OutlinedButton(onClick = { filePicker.launch(arrayOf("text/*", "application/octet-stream")) }) {
                         Text(stringResource(R.string.history_pick_file_button))
@@ -313,10 +341,10 @@ fun HistoryScreen(
                         onValueChange = { importCsvText = it },
                         label = { Text(stringResource(R.string.history_paste_csv_label)) },
                         placeholder = {
-                            if (importMetricType == "libra") {
-                                Text(stringResource(R.string.history_libra_placeholder))
-                            } else {
-                                Text(stringResource(R.string.history_csv_placeholder))
+                            when (importMetricType) {
+                                "libra" -> Text(stringResource(R.string.history_libra_placeholder))
+                                "waist_circumference" -> Text("timestamp,waist_cm\n...")
+                                else -> Text(stringResource(R.string.history_csv_placeholder))
                             }
                         },
                         modifier = Modifier

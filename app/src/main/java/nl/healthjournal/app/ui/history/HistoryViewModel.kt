@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
+import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.port.secondary.DataExportPort
@@ -21,11 +22,13 @@ import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.usecase.DeleteActivityUseCase
 import nl.healthjournal.domain.usecase.DeleteBloodPressureUseCase
 import nl.healthjournal.domain.usecase.DeleteGlucoseUseCase
+import nl.healthjournal.domain.usecase.DeleteWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.DeleteWeightUseCase
 import nl.healthjournal.domain.usecase.GetHealthHistoryUseCase
 import nl.healthjournal.domain.usecase.UpdateActivityUseCase
 import nl.healthjournal.domain.usecase.UpdateBloodPressureUseCase
 import nl.healthjournal.domain.usecase.UpdateGlucoseUseCase
+import nl.healthjournal.domain.usecase.UpdateWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.UpdateWeightUseCase
 import java.math.BigDecimal
 import java.time.Instant
@@ -39,7 +42,8 @@ enum class HistoryFilter {
     WEIGHT,
     BLOOD_PRESSURE,
     GLUCOSE,
-    ACTIVITY
+    ACTIVITY,
+    WAIST_CIRCUMFERENCE
 }
 
 /** The update and delete use cases the History screen needs, bundled to keep the constructor small. */
@@ -48,10 +52,12 @@ data class EntryUseCases(
     val updateBloodPressure: UpdateBloodPressureUseCase,
     val updateGlucose: UpdateGlucoseUseCase,
     val updateActivity: UpdateActivityUseCase,
+    val updateWaistCircumference: UpdateWaistCircumferenceUseCase,
     val deleteWeight: DeleteWeightUseCase,
     val deleteBloodPressure: DeleteBloodPressureUseCase,
     val deleteGlucose: DeleteGlucoseUseCase,
-    val deleteActivity: DeleteActivityUseCase
+    val deleteActivity: DeleteActivityUseCase,
+    val deleteWaistCircumference: DeleteWaistCircumferenceUseCase
 )
 
 /** A reference to one History entry, used to track which entry is being edited or deleted. */
@@ -61,6 +67,7 @@ sealed interface EntryRef {
     data class BloodPressure(val entry: BloodPressureEntry) : EntryRef { override val id get() = entry.id }
     data class Glucose(val entry: GlucoseEntry) : EntryRef { override val id get() = entry.id }
     data class Activity(val session: ActivitySession) : EntryRef { override val id get() = session.id }
+    data class WaistCircumference(val entry: WaistCircumferenceEntry) : EntryRef { override val id get() = entry.id }
 }
 
 data class HistoryUiState(
@@ -71,6 +78,7 @@ data class HistoryUiState(
     val bloodPressures: List<BloodPressureEntry> = emptyList(),
     val glucoses: List<GlucoseEntry> = emptyList(),
     val activities: List<ActivitySession> = emptyList(),
+    val waistCircumferences: List<WaistCircumferenceEntry> = emptyList(),
     val isLoading: Boolean = false,
     val exportedCsvContent: String? = null,
     val importResult: ImportResult? = null,
@@ -124,6 +132,7 @@ class HistoryViewModel(
                     bloodPressures = history.bloodPressures,
                     glucoses = history.glucoses,
                     activities = history.activities,
+                    waistCircumferences = history.waistCircumferences,
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -144,6 +153,7 @@ class HistoryViewModel(
                     "blood_pressure", "bp" -> dataExportPort.exportBloodPressureCsv(profile.id)
                     "glucose" -> dataExportPort.exportGlucoseCsv(profile.id)
                     "activity" -> dataExportPort.exportActivityCsv(profile.id)
+                    "waist_circumference", "waist" -> dataExportPort.exportWaistCircumferenceCsv(profile.id)
                     else -> ""
                 }
                 _uiState.value = _uiState.value.copy(
@@ -202,6 +212,7 @@ class HistoryViewModel(
                     is EntryRef.BloodPressure -> entryUseCases.deleteBloodPressure(target.id)
                     is EntryRef.Glucose -> entryUseCases.deleteGlucose(target.id)
                     is EntryRef.Activity -> entryUseCases.deleteActivity(target.id)
+                    is EntryRef.WaistCircumference -> entryUseCases.deleteWaistCircumference(target.id)
                 }
                 _uiState.value = _uiState.value.copy(
                     pendingDelete = null,
@@ -222,6 +233,9 @@ class HistoryViewModel(
 
     fun updateGlucose(entry: GlucoseEntry, context: GlucoseContext, valueInMmolL: BigDecimal, timestamp: Instant) =
         runUpdate { entryUseCases.updateGlucose(entry.id, entry.profileId, context, valueInMmolL, timestamp) }
+
+    fun updateWaistCircumference(entry: WaistCircumferenceEntry, waistCm: Double, timestamp: Instant) =
+        runUpdate { entryUseCases.updateWaistCircumference(entry.id, entry.profileId, waistCm, timestamp) }
 
     fun updateActivity(session: ActivitySession, durationSeconds: Long, distanceInMeters: Double) =
         runUpdate {

@@ -25,6 +25,7 @@
     <string name="log_tab_blood_pressure">Bloeddruk</string>
     <string name="log_tab_glucose">Glucose</string>
     <string name="log_tab_activity">Activiteit</string>
+    <string name="log_tab_waist_circumference">Middelomtrek</string>
     <string name="log_weight_label">Gewicht (%1$s)</string>
     <string name="log_weight_placeholder">bijv. 74,5</string>
     <string name="log_weight_placeholder_imperial">bijv. 165</string>
@@ -48,6 +49,10 @@
     <string name="log_distance_placeholder_imperial">bijv. 3,1</string>
     <string name="log_saving">Opslaan…</string>
     <string name="log_record_entry">Opslaan</string>
+    <string name="log_waist_label">Middelomtrek (cm)</string>
+    <string name="log_waist_placeholder">bijv. 82</string>
+    <string name="log_waist_optional_label">Middelomtrek (optioneel, cm)</string>
+    <string name="log_waist_badge">Middelomtrek: %1$s cm — %2$s</string>
 
     <!-- History screen -->
     <string name="history_title">Gezondheidshistorie</string>
@@ -58,6 +63,7 @@
     <string name="history_filter_bp">Bloeddruk</string>
     <string name="history_filter_glucose">Glucose</string>
     <string name="history_filter_activity">Activiteit</string>
+    <string name="history_filter_waist">Middelomtrek</string>
     <string name="history_weight_line">Gewicht: %1$s</string>
     <string name="history_bmi_line">BMI: %1$s</string>
     <string name="history_time_line">Tijd: %1$s</string>
@@ -65,16 +71,19 @@
     <string name="history_glucose_line">Glucose: %1$s (%2$s)</string>
     <string name="history_activity_line">Activiteit: %1$s (%2$s)</string>
     <string name="history_start_line">Start: %1$s</string>
+    <string name="history_waist_line">Middelomtrek: %1$s cm</string>
     <string name="history_export_dialog_title">CSV Exporteren</string>
     <string name="history_export_weight">Gewicht CSV Exporteren</string>
     <string name="history_export_bp">Bloeddruk CSV Exporteren</string>
     <string name="history_export_glucose">Glucose CSV Exporteren</string>
+    <string name="history_export_waist">Middelomtrek CSV Exporteren</string>
     <string name="history_preview_label">Voorbeeld:</string>
     <string name="history_import_dialog_title">CSV Importeren</string>
     <string name="history_import_type_weight">Gewicht</string>
     <string name="history_import_type_bp">Bloeddruk</string>
     <string name="history_import_type_glucose">Glucose</string>
     <string name="history_import_type_libra">Libra (CSV)</string>
+    <string name="history_import_type_waist">Middelomtrek</string>
     <string name="history_paste_csv_label">Plak CSV-inhoud</string>
     <string name="history_pick_file_button">Kies bestand…</string>
     <string name="history_pick_file_error">Het gekozen bestand kon niet worden gelezen</string>
@@ -169,6 +178,13 @@
     <string name="nhg_context_fasting">nuchter</string>
     <string name="nhg_context_postprandial">na een maaltijd</string>
 
+    <string name="nhg_waist_healthy_female">Gezond · Vrouwen 68–80 cm</string>
+    <string name="nhg_waist_increased_risk_female">Verhoogd risico · Vrouwen 80–88 cm</string>
+    <string name="nhg_waist_high_risk_female">Hoog risico · Vrouwen ≥88 cm</string>
+    <string name="nhg_waist_healthy_male">Gezond · Mannen 79–94 cm</string>
+    <string name="nhg_waist_increased_risk_male">Verhoogd risico · Mannen 94–102 cm</string>
+    <string name="nhg_waist_high_risk_male">Hoog risico · Mannen ≥102 cm</string>
+
     <string name="ranges_about">Over deze waarden</string>
     <string name="ranges_about_title">Over deze waarden</string>
     <string name="ranges_about_body">De waarden volgen gepubliceerde richtlijnen, vooral de NHG-standaarden. Formuleringen komen ook van Diabetes Fonds, DVN en Hartstichting. Een label is geen diagnose en deze app is geen medisch hulpmiddel. Vragen over je waarden stel je aan je huisarts of apotheker.</string>
@@ -196,12 +212,14 @@
     <string name="log_msg_bp_saved">Bloeddruk opgeslagen!</string>
     <string name="log_msg_glucose_saved">Glucose opgeslagen!</string>
     <string name="log_msg_activity_saved">Activiteit opgeslagen!</string>
+    <string name="log_msg_waist_saved">Middelomtrek opgeslagen!</string>
     <string name="log_err_weight">Voer een geldig gewicht in (%1$s)</string>
     <string name="log_err_systolic">Voer de systolische waarde in (mmHg)</string>
     <string name="log_err_diastolic">Voer de diastolische waarde in (mmHg)</string>
     <string name="log_err_glucose">Voer een glucosewaarde in</string>
     <string name="log_err_duration">Voer een geldige duur in minuten in</string>
     <string name="log_err_distance">Voer een geldige afstand in (%1$s)</string>
+    <string name="log_err_waist">Voer een geldige middelomtrek in (40–200 cm)</string>
     <string name="log_err_save_failed">Opslaan mislukt</string>
     <string name="history_msg_export_done">CSV-export gemaakt (%1$s)!</string>
     <string name="history_msg_import_done">%1$d rijen geïmporteerd (%2$d overgeslagen)</string>

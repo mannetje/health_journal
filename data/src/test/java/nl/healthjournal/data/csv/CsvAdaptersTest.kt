@@ -8,6 +8,7 @@ import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.*
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
@@ -25,6 +26,7 @@ class CsvAdaptersTest {
         val bloodPressures = mutableListOf<BloodPressureEntry>()
         val glucoses = mutableListOf<GlucoseEntry>()
         val activities = mutableListOf<ActivitySession>()
+        val waistCircumferences = mutableListOf<WaistCircumferenceEntry>()
 
         override suspend fun saveWeight(entry: WeightEntry) { weights.add(entry) }
         override suspend fun updateWeight(entry: WeightEntry): Boolean {
@@ -77,6 +79,19 @@ class CsvAdaptersTest {
         override suspend fun getActivityHistory(profileId: ProfileId): List<ActivitySession> =
             activities.filter { it.profileId == profileId }
         override fun observeActivityHistory(profileId: ProfileId): Flow<List<ActivitySession>> = emptyFlow()
+
+        override suspend fun saveWaistCircumference(entry: WaistCircumferenceEntry) { waistCircumferences.add(entry) }
+        override suspend fun updateWaistCircumference(entry: WaistCircumferenceEntry): Boolean {
+            val i = waistCircumferences.indexOfFirst { it.id == entry.id }
+            if (i < 0) return false
+            waistCircumferences[i] = entry
+            return true
+        }
+        override suspend fun deleteWaistCircumference(id: MeasurementId): Boolean = waistCircumferences.removeAll { it.id == id }
+
+        override suspend fun getWaistCircumferenceHistory(profileId: ProfileId): List<WaistCircumferenceEntry> =
+            waistCircumferences.filter { it.profileId == profileId }
+        override fun observeWaistCircumferenceHistory(profileId: ProfileId): Flow<List<WaistCircumferenceEntry>> = emptyFlow()
     }
 
     private class InMemoryProfileRepository : ProfileRepositoryPort {
@@ -462,5 +477,68 @@ class CsvAdaptersTest {
         val csv = lines("#Version: 6", "#Units: KG", "#date;weight;comments", "2026-09-20T08:00:00.000Z;74.5;")
         assertEquals(1, importer.importCsv(profile.id, "libra", csv).importedCount)
         assertEquals(BigDecimal("74.5"), logRepo.weights.single().weight.value)
+    }
+
+    @Test
+    fun `export and import waist circumference CSV round-trip`() = runBlocking {
+        val healthLogRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+
+        val exportAdapter = CsvDataExportAdapter(healthLogRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, profileRepo)
+
+        // Empty export produces header-only CSV
+        val emptyCsv = exportAdapter.exportWaistCircumferenceCsv(profile.id)
+        assertEquals("timestamp,waist_cm,classification\n", emptyCsv)
+
+        // Add entries with and without a category
+        val entry1 = WaistCircumferenceEntry(
+            MeasurementId.generate(), profile.id, Instant.parse("2026-09-20T08:00:00Z"),
+            WaistCircumferenceCm(82.0), NhgWaistCircumferenceCategory.INCREASED_RISK
+        )
+        val entry2 = WaistCircumferenceEntry(
+            MeasurementId.generate(), profile.id, Instant.parse("2026-09-21T08:00:00Z"),
+            WaistCircumferenceCm(78.0), null
+        )
+        healthLogRepo.saveWaistCircumference(entry1)
+        healthLogRepo.saveWaistCircumference(entry2)
+
+        val csv = exportAdapter.exportWaistCircumferenceCsv(profile.id)
+        assertTrue(csv.startsWith("timestamp,waist_cm,classification\n"))
+        assertTrue(csv.contains("2026-09-20T08:00:00Z,82.0,INCREASED_RISK"))
+        assertTrue(csv.contains("2026-09-21T08:00:00Z,78.0,"))
+
+        // Clear and import back — category is recomputed (null because profile has no sex)
+        healthLogRepo.waistCircumferences.clear()
+        val result = importAdapter.importCsv(profile.id, "waist_circumference", csv)
+        assertEquals(2, result.importedCount)
+        assertEquals(0, result.skippedRows.size)
+        assertEquals(2, healthLogRepo.waistCircumferences.size)
+        // No sex set → category must be null for both imported entries
+        assertTrue(healthLogRepo.waistCircumferences.all { it.category == null })
+    }
+
+    @Test
+    fun `waist circumference import recomputes category from profile sex`() = runBlocking {
+        val healthLogRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        // Create a female profile so classification fires
+        val profile = Profile.create(
+            "Test User", LocalDate.of(1990, 1, 1),
+            sex = nl.healthjournal.domain.model.profile.Sex.FEMALE
+        )
+        profileRepo.save(profile)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, profileRepo)
+
+        // File claims HEALTHY but the value (82 cm for female) should be INCREASED_RISK
+        val csv = lines(
+            "timestamp,waist_cm,classification",
+            "2026-09-20T08:00:00Z,82,HEALTHY"
+        )
+        val result = importAdapter.importCsv(profile.id, "waist_circumference", csv)
+        assertEquals(1, result.importedCount)
+        assertEquals(NhgWaistCircumferenceCategory.INCREASED_RISK, healthLogRepo.waistCircumferences.single().category)
     }
 }

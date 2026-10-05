@@ -105,6 +105,7 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
         is EntryRef.BloodPressure -> ref.entry.timestamp
         is EntryRef.Glucose -> ref.entry.timestamp
         is EntryRef.Activity -> ref.session.startTime
+        is EntryRef.WaistCircumference -> ref.entry.timestamp
     }
     var dateTime by remember { mutableStateOf(LocalDateTime.ofInstant(initialTime, zone)) }
     var invalid by remember { mutableStateOf(false) }
@@ -120,6 +121,9 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
     val initialDistance = remember {
         (ref as? EntryRef.Activity)?.session?.let { formatInput(units.distanceFromMeters(it.distanceInMeters), 2) }.orEmpty()
     }
+    val initialWaist = remember {
+        (ref as? EntryRef.WaistCircumference)?.entry?.waist?.value?.toString().orEmpty()
+    }
     var weight by remember { mutableStateOf(initialWeight) }
     var systolic by remember { mutableStateOf((ref as? EntryRef.BloodPressure)?.entry?.reading?.systolic?.toString().orEmpty()) }
     var diastolic by remember { mutableStateOf((ref as? EntryRef.BloodPressure)?.entry?.reading?.diastolic?.toString().orEmpty()) }
@@ -129,6 +133,7 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
         mutableStateOf((ref as? EntryRef.Activity)?.session?.let { formatInput(it.durationInSeconds / 60.0, 2) }.orEmpty())
     }
     var distance by remember { mutableStateOf(initialDistance) }
+    var waist by remember { mutableStateOf(initialWaist) }
 
     fun save() {
         invalid = false
@@ -162,6 +167,11 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
                 else distance.parseDecimal()?.takeIf { it >= 0 }?.let { units.distanceToMeters(it) }
                 if (minutes == null || meters == null) invalid = true
                 else viewModel.updateActivity(ref.session, Math.round(minutes * 60), meters)
+            }
+            is EntryRef.WaistCircumference -> {
+                val cm = waist.toDoubleOrNull()?.takeIf { it in nl.healthjournal.domain.model.metrics.WaistCircumferenceCm.MIN_CM..nl.healthjournal.domain.model.metrics.WaistCircumferenceCm.MAX_CM }
+                if (cm == null) invalid = true
+                else viewModel.updateWaistCircumference(ref.entry, cm, dateTime.atZone(zone).toInstant())
             }
         }
     }
@@ -212,6 +222,16 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
                     is EntryRef.Activity -> {
                         DecimalField(duration, { duration = it }, stringResource(R.string.log_duration_label))
                         DecimalField(distance, { distance = it }, stringResource(R.string.log_distance_label, units.distanceSymbol))
+                    }
+                    is EntryRef.WaistCircumference -> {
+                        OutlinedTextField(
+                            value = waist,
+                            onValueChange = { waist = it },
+                            label = { Text(stringResource(R.string.log_waist_label)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
 

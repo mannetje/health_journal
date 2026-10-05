@@ -176,4 +176,25 @@ class MapperTest {
         assertEquals(session.distanceInMeters, reconstructed.distanceInMeters, 0.01)
         assertEquals(1800L, reconstructed.durationInSeconds)
     }
+
+    @Test
+    fun `WaistCircumferenceEntry maps to entity and back`() {
+        val profileId = ProfileId.generate()
+        val entry = WaistCircumferenceEntry(
+            id = MeasurementId.generate(),
+            profileId = profileId,
+            timestamp = Instant.parse("2026-09-27T10:00:00Z"),
+            waist = WaistCircumferenceCm(85.0),
+            category = nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory.HEALTHY
+        )
+
+        val entity = HealthLogMapper.toEntity(entry)
+        assertEquals(85.0, entity.waistCm, 0.01)
+        assertEquals("HEALTHY", entity.category)
+
+        val reconstructed = HealthLogMapper.toDomain(entity)
+        assertEquals(entry.id, reconstructed.id)
+        assertEquals(entry.waist.value, reconstructed.waist.value, 0.01)
+        assertEquals(nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory.HEALTHY, reconstructed.category)
+    }
 }

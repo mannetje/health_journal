@@ -47,6 +47,20 @@ class ValueObjectsTest {
     }
 
     @Test
+    fun `WaistCircumferenceCm valid range and invalid bounds`() {
+        val valid = WaistCircumferenceCm(85.0)
+        assertEquals(85.0, valid.value, 0.01)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            WaistCircumferenceCm(39.9)
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            WaistCircumferenceCm(200.1)
+        }
+    }
+
+    @Test
     fun `BloodPressureReading valid and invalid invariants`() {
         val valid = BloodPressureReading(systolic = 120, diastolic = 80)
         assertEquals(120, valid.systolic)

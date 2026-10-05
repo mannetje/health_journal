@@ -5,6 +5,7 @@ Researching `add-profile-sex-field` surfaced that waist circumference (buikomvan
 
 ## What Changes
 - Add a new optional health metric: waist circumference in centimetres, recorded like weight/blood pressure/glucose (a `WaistCircumferenceEntry` with timestamp, value, Profile).
+- Waist circumference can be logged standalone via the Waist Circumference tab in `LogMetricScreen` OR optionally entered as an additional field when logging a weight entry on the Weight tab (persisting both entries with the same timestamp).
 - Add `NhgWaistCircumferenceCategory` classification, sourced from Voedingscentrum's published thresholds:
   - Women: HEALTHY (68–80 cm), INCREASED_RISK (80–88 cm), HIGH_RISK (≥88 cm)
   - Men: HEALTHY (79–94 cm), INCREASED_RISK (94–102 cm), HIGH_RISK (≥102 cm)

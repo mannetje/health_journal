@@ -53,6 +53,15 @@ class Profile private constructor(
         return BmiResult(bmiValue)
     }
 
+    /**
+     * Classifies waist circumference against Voedingscentrum NHG categories based on sex.
+     * Returns null if sex is not set.
+     */
+    fun classifyWaistCircumference(waist: nl.healthjournal.domain.model.metrics.WaistCircumferenceCm): nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory? {
+        val s = sex ?: return null
+        return nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory.classify(waist, s)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Profile) return false

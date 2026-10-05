@@ -11,6 +11,8 @@ import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.model.profile.Sex
 
 // Every label is "name · range" and never names a condition (range-labels).
 
@@ -30,6 +32,22 @@ fun NhgBloodPressureCategory.label(): String = stringResource(
         NhgBloodPressureCategory.NORMAL -> R.string.nhg_bp_normal
         NhgBloodPressureCategory.HIGH -> R.string.nhg_bp_high
         NhgBloodPressureCategory.SERIOUSLY_RAISED -> R.string.nhg_bp_seriously_raised
+    }
+)
+
+@Composable
+fun NhgWaistCircumferenceCategory.label(sex: Sex?): String = stringResource(
+    when (sex) {
+        Sex.FEMALE -> when (this) {
+            NhgWaistCircumferenceCategory.HEALTHY -> R.string.nhg_waist_healthy_female
+            NhgWaistCircumferenceCategory.INCREASED_RISK -> R.string.nhg_waist_increased_risk_female
+            NhgWaistCircumferenceCategory.HIGH_RISK -> R.string.nhg_waist_high_risk_female
+        }
+        Sex.MALE, null -> when (this) {
+            NhgWaistCircumferenceCategory.HEALTHY -> R.string.nhg_waist_healthy_male
+            NhgWaistCircumferenceCategory.INCREASED_RISK -> R.string.nhg_waist_increased_risk_male
+            NhgWaistCircumferenceCategory.HIGH_RISK -> R.string.nhg_waist_high_risk_male
+        }
     }
 )
 

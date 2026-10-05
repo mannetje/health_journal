@@ -3,6 +3,8 @@ package nl.healthjournal.domain.model.nhg
 import nl.healthjournal.domain.model.metrics.BloodPressureReading
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseLevel
+import nl.healthjournal.domain.model.metrics.WaistCircumferenceCm
+import nl.healthjournal.domain.model.profile.Sex
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.math.BigDecimal
@@ -102,5 +104,26 @@ class NhgClassificationTest {
 
         val diabetes = GlucoseLevel(BigDecimal("11.1"))
         assertEquals(NhgGlucoseCategory.DIABETES_RANGE, NhgGlucoseCategory.classify(diabetes, GlucoseContext.POSTPRANDIAL))
+    }
+
+    @Test
+    fun `Waist Circumference Voedingscentrum NHG classification scenarios`() {
+        val femaleHealthy = WaistCircumferenceCm(75.0)
+        assertEquals(NhgWaistCircumferenceCategory.HEALTHY, NhgWaistCircumferenceCategory.classify(femaleHealthy, Sex.FEMALE))
+
+        val femaleIncreased = WaistCircumferenceCm(80.0)
+        assertEquals(NhgWaistCircumferenceCategory.INCREASED_RISK, NhgWaistCircumferenceCategory.classify(femaleIncreased, Sex.FEMALE))
+
+        val femaleHigh = WaistCircumferenceCm(88.0)
+        assertEquals(NhgWaistCircumferenceCategory.HIGH_RISK, NhgWaistCircumferenceCategory.classify(femaleHigh, Sex.FEMALE))
+
+        val maleHealthy = WaistCircumferenceCm(90.0)
+        assertEquals(NhgWaistCircumferenceCategory.HEALTHY, NhgWaistCircumferenceCategory.classify(maleHealthy, Sex.MALE))
+
+        val maleIncreased = WaistCircumferenceCm(94.0)
+        assertEquals(NhgWaistCircumferenceCategory.INCREASED_RISK, NhgWaistCircumferenceCategory.classify(maleIncreased, Sex.MALE))
+
+        val maleHigh = WaistCircumferenceCm(102.0)
+        assertEquals(NhgWaistCircumferenceCategory.HIGH_RISK, NhgWaistCircumferenceCategory.classify(maleHigh, Sex.MALE))
     }
 }

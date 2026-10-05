@@ -20,7 +20,8 @@ class DataModule(context: Context) {
         weightDao = database.weightDao(),
         bloodPressureDao = database.bloodPressureDao(),
         glucoseDao = database.glucoseDao(),
-        activityDao = database.activityDao()
+        activityDao = database.activityDao(),
+        waistCircumferenceDao = database.waistCircumferenceDao()
     )
 
     val dataExportPort: DataExportPort = CsvDataExportAdapter(healthLogRepository)

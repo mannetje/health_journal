@@ -5,6 +5,7 @@ import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.*
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.ImportResult
@@ -158,6 +159,25 @@ class CsvDataImportAdapter(
                             distanceInMeters = distanceMeters
                         )
                         healthLogRepository.saveActivity(session)
+                        importedCount++
+                    }
+                    "waist_circumference", "waist" -> {
+                        if (parts.size < 2) {
+                            skippedRows.add(SkippedRow(lineNumber, "Expected at least 2 columns (timestamp, waist_cm), got ${parts.size}"))
+                            continue
+                        }
+                        val timestamp = parseInstant(parts[0])
+                        val waist = WaistCircumferenceCm(parts[1].toDouble())
+                        // Category is recomputed from Profile sex; the file's stored value is ignored.
+                        val category = profile?.sex?.let { NhgWaistCircumferenceCategory.classify(waist, it) }
+                        val entry = WaistCircumferenceEntry(
+                            id = MeasurementId.generate(),
+                            profileId = profileId,
+                            timestamp = timestamp,
+                            waist = waist,
+                            category = category
+                        )
+                        healthLogRepository.saveWaistCircumference(entry)
                         importedCount++
                     }
                     else -> {

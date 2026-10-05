@@ -27,11 +27,14 @@ import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.HeightCm
+import nl.healthjournal.domain.model.metrics.WaistCircumferenceCm
+import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import nl.healthjournal.domain.model.metrics.WeightKg
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.model.profile.Sex
 import nl.healthjournal.domain.port.secondary.DataExportPort
@@ -43,15 +46,18 @@ import nl.healthjournal.domain.usecase.CreateProfileUseCase
 import nl.healthjournal.domain.usecase.DeleteActivityUseCase
 import nl.healthjournal.domain.usecase.DeleteBloodPressureUseCase
 import nl.healthjournal.domain.usecase.DeleteGlucoseUseCase
+import nl.healthjournal.domain.usecase.DeleteWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.DeleteWeightUseCase
 import nl.healthjournal.domain.usecase.GetHealthHistoryUseCase
 import nl.healthjournal.domain.usecase.UpdateActivityUseCase
 import nl.healthjournal.domain.usecase.UpdateBloodPressureUseCase
 import nl.healthjournal.domain.usecase.UpdateGlucoseUseCase
+import nl.healthjournal.domain.usecase.UpdateWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.UpdateWeightUseCase
 import nl.healthjournal.domain.usecase.RecordActivityUseCase
 import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
 import nl.healthjournal.domain.usecase.RecordGlucoseUseCase
+import nl.healthjournal.domain.usecase.RecordWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.RecordWeightUseCase
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -85,6 +91,7 @@ class ViewModelsTest {
         val bps = mutableListOf<BloodPressureEntry>()
         val glucoses = mutableListOf<GlucoseEntry>()
         val activities = mutableListOf<ActivitySession>()
+        val waistCircumferences = mutableListOf<WaistCircumferenceEntry>()
 
         override suspend fun saveWeight(entry: WeightEntry) { weights.add(entry) }
         override suspend fun updateWeight(entry: WeightEntry): Boolean {
@@ -129,6 +136,18 @@ class ViewModelsTest {
         override suspend fun deleteActivity(id: MeasurementId): Boolean = activities.removeAll { it.id == id }
         override suspend fun getActivityHistory(profileId: ProfileId): List<ActivitySession> = activities.filter { it.profileId == profileId }
         override fun observeActivityHistory(profileId: ProfileId): Flow<List<ActivitySession>> = emptyFlow()
+
+        override suspend fun saveWaistCircumference(entry: WaistCircumferenceEntry) { waistCircumferences.add(entry) }
+        override suspend fun updateWaistCircumference(entry: WaistCircumferenceEntry): Boolean {
+            val i = waistCircumferences.indexOfFirst { it.id == entry.id }
+            if (i < 0) return false
+            waistCircumferences[i] = entry
+            return true
+        }
+        override suspend fun deleteWaistCircumference(id: MeasurementId): Boolean = waistCircumferences.removeAll { it.id == id }
+        override suspend fun getWaistCircumferenceHistory(profileId: ProfileId): List<WaistCircumferenceEntry> =
+            waistCircumferences.filter { it.profileId == profileId }
+        override fun observeWaistCircumferenceHistory(profileId: ProfileId): Flow<List<WaistCircumferenceEntry>> = emptyFlow()
     }
 
     private class FakeExportAdapter : DataExportPort {
@@ -136,6 +155,7 @@ class ViewModelsTest {
         override suspend fun exportBloodPressureCsv(profileId: ProfileId): String = "timestamp,systolic_mmhg,diastolic_mmhg,classification\n"
         override suspend fun exportGlucoseCsv(profileId: ProfileId): String = "timestamp,glucose_mmol_l,context,classification\n"
         override suspend fun exportActivityCsv(profileId: ProfileId): String = "start_timestamp,end_timestamp,distance_m,duration_s\n"
+        override suspend fun exportWaistCircumferenceCsv(profileId: ProfileId): String = "timestamp,waist_cm,classification\n"
     }
 
     private class FakeImportAdapter : DataImportPort {
@@ -210,6 +230,20 @@ class ViewModelsTest {
         assertEquals(UiText.Res(R.string.log_msg_weight_saved, emptyList()), vm.uiState.value.successMessage)
     }
 
+    private fun loggingViewModel(
+        profileRepo: FakeProfileRepo,
+        healthLogRepo: FakeHealthLogRepo,
+        units: DisplayUnits = DisplayUnits.DEFAULT
+    ) = LoggingViewModel(
+        profileRepo,
+        RecordWeightUseCase(healthLogRepo, profileRepo),
+        RecordBloodPressureUseCase(healthLogRepo),
+        RecordGlucoseUseCase(healthLogRepo),
+        RecordActivityUseCase(healthLogRepo),
+        RecordWaistCircumferenceUseCase(healthLogRepo, profileRepo),
+        units = { units }
+    )
+
     @Test
     fun `LoggingViewModel previews and records weight with BMI`() = runTest {
         val profileRepo = FakeProfileRepo()
@@ -217,13 +251,7 @@ class ViewModelsTest {
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1), HeightCm(170))
         profileRepo.save(profile)
 
-        val vm = LoggingViewModel(
-            profileRepo,
-            RecordWeightUseCase(healthLogRepo, profileRepo),
-            RecordBloodPressureUseCase(healthLogRepo),
-            RecordGlucoseUseCase(healthLogRepo),
-            RecordActivityUseCase(healthLogRepo)
-        )
+        val vm = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.selectMetric(MetricType.WEIGHT)
@@ -246,13 +274,7 @@ class ViewModelsTest {
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val vm = LoggingViewModel(
-            profileRepo,
-            RecordWeightUseCase(healthLogRepo, profileRepo),
-            RecordBloodPressureUseCase(healthLogRepo),
-            RecordGlucoseUseCase(healthLogRepo),
-            RecordActivityUseCase(healthLogRepo)
-        )
+        val vm = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.selectMetric(MetricType.BLOOD_PRESSURE)
@@ -275,13 +297,7 @@ class ViewModelsTest {
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val vm = LoggingViewModel(
-            profileRepo,
-            RecordWeightUseCase(healthLogRepo, profileRepo),
-            RecordBloodPressureUseCase(healthLogRepo),
-            RecordGlucoseUseCase(healthLogRepo),
-            RecordActivityUseCase(healthLogRepo)
-        )
+        val vm = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.selectMetric(MetricType.GLUCOSE)
@@ -298,16 +314,6 @@ class ViewModelsTest {
     }
 
     private val imperialUnits = DisplayUnits(UnitSystem.IMPERIAL, GlucoseUnit.MG_PER_DL)
-
-    private fun loggingViewModel(profileRepo: FakeProfileRepo, healthLogRepo: FakeHealthLogRepo, units: DisplayUnits) =
-        LoggingViewModel(
-            profileRepo,
-            RecordWeightUseCase(healthLogRepo, profileRepo),
-            RecordBloodPressureUseCase(healthLogRepo),
-            RecordGlucoseUseCase(healthLogRepo),
-            RecordActivityUseCase(healthLogRepo),
-            units = { units }
-        )
 
     @Test
     fun `LoggingViewModel stores imperial weight as metric kilograms`() = runTest {
@@ -373,10 +379,12 @@ class ViewModelsTest {
         updateBloodPressure = UpdateBloodPressureUseCase(health),
         updateGlucose = UpdateGlucoseUseCase(health),
         updateActivity = UpdateActivityUseCase(health),
+        updateWaistCircumference = UpdateWaistCircumferenceUseCase(health, profiles),
         deleteWeight = DeleteWeightUseCase(health),
         deleteBloodPressure = DeleteBloodPressureUseCase(health),
         deleteGlucose = DeleteGlucoseUseCase(health),
-        deleteActivity = DeleteActivityUseCase(health)
+        deleteActivity = DeleteActivityUseCase(health),
+        deleteWaistCircumference = DeleteWaistCircumferenceUseCase(health)
     )
 
     @Test

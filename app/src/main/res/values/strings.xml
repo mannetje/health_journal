@@ -25,6 +25,7 @@
     <string name="log_tab_blood_pressure">Blood Pressure</string>
     <string name="log_tab_glucose">Glucose</string>
     <string name="log_tab_activity">Activity</string>
+    <string name="log_tab_waist_circumference">Waist</string>
     <string name="log_weight_label">Weight (%1$s)</string>
     <string name="log_weight_placeholder">e.g. 74.5</string>
     <string name="log_weight_placeholder_imperial">e.g. 165</string>
@@ -48,6 +49,10 @@
     <string name="log_distance_placeholder_imperial">e.g. 3.1</string>
     <string name="log_saving">Saving…</string>
     <string name="log_record_entry">Record Entry</string>
+    <string name="log_waist_label">Waist circumference (cm)</string>
+    <string name="log_waist_placeholder">e.g. 82</string>
+    <string name="log_waist_optional_label">Waist circumference (optional, cm)</string>
+    <string name="log_waist_badge">Waist: %1$s cm — %2$s</string>
 
     <!-- History screen -->
     <string name="history_title">Health History</string>
@@ -58,6 +63,7 @@
     <string name="history_filter_bp">BP</string>
     <string name="history_filter_glucose">Glucose</string>
     <string name="history_filter_activity">Activity</string>
+    <string name="history_filter_waist">Waist</string>
     <string name="history_weight_line">Weight: %1$s</string>
     <string name="history_bmi_line">BMI: %1$s</string>
     <string name="history_time_line">Time: %1$s</string>
@@ -65,16 +71,19 @@
     <string name="history_glucose_line">Glucose: %1$s (%2$s)</string>
     <string name="history_activity_line">Activity: %1$s (%2$s)</string>
     <string name="history_start_line">Start: %1$s</string>
+    <string name="history_waist_line">Waist: %1$s cm</string>
     <string name="history_export_dialog_title">Export CSV</string>
     <string name="history_export_weight">Export Weight CSV</string>
     <string name="history_export_bp">Export Blood Pressure CSV</string>
     <string name="history_export_glucose">Export Glucose CSV</string>
+    <string name="history_export_waist">Export Waist Circumference CSV</string>
     <string name="history_preview_label">Preview:</string>
     <string name="history_import_dialog_title">Import CSV</string>
     <string name="history_import_type_weight">Weight</string>
     <string name="history_import_type_bp">BP</string>
     <string name="history_import_type_glucose">Glucose</string>
     <string name="history_import_type_libra">Libra (CSV)</string>
+    <string name="history_import_type_waist">Waist Circumference</string>
     <string name="history_paste_csv_label">Paste CSV Content</string>
     <string name="history_pick_file_button">Choose file…</string>
     <string name="history_pick_file_error">Could not read the selected file</string>
@@ -169,6 +178,13 @@
     <string name="nhg_context_fasting">fasting</string>
     <string name="nhg_context_postprandial">after a meal</string>
 
+    <string name="nhg_waist_healthy_female">Healthy · Women 68–80 cm</string>
+    <string name="nhg_waist_increased_risk_female">Increased risk · Women 80–88 cm</string>
+    <string name="nhg_waist_high_risk_female">High risk · Women ≥88 cm</string>
+    <string name="nhg_waist_healthy_male">Healthy · Men 79–94 cm</string>
+    <string name="nhg_waist_increased_risk_male">Increased risk · Men 94–102 cm</string>
+    <string name="nhg_waist_high_risk_male">High risk · Men ≥102 cm</string>
+
     <string name="ranges_about">About these ranges</string>
     <string name="ranges_about_title">About these ranges</string>
     <string name="ranges_about_body">The ranges follow published guidelines, mainly the NHG standards. Wording is also taken from Diabetes Fonds, DVN and Hartstichting. A label is not a diagnosis, and this app is not a medical device. Questions about your values go to your doctor or pharmacist.</string>
@@ -196,12 +212,14 @@
     <string name="log_msg_bp_saved">Blood pressure reading recorded!</string>
     <string name="log_msg_glucose_saved">Blood glucose entry recorded!</string>
     <string name="log_msg_activity_saved">Activity session recorded!</string>
+    <string name="log_msg_waist_saved">Waist circumference recorded!</string>
     <string name="log_err_weight">Please enter a valid weight in %1$s</string>
     <string name="log_err_systolic">Please enter systolic value (mmHg)</string>
     <string name="log_err_diastolic">Please enter diastolic value (mmHg)</string>
     <string name="log_err_glucose">Please enter glucose value</string>
     <string name="log_err_duration">Please enter a valid duration in minutes</string>
     <string name="log_err_distance">Please enter a valid distance in %1$s</string>
+    <string name="log_err_waist">Please enter a valid waist circumference (40–200 cm)</string>
     <string name="log_err_save_failed">Failed to save entry</string>
     <string name="history_msg_export_done">CSV export generated (%1$s)!</string>
     <string name="history_msg_import_done">Imported %1$d rows (%2$d skipped)</string>

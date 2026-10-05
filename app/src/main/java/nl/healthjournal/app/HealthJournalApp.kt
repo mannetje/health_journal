@@ -35,6 +35,9 @@ class HealthJournalApp : Application() {
     lateinit var recordGlucoseUseCase: RecordGlucoseUseCase
         private set
     lateinit var recordActivityUseCase: RecordActivityUseCase
+        private set
+    lateinit var recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase
+        private set
     lateinit var entryUseCases: EntryUseCases
         private set
     lateinit var getHealthHistoryUseCase: GetHealthHistoryUseCase
@@ -51,15 +54,18 @@ class HealthJournalApp : Application() {
         recordBloodPressureUseCase = RecordBloodPressureUseCase(healthLogRepository)
         recordGlucoseUseCase = RecordGlucoseUseCase(healthLogRepository)
         recordActivityUseCase = RecordActivityUseCase(healthLogRepository)
+        recordWaistCircumferenceUseCase = RecordWaistCircumferenceUseCase(healthLogRepository, profileRepository)
         entryUseCases = EntryUseCases(
             updateWeight = UpdateWeightUseCase(healthLogRepository, profileRepository),
             updateBloodPressure = UpdateBloodPressureUseCase(healthLogRepository),
             updateGlucose = UpdateGlucoseUseCase(healthLogRepository),
             updateActivity = UpdateActivityUseCase(healthLogRepository),
+            updateWaistCircumference = UpdateWaistCircumferenceUseCase(healthLogRepository, profileRepository),
             deleteWeight = DeleteWeightUseCase(healthLogRepository),
             deleteBloodPressure = DeleteBloodPressureUseCase(healthLogRepository),
             deleteGlucose = DeleteGlucoseUseCase(healthLogRepository),
-            deleteActivity = DeleteActivityUseCase(healthLogRepository)
+            deleteActivity = DeleteActivityUseCase(healthLogRepository),
+            deleteWaistCircumference = DeleteWaistCircumferenceUseCase(healthLogRepository)
         )
         getHealthHistoryUseCase = GetHealthHistoryUseCase(healthLogRepository)
     }

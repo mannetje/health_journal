@@ -16,6 +16,7 @@ import nl.healthjournal.app.ui.theme.RangeStep4Dark
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 
 /** Position on the neutral ramp: a higher step is a higher band, not a warning. */
 internal fun NhgBmiCategory.rampStep(): Int = when (this) {
@@ -38,6 +39,12 @@ internal fun NhgGlucoseCategory.rampStep(): Int = when (this) {
     NhgGlucoseCategory.DIABETES_RANGE -> 3
 }
 
+internal fun NhgWaistCircumferenceCategory.rampStep(): Int = when (this) {
+    NhgWaistCircumferenceCategory.HEALTHY -> 1
+    NhgWaistCircumferenceCategory.INCREASED_RISK -> 2
+    NhgWaistCircumferenceCategory.HIGH_RISK -> 3
+}
+
 @Composable
 private fun rampColor(step: Int): Color {
     val dark = isSystemInDarkTheme()
@@ -58,3 +65,7 @@ fun getBpColor(category: NhgBloodPressureCategory): Color = rampColor(category.r
 
 @Composable
 fun getGlucoseColor(category: NhgGlucoseCategory): Color = rampColor(category.rampStep())
+
+@Composable
+fun getWaistColor(category: NhgWaistCircumferenceCategory): Color = rampColor(category.rampStep())
+

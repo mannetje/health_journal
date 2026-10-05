@@ -7,6 +7,12 @@ This app already has three "measure → classify against NHG/Voedingscentrum thr
 - Reuse the existing metric pattern exactly (value object + use case + classification enum) rather than inventing a new shape.
 - Classification thresholds sourced directly from Voedingscentrum (cited in `add-profile-sex-field/design.md`), since that is the concrete Dutch source you pointed to for weight-related guidance.
 - Graceful degradation when `sex` is unset — consistent with how BMI already degrades gracefully (returns null) when `height` is unset, rather than blocking measurement recording.
+- Support logging waist circumference standalone OR as an optional secondary field when logging weight on the Weight tab.
+
+## UI & Logging Flow
+- **Weight Tab (`LogMetricScreen`)**: Includes the weight input field, and an optional "Waist circumference (optional)" field below it. When filled in with a valid value (40–200 cm), logging weight invokes both `RecordWeightUseCase` and `RecordWaistCircumferenceUseCase` with the same timestamp.
+- **Waist Circumference Tab (`LogMetricScreen`)**: Allows logging waist circumference standalone.
+- **History Screen**: Displays waist circumference entries as separate history items/cards, with edit and delete capabilities like other metrics.
 
 ## Non-goals
 - Not required for any other in-flight change to land. `add-health-trend-visualizations` does not need to add a fourth chart type for this in the same change — a trend chart for waist circumference can be a small, separate follow-up once this metric exists and has real usage data.

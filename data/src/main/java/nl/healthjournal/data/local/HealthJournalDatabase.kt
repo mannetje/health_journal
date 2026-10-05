@@ -16,15 +16,36 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
+/** Adds the `waist_circumferences` table for tracking waist circumference measurements. */
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `waist_circumferences` (
+                `id` TEXT NOT NULL,
+                `profileId` TEXT NOT NULL,
+                `timestamp` INTEGER NOT NULL,
+                `waistCm` REAL NOT NULL,
+                `category` TEXT,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_waist_circumferences_profileId` ON `waist_circumferences` (`profileId`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_waist_circumferences_timestamp` ON `waist_circumferences` (`timestamp`)")
+    }
+}
+
 @Database(
     entities = [
         ProfileEntity::class,
         WeightEntity::class,
         BloodPressureEntity::class,
         GlucoseEntity::class,
-        ActivityEntity::class
+        ActivityEntity::class,
+        WaistCircumferenceEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class HealthJournalDatabase : RoomDatabase() {
@@ -33,6 +54,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
     abstract fun bloodPressureDao(): BloodPressureDao
     abstract fun glucoseDao(): GlucoseDao
     abstract fun activityDao(): ActivityDao
+    abstract fun waistCircumferenceDao(): WaistCircumferenceDao
 
     companion object {
         const val DATABASE_NAME = "health_journal.db"
@@ -49,7 +71,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 context,
                 HealthJournalDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_1_2).build()
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
         }
     }
 }

@@ -22,11 +22,13 @@ import nl.healthjournal.domain.model.metrics.*
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.RecordActivityUseCase
 import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
 import nl.healthjournal.domain.usecase.RecordGlucoseUseCase
+import nl.healthjournal.domain.usecase.RecordWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.RecordWeightUseCase
 import java.math.BigDecimal
 import java.time.Instant
@@ -35,7 +37,8 @@ enum class MetricType {
     WEIGHT,
     BLOOD_PRESSURE,
     GLUCOSE,
-    ACTIVITY
+    ACTIVITY,
+    WAIST_CIRCUMFERENCE
 }
 
 data class LoggingUiState(
@@ -46,6 +49,8 @@ data class LoggingUiState(
     val weightInput: String = "",
     val previewBmi: BigDecimal? = null,
     val previewBmiCategory: NhgBmiCategory? = null,
+    val weightWaistInput: String = "",
+    val previewWeightWaistCategory: NhgWaistCircumferenceCategory? = null,
 
     // BP inputs & feedback
     val systolicInput: String = "",
@@ -61,6 +66,10 @@ data class LoggingUiState(
     val activityDurationInput: String = "",
     val activityDistanceInput: String = "",
 
+    // Waist inputs & feedback
+    val waistInput: String = "",
+    val previewWaistCategory: NhgWaistCircumferenceCategory? = null,
+
     val isSaving: Boolean = false,
     val successMessage: UiText? = null,
     val errorMessage: UiText? = null
@@ -72,6 +81,7 @@ class LoggingViewModel(
     private val recordBloodPressureUseCase: RecordBloodPressureUseCase,
     private val recordGlucoseUseCase: RecordGlucoseUseCase,
     private val recordActivityUseCase: RecordActivityUseCase,
+    private val recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
     /** Reads the units currently chosen, so typed values are converted to metric before validation. */
     private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT }
 ) : ViewModel() {
@@ -88,6 +98,8 @@ class LoggingViewModel(
             val profile = profileRepository.getActiveProfile()
             _uiState.value = _uiState.value.copy(activeProfile = profile)
             updateWeightPreview(_uiState.value.weightInput)
+            updateWeightWaistPreview(_uiState.value.weightWaistInput)
+            updateWaistPreview(_uiState.value.waistInput)
         }
     }
 
@@ -161,6 +173,42 @@ class LoggingViewModel(
         _uiState.value = _uiState.value.copy(activityDistanceInput = input, errorMessage = null)
     }
 
+    fun onWaistChanged(input: String) {
+        _uiState.value = _uiState.value.copy(waistInput = input, errorMessage = null)
+        updateWaistPreview(input)
+    }
+
+    private fun updateWaistPreview(input: String) {
+        val cm = input.toDoubleOrNull()
+        val profile = _uiState.value.activeProfile
+        if (cm != null && cm in WaistCircumferenceCm.MIN_CM..WaistCircumferenceCm.MAX_CM && profile != null) {
+            val waist = WaistCircumferenceCm(cm)
+            _uiState.value = _uiState.value.copy(
+                previewWaistCategory = profile.classifyWaistCircumference(waist)
+            )
+        } else {
+            _uiState.value = _uiState.value.copy(previewWaistCategory = null)
+        }
+    }
+
+    fun onWeightWaistChanged(input: String) {
+        _uiState.value = _uiState.value.copy(weightWaistInput = input, errorMessage = null)
+        updateWeightWaistPreview(input)
+    }
+
+    private fun updateWeightWaistPreview(input: String) {
+        val cm = input.toDoubleOrNull()
+        val profile = _uiState.value.activeProfile
+        if (cm != null && cm in WaistCircumferenceCm.MIN_CM..WaistCircumferenceCm.MAX_CM && profile != null) {
+            val waist = WaistCircumferenceCm(cm)
+            _uiState.value = _uiState.value.copy(
+                previewWeightWaistCategory = profile.classifyWaistCircumference(waist)
+            )
+        } else {
+            _uiState.value = _uiState.value.copy(previewWeightWaistCategory = null)
+        }
+    }
+
     fun setGlucoseContext(context: GlucoseContext) {
         _uiState.value = _uiState.value.copy(glucoseContext = context)
         updateGlucosePreview(_uiState.value.glucoseInput, context)
@@ -197,11 +245,21 @@ class LoggingViewModel(
                         val current = units()
                         val weightKg = _uiState.value.weightInput.parseDecimal()?.let { current.weightToKg(it) }
                             ?: throw UiTextException(UiText.Res(R.string.log_err_weight, current.weightSymbol))
-                        recordWeightUseCase(profile.id, UnitConversion.toStoredKg(weightKg))
+                        val timestamp = Instant.now()
+                        recordWeightUseCase(profile.id, UnitConversion.toStoredKg(weightKg), timestamp)
+                        val waistInput = _uiState.value.weightWaistInput.trim()
+                        if (waistInput.isNotEmpty()) {
+                            val waistCm = waistInput.toDoubleOrNull()
+                                ?.takeIf { it in WaistCircumferenceCm.MIN_CM..WaistCircumferenceCm.MAX_CM }
+                                ?: throw UiTextException(UiText.Res(R.string.log_err_waist))
+                            recordWaistCircumferenceUseCase(profile.id, waistCm, timestamp)
+                        }
                         _uiState.value = _uiState.value.copy(
                             weightInput = "",
+                            weightWaistInput = "",
                             previewBmi = null,
                             previewBmiCategory = null,
+                            previewWeightWaistCategory = null,
                             successMessage = UiText.Res(R.string.log_msg_weight_saved)
                         )
                     }
@@ -262,6 +320,17 @@ class LoggingViewModel(
                             successMessage = UiText.Res(R.string.log_msg_activity_saved)
                         )
                     }
+                    MetricType.WAIST_CIRCUMFERENCE -> {
+                        val cm = _uiState.value.waistInput.toDoubleOrNull()
+                            ?.takeIf { it in WaistCircumferenceCm.MIN_CM..WaistCircumferenceCm.MAX_CM }
+                            ?: throw UiTextException(UiText.Res(R.string.log_err_waist))
+                        recordWaistCircumferenceUseCase(profile.id, cm)
+                        _uiState.value = _uiState.value.copy(
+                            waistInput = "",
+                            previewWaistCategory = null,
+                            successMessage = UiText.Res(R.string.log_msg_waist_saved)
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.toUiText(R.string.log_err_save_failed))
@@ -281,6 +350,7 @@ class LoggingViewModel(
         private val recordBloodPressureUseCase: RecordBloodPressureUseCase,
         private val recordGlucoseUseCase: RecordGlucoseUseCase,
         private val recordActivityUseCase: RecordActivityUseCase,
+        private val recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
         private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT }
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -291,6 +361,7 @@ class LoggingViewModel(
                 recordBloodPressureUseCase,
                 recordGlucoseUseCase,
                 recordActivityUseCase,
+                recordWaistCircumferenceUseCase,
                 units
             ) as T
         }

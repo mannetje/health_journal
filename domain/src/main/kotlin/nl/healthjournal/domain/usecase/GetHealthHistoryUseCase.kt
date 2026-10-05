@@ -4,6 +4,7 @@ import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
+import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 
@@ -11,7 +12,8 @@ data class HealthHistory(
     val weights: List<WeightEntry>,
     val bloodPressures: List<BloodPressureEntry>,
     val glucoses: List<GlucoseEntry>,
-    val activities: List<ActivitySession>
+    val activities: List<ActivitySession>,
+    val waistCircumferences: List<WaistCircumferenceEntry> = emptyList()
 )
 
 class GetHealthHistoryUseCase(
@@ -22,7 +24,8 @@ class GetHealthHistoryUseCase(
             weights = healthLogRepository.getWeightHistory(profileId),
             bloodPressures = healthLogRepository.getBloodPressureHistory(profileId),
             glucoses = healthLogRepository.getGlucoseHistory(profileId),
-            activities = healthLogRepository.getActivityHistory(profileId)
+            activities = healthLogRepository.getActivityHistory(profileId),
+            waistCircumferences = healthLogRepository.getWaistCircumferenceHistory(profileId)
         )
     }
 }
