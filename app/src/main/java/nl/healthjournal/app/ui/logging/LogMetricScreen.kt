@@ -148,13 +148,22 @@ fun LogMetricScreen(
                     )
                 }
 
-                OutlinedTextField(
-                    value = state.weightWaistInput,
-                    onValueChange = { viewModel.onWeightWaistChanged(it) },
-                    label = { Text(stringResource(R.string.log_waist_optional_label)) },
-                    placeholder = { Text(stringResource(R.string.log_waist_placeholder)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
+                Text(
+                    text = stringResource(R.string.log_waist_optional_label),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+
+                HorizontalRulerPicker(
+                    value = state.weightWaistValue,
+                    onValueChange = { viewModel.onWeightWaistValueChanged(it) },
+                    range = 40.0..200.0,
+                    step = 0.1,
+                    unitLabel = "cm",
+                    tapeColor = Color(0xFF00ACC1), // Complementary Teal measuring tape
+                    tickColor = Color(0xFF212121),
+                    tapeHeight = 75.dp // Less broad for waist
                 )
 
                 if (state.previewWeightWaistCategory != null) {
@@ -279,9 +288,9 @@ fun LogMetricScreen(
                     range = 40.0..200.0,
                     step = 0.1,
                     unitLabel = "cm",
-                    tapeColor = Color(0xFF00ACC1), // Cyan/Teal complementary measuring tape
+                    tapeColor = Color(0xFF00ACC1), // Complementary Teal measuring tape
                     tickColor = Color(0xFF212121),
-                    tapeHeight = 80.dp // Less broad for waist
+                    tapeHeight = 75.dp // Less broad for waist
                 )
 
                 if (state.previewWaistCategory != null) {

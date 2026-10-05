@@ -53,8 +53,8 @@ data class LoggingUiState(
     val weightInput: String = "75.0",
     val previewBmi: BigDecimal? = null,
     val previewBmiCategory: NhgBmiCategory? = null,
-    val weightWaistValue: Double? = null,
-    val weightWaistInput: String = "",
+    val weightWaistValue: Double = 90.0,
+    val weightWaistInput: String = "90.0",
     val previewWeightWaistCategory: NhgWaistCircumferenceCategory? = null,
 
     // BP inputs & feedback
@@ -151,6 +151,8 @@ class LoggingViewModel(
                 activeProfile = profile,
                 weightValue = prefilledWeightKg,
                 weightInput = formattedWeight,
+                weightWaistValue = prefilledWaistCm,
+                weightWaistInput = formattedWaist,
                 waistValue = prefilledWaistCm,
                 waistInput = formattedWaist,
                 systolicValue = prefilledSystolic,
@@ -163,7 +165,7 @@ class LoggingViewModel(
             )
 
             updateWeightPreview(formattedWeight)
-            updateWeightWaistPreview(_uiState.value.weightWaistInput)
+            updateWeightWaistPreview(formattedWaist)
             updateWaistPreview(formattedWaist)
             updateBpPreview(prefilledSystolic.toString(), prefilledDiastolic.toString())
         }
@@ -326,7 +328,7 @@ class LoggingViewModel(
         val parsed = input.toDoubleOrNull()
         _uiState.value = _uiState.value.copy(
             weightWaistInput = input,
-            weightWaistValue = parsed ?: (_uiState.value.weightWaistValue ?: 0.0),
+            weightWaistValue = parsed ?: _uiState.value.weightWaistValue,
             errorMessage = null
         )
         updateWeightWaistPreview(input)
