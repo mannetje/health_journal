@@ -6,19 +6,24 @@ import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
@@ -26,18 +31,19 @@ fun HorizontalRulerPicker(
     value: Double,
     onValueChange: (Double) -> Unit,
     range: ClosedFloatingPointRange<Double>,
-    step: Double = 0.5,
+    step: Double = 0.1,
     unitLabel: String = "",
+    tapeColor: Color = Color(0xFFFFC107), // Yellow Measuring Tape
+    tickColor: Color = Color(0xFF212121),  // Dark charcoal ticks
+    indicatorColor: Color = Color(0xFFD32F2F), // Red pointer
+    tapeHeight: Dp = 100.dp,
     modifier: Modifier = Modifier
 ) {
-    val density = LocalDensity.current
     val totalSteps = remember(range, step) {
         ((range.endInclusive - range.start) / step).roundToInt()
     }
 
-    val itemWidthDp = 12.dp
-    val itemWidthPx = with(density) { itemWidthDp.toPx() }
-
+    val itemWidthDp = 10.dp
     val initialIndex = remember(value, range, step) {
         ((value - range.start) / step).roundToInt().coerceIn(0, totalSteps)
     }
@@ -45,83 +51,142 @@ fun HorizontalRulerPicker(
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
 
-    // Sync scroll state back to value
     val centerIndex by remember {
-        derivedStateOf {
-            listState.firstVisibleItemIndex
-        }
+        derivedStateOf { listState.firstVisibleItemIndex }
     }
 
     LaunchedEffect(centerIndex) {
         val calculatedValue = (range.start + centerIndex * step).coerceIn(range.start, range.endInclusive)
         val roundedValue = (calculatedValue * 10).roundToInt() / 10.0
-        if (roundedValue != value) {
+        if (abs(roundedValue - value) >= 0.05) {
             onValueChange(roundedValue)
         }
     }
 
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(140.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)),
-        contentAlignment = Alignment.Center
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val halfWidth = maxWidth / 2
-
-        // Center Indicator Line
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .width(3.dp)
-                .height(60.dp)
-                .background(MaterialTheme.colorScheme.primary)
-        )
-
-        LazyRow(
-            state = listState,
-            flingBehavior = flingBehavior,
-            contentPadding = PaddingValues(horizontal = halfWidth),
+        // Large Prominent Readout Display
+        Row(
             verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.fillMaxWidth()
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(bottom = 4.dp)
         ) {
-            items(totalSteps + 1) { index ->
-                val currentValue = range.start + index * step
-                val isWhole = (currentValue % 1.0).roundToInt() == 0 || Math.abs(currentValue - currentValue.roundToInt()) < 0.01
+            Text(
+                text = String.format(java.util.Locale.US, "%.1f", value),
+                style = MaterialTheme.typography.displayMedium.copy(
+                    fontSize = 36.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (unitLabel.isNotBlank()) {
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = unitLabel,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+        }
 
-                Box(
-                    modifier = Modifier
-                        .width(itemWidthDp)
-                        .height(100.dp),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom,
-                        modifier = Modifier.fillMaxHeight()
+        // Measuring Tape Ruler Container
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(tapeHeight)
+                .clip(RoundedCornerShape(12.dp))
+                .background(tapeColor),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            val halfWidth = maxWidth / 2
+
+            // Top Center Indicator Arrow
+            Canvas(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .width(16.dp)
+                    .height(12.dp)
+            ) {
+                val path = Path().apply {
+                    moveTo(0f, 0f)
+                    lineTo(size.width, 0f)
+                    lineTo(size.width / 2, size.height)
+                    close()
+                }
+                drawPath(path, color = indicatorColor)
+            }
+
+            // Center Indicator Line through Tape
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .width(3.dp)
+                    .fillMaxHeight()
+                    .background(indicatorColor)
+            )
+
+            LazyRow(
+                state = listState,
+                flingBehavior = flingBehavior,
+                contentPadding = PaddingValues(horizontal = halfWidth),
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(totalSteps + 1) { index ->
+                    val currentValue = range.start + index * step
+                    val roundedCurrent = (currentValue * 10).roundToInt()
+                    val isWhole = roundedCurrent % 10 == 0
+                    val isHalf = roundedCurrent % 5 == 0 && !isWhole
+
+                    val tickHeight = when {
+                        isWhole -> 36.dp
+                        isHalf -> 24.dp
+                        else -> 16.dp
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .width(itemWidthDp)
+                            .fillMaxHeight(),
+                        contentAlignment = Alignment.TopCenter
                     ) {
-                        if (isWhole && index % (1 / step).roundToInt() == 0) {
-                            Text(
-                                text = currentValue.roundToInt().toString(),
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
-
-                        val strokeColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        Canvas(
-                            modifier = Modifier
-                                .width(itemWidthDp)
-                                .height(if (isWhole) 40.dp else 22.dp)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Top,
+                            modifier = Modifier.fillMaxHeight()
                         ) {
-                            drawLine(
-                                color = if (isWhole) strokeColor else strokeColor.copy(alpha = 0.5f),
-                                start = Offset(size.width / 2, 0f),
-                                end = Offset(size.width / 2, size.height),
-                                strokeWidth = if (isWhole) 2.dp.toPx() else 1.dp.toPx(),
-                                cap = StrokeCap.Round
-                            )
+                            // Tick Line
+                            Canvas(
+                                modifier = Modifier
+                                    .width(itemWidthDp)
+                                    .height(tickHeight)
+                            ) {
+                                drawLine(
+                                    color = tickColor,
+                                    start = Offset(size.width / 2, 0f),
+                                    end = Offset(size.width / 2, size.height),
+                                    strokeWidth = if (isWhole) 2.5.dp.toPx() else 1.2.dp.toPx(),
+                                    cap = StrokeCap.Round
+                                )
+                            }
+
+                            // Horizontal Whole Number Label Below Tick
+                            if (isWhole) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = (currentValue.roundToInt()).toString(),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = tickColor,
+                                    textAlign = TextAlign.Center,
+                                    softWrap = false,
+                                    maxLines = 1
+                                )
+                            }
                         }
                     }
                 }
