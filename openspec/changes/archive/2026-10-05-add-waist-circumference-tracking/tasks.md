@@ -10,10 +10,10 @@
 
 ## 3. UI & Logging Flow
 
-- [ ] 3.1 Update `LoggingViewModel` and `LogMetricScreen` to support a Waist Circumference tab as well as an optional Waist Circumference input field on the Weight logging tab, saving both when provided, and verify UI preview / ViewModel unit tests.
-- [ ] 3.2 Add waist circumference filter, history card, edit, and delete support in `HistoryScreen` and `HistoryViewModel`, and verify history list rendering.
-- [ ] 3.3 Add English and Dutch localization strings for waist circumference labels and categories, and verify string resources load correctly.
+- [x] 3.1 Update `LoggingViewModel` and `LogMetricScreen` to support a Waist Circumference tab as well as an optional Waist Circumference input field on the Weight logging tab, saving both when provided, and verify UI preview / ViewModel unit tests.
+- [x] 3.2 Add waist circumference filter, history card, edit, and delete support in `HistoryScreen` and `HistoryViewModel`, and verify history list rendering.
+- [x] 3.3 Add English and Dutch localization strings for waist circumference labels and categories, and verify string resources load correctly.
 
 ## 4. Documentation & ADR
 
-- [ ] 4.1 Update `docs/adr/0005-dutch-nhg-guidelines.md` and `README.md` with Voedingscentrum waist circumference guidance and feature bullet.
+- [x] 4.1 Update `docs/adr/0005-dutch-nhg-guidelines.md` and `README.md` with Voedingscentrum waist circumference guidance and feature bullet.
