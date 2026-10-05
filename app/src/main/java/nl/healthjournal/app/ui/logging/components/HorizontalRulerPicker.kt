@@ -17,7 +17,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -34,7 +33,7 @@ fun HorizontalRulerPicker(
     step: Double = 0.1,
     unitLabel: String = "",
     tapeColor: Color = Color(0xFFFFC107), // Yellow Measuring Tape
-    tickColor: Color = Color(0xFF212121),  // Dark charcoal ticks
+    tickColor: Color = Color(0xFF212121),  // Dark charcoal ticks & numbers
     indicatorColor: Color = Color(0xFFD32F2F), // Red pointer
     tapeHeight: Dp = 100.dp,
     modifier: Modifier = Modifier
@@ -43,7 +42,7 @@ fun HorizontalRulerPicker(
         ((range.endInclusive - range.start) / step).roundToInt()
     }
 
-    val itemWidthDp = 10.dp
+    val itemWidthDp = 12.dp
     val initialIndex = remember(value, range, step) {
         ((value - range.start) / step).roundToInt().coerceIn(0, totalSteps)
     }
@@ -174,18 +173,23 @@ fun HorizontalRulerPicker(
                                 )
                             }
 
-                            // Horizontal Whole Number Label Below Tick
+                            // Unclipped Horizontal Whole Number Label
                             if (isWhole) {
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = (currentValue.roundToInt()).toString(),
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = tickColor,
-                                    textAlign = TextAlign.Center,
-                                    softWrap = false,
-                                    maxLines = 1
-                                )
+                                Box(
+                                    modifier = Modifier.requiredWidth(60.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = (currentValue.roundToInt()).toString(),
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = tickColor,
+                                        textAlign = TextAlign.Center,
+                                        softWrap = false,
+                                        maxLines = 1
+                                    )
+                                }
                             }
                         }
                     }
