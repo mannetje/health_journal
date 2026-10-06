@@ -242,4 +242,190 @@
     <string name="history_err_not_found">Entry not found</string>
     <string name="history_err_delete">Delete failed: %1$s</string>
     <string name="history_err_update_failed">Update failed</string>
+
+    <!-- Medication: navigation -->
+    <string name="nav_title_pillbox">Health Journal - Pillbox</string>
+    <string name="nav_pillbox_desc">Pillbox</string>
+
+    <!-- Medication: screens -->
+    <string name="medication_tab_today">Today</string>
+    <string name="medication_tab_medications">Medications</string>
+    <string name="medication_no_profile">Create a profile first to use the pillbox.</string>
+    <string name="medication_back_to_today">Back to today</string>
+    <string name="medication_today_empty">Nothing is planned for this day.</string>
+    <string name="medication_as_needed_title">As needed</string>
+    <string name="medication_logged_title">Logged</string>
+    <string name="medication_as_needed">As needed</string>
+    <string name="medication_list_empty">No medications yet.</string>
+    <string name="medication_archived_badge">Archived</string>
+    <string name="medication_row_click_label">Change outcome</string>
+
+    <!-- Medication: actions -->
+    <string name="medication_action_taken_all">Taken all</string>
+    <string name="medication_action_taken">Taken</string>
+    <string name="medication_action_skip">Skip</string>
+    <string name="medication_action_log_dose">Log a dose</string>
+    <string name="medication_action_add">Add medication</string>
+    <string name="medication_action_edit">Edit medication</string>
+    <string name="medication_action_archive">Archive</string>
+    <string name="medication_action_delete">Delete</string>
+    <string name="medication_action_add_time">Add a time</string>
+    <string name="medication_action_remove_time">Remove</string>
+    <string name="medication_remove_time_desc">Remove the time %1$s</string>
+
+    <!-- Medication: statuses, time of day, week strip -->
+    <string name="medication_status_taken">Taken</string>
+    <string name="medication_status_skipped">Skipped</string>
+    <string name="medication_status_missed">Missed</string>
+    <string name="medication_status_pending">Planned</string>
+    <string name="medication_time_morning">Morning</string>
+    <string name="medication_time_afternoon">Afternoon</string>
+    <string name="medication_time_evening">Evening</string>
+    <string name="medication_time_night">Night</string>
+    <string name="medication_week_complete">All done</string>
+    <string name="medication_week_partial">Partly done</string>
+    <string name="medication_week_missed">Missed</string>
+    <string name="medication_week_empty">Nothing to show</string>
+
+    <!-- Medication: form -->
+    <string name="medication_edit_title_new">New medication</string>
+    <string name="medication_edit_title_edit">Edit medication</string>
+    <string name="medication_field_name">Name *</string>
+    <string name="medication_field_form">Form</string>
+    <string name="medication_field_strength">Strength (what one unit contains)</string>
+    <string name="medication_field_strength_amount">Strength</string>
+    <string name="medication_field_dose">Dose (taken each time) *</string>
+    <string name="medication_field_dose_amount">Amount *</string>
+    <string name="medication_field_appearance">Appearance</string>
+    <string name="medication_field_schedule">Schedule</string>
+    <string name="medication_field_interval">Every how many days</string>
+    <string name="medication_field_apply_from">Applies from %1$s</string>
+    <string name="medication_apply_from_past_note">An earlier date changes the planned intakes of those days. Recorded outcomes stay as they are.</string>
+    <string name="medication_pattern_weekdays">On these days</string>
+    <string name="medication_pattern_every_n_days">Every few days</string>
+    <string name="medication_amount_unit">%1$s %2$s</string>
+    <string name="medication_dose_other">%1$s×</string>
+
+    <!-- Medication: forms -->
+    <string name="medication_form_tablet">Tablet</string>
+    <string name="medication_form_capsule">Capsule</string>
+    <string name="medication_form_liquid">Liquid</string>
+    <string name="medication_form_drops">Drops</string>
+    <string name="medication_form_spray">Spray</string>
+    <string name="medication_form_inhaler">Inhaler</string>
+    <string name="medication_form_injection">Injection</string>
+    <string name="medication_form_patch">Patch</string>
+    <string name="medication_form_cream">Cream</string>
+    <string name="medication_form_other">Other</string>
+
+    <!-- Medication: strength units -->
+    <string name="medication_strength_mg">mg</string>
+    <string name="medication_strength_mcg">mcg</string>
+    <string name="medication_strength_g">g</string>
+    <string name="medication_strength_iu">IU</string>
+    <string name="medication_strength_mg_per_ml">mg/ml</string>
+    <string name="medication_strength_mcg_per_ml">mcg/ml</string>
+    <string name="medication_strength_iu_per_ml">IU/ml</string>
+
+    <!-- Medication: dose units (picker) -->
+    <string name="medication_unit_mg">mg</string>
+    <string name="medication_unit_mcg">mcg</string>
+    <string name="medication_unit_g">g</string>
+    <string name="medication_unit_ml">ml</string>
+    <string name="medication_unit_iu">IU</string>
+    <string name="medication_unit_units">units</string>
+    <string name="medication_unit_drops">drops</string>
+    <string name="medication_unit_puffs">puffs</string>
+    <string name="medication_unit_tablets">tablets</string>
+    <string name="medication_unit_capsules">capsules</string>
+    <string name="medication_unit_patches">patches</string>
+    <string name="medication_unit_applications">applications</string>
+    <string name="medication_unit_other">other</string>
+
+    <!-- Medication: appearance -->
+    <string name="medication_color_white">White</string>
+    <string name="medication_color_yellow">Yellow</string>
+    <string name="medication_color_orange">Orange</string>
+    <string name="medication_color_red">Red</string>
+    <string name="medication_color_pink">Pink</string>
+    <string name="medication_color_purple">Purple</string>
+    <string name="medication_color_blue">Blue</string>
+    <string name="medication_color_green">Green</string>
+    <string name="medication_color_brown">Brown</string>
+    <string name="medication_color_grey">Grey</string>
+    <string name="medication_shape_round">Round</string>
+    <string name="medication_shape_oval">Oval</string>
+    <string name="medication_shape_capsule">Capsule</string>
+    <string name="medication_shape_oblong">Oblong</string>
+    <string name="medication_shape_square">Square</string>
+    <string name="medication_shape_other">Other</string>
+
+    <!-- Medication: counted doses and frequency -->
+    <plurals name="medication_dose_units">
+        <item quantity="one">%1$s unit</item>
+        <item quantity="other">%1$s units</item>
+    </plurals>
+    <plurals name="medication_dose_drops">
+        <item quantity="one">%1$s drop</item>
+        <item quantity="other">%1$s drops</item>
+    </plurals>
+    <plurals name="medication_dose_puffs">
+        <item quantity="one">%1$s puff</item>
+        <item quantity="other">%1$s puffs</item>
+    </plurals>
+    <plurals name="medication_dose_tablets">
+        <item quantity="one">%1$s tablet</item>
+        <item quantity="other">%1$s tablets</item>
+    </plurals>
+    <plurals name="medication_dose_capsules">
+        <item quantity="one">%1$s capsule</item>
+        <item quantity="other">%1$s capsules</item>
+    </plurals>
+    <plurals name="medication_dose_patches">
+        <item quantity="one">%1$s patch</item>
+        <item quantity="other">%1$s patches</item>
+    </plurals>
+    <plurals name="medication_dose_applications">
+        <item quantity="one">%1$s application</item>
+        <item quantity="other">%1$s applications</item>
+    </plurals>
+    <plurals name="medication_freq_per_day">
+        <item quantity="one">%1$d time a day</item>
+        <item quantity="other">%1$d times a day</item>
+    </plurals>
+    <plurals name="medication_freq_every_n_days">
+        <item quantity="one">every day</item>
+        <item quantity="other">every %1$d days</item>
+    </plurals>
+
+    <!-- Medication: dialogs -->
+    <string name="medication_archive_title">Archive this medication?</string>
+    <string name="medication_archive_text">Planned intakes stop from today. Earlier days and recorded outcomes stay as they were.</string>
+    <string name="medication_delete_title">Delete this medication?</string>
+    <string name="medication_delete_text">This permanently removes the medication and all its recorded intakes. This cannot be undone.</string>
+
+    <!-- Medication: notice and sources -->
+    <string name="medication_notice_title">Before you start</string>
+    <string name="medication_notice_text">The pillbox is a personal log. It is not a medical device and it gives no medical advice. It does not check doses or interactions, and it does not say what to do after a missed dose. Ask your doctor or pharmacist about your medication.</string>
+    <string name="medication_notice_accept">Understood</string>
+    <string name="medication_sources_title">Sources</string>
+    <string name="medication_source_apotheek">apotheek.nl</string>
+    <string name="medication_source_thuisarts">Thuisarts (NHG)</string>
+    <string name="profile_medication_notice_button">Pillbox notice and sources</string>
+
+    <!-- Medication: messages -->
+    <string name="medication_msg_saved">Medication saved</string>
+    <string name="medication_msg_archived">Medication archived</string>
+    <string name="medication_msg_deleted">Medication deleted</string>
+    <string name="medication_err_load_failed">Could not load the pillbox</string>
+    <string name="medication_err_save_failed">Could not save the medication</string>
+    <string name="medication_err_save_intake">Could not save the intake</string>
+    <string name="medication_err_no_profile">Create a profile first</string>
+    <string name="medication_err_name_required">Enter a name</string>
+    <string name="medication_err_name_too_long">The name is too long</string>
+    <string name="medication_err_strength_invalid">Strength must be a number above 0</string>
+    <string name="medication_err_dose_invalid">Dose must be a number above 0 and at most 1000</string>
+    <string name="medication_err_time_required">Add at least one time</string>
+    <string name="medication_err_interval_invalid">Enter a number of days from 1 to 365</string>
+    <string name="medication_err_weekday_required">Choose at least one day</string>
 </resources>

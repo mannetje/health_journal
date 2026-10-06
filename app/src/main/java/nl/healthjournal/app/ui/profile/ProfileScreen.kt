@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -48,7 +49,8 @@ fun ProfileScreen(
     currentGlucoseUnit: GlucoseUnitChoice = GlucoseUnitChoice.SYSTEM,
     onGlucoseUnitChange: (GlucoseUnitChoice) -> Unit = {},
     currentTheme: ThemeChoice = ThemeChoice.SYSTEM,
-    onThemeChange: (ThemeChoice) -> Unit = {}
+    onThemeChange: (ThemeChoice) -> Unit = {},
+    onShowMedicationNotice: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val units = LocalDisplayUnits.current
@@ -286,6 +288,13 @@ fun ProfileScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+
+        OutlinedButton(
+            onClick = onShowMedicationNotice,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+        ) {
+            Text(stringResource(R.string.profile_medication_notice_button), textAlign = TextAlign.Center)
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

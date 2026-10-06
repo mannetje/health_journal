@@ -19,6 +19,9 @@ class HealthJournalApp : Application() {
     val healthLogRepository: HealthLogRepositoryPort
         get() = dataModule.healthLogRepository
 
+    val medicationRepository: MedicationRepositoryPort
+        get() = dataModule.medicationRepository
+
     val dataExportAdapter: DataExportPort
         get() = dataModule.dataExportPort
 

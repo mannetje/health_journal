@@ -242,4 +242,190 @@
     <string name="history_err_not_found">Registratie niet gevonden</string>
     <string name="history_err_delete">Verwijderen mislukt: %1$s</string>
     <string name="history_err_update_failed">Bijwerken mislukt</string>
+
+    <!-- Medication: navigation -->
+    <string name="nav_title_pillbox">Health Journal - Pillendoos</string>
+    <string name="nav_pillbox_desc">Pillendoos</string>
+
+    <!-- Medication: screens -->
+    <string name="medication_tab_today">Vandaag</string>
+    <string name="medication_tab_medications">Medicijnen</string>
+    <string name="medication_no_profile">Maak eerst een profiel aan om de pillendoos te gebruiken.</string>
+    <string name="medication_back_to_today">Terug naar vandaag</string>
+    <string name="medication_today_empty">Voor deze dag is niets gepland.</string>
+    <string name="medication_as_needed_title">Zo nodig</string>
+    <string name="medication_logged_title">Genoteerd</string>
+    <string name="medication_as_needed">Zo nodig</string>
+    <string name="medication_list_empty">Nog geen medicijnen.</string>
+    <string name="medication_archived_badge">Gearchiveerd</string>
+    <string name="medication_row_click_label">Uitkomst wijzigen</string>
+
+    <!-- Medication: actions -->
+    <string name="medication_action_taken_all">Alles ingenomen</string>
+    <string name="medication_action_taken">Ingenomen</string>
+    <string name="medication_action_skip">Overslaan</string>
+    <string name="medication_action_log_dose">Dosis noteren</string>
+    <string name="medication_action_add">Medicijn toevoegen</string>
+    <string name="medication_action_edit">Medicijn wijzigen</string>
+    <string name="medication_action_archive">Archiveren</string>
+    <string name="medication_action_delete">Verwijderen</string>
+    <string name="medication_action_add_time">Tijd toevoegen</string>
+    <string name="medication_action_remove_time">Verwijderen</string>
+    <string name="medication_remove_time_desc">Tijd %1$s verwijderen</string>
+
+    <!-- Medication: statuses, time of day, week strip -->
+    <string name="medication_status_taken">Ingenomen</string>
+    <string name="medication_status_skipped">Overgeslagen</string>
+    <string name="medication_status_missed">Gemist</string>
+    <string name="medication_status_pending">Gepland</string>
+    <string name="medication_time_morning">Ochtend</string>
+    <string name="medication_time_afternoon">Middag</string>
+    <string name="medication_time_evening">Avond</string>
+    <string name="medication_time_night">Nacht</string>
+    <string name="medication_week_complete">Alles gedaan</string>
+    <string name="medication_week_partial">Gedeeltelijk gedaan</string>
+    <string name="medication_week_missed">Gemist</string>
+    <string name="medication_week_empty">Niets te tonen</string>
+
+    <!-- Medication: form -->
+    <string name="medication_edit_title_new">Nieuw medicijn</string>
+    <string name="medication_edit_title_edit">Medicijn wijzigen</string>
+    <string name="medication_field_name">Naam *</string>
+    <string name="medication_field_form">Vorm</string>
+    <string name="medication_field_strength">Sterkte (wat één eenheid bevat)</string>
+    <string name="medication_field_strength_amount">Sterkte</string>
+    <string name="medication_field_dose">Dosis (per keer) *</string>
+    <string name="medication_field_dose_amount">Hoeveelheid *</string>
+    <string name="medication_field_appearance">Uiterlijk</string>
+    <string name="medication_field_schedule">Schema</string>
+    <string name="medication_field_interval">Om de hoeveel dagen</string>
+    <string name="medication_field_apply_from">Geldt vanaf %1$s</string>
+    <string name="medication_apply_from_past_note">Een eerdere datum wijzigt de geplande innames van die dagen. Vastgelegde uitkomsten blijven zoals ze zijn.</string>
+    <string name="medication_pattern_weekdays">Op deze dagen</string>
+    <string name="medication_pattern_every_n_days">Om de zoveel dagen</string>
+    <string name="medication_amount_unit">%1$s %2$s</string>
+    <string name="medication_dose_other">%1$s×</string>
+
+    <!-- Medication: forms -->
+    <string name="medication_form_tablet">Tablet</string>
+    <string name="medication_form_capsule">Capsule</string>
+    <string name="medication_form_liquid">Vloeistof</string>
+    <string name="medication_form_drops">Druppels</string>
+    <string name="medication_form_spray">Spray</string>
+    <string name="medication_form_inhaler">Inhalator</string>
+    <string name="medication_form_injection">Injectie</string>
+    <string name="medication_form_patch">Pleister</string>
+    <string name="medication_form_cream">Creme</string>
+    <string name="medication_form_other">Overig</string>
+
+    <!-- Medication: strength units -->
+    <string name="medication_strength_mg">mg</string>
+    <string name="medication_strength_mcg">microgram</string>
+    <string name="medication_strength_g">g</string>
+    <string name="medication_strength_iu">IE</string>
+    <string name="medication_strength_mg_per_ml">mg/ml</string>
+    <string name="medication_strength_mcg_per_ml">microgram/ml</string>
+    <string name="medication_strength_iu_per_ml">IE/ml</string>
+
+    <!-- Medication: dose units (picker) -->
+    <string name="medication_unit_mg">mg</string>
+    <string name="medication_unit_mcg">microgram</string>
+    <string name="medication_unit_g">g</string>
+    <string name="medication_unit_ml">ml</string>
+    <string name="medication_unit_iu">IE</string>
+    <string name="medication_unit_units">eenheden</string>
+    <string name="medication_unit_drops">druppels</string>
+    <string name="medication_unit_puffs">pufjes</string>
+    <string name="medication_unit_tablets">tabletten</string>
+    <string name="medication_unit_capsules">capsules</string>
+    <string name="medication_unit_patches">pleisters</string>
+    <string name="medication_unit_applications">keer aanbrengen</string>
+    <string name="medication_unit_other">overig</string>
+
+    <!-- Medication: appearance -->
+    <string name="medication_color_white">Wit</string>
+    <string name="medication_color_yellow">Geel</string>
+    <string name="medication_color_orange">Oranje</string>
+    <string name="medication_color_red">Rood</string>
+    <string name="medication_color_pink">Roze</string>
+    <string name="medication_color_purple">Paars</string>
+    <string name="medication_color_blue">Blauw</string>
+    <string name="medication_color_green">Groen</string>
+    <string name="medication_color_brown">Bruin</string>
+    <string name="medication_color_grey">Grijs</string>
+    <string name="medication_shape_round">Rond</string>
+    <string name="medication_shape_oval">Ovaal</string>
+    <string name="medication_shape_capsule">Capsule</string>
+    <string name="medication_shape_oblong">Langwerpig</string>
+    <string name="medication_shape_square">Vierkant</string>
+    <string name="medication_shape_other">Anders</string>
+
+    <!-- Medication: counted doses and frequency -->
+    <plurals name="medication_dose_units">
+        <item quantity="one">%1$s eenheid</item>
+        <item quantity="other">%1$s eenheden</item>
+    </plurals>
+    <plurals name="medication_dose_drops">
+        <item quantity="one">%1$s druppel</item>
+        <item quantity="other">%1$s druppels</item>
+    </plurals>
+    <plurals name="medication_dose_puffs">
+        <item quantity="one">%1$s pufje</item>
+        <item quantity="other">%1$s pufjes</item>
+    </plurals>
+    <plurals name="medication_dose_tablets">
+        <item quantity="one">%1$s tablet</item>
+        <item quantity="other">%1$s tabletten</item>
+    </plurals>
+    <plurals name="medication_dose_capsules">
+        <item quantity="one">%1$s capsule</item>
+        <item quantity="other">%1$s capsules</item>
+    </plurals>
+    <plurals name="medication_dose_patches">
+        <item quantity="one">%1$s pleister</item>
+        <item quantity="other">%1$s pleisters</item>
+    </plurals>
+    <plurals name="medication_dose_applications">
+        <item quantity="one">%1$s keer aanbrengen</item>
+        <item quantity="other">%1$s keer aanbrengen</item>
+    </plurals>
+    <plurals name="medication_freq_per_day">
+        <item quantity="one">%1$d keer per dag</item>
+        <item quantity="other">%1$d keer per dag</item>
+    </plurals>
+    <plurals name="medication_freq_every_n_days">
+        <item quantity="one">elke dag</item>
+        <item quantity="other">elke %1$d dagen</item>
+    </plurals>
+
+    <!-- Medication: dialogs -->
+    <string name="medication_archive_title">Dit medicijn archiveren?</string>
+    <string name="medication_archive_text">Geplande innames stoppen vanaf vandaag. Eerdere dagen en vastgelegde uitkomsten blijven zoals ze waren.</string>
+    <string name="medication_delete_title">Dit medicijn verwijderen?</string>
+    <string name="medication_delete_text">Dit verwijdert het medicijn en alle vastgelegde innames definitief. Dit kan niet ongedaan worden gemaakt.</string>
+
+    <!-- Medication: notice and sources -->
+    <string name="medication_notice_title">Voordat je begint</string>
+    <string name="medication_notice_text">De pillendoos is een persoonlijk logboek. Het is geen medisch hulpmiddel en geeft geen medisch advies. Het controleert geen doseringen of interacties en zegt niet wat je moet doen na een gemiste inname. Vraag je arts of apotheker naar je medicatie.</string>
+    <string name="medication_notice_accept">Begrepen</string>
+    <string name="medication_sources_title">Bronnen</string>
+    <string name="medication_source_apotheek">apotheek.nl</string>
+    <string name="medication_source_thuisarts">Thuisarts (NHG)</string>
+    <string name="profile_medication_notice_button">Pillendoos: opmerking en bronnen</string>
+
+    <!-- Medication: messages -->
+    <string name="medication_msg_saved">Medicijn opgeslagen</string>
+    <string name="medication_msg_archived">Medicijn gearchiveerd</string>
+    <string name="medication_msg_deleted">Medicijn verwijderd</string>
+    <string name="medication_err_load_failed">De pillendoos kon niet worden geladen</string>
+    <string name="medication_err_save_failed">Het medicijn kon niet worden opgeslagen</string>
+    <string name="medication_err_save_intake">De inname kon niet worden opgeslagen</string>
+    <string name="medication_err_no_profile">Maak eerst een profiel aan</string>
+    <string name="medication_err_name_required">Vul een naam in</string>
+    <string name="medication_err_name_too_long">De naam is te lang</string>
+    <string name="medication_err_strength_invalid">Sterkte moet een getal boven 0 zijn</string>
+    <string name="medication_err_dose_invalid">Dosis moet een getal boven 0 en maximaal 1000 zijn</string>
+    <string name="medication_err_time_required">Voeg minstens één tijd toe</string>
+    <string name="medication_err_interval_invalid">Vul een aantal dagen van 1 tot 365 in</string>
+    <string name="medication_err_weekday_required">Kies minstens één dag</string>
 </resources>

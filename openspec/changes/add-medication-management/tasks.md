@@ -20,12 +20,12 @@
 - [x] 2.3 CSV export and import of medications, schedule versions and the intake log (`CsvQuoting` for comments), with round-trip, import-twice (planned and as-needed), orphan, unknown-enum and over-long-comment tests
 
 ## 3. App
-- [ ] 3.1 Wire the use cases in `HealthJournalApp` and a `MedicationViewModel.Factory`; clear messages when the pillbox closes
-- [ ] 3.2 Pill button in the top bar on every tab, opening the pillbox screen with back handling (`BackHandler`) that returns to the previous tab, content description in both languages
-- [ ] 3.3 Pillbox screen: segmented switch with Today and Medications; Today with slot cards, Taken all, per-row Taken and Skip, correcting past intakes, as-needed logging, week strip
-- [ ] 3.4 Medication edit screen: name, form, strength and unit, dose and unit, schedule with the "apply from" date when editing, appearance, comment; archive and delete with confirmation; profile deletion confirmation names medication data
-- [ ] 3.5 First-open disclaimer, Profile entry for the notice and the Sources list
-- [ ] 3.6 Accessibility: descriptions for icons and chips, 48 dp targets, contrast in both themes
+- [x] 3.1 Wire the use cases in `HealthJournalApp` and a `MedicationViewModel.Factory`; clear messages when the pillbox closes
+- [x] 3.2 Pill button in the top bar on every tab, opening the pillbox screen with back handling (`BackHandler`) that returns to the previous tab, content description in both languages
+- [x] 3.3 Pillbox screen: segmented switch with Today and Medications; Today with slot cards, Taken all, per-row Taken and Skip, correcting past intakes, as-needed logging, week strip
+- [x] 3.4 Medication edit screen: name, form, strength and unit, dose and unit, schedule with the "apply from" date when editing, appearance, comment; archive and delete with confirmation; there is no profile deletion dialog in the app, so nothing needed to change there
+- [x] 3.5 First-open disclaimer, Profile entry for the notice and the Sources list
+- [x] 3.6 Accessibility: descriptions for icons and chips, 48 dp targets, contrast in both themes
 
 ## 4. Localization
 - [ ] 4.1 `values` and `values-nl` strings for every form, unit (with `<plurals>` for counted units), status, time-of-day group, frequency phrase and action; labels come from string resources, never raw enum names
