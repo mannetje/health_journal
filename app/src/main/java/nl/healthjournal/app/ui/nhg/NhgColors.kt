@@ -1,6 +1,6 @@
 package nl.healthjournal.app.ui.nhg
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import nl.healthjournal.app.ui.theme.isAppDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import nl.healthjournal.app.ui.theme.RangeStep0
@@ -47,7 +47,7 @@ internal fun NhgWaistCircumferenceCategory.rampStep(): Int = when (this) {
 
 @Composable
 private fun rampColor(step: Int): Color {
-    val dark = isSystemInDarkTheme()
+    val dark = isAppDarkTheme()
     return when (step) {
         0 -> if (dark) RangeStep0Dark else RangeStep0
         1 -> if (dark) RangeStep1Dark else RangeStep1

@@ -1,6 +1,5 @@
 package nl.healthjournal.app.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
@@ -54,16 +53,16 @@ val InfoContainerDark = Color(0xFF152A3D)
 
 /** Theme-aware container color for a success confirmation card. */
 val successContainerColor: Color
-    @Composable get() = if (isSystemInDarkTheme()) SuccessContainerDark else SuccessContainerLight
+    @Composable get() = if (isAppDarkTheme()) SuccessContainerDark else SuccessContainerLight
 
 /** Theme-aware text/icon color on a success confirmation card. */
 val onSuccessContainerColor: Color
-    @Composable get() = if (isSystemInDarkTheme()) SuccessGreenDark else SuccessGreen
+    @Composable get() = if (isAppDarkTheme()) SuccessGreenDark else SuccessGreen
 
 /** Theme-aware container color for an informational hint card. */
 val infoContainerColor: Color
-    @Composable get() = if (isSystemInDarkTheme()) InfoContainerDark else InfoContainerLight
+    @Composable get() = if (isAppDarkTheme()) InfoContainerDark else InfoContainerLight
 
 /** Theme-aware text/icon color on an informational hint card. */
 val onInfoContainerColor: Color
-    @Composable get() = if (isSystemInDarkTheme()) PrimaryBlueLight else PrimaryBlueDark
+    @Composable get() = if (isAppDarkTheme()) PrimaryBlueLight else PrimaryBlueDark

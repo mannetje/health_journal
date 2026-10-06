@@ -16,10 +16,6 @@ The system SHALL allow recording a waist circumference measurement in centimetre
 - **WHEN** a client provides a waist circumference value less than 40 cm or greater than 200 cm
 - **THEN** the system SHALL reject the request with a validation error
 
-#### Scenario: Optional waist circumference recorded alongside weight entry
-- **WHEN** a client logs a weight entry and provides an optional valid waist circumference value at the same timestamp
-- **THEN** the system SHALL persist both the weight entry and the waist circumference entry at that timestamp
-
 ### Requirement: Classify waist circumference against sex-specific NHG/Voedingscentrum categories
 The system SHALL classify a waist circumference measurement against sex-specific healthy-range categories (Healthy, Increased Risk, High Risk) sourced from Voedingscentrum guidance, when the Profile's sex is set.
 

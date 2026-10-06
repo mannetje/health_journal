@@ -5,12 +5,20 @@ Defines the light and dark visual themes and the brand top bar.
 
 ## Requirements
 
-### Requirement: System-driven theme
-The application SHALL follow the system light/dark setting. There SHALL be no in-app theme switch.
+### Requirement: Theme choice
+The application SHALL follow the system light/dark setting by default. The Profile screen SHALL offer a Theme setting with System, Light and Dark. The choice SHALL apply immediately without restarting the app, SHALL be remembered on the device, and SHALL also drive category colours and success and info cards, not only the Material surfaces.
 
 #### Scenario: System switches to dark
-- **WHEN** the device changes to dark mode
+- **WHEN** the theme is System and the device changes to dark mode
 - **THEN** the dark palette is applied
+
+#### Scenario: Forced dark on a light device
+- **WHEN** the user picks Dark while the device is in light mode
+- **THEN** the dark palette is applied everywhere, including category colours
+
+#### Scenario: Choice is remembered
+- **WHEN** the user picks Light and restarts the app
+- **THEN** the light palette is applied and Light is shown as selected in Profile
 
 ### Requirement: Palette
 The app SHALL use these colors (hex RGB):

@@ -134,7 +134,7 @@ fun LogMetricScreen(
                     unitLabel = units.weightSymbol,
                     tapeColor = Color(0xFFFFC107), // Measuring Tape Yellow
                     tickColor = Color(0xFF212121),
-                    tapeHeight = 100.dp
+                    tapeHeight = 75.dp
                 )
 
                 if (state.previewBmi != null && state.previewBmiCategory != null) {
@@ -145,35 +145,6 @@ fun LogMetricScreen(
                             state.previewBmiCategory!!.label()
                         ),
                         color = getBmiColor(state.previewBmiCategory!!)
-                    )
-                }
-
-                Text(
-                    text = stringResource(R.string.log_waist_optional_label),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-
-                HorizontalRulerPicker(
-                    value = state.weightWaistValue,
-                    onValueChange = { viewModel.onWeightWaistValueChanged(it) },
-                    range = 40.0..200.0,
-                    step = 0.1,
-                    unitLabel = "cm",
-                    tapeColor = Color(0xFF00ACC1), // Complementary Teal measuring tape
-                    tickColor = Color(0xFF212121),
-                    tapeHeight = 75.dp // Less broad for waist
-                )
-
-                if (state.previewWeightWaistCategory != null) {
-                    CategoryBadge(
-                        label = stringResource(
-                            R.string.log_waist_badge,
-                            state.weightWaistInput,
-                            state.previewWeightWaistCategory!!.label(state.activeProfile?.sex)
-                        ),
-                        color = getWaistColor(state.previewWeightWaistCategory!!)
                     )
                 }
             }

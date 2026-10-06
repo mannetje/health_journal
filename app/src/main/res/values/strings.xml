@@ -53,7 +53,6 @@
     <string name="log_record_entry">Record Entry</string>
     <string name="log_waist_label">Waist circumference (cm)</string>
     <string name="log_waist_placeholder">e.g. 82</string>
-    <string name="log_waist_optional_label">Waist circumference (optional, cm)</string>
     <string name="log_waist_badge">Waist: %1$s cm — %2$s</string>
 
     <!-- History screen -->
@@ -122,6 +121,10 @@
     <string name="profile_region_netherlands">Netherlands</string>
     <string name="profile_region_us">US</string>
     <string name="profile_region_hint">Independent of the language. System follows your device, for example English with Dutch formats.</string>
+    <string name="profile_theme_label">Theme</string>
+    <string name="profile_theme_light">Light</string>
+    <string name="profile_theme_dark">Dark</string>
+    <string name="profile_theme_hint">System follows the device setting.</string>
     <string name="profile_units_label">Units</string>
     <string name="profile_units_metric">Metric</string>
     <string name="profile_units_imperial">Imperial</string>

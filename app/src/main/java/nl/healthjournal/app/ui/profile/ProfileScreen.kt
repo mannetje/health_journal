@@ -18,6 +18,7 @@ import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.AppLanguage
 import nl.healthjournal.app.settings.AppRegion
 import nl.healthjournal.app.settings.GlucoseUnitChoice
+import nl.healthjournal.app.settings.ThemeChoice
 import nl.healthjournal.app.settings.UnitSystemChoice
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.asString
@@ -45,7 +46,9 @@ fun ProfileScreen(
     currentUnitSystem: UnitSystemChoice = UnitSystemChoice.SYSTEM,
     onUnitSystemChange: (UnitSystemChoice) -> Unit = {},
     currentGlucoseUnit: GlucoseUnitChoice = GlucoseUnitChoice.SYSTEM,
-    onGlucoseUnitChange: (GlucoseUnitChoice) -> Unit = {}
+    onGlucoseUnitChange: (GlucoseUnitChoice) -> Unit = {},
+    currentTheme: ThemeChoice = ThemeChoice.SYSTEM,
+    onThemeChange: (ThemeChoice) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val units = LocalDisplayUnits.current
@@ -254,6 +257,32 @@ fun ProfileScreen(
             }
             Text(
                 stringResource(R.string.profile_region_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(R.string.profile_theme_label), style = MaterialTheme.typography.labelLarge)
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                val options = listOf(ThemeChoice.SYSTEM, ThemeChoice.LIGHT, ThemeChoice.DARK)
+                val labels = listOf(
+                    stringResource(R.string.profile_language_system),
+                    stringResource(R.string.profile_theme_light),
+                    stringResource(R.string.profile_theme_dark)
+                )
+                options.forEachIndexed { index, option ->
+                    SegmentedButton(
+                        selected = currentTheme == option,
+                        onClick = { onThemeChange(option) },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size)
+                    ) {
+                        Text(labels[index], maxLines = 1, softWrap = false)
+                    }
+                }
+            }
+            Text(
+                stringResource(R.string.profile_theme_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

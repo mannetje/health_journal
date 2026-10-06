@@ -61,7 +61,7 @@ Segmented buttons, tab rows and filter chips SHALL fit a phone width of about 36
 - **THEN** no label overlaps or breaks inside a word
 
 ### Requirement: Theme follows the system
-The app SHALL use the DayNight theme with Compose colour schemes that follow the system light or dark setting, and the launcher icon SHALL be an adaptive icon with the navy background and recoloured logo defined in [app-identity](../app-identity/spec.md) (ADR 0011).
+The app SHALL use the DayNight theme with Compose colour schemes that follow the system light or dark setting unless the user picked Light or Dark in Profile ([theming](../theming/spec.md)), and the launcher icon SHALL be an adaptive icon with the navy background and recoloured logo defined in [app-identity](../app-identity/spec.md) (ADR 0011).
 
 #### Scenario: Launcher icon
 - **WHEN** the app is installed

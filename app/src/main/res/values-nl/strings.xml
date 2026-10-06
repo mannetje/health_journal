@@ -53,7 +53,6 @@
     <string name="log_record_entry">Opslaan</string>
     <string name="log_waist_label">Middelomtrek (cm)</string>
     <string name="log_waist_placeholder">bijv. 82</string>
-    <string name="log_waist_optional_label">Middelomtrek (optioneel, cm)</string>
     <string name="log_waist_badge">Middelomtrek: %1$s cm — %2$s</string>
 
     <!-- History screen -->
@@ -122,6 +121,10 @@
     <string name="profile_region_netherlands">Nederland</string>
     <string name="profile_region_us">VS</string>
     <string name="profile_region_hint">Los van de taal. Systeem volgt je apparaat, bijvoorbeeld Engels met Nederlandse notatie.</string>
+    <string name="profile_theme_label">Thema</string>
+    <string name="profile_theme_light">Licht</string>
+    <string name="profile_theme_dark">Donker</string>
+    <string name="profile_theme_hint">Systeem volgt de instelling van je toestel.</string>
     <string name="profile_units_label">Eenheden</string>
     <string name="profile_units_metric">Metrisch</string>
     <string name="profile_units_imperial">Imperiaal</string>
