@@ -2,7 +2,7 @@
 
 A *metric* is something the user logs: weight, blood pressure, glucose, activity. This guide lists every place a new one touches, in the order to work. Use blood pressure as the model; [Life of an entry](../life-of-an-entry.md) walks through it.
 
-Before writing code, **propose the change**: create an OpenSpec change describing the metric, its validation limits, its unit and, if it has ranges, its labels (see [CONTRIBUTING.md](../../../CONTRIBUTING.md)). A proposal for a waist circumference metric is an example: `openspec/changes/add-waist-circumference-tracking/`.
+Before writing code, **propose the change**: create an OpenSpec change describing the metric, its validation limits, its unit and, if it has ranges, its labels (see [CONTRIBUTING.md](../../../CONTRIBUTING.md)). A proposal for a waist circumference metric is an example: `openspec/changes/archive/2026-10-05-add-waist-circumference-tracking/`.
 
 ## 1. Domain (`domain/src/main/kotlin/nl/healthjournal/domain/`)
 
