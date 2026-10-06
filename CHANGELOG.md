@@ -2,7 +2,7 @@
 
 All notable changes to Health Journal. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/). Each release is tagged `vX.Y.Z`; the section below is published as the GitHub Release notes.
 
-## [Unreleased]
+## [1.5.2] - 2026-10-06
 
 ### Changed
 - **Low glucose limit** is now 3.9 mmol/L (was 3.5), following NHG and Thuisarts. Normal fasting reads 3,9 to 6,0 and normal after a meal 3,9 to under 7,8. Entries saved earlier keep their stored label until edited.
