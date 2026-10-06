@@ -30,9 +30,9 @@ The journal tracks measurements (weight, blood pressure, glucose, activity) but 
 ## Impact
 - Affected code:
   - `domain`: new `model/medication/` (`Medication`, `Dosage`, `DoseUnit`, `PillAppearance`, `Schedule`, `Intake`, `IntakeStatus`), `AdherenceCalculator`, a `MedicationRepositoryPort`, a `ReminderSchedulerPort`, and use cases.
-  - `data`: Room entities, DAOs and a database migration from version 2 to 3, repository implementation, CSV adapters.
+  - `data`: Room entities, DAOs and a database migration from version 4 to 5, repository implementation, CSV adapters.
   - `app`: a fourth tab (Medication), pillbox and edit screens, a `ReminderScheduler` on `AlarmManager`, a notification receiver, a boot receiver, string resources in English and Dutch.
-- The database moves to version 3 with a tested migration that keeps existing rows, and the database file is encrypted in a separate verified one-time migration (phase 4c).
+- The database moves from version 4 to 5 with a tested migration that keeps existing rows, and the database file is encrypted in a separate verified one-time migration (phase 4c).
 - New Android permissions: `POST_NOTIFICATIONS` (Android 13+), `RECEIVE_BOOT_COMPLETED`, and optionally exact alarms (see design).
 - `AndroidManifest.xml` currently has `allowBackup="true"`, so the database is included in Android backups today. This change **modifies** that: backup is disabled through `allowBackup="false"` and data extraction rules. Users who relied on automatic backup must use CSV export instead, so the change is noted in the CHANGELOG and README.
 - The manifest already has no `INTERNET` permission. This change turns that into a checked rule.

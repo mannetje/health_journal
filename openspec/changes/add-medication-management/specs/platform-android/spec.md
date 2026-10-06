@@ -60,8 +60,8 @@ Notification text and action labels SHALL be built from a context wrapped with t
 ## MODIFIED Requirements
 
 ### Requirement: Local storage with Room
-The app SHALL persist data offline in an encrypted SQLite database through Room, with the database at schema version 3. Version 1 to 2 SHALL be a real migration that adds the optional sex column to the profile table without losing rows. Version 2 to 3 SHALL be a hand-written migration that adds the medication, medication time and intake tables without changing existing rows. Storage SHALL always be metric.
+The app SHALL persist data offline in an encrypted SQLite database through Room, with the database at schema version 5. Version 1 to 2 SHALL be a real migration that adds the optional sex column to the profile table without losing rows. Version 2 to 3 SHALL add the waist circumference table, and version 3 to 4 SHALL add the optional pulse column to blood pressure readings, both without changing existing rows. Version 4 to 5 SHALL be a hand-written migration that adds the medication, medication time and intake tables without changing existing rows. Storage SHALL always be metric.
 
 #### Scenario: Upgrade keeps data
-- **WHEN** a device with a version 1 or 2 database installs a build that has version 3
+- **WHEN** a device with a version 1, 2, 3 or 4 database installs a build that has version 5
 - **THEN** all profiles and entries SHALL still be present, the sex of each profile from a version 1 database SHALL be unset, and the medication tables SHALL be empty (ADR 0004)

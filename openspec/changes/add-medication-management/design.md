@@ -11,7 +11,7 @@ The change follows the structure already in the repository instead of introducin
 | `domain/model` | One package per area (`metrics`, `nhg`, `profile`, `common`), value objects with `require` validation, `ProfileId` and id value classes | New package `model/medication`, ids as value classes next to `MeasurementId`, validation in value objects |
 | `domain/port/secondary` | One port per aggregate (`HealthLogRepositoryPort`, `ProfileRepositoryPort`, `DataExportPort`) | `MedicationRepositoryPort` (separate, so the metrics port is not bloated) and `ReminderSchedulerPort` |
 | `domain/usecase` | One class per action (`Record*`, `Update*`, `Delete*`) | `SaveMedication`, `ArchiveMedication`, `DeleteMedication`, `RecordIntake`, `GetPillbox`, `GetAdherence` use cases in the same style |
-| `data/local` | `entity`, `dao`, `mapper`, one `HealthJournalDatabase`, manual `Migration` objects (`MIGRATION_1_2` exists), `exportSchema = false` | `MedicationEntity`, `MedicationTimeEntity`, `IntakeEntity`, their DAOs and mapper, and `MIGRATION_2_3` written by hand like the existing one |
+| `data/local` | `entity`, `dao`, `mapper`, one `HealthJournalDatabase`, manual `Migration` objects (`MIGRATION_1_2`, `MIGRATION_2_3` and `MIGRATION_3_4` exist), `exportSchema = false` | `MedicationEntity`, `MedicationTimeEntity`, `IntakeEntity`, their DAOs and mapper, and `MIGRATION_4_5` written by hand like the existing ones |
 | `data/repository` | `RoomHealthLogRepository`, `RoomProfileRepository` | `RoomMedicationRepository` |
 | `data/csv` | `CsvDataExportAdapter` and `CsvDataImportAdapter`, metric and locale-independent | Medication, schedule and intake rows added to the same adapters, with the same physical line numbers in import errors |
 | `app` | Manual wiring in `HealthJournalApp`, `ViewModel.Factory`, three `NavigationBarItem`s in `MainActivity`, `UiText` messages, `LocalDisplayUnits`, English and Dutch strings | A fourth `NavigationBarItem`, a `MedicationViewModel` with a factory, `UiText` for every message, the same message-clearing on tab change, Android adapters for the scheduler and receivers |
@@ -185,7 +185,7 @@ Notes:
 - Dutch strings can be 30 to 50 percent longer, so layouts follow ADR 0010 (wrap, no fixed widths on chips and buttons).
 
 ## Persistence
-Room version 3 with three tables: `medication`, `medication_time` (one row per time per medication) and `intake`. `MIGRATION_2_3` only creates tables (hand-written like `MIGRATION_1_2`). The move to an encrypted file (phase 4c) is a separate, one-time file migration that is independent of the schema version. Deleting a medication cascades to its times and, after confirmation, to its intake log. **Archive** is the default way to stop a medication, because it keeps history and adherence intact.
+Room version 5 (the database is at version 4 today) with three tables: `medication`, `medication_time` (one row per time per medication) and `intake`. `MIGRATION_4_5` only creates tables (hand-written like `MIGRATION_2_3`, which added the waist table). The move to an encrypted file (phase 4c) is a separate, one-time file migration that is independent of the schema version. Deleting a medication cascades to its times and, after confirmation, to its intake log. **Archive** is the default way to stop a medication, because it keeps history and adherence intact.
 
 ## Adherence
 `AdherenceCalculator(medications, intakes, range, now)` returns `taken`, `due`, `skipped`, `missed`, `percentage` and `streak`.
