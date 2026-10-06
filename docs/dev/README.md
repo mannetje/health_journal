@@ -15,6 +15,7 @@ Health Journal is an offline-first Android app for logging weight, blood pressur
 | 5 | [Testing](testing.md) | see what is tested where and how to run it |
 | 6 | [Releases](releases.md) | understand versions, tags and the release build |
 | 7 | [Database](database.md) | see every table and how they relate (entity-relationship diagram) |
+| 8 | [Pillbox](pillbox.md) | see the medication feature, where it lives and what it looks like |
 
 How-to guides for common changes:
 
