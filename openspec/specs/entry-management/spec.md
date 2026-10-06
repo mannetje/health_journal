@@ -1,12 +1,12 @@
 # entry-management Specification
 
 ## Purpose
-Defines how recorded entries (weight, blood pressure, glucose, activity) are listed, edited and deleted from the History screen.
+Defines how recorded entries (weight, blood pressure, glucose, waist circumference, activity) are listed, edited and deleted from the History screen.
 
 ## Requirements
 
 ### Requirement: History list
-The History screen SHALL show the entries of the active profile as one merged list of all four entry types, sorted newest first (activity by start time). When a single-metric filter is selected (weight, blood pressure or glucose) the list SHALL be limited to that type and to the selected trend range (see health-trends). The activity filter and the ALL filter show every entry of the type(s) without range restriction.
+The History screen SHALL show the entries of the active profile as one merged list of all five entry types, sorted newest first (activity by start time). When a single-metric filter is selected (weight, blood pressure, glucose or waist circumference) the list SHALL be limited to that type and to the selected trend range (see health-trends). The activity filter and the ALL filter show every entry of the type(s) without range restriction.
 
 #### Scenario: Merged order
 - **WHEN** a weight at 10:00 and a glucose at 11:00 exist
@@ -30,10 +30,11 @@ Updating an entry SHALL take the entry id, the owning profile and the new values
 ### Requirement: Edit dialog rules
 Each entry can be edited in a dialog that pre-fills the current values in the user's display units. Validation in the dialog:
 - weight: 1 to 700 kg, else an "invalid value" message
-- blood pressure: systolic 40 to 300, diastolic 20 to 200, systolic > diastolic
+- blood pressure: systolic 40 to 300, diastolic 20 to 200, systolic > diastolic, optional pulse 30 to 250
+- waist circumference: 40 to 200 cm
 - glucose: 0.5 to 55.0 mmol/L (after conversion from the display unit), else an "invalid value" message
 - activity: duration greater than 0 minutes, distance 0 or more; start time is not editable
-Weight, blood pressure and glucose expose an editable date and time; activity does not.
+Weight, blood pressure, glucose and waist circumference expose an editable date and time; activity does not.
 If the update fails or the entry is gone, the dialog SHALL stay open and show an error ("Entry not found" when missing). On success the dialog closes and history and trend data refresh.
 
 #### Scenario: Failed update keeps dialog

@@ -1,7 +1,7 @@
 # health-metrics/smart-input-pickers Specification
 
 ## Purpose
-TBD - created by archiving change feature-smart-input-pickers. Update Purpose after archive.
+Defines how values are entered on the Log screen: pulse recorded with blood pressure, a pre-fill fallback chain for the starting value, and scrolling pickers for weight, waist, blood pressure and pulse, in English and Dutch.
 
 ## Requirements
 

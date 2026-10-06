@@ -64,8 +64,9 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ### Key Features
 - **Body Weight & BMI:** Record body weight in kilograms, automatically deriving Body Mass Index (BMI) based on profile height, categorized according to NHG/WHO standards.
-- **Waist Circumference (optional):** Record waist circumference in centimetres; categorized against Voedingscentrum's sex-specific healthy-range thresholds when Profile sex is set. Can be recorded standalone or optionally alongside a weight entry.
-- **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, automatically shown against three bands from the Dutch NHG standard: Normal (below 140/90), High (from 140/90) and Seriously raised (from 180/110). Labels name the band with its range and never a condition; an "About these ranges" note links the sources. Older entries keep working: the six previous names are read as the new bands.
+- **Waist Circumference (optional):** Record waist circumference in centimetres; categorized against Voedingscentrum's sex-specific healthy-range thresholds when Profile sex is set. Can be recorded standalone on its own Waist tab or optionally alongside a weight entry, and has its own History filter, edit, delete, CSV export and import. Labels read "name · range" for the profile's sex.
+- **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, with an optional pulse (30 to 250 bpm), automatically shown against three bands from the Dutch NHG standard: Normal (below 140/90), High (from 140/90) and Seriously raised (from 180/110). Labels name the band with its range and never a condition; an "About these ranges" note links the sources. Older entries keep working: the six previous names are read as the new bands.
+- **Smart input pickers:** weight and waist use a horizontal ruler picker, and blood pressure and pulse use three stacked scrolling rows. The starting value comes from a fallback chain: your latest entry, then a value derived from your profile (for example height for weight), then a standard default.
 - **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) and show it as **mmol/L** or **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges and shown as "name · range" (Low, Normal, Slightly raised, High blood glucose) with only the range for the entry's context.
 - **Activity Tracking:** Manually log workout and physical activity sessions from the Log screen (duration + distance), or bulk-import sessions; each session records start time, end time, and distance in metres.
 - **Profile Sex Field (optional):** Selectable male/female on the Profile screen. Purely demographic — has no effect on BMI, blood pressure, or glucose classification (Dutch NHG guidelines do not differentiate these by sex).
@@ -77,7 +78,7 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 - **Units:** data is always stored in metric (kg, cm, mmol/L, meters). What you see and type is a separate Profile setting: Metric or Imperial (lb, mi, ft/in) and mmol/L or mg/dL, defaulting from the region (US and UK imperial, mg/dL in the US, Germany, France and others). Every input shows its unit, and History, charts and statistics follow it ([ADR 0014](docs/adr/0014-units-presentation.md)). CSV files stay metric.
 - **Localized messages and profile edits:** success and error banners follow the app language (English/Dutch) because ViewModels pass resource ids instead of text ([ADR 0015](docs/adr/0015-localized-viewmodel-messages.md)). *Update Profile* edits the existing profile in place instead of adding another ([ADR 0016](docs/adr/0016-profile-update-edits-active-profile.md)).
 - **Edit and Delete Entries:** every History entry has an Edit and a Delete icon button (48 dp targets, localized TalkBack descriptions; no swipe gestures). Edit opens a pre-filled dialog to change the values and the date/time (activities keep their start time); delete asks for confirmation first and is permanent. The list, trend charts and statistics refresh immediately ([ADR 0012](docs/adr/0012-edit-and-delete-entries.md)).
-- **History Filters:** All, Weight, BP, Glucose, and Activity. "All" shows weight, blood pressure, glucose, and activity entries interleaved in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
+- **History Filters:** All, Weight, BP, Glucose, Waist, and Activity. "All" shows weight, blood pressure, glucose, waist and activity entries interleaved in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
 
 ## Technical Architecture
 
@@ -112,7 +113,7 @@ flowchart TD
 
         subgraph DomainModel["Domain Model"]
             AR["Profile Aggregate Root"]
-            VO["Value Objects (GlucoseLevel, BloodPressureReading)"]
+            VO["Value Objects (GlucoseLevel, BloodPressureReading, WaistCircumferenceCm)"]
             NHG["NHG Clinical Evaluation Rules"]
             AR --> VO
             AR --> NHG
@@ -211,7 +212,7 @@ flowchart LR
 
 | Module | Type | Responsibilities & Dependencies |
 |---|---|---|
-| [`:domain`](domain/) | Pure Kotlin JVM Library | Contains Aggregate Roots (`Profile`), Entities, Value Objects (`GlucoseLevel`, `BloodPressureReading`, `ProfileId`), Use Cases, and Port Interfaces. **Zero Android/Jetpack dependencies.** |
+| [`:domain`](domain/) | Pure Kotlin JVM Library | Contains Aggregate Roots (`Profile`), Entities, Value Objects (`GlucoseLevel`, `BloodPressureReading`, `WaistCircumferenceCm`, `ProfileId`), Use Cases, and Port Interfaces. **Zero Android/Jetpack dependencies.** |
 | [`:data`](data/) | Android Library | Infrastructure adapter implementing domain repository and data import/export ports using Room SQLite and CSV streams. Depends on `:domain`. |
 | [`:app`](app/) | Android Application | Presentation adapter containing Jetpack Compose UI screens, navigation, and ViewModels. Depends on `:domain` and runtime `:data`. |
 
@@ -224,10 +225,13 @@ All data files must be encoded in **UTF-8**.
 | Metric | Format | Headers | Example Row |
 |---|---|---|---|
 | **Weight & BMI** | CSV | `timestamp,weight_kg,bmi` | `2026-09-09T10:00:00Z,74.5,23.5` |
-| **Blood Pressure** | CSV | `timestamp,systolic_mmhg,diastolic_mmhg,classification` | `2026-09-09T08:30:00Z,124,78,NORMAL` |
+| **Blood Pressure** | CSV | `timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification` | `2026-09-09T08:30:00Z,124,78,68,NORMAL` |
 | **Blood Glucose** | CSV | `timestamp,glucose_mmol_l,context,classification` | `2026-09-09T07:15:00Z,5.4,FASTING,NORMAL` |
+| **Waist Circumference** | CSV | `timestamp,waist_cm,classification` | `2026-09-09T08:00:00Z,86.5,INCREASED_RISK` |
 | **Activity Session** | CSV | `start_timestamp,end_timestamp,distance_m,duration_s` | `2026-09-09T18:00:00Z,2026-09-09T18:45:00Z,5200,2700` |
 | **Weight (Libra)** | Libra CSV (`net.cachapa.libra`) | `#Units: kg\|lbs`, `#date;weight;...` (semicolon-delimited) | `2026-09-09T08:00:00.000Z;74.5;;;` |
+
+> **Older blood pressure files** without the `pulse_bpm` column still import (the pulse stays empty). The classification column is always recomputed on import.
 
 > **Libra auto-detection:** Pasting a Libra export into the Weight import or selecting "Libra (CSV)" in the import dialog will both work. Unit conversion from lbs to kg (factor: 1 lb = 0.45359237 kg) is applied automatically when `#Units: lbs` is present.
 
@@ -281,14 +285,14 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
 - [x] **Phase 1: Gradle Build & Pure Kotlin Domain Model** — Multi-module Gradle build, Value Objects (`ProfileId`, `GlucoseLevel`, `BloodPressureReading`), `Profile` Aggregate Root, and Dutch NHG evaluation rules.
 - [x] **Phase 2: Data Infrastructure Layer** — Room SQLite Database, DAOs, Entity-to-Domain mappers, and CSV parser/generator adapters.
 - [x] **Phase 3: Jetpack Compose Presentation Layer** — Material 3 UI screens, metric entry forms, and NHG category feedback indicators.
-- [ ] **Phase 4: Trends, Theming, Localization & New Metrics** (proposed, not yet implemented — see linked OpenSpec change for each):
+- [x] **Phase 4: Trends, Theming, Localization & New Metrics** (implemented — see the linked OpenSpec change for each):
   - [x] [Per-metric trend charts](openspec/changes/archive/2026-09-28-add-health-trend-visualizations/proposal.md) — Weight/BP/Glucose graphs on the History screen, shown when a single metric filter is selected.
   - [x] [Dark theme](openspec/changes/archive/2026-09-28-add-dark-theme/proposal.md) — full light/dark support following the system setting.
   - [x] [Dutch/English localization](openspec/changes/archive/2026-09-28-add-localization/proposal.md) — system-language-following UI text, overridable from Profile settings.
   - [x] [Optional Profile sex field](openspec/changes/archive/2026-09-28-add-profile-sex-field/proposal.md) — selectable male/female, not required, no effect on existing BMI/BP/glucose calculations.
   - [x] [Edit and delete entries](openspec/changes/archive/2026-09-30-feature-edit-delete-entries/proposal.md) — Edit/Delete icon buttons on History entries, pre-filled edit dialog, delete confirmation (implemented; pending emulator verification).
   - [x] [Optional waist circumference tracking](openspec/changes/archive/2026-10-05-add-waist-circumference-tracking/proposal.md) — sex-specific Voedingscentrum thresholds; low-priority/optional.
-  - [ ] [Smart Pre-fill and Scrolling Number Pickers](openspec/changes/archive/2026-10-05-feature-smart-input-pickers/proposal.md) — canvas ruler pickers, stacked BP/pulse scrolling rows, and smart pre-fill fallback chain.
+  - [x] [Smart Pre-fill and Scrolling Number Pickers](openspec/changes/archive/2026-10-05-feature-smart-input-pickers/proposal.md) — canvas ruler pickers, stacked BP/pulse scrolling rows, and smart pre-fill fallback chain.
 - [ ] **Phase 5: Medication management (💊 tab)** (proposed, see the [OpenSpec change](openspec/changes/add-medication-management/proposal.md)). A personal reminder and logging tool, never a medical device, with no advice and no medicine names built in:
   - [ ] Phase 5a: Medications (any form: tablets, liquids, sprays, injectables; custom doses and units) and the pillbox day view, in English and Dutch.
   - [ ] Phase 5b: Reminders with Taken and Snooze actions.

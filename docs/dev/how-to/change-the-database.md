@@ -18,17 +18,17 @@ Prefer a **read mapping** when only the meaning of a stored string changes. The 
 
 1. Change the entity in `local/entity/` (or add one) and register new entities in the `@Database` annotation.
 2. Increase `version` by one.
-3. Write a `Migration(old, new)` with plain SQL. Look at `MIGRATION_1_2`, which adds the optional `sex` column:
+3. Write a `Migration(old, new)` with plain SQL. Look at `MIGRATION_1_2` (adds the optional `sex` column), `MIGRATION_2_3` (adds the `waist_circumferences` table with `CREATE TABLE IF NOT EXISTS` and two indexes) and `MIGRATION_3_4` (adds the optional `pulse` column). The simplest one:
 
    ```kotlin
-   val MIGRATION_1_2 = object : Migration(1, 2) {
+   val MIGRATION_3_4 = object : Migration(3, 4) {
        override fun migrate(db: SupportSQLiteDatabase) {
-           db.execSQL("ALTER TABLE profiles ADD COLUMN sex TEXT")
+           db.execSQL("ALTER TABLE blood_pressures ADD COLUMN pulse INTEGER")
        }
    }
    ```
 
-4. Register it: `.addMigrations(MIGRATION_1_2, MIGRATION_2_3)` in `create`.
+4. Register it: `.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)` in `create`, and append yours. The list always contains every migration, never only the newest. The database is at version 4 today, so the next change is `Migration(4, 5)`.
 5. **Never use destructive migration** (`fallbackToDestructiveMigration`). Existing users must keep their data.
 6. New columns must be nullable or have a default, so existing rows stay valid.
 

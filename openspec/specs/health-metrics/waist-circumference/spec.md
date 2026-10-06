@@ -1,7 +1,7 @@
 # health-metrics/waist-circumference Specification
 
 ## Purpose
-TBD - created by archiving change add-waist-circumference-tracking. Update Purpose after archive.
+Defines the optional waist circumference metric: recording a measurement in centimetres, classifying it against sex-specific Voedingscentrum ranges when the profile's sex is set, and retrieving the history. The metric never affects any other feature.
 
 ## Requirements
 

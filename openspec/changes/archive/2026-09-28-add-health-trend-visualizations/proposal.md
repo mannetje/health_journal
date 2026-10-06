@@ -18,7 +18,7 @@ The user also asked that the three graphs feel like one coherent feature ("liefs
 - **Shared design language across all three**: one reusable chart container/card style, one shared date-range selector (default 30 days, extendable to 7/90/All — see `design.md`), and NHG category colors reused from the existing `LogMetricScreen.kt` color-mapping functions (`getBmiColor`, `getBpColor`, `getGlucoseColor`) so trend colors match the colors already shown on the Log and History screens.
 - **Depends on `add-dark-theme`**: charts must render correctly in both light and dark mode; this change reuses that change's theme tokens rather than hard-coding colors.
 - **Depends on `add-localization`**: all new chart labels, stat-chip captions, and empty-state messages are written against string resources from the start, not hard-coded literals.
-- **No new external dependency**: charts are implemented as custom Jetpack Compose `Canvas` drawings, consistent with [ADR 0003: Dependency Minimization Policy](../../../docs/adr/0003-dependency-minimization.md). No third-party charting library is introduced.
+- **No new external dependency**: charts are implemented as custom Jetpack Compose `Canvas` drawings, consistent with [ADR 0003: Dependency Minimization Policy](../../../../docs/adr/0003-dependency-minimization.md). No third-party charting library is introduced.
 - Update `README.md` to describe the per-metric trend charts once implemented.
 
 ## Capabilities

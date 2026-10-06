@@ -5,9 +5,10 @@ set -u
 cd "$(dirname "$0")/.."
 
 fail=0
-files=$(find docs/dev -name '*.md'; echo CONTRIBUTING.md; echo README.md)
+files=$(find docs/dev docs/adr openspec/specs openspec/changes/archive -name '*.md'; echo CONTRIBUTING.md; echo README.md; echo CHANGELOG.md)
 
-# 1. Relative links
+# 1. Relative links (everything a reader can reach; open changes are skipped on
+#    purpose because they move to the archive when they ship)
 for f in $files; do
   dir=$(dirname "$f")
   grep -oE '\]\([^)#]+(#[^)]*)?\)' "$f" | sed -E 's/^\]\(//; s/\)$//; s/#.*$//' | while read -r target; do

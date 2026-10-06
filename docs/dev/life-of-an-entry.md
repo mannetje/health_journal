@@ -57,7 +57,7 @@ File: `domain/src/main/kotlin/nl/healthjournal/domain/usecase/RecordBloodPressur
 
 The use case does three things, in this order:
 
-1. Creates a `BloodPressureReading(systolic, diastolic)`. Its `init` block rejects impossible values (systolic must be 40 to 300, diastolic 20 to 200, systolic above diastolic) by throwing `IllegalArgumentException`. An invalid reading can never exist.
+1. Creates a `BloodPressureReading(systolic, diastolic, pulse)`. Its `init` block rejects impossible values (systolic must be 40 to 300, diastolic 20 to 200, systolic above diastolic, an optional pulse 30 to 250) by throwing `IllegalArgumentException`. An invalid reading can never exist.
 2. Calls `NhgBloodPressureCategory.classify(reading)`. For 150/95 the answer is `HIGH` (from 140/90).
 3. Builds a `BloodPressureEntry` (id, profile, timestamp, reading, category) and hands it to `healthLogRepository.saveBloodPressure(entry)`.
 
@@ -102,11 +102,11 @@ File: `data/src/main/java/nl/healthjournal/data/csv/CsvDataExportAdapter.kt`
 Export reads the history through the same port and writes one CSV line per entry:
 
 ```text
-timestamp,systolic_mmhg,diastolic_mmhg,classification
-2026-09-09T08:30:00Z,150,95,HIGH
+timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification
+2026-09-09T08:30:00Z,150,95,70,HIGH
 ```
 
-Import (`CsvDataImportAdapter.kt`) does not trust the `classification` column: it recomputes the category from the values, so a file with an old or wrong name still imports with the right band.
+Import (`CsvDataImportAdapter.kt`) does not trust the `classification` column: it recomputes the category from the values, so a file with an old or wrong name still imports with the right band. A file from before the pulse existed (no `pulse_bpm` column) imports too.
 
 ## What to remember
 

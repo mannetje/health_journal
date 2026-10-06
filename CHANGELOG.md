@@ -4,6 +4,15 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Added
+- **Waist circumference (optional):** record it on its own Waist tab or alongside a weight entry. It has a History filter, edit, delete, and CSV export and import, and is shown against sex-specific Voedingscentrum ranges when your profile has a sex set.
+- **Pulse with blood pressure:** an optional pulse (30 to 250 bpm) is stored with each reading and included in the CSV.
+- **Smart input pickers:** ruler pickers for weight and waist, stacked scrolling rows for blood pressure and pulse. The starting value is your latest entry, else a value from your profile, else a standard default.
+- **Developer docs** in `docs/dev` and a contributing guide.
+
+### Upgrade note
+- The database moves to version 4 (new waist table, new pulse column). Existing data is kept. Blood pressure CSV files now have a `pulse_bpm` column; older files still import.
+
 ## [1.5.0] - 2026-10-03
 
 ### Changed

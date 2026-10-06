@@ -24,7 +24,7 @@ If you ever want to import `androidx.*` or `android.*` into `domain`, stop: the 
 
 Located at `domain/src/main/kotlin/nl/healthjournal/domain/`.
 
-- `model/metrics/` holds value objects and entries: `BloodPressureReading` (validates ranges in its `init` block), `GlucoseLevel`, `WeightKg`, and entries such as `BloodPressureEntry`.
+- `model/metrics/` holds value objects and entries: `BloodPressureReading` (validates ranges in its `init` block), `GlucoseLevel`, `WeightKg`, `WaistCircumferenceCm`, and entries such as `BloodPressureEntry`.
 - `model/nhg/` holds the classifiers that map a value to a range, for example `NhgBloodPressureCategory.classify`.
 - `model/profile/` holds `Profile`, the aggregate root (height, birth date, optional sex, BMI calculation).
 - `usecase/` holds one class per action: `RecordBloodPressureUseCase`, `UpdateBloodPressureUseCase`, `DeleteBloodPressureUseCase`, and so on.

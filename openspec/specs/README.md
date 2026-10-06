@@ -81,6 +81,7 @@ classDiagram
     Profile "1" --> "*" BloodPressureEntry : owns
     Profile "1" --> "*" GlucoseEntry : owns
     Profile "1" --> "*" ActivityEntry : owns
+    Profile "1" --> "*" WaistCircumferenceEntry : owns
     class UnitBoundary {
         display units (lb, mi, mg/dL, ft/in)
         converts at UI edge only
@@ -92,7 +93,7 @@ classDiagram
 
 ## Porting guide
 
-Reimplement exactly (domain rules): value ranges and boundaries, BMI formula and rounding, the three NHG classifiers, glucose conversion factor 0.0555, activity rules, profile validation and active-profile semantics, update/delete semantics, trend range filter, statistics and moving average, unit conversions and regional defaults.
+Reimplement exactly (domain rules): value ranges and boundaries, BMI formula and rounding, the four NHG classifiers (blood pressure, glucose, BMI, waist circumference), glucose conversion factor 0.0555, activity rules, profile validation and active-profile semantics, update/delete semantics, trend range filter, statistics and moving average, unit conversions and regional defaults.
 
 Reimplement as a contract (data): the storage shape (tables and columns in each health-metrics spec, epoch-millisecond timestamps, enum names as text, ISO date for birth date) and the CSV format in data-export, so files and backups are interchangeable.
 
