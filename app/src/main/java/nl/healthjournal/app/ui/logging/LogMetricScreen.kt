@@ -97,31 +97,31 @@ fun LogMetricScreen(
         }
 
         // Metric Selector Tabs
-        PrimaryScrollableTabRow(selectedTabIndex = state.selectedMetric.ordinal, edgePadding = 0.dp) {
+        PrimaryScrollableTabRow(selectedTabIndex = state.selectedMetric.ordinal, edgePadding = 8.dp) {
             Tab(
                 selected = state.selectedMetric == MetricType.WEIGHT,
                 onClick = { viewModel.selectMetric(MetricType.WEIGHT) },
-                text = { Text(stringResource(R.string.log_tab_weight), maxLines = 1, softWrap = false) }
+                text = { Text(stringResource(R.string.log_tab_weight), maxLines = 1) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.BLOOD_PRESSURE,
                 onClick = { viewModel.selectMetric(MetricType.BLOOD_PRESSURE) },
-                text = { Text(stringResource(R.string.log_tab_blood_pressure), maxLines = 1, softWrap = false) }
+                text = { Text(stringResource(R.string.log_tab_blood_pressure), maxLines = 1) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.GLUCOSE,
                 onClick = { viewModel.selectMetric(MetricType.GLUCOSE) },
-                text = { Text(stringResource(R.string.log_tab_glucose), maxLines = 1, softWrap = false) }
+                text = { Text(stringResource(R.string.log_tab_glucose), maxLines = 1) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.ACTIVITY,
                 onClick = { viewModel.selectMetric(MetricType.ACTIVITY) },
-                text = { Text(stringResource(R.string.log_tab_activity), maxLines = 1, softWrap = false) }
+                text = { Text(stringResource(R.string.log_tab_activity), maxLines = 1) }
             )
             Tab(
                 selected = state.selectedMetric == MetricType.WAIST_CIRCUMFERENCE,
                 onClick = { viewModel.selectMetric(MetricType.WAIST_CIRCUMFERENCE) },
-                text = { Text(stringResource(R.string.log_tab_waist_circumference), maxLines = 1, softWrap = false) }
+                text = { Text(stringResource(R.string.log_tab_waist_circumference), maxLines = 1) }
             )
         }
 
