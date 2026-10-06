@@ -30,7 +30,7 @@
 ## 4. Localization
 - [ ] 4.1 `values` and `values-nl` strings for every form, unit (with `<plurals>` for counted units), status, time-of-day group, frequency phrase and action; labels come from string resources, never raw enum names
 - [ ] 4.2 Tests: matching English and Dutch key sets for medication strings; plural formatting (1 tablet, 2 tabletten, 1 puff, 2 pufjes); IU shown as IE and mcg as microgram in Dutch; decimal comma versus point; language change keeps stored units and amounts
-- [ ] 4.3 Check the Dutch terms in the design table against apotheek.nl and Thuisarts in a browser (release gate), correct the table, and record the result and date in ADR 0020. Progress 2026-10-06: IE, microgram, tabletten, capsules, druppels confirmed and "keer aanbrengen" adopted; still open: eenheden (insulin) and pufjes (inhaler)
+- [ ] 4.3 Check the Dutch terms in the design table against apotheek.nl and Thuisarts in a browser (release gate), correct the table, and record the result and date in ADR 0020. Progress 2026-10-06: IE, microgram, tabletten, capsules, druppels confirmed and "keer aanbrengen" adopted; eenheden confirmed on thuisarts.nl and in leaflets; still open: pufjes (inhaler)
 - [ ] 4.4 Layout check with long Dutch strings and large font (ADR 0010) on the pillbox screens and the top bar with the pill button, at 1.3x and 2.0x
 - [ ] 4.5 ViewModel tests; emulator check in English and Dutch, including a language switch while the pillbox screen is open
 

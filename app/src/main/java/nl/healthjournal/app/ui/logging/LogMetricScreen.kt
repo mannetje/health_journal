@@ -32,7 +32,7 @@ import nl.healthjournal.app.ui.nhg.getWaistColor
 import nl.healthjournal.app.ui.theme.onSuccessContainerColor
 import nl.healthjournal.app.ui.theme.successContainerColor
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun LogMetricScreen(
     viewModel: LoggingViewModel,
@@ -173,10 +173,11 @@ fun LogMetricScreen(
 
             MetricType.GLUCOSE -> {
                 // Context selector
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically
                 ) {
                     FilterChip(
                         selected = state.glucoseContext == GlucoseContext.FASTING,
@@ -190,11 +191,12 @@ fun LogMetricScreen(
                     )
                 }
 
-                // Unit toggle
-                Row(
+                // Unit toggle (wraps instead of clipping at large font scales)
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(stringResource(R.string.log_unit_label), style = MaterialTheme.typography.bodyMedium)
                     FilterChip(

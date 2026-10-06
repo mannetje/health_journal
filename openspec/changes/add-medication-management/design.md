@@ -148,7 +148,7 @@ Dutch labels follow the wording of the Dutch pharmacy and patient sources (apoth
 | `MG`, `G`, `ML` | mg, g, ml | mg, g, ml | Same symbols in both languages |
 | `MCG` | mcg | microgram | Written in full in Dutch (confirmed on apotheek.nl, 2026-10-06) |
 | `IU` | IU | IE | Internationale eenheid; "IE" confirmed on apotheek.nl, 2026-10-06 |
-| `UNITS` | unit / units | eenheid / eenheden | Pen-type injectables. NOT yet verified (task 4.3) |
+| `UNITS` | unit / units | eenheid / eenheden | Pen-type injectables. "eenheden" confirmed on thuisarts.nl and in package leaflets, 2026-10-06 |
 | `DROPS` | drop / drops | druppel / druppels | |
 | `PUFFS` | puff / puffs | pufje / pufjes | Inhaler and spray. NOT yet verified: apotheek.nl uses "dosis" and "inhalatie-apparaat" (task 4.3) |
 | `TABLETS` | tablet / tablets | tablet / tabletten | |

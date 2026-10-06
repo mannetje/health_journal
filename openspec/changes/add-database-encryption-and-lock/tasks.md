@@ -1,6 +1,6 @@
 ## 0. Decisions
 - [x] 0.1 Database encryption (SQLCipher with Keystore-wrapped key) and an opt-in app lock (device credential) are one separate change, each recorded in ADR 0023 as an exception to ADR 0003 (approved; split approved 2026-10-06)
-- [ ] 0.2 Backup: keep `allowBackup="true"` and exclude the database and wrapped key through extraction rules (needs owner confirmation before implementation)
+- [x] 0.2 Backup: keep `allowBackup="true"` and exclude the database and wrapped key through extraction rules (approved 2026-10-06)
 
 ## 1. Domain
 - [ ] 1.1 `AppLockPort` and a lock state (locked, unlocked, timeout) with tests; setting stored in the existing preferences
