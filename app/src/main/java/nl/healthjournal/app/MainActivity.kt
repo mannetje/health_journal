@@ -177,20 +177,20 @@ class MainActivity : ComponentActivity() {
                     bottomBar = {
                         NavigationBar {
                             NavigationBarItem(
-                                selected = currentTab == AppNavDestination.LOG,
-                                onClick = { currentTab = AppNavDestination.LOG },
+                                selected = !showPillbox && currentTab == AppNavDestination.LOG,
+                                onClick = { showPillbox = false; currentTab = AppNavDestination.LOG },
                                 label = { Text(stringResource(R.string.nav_tab_log)) },
                                 icon = { Text("📝") }
                             )
                             NavigationBarItem(
-                                selected = currentTab == AppNavDestination.HISTORY,
-                                onClick = { currentTab = AppNavDestination.HISTORY },
+                                selected = !showPillbox && currentTab == AppNavDestination.HISTORY,
+                                onClick = { showPillbox = false; currentTab = AppNavDestination.HISTORY },
                                 label = { Text(stringResource(R.string.nav_tab_history)) },
                                 icon = { Text("📊") }
                             )
                             NavigationBarItem(
-                                selected = currentTab == AppNavDestination.PROFILE,
-                                onClick = { currentTab = AppNavDestination.PROFILE },
+                                selected = !showPillbox && currentTab == AppNavDestination.PROFILE,
+                                onClick = { showPillbox = false; currentTab = AppNavDestination.PROFILE },
                                 label = { Text(stringResource(R.string.nav_tab_profile)) },
                                 icon = { Text("👤") }
                             )

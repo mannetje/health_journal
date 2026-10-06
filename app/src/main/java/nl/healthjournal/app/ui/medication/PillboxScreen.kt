@@ -115,7 +115,7 @@ fun PillboxScreen(
 @Composable
 private fun PillboxSwitch(selected: Int, onSelect: (Int) -> Unit) {
     val labels = listOf(R.string.medication_tab_today, R.string.medication_tab_medications)
-    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)) {
         labels.forEachIndexed { index, label ->
             SegmentedButton(
                 selected = selected == index,
