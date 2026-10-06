@@ -180,10 +180,10 @@
     <string name="nhg_context_fasting">fasting</string>
     <string name="nhg_context_postprandial">after a meal</string>
 
-    <string name="nhg_waist_healthy_female">Healthy · Women 68–80 cm</string>
+    <string name="nhg_waist_healthy_female">Healthy · Women <80 cm</string>
     <string name="nhg_waist_increased_risk_female">Increased risk · Women 80–88 cm</string>
     <string name="nhg_waist_high_risk_female">High risk · Women ≥88 cm</string>
-    <string name="nhg_waist_healthy_male">Healthy · Men 79–94 cm</string>
+    <string name="nhg_waist_healthy_male">Healthy · Men <94 cm</string>
     <string name="nhg_waist_increased_risk_male">Increased risk · Men 94–102 cm</string>
     <string name="nhg_waist_high_risk_male">High risk · Men ≥102 cm</string>
 

@@ -180,10 +180,10 @@
     <string name="nhg_context_fasting">nuchter</string>
     <string name="nhg_context_postprandial">na een maaltijd</string>
 
-    <string name="nhg_waist_healthy_female">Gezond · Vrouwen 68–80 cm</string>
+    <string name="nhg_waist_healthy_female">Gezond · Vrouwen <80 cm</string>
     <string name="nhg_waist_increased_risk_female">Verhoogd risico · Vrouwen 80–88 cm</string>
     <string name="nhg_waist_high_risk_female">Hoog risico · Vrouwen ≥88 cm</string>
-    <string name="nhg_waist_healthy_male">Gezond · Mannen 79–94 cm</string>
+    <string name="nhg_waist_healthy_male">Gezond · Mannen <94 cm</string>
     <string name="nhg_waist_increased_risk_male">Verhoogd risico · Mannen 94–102 cm</string>
     <string name="nhg_waist_high_risk_male">Hoog risico · Mannen ≥102 cm</string>
 
