@@ -57,7 +57,7 @@ class MedicationStringsTest {
 
     @Test
     fun `placeholders match between languages`() {
-        val placeholder = Regex("%\d\$[sd]")
+        val placeholder = Regex("""%\d\$[sd]""")
         for ((name, text) in en.strings) {
             assertEquals(
                 name,
