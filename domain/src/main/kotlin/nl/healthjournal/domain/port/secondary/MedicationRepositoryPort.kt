@@ -24,6 +24,9 @@ interface MedicationRepositoryPort {
     suspend fun getIntake(medicationId: MedicationId, planned: LocalDateTime): Intake?
     suspend fun deleteIntake(id: IntakeId)
 
+    /** Every recorded outcome of [profileId], for export and duplicate checks on import. */
+    suspend fun getAllIntakes(profileId: ProfileId): List<Intake>
+
     /** Outcomes planned on [date], plus as-needed doses taken on [date] in [zone], for [profileId]. */
     suspend fun getIntakesForDay(profileId: ProfileId, date: LocalDate, zone: ZoneId): List<Intake>
 }

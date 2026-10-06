@@ -15,9 +15,9 @@
 - [x] 1.5 Use only placeholder medication names ("Medication A") in specs, tests, strings and screenshots; the name field is free text without suggestions
 
 ## 2. Data
-- [ ] 2.1 Room v6 (the database is at v5 today): `MedicationEntity`, `MedicationScheduleEntity`, `MedicationTimeEntity`, `IntakeEntity` (unique index on medication and planned time), DAOs, mapper, `RoomMedicationRepository`
-- [ ] 2.2 Hand-written `MIGRATION_5_6` (tables only) and a migration test that keeps every existing row (shares the in-memory test setup with the missing edit/delete DAO tests)
-- [ ] 2.3 CSV export and import of medications, schedule versions and the intake log (`CsvQuoting` for comments), with round-trip, import-twice (planned and as-needed), orphan, unknown-enum and over-long-comment tests
+- [x] 2.1 Room v6 (the database is at v5 today): `MedicationEntity`, `MedicationScheduleEntity`, `MedicationTimeEntity`, `IntakeEntity` (unique index on medication and planned time), DAOs, mapper, `RoomMedicationRepository`
+- [ ] 2.2 Hand-written `MIGRATION_5_6` (tables only) and a migration test that keeps every existing row (shares the in-memory test setup with the missing edit/delete DAO tests) Progress: `MIGRATION_5_6` is written; the migration test is deferred, because the data module has no instrumented or Robolectric setup yet
+- [x] 2.3 CSV export and import of medications, schedule versions and the intake log (`CsvQuoting` for comments), with round-trip, import-twice (planned and as-needed), orphan, unknown-enum and over-long-comment tests
 
 ## 3. App
 - [ ] 3.1 Wire the use cases in `HealthJournalApp` and a `MedicationViewModel.Factory`; clear messages when the pillbox closes

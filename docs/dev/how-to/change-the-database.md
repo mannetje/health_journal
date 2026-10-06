@@ -4,6 +4,8 @@ User data lives in a local Room (SQLite) database on the device. A mistake here 
 
 The database is `data/src/main/java/nl/healthjournal/data/local/HealthJournalDatabase.kt`. It has a `version` number and a list of `Migration` objects registered in `create`.
 
+For the tables and how they relate, see the [Database](../database.md) page and its diagram. Update it in the same change.
+
 ## Decide first: does it need a migration?
 
 | Change | Needs a SQL migration? |
@@ -28,7 +30,7 @@ Prefer a **read mapping** when only the meaning of a stored string changes. The 
    }
    ```
 
-4. Register it: `.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)` in `create`, and append yours. The list always contains every migration, never only the newest. The database is at version 5 today, so the next change is `Migration(5, 6)` (the medication tables, in the proposed `add-medication-management`). Database encryption (proposed `add-database-encryption-and-lock`) is a separate file-level migration and does not change the schema version.
+4. Register it: `.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)` in `create`, and append yours. The list always contains every migration, never only the newest. The database is at version 6 today (the medication tables), so the next change is `Migration(6, 7)`. Database encryption (proposed `add-database-encryption-and-lock`) is a separate file-level migration and does not change the schema version.
 5. **Never use destructive migration** (`fallbackToDestructiveMigration`). Existing users must keep their data.
 6. New columns must be nullable or have a default, so existing rows stay valid.
 

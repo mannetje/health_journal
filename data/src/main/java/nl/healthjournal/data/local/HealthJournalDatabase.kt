@@ -52,6 +52,78 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
     }
 }
 
+/**
+ * Adds the medication tables (medications, schedule versions, daily times, intakes). Tables only: no existing
+ * row is touched. The SQL mirrors what Room expects for the entities in `MedicationEntities.kt`.
+ */
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `medications` (
+                `id` TEXT NOT NULL,
+                `profileId` TEXT NOT NULL,
+                `name` TEXT NOT NULL,
+                `form` TEXT,
+                `strengthAmount` TEXT,
+                `strengthUnit` TEXT,
+                `doseAmount` TEXT NOT NULL,
+                `doseUnit` TEXT NOT NULL,
+                `color` TEXT,
+                `shape` TEXT,
+                `comment` TEXT,
+                `archivedFrom` TEXT,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_medications_profileId` ON `medications` (`profileId`)")
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `medication_schedules` (
+                `medicationId` TEXT NOT NULL,
+                `effectiveFrom` TEXT NOT NULL,
+                `asNeeded` INTEGER NOT NULL,
+                `daysOfWeek` TEXT,
+                `intervalDays` INTEGER,
+                `startDate` TEXT,
+                `endDate` TEXT,
+                PRIMARY KEY(`medicationId`, `effectiveFrom`),
+                FOREIGN KEY(`medicationId`) REFERENCES `medications`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `medication_times` (
+                `medicationId` TEXT NOT NULL,
+                `effectiveFrom` TEXT NOT NULL,
+                `localTime` TEXT NOT NULL,
+                PRIMARY KEY(`medicationId`, `effectiveFrom`, `localTime`),
+                FOREIGN KEY(`medicationId`, `effectiveFrom`) REFERENCES `medication_schedules`(`medicationId`, `effectiveFrom`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `intakes` (
+                `id` TEXT NOT NULL,
+                `medicationId` TEXT NOT NULL,
+                `planned` TEXT,
+                `status` TEXT NOT NULL,
+                `takenAt` INTEGER,
+                `actualAmount` TEXT,
+                `comment` TEXT,
+                PRIMARY KEY(`id`),
+                FOREIGN KEY(`medicationId`) REFERENCES `medications`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_intakes_medicationId_planned` ON `intakes` (`medicationId`, `planned`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_intakes_medicationId_takenAt` ON `intakes` (`medicationId`, `takenAt`)")
+    }
+}
+
 @Database(
     entities = [
         ProfileEntity::class,
@@ -59,9 +131,13 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
         BloodPressureEntity::class,
         GlucoseEntity::class,
         ActivityEntity::class,
-        WaistCircumferenceEntity::class
+        WaistCircumferenceEntity::class,
+        MedicationEntity::class,
+        MedicationScheduleEntity::class,
+        MedicationTimeEntity::class,
+        IntakeEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class HealthJournalDatabase : RoomDatabase() {
@@ -71,6 +147,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
     abstract fun glucoseDao(): GlucoseDao
     abstract fun activityDao(): ActivityDao
     abstract fun waistCircumferenceDao(): WaistCircumferenceDao
+    abstract fun medicationDao(): MedicationDao
 
     companion object {
         const val DATABASE_NAME = "health_journal.db"
@@ -87,7 +164,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 context,
                 HealthJournalDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build()
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6).build()
         }
     }
 }

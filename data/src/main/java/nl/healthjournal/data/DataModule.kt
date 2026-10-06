@@ -3,9 +3,15 @@ package nl.healthjournal.data
 import android.content.Context
 import nl.healthjournal.data.csv.CsvDataExportAdapter
 import nl.healthjournal.data.csv.CsvDataImportAdapter
+import nl.healthjournal.data.csv.CsvMedicationExportAdapter
+import nl.healthjournal.data.csv.CsvMedicationImportAdapter
 import nl.healthjournal.data.local.HealthJournalDatabase
 import nl.healthjournal.data.repository.RoomHealthLogRepository
+import nl.healthjournal.data.repository.RoomMedicationRepository
 import nl.healthjournal.data.repository.RoomProfileRepository
+import nl.healthjournal.domain.port.secondary.MedicationExportPort
+import nl.healthjournal.domain.port.secondary.MedicationImportPort
+import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
@@ -24,7 +30,13 @@ class DataModule(context: Context) {
         waistCircumferenceDao = database.waistCircumferenceDao()
     )
 
+    val medicationRepository: MedicationRepositoryPort = RoomMedicationRepository(database.medicationDao())
+
     val dataExportPort: DataExportPort = CsvDataExportAdapter(healthLogRepository)
 
     val dataImportPort: DataImportPort = CsvDataImportAdapter(healthLogRepository, profileRepository)
+
+    val medicationExportPort: MedicationExportPort = CsvMedicationExportAdapter(medicationRepository)
+
+    val medicationImportPort: MedicationImportPort = CsvMedicationImportAdapter(medicationRepository, profileRepository)
 }
