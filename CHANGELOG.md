@@ -2,9 +2,11 @@
 
 All notable changes to Health Journal. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/). Each release is tagged `vX.Y.Z`; the section below is published as the GitHub Release notes.
 
-## [Unreleased]
+## [1.5.1] - 2026-10-06
 
 ### Added
+- **Optional comments:** add a short single-line note (up to 200 characters) to any entry: weight, blood pressure, glucose, waist and activity. Enter it while logging or in the edit dialog; History shows it under the entry ([ADR 0019](docs/adr/0019-entry-comments.md)).
+- **Comments in CSV:** every export has a trailing `comment` column, quoted when it holds a comma or quote. Older files without it still import. The Libra import reads its `comments` column and cuts a comment longer than 200 characters to its first 200 instead of skipping the row.
 - **Waist circumference (optional):** record it on its own Waist tab (it is not part of the weight entry). It has a History filter, edit, delete, and CSV export and import, and is shown against sex-specific Voedingscentrum ranges when your profile has a sex set.
 - **Theme choice:** Profile has a Theme setting: System (default), Light or Dark. It applies immediately and is remembered.
 - **Pulse with blood pressure:** an optional pulse (30 to 250 bpm) is stored with each reading and included in the CSV.
@@ -13,7 +15,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **Developer docs** in `docs/dev` and a contributing guide.
 
 ### Upgrade note
-- The database moves to version 4 (new waist table, new pulse column). Existing data is kept. Blood pressure CSV files now have a `pulse_bpm` column; older files still import.
+- The database moves to version 5 (new waist table, new pulse column, new comment column on the five entry tables). Existing data is kept. Older app versions cannot read it. Blood pressure CSV files now have a `pulse_bpm` column; older files still import.
 
 ## [1.5.0] - 2026-10-03
 
