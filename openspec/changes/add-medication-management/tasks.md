@@ -31,8 +31,8 @@
 - [ ] 4.1 `values` and `values-nl` strings for every form, unit (with `<plurals>` for counted units), status, time-of-day group, frequency phrase and action; labels come from string resources, never raw enum names
 - [ ] 4.2 Tests: matching English and Dutch key sets for medication strings; plural formatting (1 tablet, 2 tabletten, 1 puff, 2 pufjes); IU shown as IE and mcg as microgram in Dutch; decimal comma versus point; language change keeps stored units and amounts. Progress 2026-10-06: `MedicationStringsTest` covers key sets, plurals, placeholders and IE and microgram; decimal comma and language-change tests still open
 - [ ] 4.3 Check the Dutch terms in the design table against apotheek.nl and Thuisarts in a browser (release gate; ADR 0020 written 2026-10-06 with the progress so far), correct the table, and record the result and date in ADR 0020. Progress 2026-10-06: IE, microgram, tabletten, capsules, druppels, "keer aanbrengen" and "eenheden" confirmed; apotheek.nl and Thuisarts use "dosis / doses" and "inhalaties" for inhalers ("pufjes" is informal spoken Dutch)
-- [ ] 4.4 Layout check with long Dutch strings and large font (ADR 0010) on the pillbox screens and the top bar with the pill button, at 1.3x and 2.0x
-- [ ] 4.5 ViewModel tests; emulator check in English and Dutch, including a language switch while the pillbox screen is open
+- [x] 4.4 Layout check with long Dutch strings and large font (ADR 0010) on the pillbox screens and the top bar with the pill button, at 1.3x and 2.0x. Checked 2026-10-06 on the emulator in Dutch at 1.3x and 2.0x: top bar with the pill button, Today, Medications and the form; nothing clipped
+- [x] 4.5 ViewModel tests; emulator check in English and Dutch, including a language switch while the pillbox screen is open. Done 2026-10-06: ViewModel tests pass; a language switch with the pillbox open keeps the screen and re-translates it, but drops an unsaved edit form (known limitation)
 
 ## 5. Privacy and compliance
 - [ ] 5.1 Keep `INTERNET` out of the manifest, with a build check that fails if present
