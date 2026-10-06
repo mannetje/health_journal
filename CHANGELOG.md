@@ -2,6 +2,15 @@
 
 All notable changes to Health Journal. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/). Each release is tagged `vX.Y.Z`; the section below is published as the GitHub Release notes.
 
+## [Unreleased]
+
+### Added
+- **Pillbox:** a pill button in the top bar opens a pillbox with a Today view (slots with "Taken all", Taken and Skip per medication, a week strip, as-needed doses) and a Medications list (add, edit, archive, delete). A schedule edit applies from a chosen date and past outcomes stay as recorded. A notice on first open (also in Profile) says the pillbox is a personal log, not a medical device, with links to apotheek.nl and Thuisarts ([ADR 0020](docs/adr/0020-medication-model-and-pillbox.md), [ADR 0021](docs/adr/0021-medication-compliance-and-privacy.md)).
+- **Medication in CSV:** medications, schedule versions and intakes are exported and imported.
+
+### Upgrade note
+- The database moves to version 6 (four new medication tables). Existing data is kept. Older app versions cannot read it.
+
 ## [1.5.2] - 2026-10-06
 
 ### Changed

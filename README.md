@@ -268,6 +268,8 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0017: In-App Theme Choice (System, Light, Dark)](docs/adr/0017-in-app-theme-choice.md)
 - [ADR 0018: Smart Input Pickers, Pulse and Standalone Waist](docs/adr/0018-smart-input-pickers.md)
 - [ADR 0019: Optional Comment on Every Entry](docs/adr/0019-entry-comments.md)
+- [ADR 0020: Medication Model and Pillbox](docs/adr/0020-medication-model-and-pillbox.md)
+- [ADR 0021: Medication Compliance and Privacy](docs/adr/0021-medication-compliance-and-privacy.md)
 
 ---
 
