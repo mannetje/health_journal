@@ -197,4 +197,34 @@ class MapperTest {
         assertEquals(entry.waist.value, reconstructed.waist.value, 0.01)
         assertEquals(nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory.HEALTHY, reconstructed.category)
     }
+
+    @Test
+    fun `comments map to the entity and back for every entry type`() {
+        val profileId = ProfileId.generate()
+        val t = Instant.parse("2026-09-27T10:00:00Z")
+        val comment = EntryComment("After a walk, \"calm\"")
+
+        val weight = WeightEntry(MeasurementId.generate(), profileId, t, WeightKg(BigDecimal("75.5")), null, comment)
+        assertEquals("After a walk, \"calm\"", HealthLogMapper.toEntity(weight).comment)
+        assertEquals(comment, HealthLogMapper.toDomain(HealthLogMapper.toEntity(weight)).comment)
+
+        val bp = BloodPressureEntry(MeasurementId.generate(), profileId, t, BloodPressureReading(120, 80), NhgBloodPressureCategory.NORMAL, comment)
+        assertEquals(comment, HealthLogMapper.toDomain(HealthLogMapper.toEntity(bp)).comment)
+
+        val glucose = GlucoseEntry(MeasurementId.generate(), profileId, t, GlucoseLevel(BigDecimal("5.4")), GlucoseContext.FASTING, NhgGlucoseCategory.NORMAL, comment)
+        assertEquals(comment, HealthLogMapper.toDomain(HealthLogMapper.toEntity(glucose)).comment)
+
+        val activity = ActivitySession(MeasurementId.generate(), profileId, t, t.plusSeconds(1800), 5200.0, comment)
+        assertEquals(comment, HealthLogMapper.toDomain(HealthLogMapper.toEntity(activity)).comment)
+
+        val waist = WaistCircumferenceEntry(MeasurementId.generate(), profileId, t, WaistCircumferenceCm(85.0), null, comment)
+        assertEquals(comment, HealthLogMapper.toDomain(HealthLogMapper.toEntity(waist)).comment)
+    }
+
+    @Test
+    fun `a missing comment stays null through the mapper`() {
+        val entry = WeightEntry(MeasurementId.generate(), ProfileId.generate(), Instant.parse("2026-09-27T10:00:00Z"), WeightKg(BigDecimal("75.5")), null)
+        assertNull(HealthLogMapper.toEntity(entry).comment)
+        assertNull(HealthLogMapper.toDomain(HealthLogMapper.toEntity(entry)).comment)
+    }
 }

@@ -105,6 +105,8 @@
     <string name="profile_height_placeholder">e.g. 180</string>
     <string name="profile_height_feet_label">Feet</string>
     <string name="profile_height_inches_label">Inches</string>
+    <string name="unit_symbol_feet">ft</string>
+    <string name="unit_symbol_inches">in</string>
     <string name="profile_height_label_imperial">Height (ft/in, optional)</string>
     <string name="profile_sex_label">Sex (optional)</string>
     <string name="profile_sex_female">Female</string>

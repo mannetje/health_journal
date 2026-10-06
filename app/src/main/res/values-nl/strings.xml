@@ -105,6 +105,8 @@
     <string name="profile_height_placeholder">bijv. 180</string>
     <string name="profile_height_feet_label">Voet</string>
     <string name="profile_height_inches_label">Duim</string>
+    <string name="unit_symbol_feet">ft</string>
+    <string name="unit_symbol_inches">in</string>
     <string name="profile_height_label_imperial">Lengte (ft/in, optioneel)</string>
     <string name="profile_sex_label">Geslacht (optioneel)</string>
     <string name="profile_sex_female">Vrouw</string>

@@ -297,5 +297,42 @@ class RoomRepositoriesTest {
         assertEquals(1, nullCatWaists.size)
         assertNull(nullCatWaists[0].category)
     }
-}
 
+    @Test
+    fun `RoomHealthLogRepository keeps comments on save and update for every metric`() = runBlocking {
+        val repo = RoomHealthLogRepository(FakeWeightDao(), FakeBloodPressureDao(), FakeGlucoseDao(), FakeActivityDao(), FakeWaistCircumferenceDao())
+        val profileId = ProfileId.generate()
+        val t = Instant.parse("2026-09-27T10:00:00Z")
+        val note = EntryComment("note, with comma")
+
+        val weight = WeightEntry(MeasurementId.generate(), profileId, t, WeightKg(BigDecimal("80.0")), null, note)
+        repo.saveWeight(weight)
+        assertEquals(note, repo.getWeightHistory(profileId).single().comment)
+        repo.updateWeight(weight.copy(comment = null))
+        assertNull(repo.getWeightHistory(profileId).single().comment)
+
+        val bp = BloodPressureEntry(MeasurementId.generate(), profileId, t, BloodPressureReading(120, 80), NhgBloodPressureCategory.NORMAL, note)
+        repo.saveBloodPressure(bp)
+        assertEquals(note, repo.getBloodPressureHistory(profileId).single().comment)
+        repo.updateBloodPressure(bp.copy(comment = null))
+        assertNull(repo.getBloodPressureHistory(profileId).single().comment)
+
+        val glucose = GlucoseEntry(MeasurementId.generate(), profileId, t, GlucoseLevel(BigDecimal("5.4")), GlucoseContext.FASTING, NhgGlucoseCategory.NORMAL, note)
+        repo.saveGlucose(glucose)
+        assertEquals(note, repo.getGlucoseHistory(profileId).single().comment)
+        repo.updateGlucose(glucose.copy(comment = null))
+        assertNull(repo.getGlucoseHistory(profileId).single().comment)
+
+        val activity = ActivitySession(MeasurementId.generate(), profileId, t, t.plusSeconds(600), 1000.0, note)
+        repo.saveActivity(activity)
+        assertEquals(note, repo.getActivityHistory(profileId).single().comment)
+        repo.updateActivity(activity.copy(comment = null))
+        assertNull(repo.getActivityHistory(profileId).single().comment)
+
+        val waist = WaistCircumferenceEntry(MeasurementId.generate(), profileId, t, WaistCircumferenceCm(85.0), null, note)
+        repo.saveWaistCircumference(waist)
+        assertEquals(note, repo.getWaistCircumferenceHistory(profileId).single().comment)
+        repo.updateWaistCircumference(waist.copy(comment = null))
+        assertNull(repo.getWaistCircumferenceHistory(profileId).single().comment)
+    }
+}
