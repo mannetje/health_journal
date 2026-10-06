@@ -2,10 +2,12 @@ package nl.healthjournal.app
 
 import android.app.Application
 import nl.healthjournal.app.ui.history.EntryUseCases
+import nl.healthjournal.app.ui.medication.MedicationUseCases
 import nl.healthjournal.data.DataModule
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
+import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.*
 
@@ -45,6 +47,8 @@ class HealthJournalApp : Application() {
         private set
     lateinit var getHealthHistoryUseCase: GetHealthHistoryUseCase
         private set
+    lateinit var medicationUseCases: MedicationUseCases
+        private set
 
     override fun onCreate() {
         super.onCreate()
@@ -71,6 +75,16 @@ class HealthJournalApp : Application() {
             deleteWaistCircumference = DeleteWaistCircumferenceUseCase(healthLogRepository)
         )
         getHealthHistoryUseCase = GetHealthHistoryUseCase(healthLogRepository)
+        val recordIntake = RecordIntakeUseCase(medicationRepository)
+        medicationUseCases = MedicationUseCases(
+            getDay = GetPillboxDayUseCase(medicationRepository),
+            recordIntake = recordIntake,
+            recordSlot = RecordSlotIntakesUseCase(recordIntake),
+            save = SaveMedicationUseCase(medicationRepository),
+            changeSchedule = ChangeMedicationScheduleUseCase(medicationRepository),
+            archive = ArchiveMedicationUseCase(medicationRepository),
+            delete = DeleteMedicationUseCase(medicationRepository)
+        )
     }
 
     companion object {

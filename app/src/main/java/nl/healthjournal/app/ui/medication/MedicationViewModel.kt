@@ -130,7 +130,7 @@ data class MedicationDraft(
                 everyNDays = days is DayPattern.EveryNDays,
                 weekdays = (days as? DayPattern.Weekdays)?.days ?: DayOfWeek.entries.toSet(),
                 intervalText = (days as? DayPattern.EveryNDays)?.interval?.toString() ?: "2",
-                comment = medication.comment?.value.orEmpty()
+                comment = medication.comment?.text.orEmpty()
             )
         }
     }
