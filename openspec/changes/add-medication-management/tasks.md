@@ -8,11 +8,11 @@
 - [x] 0.7 Delivery is split in four changes: this one, reminders, adherence, encryption and lock (approved 2026-10-06)
 
 ## 1. Domain
-- [ ] 1.1 `Medication`, `Dosage`, `Strength`, `StrengthUnit`, `DoseUnit`, `MedicationForm`, `PillAppearance`, `ScheduleVersion`, `Schedule`, `Intake` (with `IntakeId`), `IntakeStatus`, `Slot` with validation; `EntryComment` for comments
-- [ ] 1.2 Forms (tablet, capsule, liquid, drops, spray, inhaler, injection, patch, cream, other) and units, no unit conversion; icon per form; optional actual amount and comment on an intake
-- [ ] 1.3 `Schedule.plannedFor(date)` and version selection (latest `effectiveFrom <= date`), slot grouping, missed derivation; tests for weekdays, every N days, start and end, daylight saving, version in force, an edit applied from today and from an earlier date, orphan outcomes, two as-needed doses on one day
-- [ ] 1.4 `MedicationRepositoryPort` and use cases (save, change schedule, archive, delete, record intake, record several intakes for a slot, list day)
-- [ ] 1.5 Use only placeholder medication names ("Medication A") in specs, tests, strings and screenshots; the name field is free text without suggestions
+- [x] 1.1 `Medication`, `Dosage`, `Strength`, `StrengthUnit`, `DoseUnit`, `MedicationForm`, `PillAppearance`, `ScheduleVersion`, `Schedule`, `Intake` (with `IntakeId`), `IntakeStatus`, `Slot` with validation; `EntryComment` for comments
+- [x] 1.2 Forms (tablet, capsule, liquid, drops, spray, inhaler, injection, patch, cream, other) and units, no unit conversion (the icon per form is UI work, section 3); optional actual amount and comment on an intake
+- [x] 1.3 `Schedule.plannedFor(date)` and version selection (latest `effectiveFrom <= date`), slot grouping, missed derivation; tests for weekdays, every N days, start and end, daylight saving, version in force, an edit applied from today and from an earlier date, orphan outcomes, two as-needed doses on one day
+- [x] 1.4 `MedicationRepositoryPort` and use cases (save, change schedule, archive, delete, record intake, record several intakes for a slot, list day)
+- [x] 1.5 Use only placeholder medication names ("Medication A") in specs, tests, strings and screenshots; the name field is free text without suggestions
 
 ## 2. Data
 - [ ] 2.1 Room v6 (the database is at v5 today): `MedicationEntity`, `MedicationScheduleEntity`, `MedicationTimeEntity`, `IntakeEntity` (unique index on medication and planned time), DAOs, mapper, `RoomMedicationRepository`
