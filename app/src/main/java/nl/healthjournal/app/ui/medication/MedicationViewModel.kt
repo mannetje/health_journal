@@ -188,7 +188,7 @@ class MedicationViewModel(
     }
 
     fun logAsNeeded(medicationId: MedicationId) {
-        mutate(R.string.medication_err_save_intake) { useCases.recordIntake(medicationId, planned = null) }
+        mutate(R.string.medication_err_save_intake) { useCases.recordIntake(medicationId, planned = null, takenAt = clock.instant()) }
     }
 
     fun saveMedication(draft: MedicationDraft, onDone: () -> Unit = {}) {
