@@ -5,7 +5,7 @@ set -u
 cd "$(dirname "$0")/.."
 
 fail=0
-files=$(find docs/dev docs/adr openspec/specs openspec/changes/archive -name '*.md'; echo CONTRIBUTING.md; echo README.md; echo CHANGELOG.md)
+files=$(find docs/dev docs/adr openspec/specs openspec/playbooks openspec/changes/archive -name '*.md'; echo CONTRIBUTING.md; echo README.md; echo CHANGELOG.md)
 
 # 1. Relative links (everything a reader can reach; open changes are skipped on
 #    purpose because they move to the archive when they ship)

@@ -1,32 +1,39 @@
-schema: spec-driven
+schema: spec-driven-with-adr
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Health Journal: an offline Android app for logging weight, blood pressure,
+  blood glucose, waist circumference and medication. Personal use. Not a medical
+  device, gives no advice and no diagnosis. Dutch sources lead (NHG first; wording
+  from Diabetes Fonds, DVN, Hartstichting; Voedingscentrum for waist).
+  Stack: Kotlin, Jetpack Compose, Room, hexagonal modules :domain (pure Kotlin)
+  -> :data (Room, CSV) -> :app (Compose, ViewModels). Manual DI in HealthJournalApp,
+  no DI framework, minimal dependencies. All data stays on the device.
+  Docs: docs/dev (developer guides), docs/adr (decisions), openspec/specs (behaviour),
+  openspec/playbooks (repeatable procedures; follow one when the change matches it).
+  Conventions: metric storage, display units converted only in the UI; every
+  user-facing string in both values/ and values-nl/; UiText for ViewModel text;
+  isAppDarkTheme() never isSystemInDarkTheme(); Room migrations are never
+  destructive (new columns nullable or defaulted; DB is at version 4, next is 4->5).
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
-
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+rules:
+  proposal:
+    - List every affected capability explicitly (new and modified), using the folder names under openspec/specs.
+    - State whether the change touches the database, the stored data shape, or range labels. If so, say how old data stays readable.
+    - Name the source for any medical threshold (NHG first). No source, no limit change.
+  specs:
+    - Use SHALL/MUST, and give every requirement at least one WHEN/THEN scenario.
+    - BMI, blood pressure and glucose labels follow "name · range" and never name a condition. Waist is the documented exception (authority wording).
+    - Never put advice, warnings, medicine names or other projects' names in a spec.
+    - Describe behaviour, not code. Mention both languages (EN/NL) where text is user-visible.
+  design:
+    - Reference existing ADRs by number. Say which layer (:domain, :data, :app) each piece lives in.
+    - Database changes state the version bump, the migration name and the read-mapping alternative that was considered.
+    - List rejected alternatives with a reason.
+  adr:
+    - Write to docs/adr/NNNN-kebab-title.md in the existing format (Date, Status, Deciders, Context, Decision, Consequences), with a Mermaid diagram when it helps.
+    - Only for long-term architectural commitments. Skip tactical fixes.
+  tasks:
+    - Use checkbox format "- [ ] N.M", grouped by layer (domain, data, app, docs).
+    - Include tests (boundaries on both sides for any classifier) and a docs-sync task covering README, CHANGELOG (Unreleased), affected specs, the ADR index and scripts/check-docs.sh.
+    - Add strings to both values/ and values-nl/.
+    - Commits carry no Claude attribution trailer.
