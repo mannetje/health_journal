@@ -35,7 +35,7 @@ The neutral specs (everything except `platform-*`) hold all business rules: they
 | Encrypted database at rest | SQLCipher, key wrapped by Android Keystore | SQLCipher or data protection class `complete`, key in Keychain (`ThisDeviceOnly`) |
 | Optional app lock, no own secret | `BiometricPrompt` with device credential | `LocalAuthentication` with `deviceOwnerAuthentication` |
 | No network | no `INTERNET` permission, build check | no networking code or entitlement, App Transport Security left strict, build check |
-| No backup of the database | `allowBackup=false`, data extraction rules | mark the files `isExcludedFromBackup`, no iCloud container |
+| Encrypted database and its key excluded from backup | data extraction rules (`allowBackup` unchanged) | mark the files `isExcludedFromBackup`, no iCloud container |
 | Time-based local reminders with Taken and Snooze | `AlarmManager`, `BroadcastReceiver`, boot receiver | `UNUserNotificationCenter` with notification actions, scheduled requests (64 pending limit: schedule the next ones only) |
 | Hide details on a locked device | notification visibility private, public version | notification content previews, generic text in the notification |
 | App switcher and screenshot protection | `FLAG_SECURE` | blur or cover view when the scene becomes inactive |

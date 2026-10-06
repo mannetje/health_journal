@@ -14,12 +14,8 @@ The system SHALL be, and SHALL describe itself everywhere as, a personal tool fo
 ### Requirement: No functions that would make the app a medical device
 The system SHALL NOT diagnose, predict, screen for or monitor disease, SHALL NOT recommend or adjust doses or treatment, SHALL NOT check interactions or contraindications, SHALL NOT interpret measurements as a clinical finding, and SHALL NOT trigger alarms or advice based on health values.
 
-#### Scenario: Reminders are time-based only
-- **WHEN** a reminder is created or shown
-- **THEN** it SHALL depend only on the user-defined schedule and never on a measured value or an interpretation of one
-
 #### Scenario: No clinical recommendations
-- **WHEN** the system displays a measurement, a trend, an adherence figure or a missed dose
+- **WHEN** the system displays a measurement, a trend or a missed dose
 - **THEN** it SHALL NOT say what the user should do medically, and SHALL point to the doctor, the pharmacist, Thuisarts or apotheek.nl for questions
 
 #### Scenario: No health-value-driven alerts
@@ -39,10 +35,6 @@ The system SHALL NOT contain, suggest, list or autocomplete specific medicine or
 
 ### Requirement: No advice of any kind
 The system SHALL NOT give advice, instructions, recommendations, warnings, tips, coaching or encouragement about health, measurements, lifestyle or medication, in any screen, notification, message, error text, empty state, documentation or store listing. This applies most strictly to medication: the app SHALL NOT say whether, when, how much or how to take, skip, stop, change or catch up on any medicine. All text about a medication SHALL come from the user's own input or be a neutral status (for example Taken, Skipped, Missed, Pending).
-
-#### Scenario: Notification text is neutral
-- **WHEN** a medication reminder is shown
-- **THEN** it SHALL contain only the user's medication name and dose and the planned time (or the generic "Medication reminder" when details are hidden), with no instruction wording such as "take now" or "do not miss"
 
 #### Scenario: Validation messages are about input only
 - **WHEN** an entered value is rejected

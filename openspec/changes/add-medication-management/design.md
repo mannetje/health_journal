@@ -1,66 +1,86 @@
-# Design: Medication Management
+# Design: Medication Management (pillbox, phase 1)
+
+This is the first of four changes that together deliver medication support. It is useful on its own and ships no alarms, no adherence figures and no encryption.
+
+| Change | Delivers | Depends on |
+|---|---|---|
+| `add-medication-management` (this one) | Medications, schedule versions, intake log, pillbox screen, CSV, compliance and localization rules | none |
+| `add-medication-reminders` | Grouped notifications with Taken and Snooze, permission flow, lock-screen details | this change |
+| `add-medication-adherence` | Adherence figures, streak, missed list, adherence screen | this change |
+| `add-database-encryption-and-lock` | Encrypted database, app lock, secure screen, backup rules | none (touches all data) |
 
 ## Context
-The app follows hexagonal layering: `domain` (pure Kotlin), `data` (Room, CSV), `app` (Compose). Storage is metric and locale-independent, ViewModels never hold translated text (ADR 0015), and the database is Room version 2. Medication adds a new aggregate with time-based behaviour (schedules and reminders), which the existing metrics do not have.
+The app follows hexagonal layering: `domain` (pure Kotlin), `data` (Room, CSV), `app` (Compose). Storage is metric and locale-independent, ViewModels never hold translated text (ADR 0015), and the database is Room version 5 (migrations `MIGRATION_1_2` to `MIGRATION_4_5` exist, the last one added the nullable `comment` columns for ADR 0019). Medication adds a new aggregate with time-based behaviour (schedules), which the existing metrics do not have.
 
 ## Fit with the existing architecture
 The change follows the structure already in the repository instead of introducing new patterns.
 
 | Layer | Existing convention | What medication adds |
 |---|---|---|
-| `domain/model` | One package per area (`metrics`, `nhg`, `profile`, `common`), value objects with `require` validation, `ProfileId` and id value classes | New package `model/medication`, ids as value classes next to `MeasurementId`, validation in value objects |
-| `domain/port/secondary` | One port per aggregate (`HealthLogRepositoryPort`, `ProfileRepositoryPort`, `DataExportPort`) | `MedicationRepositoryPort` (separate, so the metrics port is not bloated) and `ReminderSchedulerPort` |
-| `domain/usecase` | One class per action (`Record*`, `Update*`, `Delete*`) | `SaveMedication`, `ArchiveMedication`, `DeleteMedication`, `RecordIntake`, `GetPillbox`, `GetAdherence` use cases in the same style |
-| `data/local` | `entity`, `dao`, `mapper`, one `HealthJournalDatabase`, manual `Migration` objects (`MIGRATION_1_2`, `MIGRATION_2_3` and `MIGRATION_3_4` exist), `exportSchema = false` | `MedicationEntity`, `MedicationTimeEntity`, `IntakeEntity`, their DAOs and mapper, and `MIGRATION_5_6` written by hand like the existing ones |
+| `domain/model` | One package per area (`metrics`, `nhg`, `profile`, `common`), value objects with `require` validation, `ProfileId` and id value classes, `EntryComment` | New package `model/medication`, ids as value classes next to `MeasurementId`, validation in value objects, `EntryComment` reused for comments |
+| `domain/port/secondary` | One port per aggregate (`HealthLogRepositoryPort`, `ProfileRepositoryPort`, `DataExportPort`) | `MedicationRepositoryPort` (separate, so the metrics port is not bloated) |
+| `domain/usecase` | One class per action (`Record*`, `Update*`, `Delete*`) | `SaveMedication`, `ChangeSchedule`, `ArchiveMedication`, `DeleteMedication`, `RecordIntake`, `GetPillbox` in the same style |
+| `data/local` | `entity`, `dao`, `mapper`, one `HealthJournalDatabase`, manual `Migration` objects, `exportSchema = false` | `MedicationEntity`, `MedicationScheduleEntity`, `MedicationTimeEntity`, `IntakeEntity`, their DAOs and mapper, and `MIGRATION_5_6` written by hand like the existing ones |
 | `data/repository` | `RoomHealthLogRepository`, `RoomProfileRepository` | `RoomMedicationRepository` |
-| `data/csv` | `CsvDataExportAdapter` and `CsvDataImportAdapter`, metric and locale-independent | Medication, schedule and intake rows added to the same adapters, with the same physical line numbers in import errors |
-| `app` | Manual wiring in `HealthJournalApp`, `ViewModel.Factory`, three `NavigationBarItem`s in `MainActivity`, `UiText` messages, `LocalDisplayUnits`, English and Dutch strings | A fourth `NavigationBarItem`, a `MedicationViewModel` with a factory, `UiText` for every message, the same message-clearing on tab change, Android adapters for the scheduler and receivers |
+| `data/csv` | `CsvDataExportAdapter` and `CsvDataImportAdapter`, `CsvQuoting`, metric and locale-independent | Medication, schedule and intake rows added to the same adapters, with the same physical line numbers in import errors |
+| `app` | Manual wiring in `HealthJournalApp`, `ViewModel.Factory`, three `NavigationBarItem`s and a top bar in `MainActivity`, `UiText` messages, English and Dutch strings | A pill button in the top bar, a pillbox screen with its own `MedicationViewModel` and factory, `UiText` for every message |
 
 Other points of fit:
-- **Dependencies (ADR 0003):** no new library. Reminders use `AlarmManager` and `NotificationManager`, the pill icon uses Compose `Canvas`, and time handling uses `java.time`.
+- **Dependencies (ADR 0003):** no new library. The pill icon uses Compose `Canvas` and time handling uses `java.time`.
 - **Profiles:** medications belong to a `ProfileId`, like every entry, and follow the active profile (ADR 0016).
 - **Timestamps:** existing entries use `Instant`. Intake outcomes use `Instant` for the actual time. Only the planned time is a `LocalDateTime`, on purpose, because "08:00" means local wall-clock time.
-- **Current state that this change modifies:** the manifest has `allowBackup="true"` today, so the database is currently included in Android backups, and the app already has no `INTERNET` permission. The privacy requirements therefore turn the existing absence of network access into a checked rule and **change** the backup setting.
+- **Backup:** `allowBackup` stays as it is today (`true`). Whether and how backup is restricted is decided in `add-database-encryption-and-lock`, because it only matters once the database is encrypted.
 - **Theming and Dutch UI:** colours come from the Material theme (light and dark). The pill swatches are fixed colours with a contrasting outline. Layouts follow ADR 0010 (long Dutch strings) and the units rules (the dose unit is a medication unit, not part of metric/imperial display).
 - **Tests:** domain tests as in `domain/src/test`, CSV tests next to `CsvAdaptersTest`, ViewModel tests as in `ViewModelsTest`, and the DAO/repository tests that are still missing for edit and delete (`feature-edit-delete-entries` task 2.3) get a shared in-memory test setup so both changes use it.
+- **ADR numbers:** 0017, 0018 and 0019 are taken. This change uses 0020 (model and pillbox) and 0021 (compliance and privacy). The reminders change uses 0022 and the encryption and lock change uses 0023.
 
 ## Concepts (the pillbox model)
 | Concept | Meaning | Example |
 |---|---|---|
 | Medication | What you take | "Medication A, 500 mg tablet" |
 | Dosage | Strength and amount per intake | strength 500 mg, dose 1 tablet |
-| Schedule | When it is due | 08:00 and 20:00, every day |
-| Planned intake | One occurrence derived from the schedule | 2026-10-04 08:00 |
-| Intake | The recorded outcome for a planned intake | Taken at 08:12 |
-| Pillbox | The day and week view of planned intakes and outcomes | Morning row: 2 pills, 1 taken |
-| Adherence | Taken divided by due over a period | 26 of 28 = 93% |
+| Schedule version | When it is due, from a date onward | 08:00 and 20:00, every day, from 2026-10-01 |
+| Planned intake | One occurrence derived from the schedule version in force | 2026-10-04 08:00 |
+| Slot | All planned intakes at the same local time | 07:30: three medications |
+| Intake | The recorded outcome for a planned intake, or an as-needed dose | Taken at 08:12 |
+| Pillbox | The day and week view of slots and outcomes | Morning row: 07:30 slot, 3 pills, 2 taken |
 
-A **planned intake is computed, not stored**: it is derived from the schedule for a given date. Only outcomes (`Intake`) are stored. This keeps the table small, and editing a schedule never rewrites history. An outcome is keyed by (medication id, planned local date-time).
+A **planned intake is computed, not stored**: it is derived from the schedule version in force on a date. Only outcomes (`Intake`) are stored. This keeps the table small.
 
 ```mermaid
 flowchart LR
-    S[Schedule] -->|expand for a date| P[Planned intakes]
-    P --> V[Pillbox view]
+    S[Schedule versions] -->|version in force, expand for a date| P[Planned intakes]
+    P -->|group by time| SL[Slots]
+    SL --> V[Pillbox view]
     L[(Intake log)] --> V
-    V -->|Taken / Skip| L
-    S --> R[ReminderScheduler]
-    R -->|alarm| N[Notification]
-    N -->|Taken / Snooze action| L
-    L --> A[Adherence calculator]
-    S --> A
+    V -->|Taken / Taken all / Skip| L
 ```
+
+## Schedule edits and history (a deliberate exception)
+The general rule of this app is that history is never rewritten: an entry keeps what was recorded. A schedule is different in one respect, and this design states it openly instead of hiding it.
+
+- **What stays fixed:** recorded outcomes (`Intake`) are never changed by a schedule edit.
+- **What is derived:** "planned" and later "due" are computed from the schedule, so they depend on which schedule applies to a date.
+- **The logical fix:** a schedule is stored as **versions with an effective-from date**. Editing creates a new version applying from a chosen date (default today). Dates before that keep the version that was in force, so past planned intakes, and later adherence for them, do not move. Only the future follows the new schedule.
+- **The exception:** the user MAY choose an earlier effective-from date to correct a mistake in the schedule. That is the one place where derived planned intakes of the past change, and it is allowed on purpose because the user is correcting the record of what was planned, not what was taken. The same applies to correcting the outcome of a past intake and to deleting a medication, which removes its log after confirmation. These are the documented exceptions to "history is never rewritten" for medication.
+- **Orphans:** an outcome whose planned time is no longer produced by the version in force (for example after moving a time) is kept and shown in the day view as a logged intake, and is not counted as planned. It is never deleted by an edit.
+- **No gaps or overlaps:** versions of one medication are ordered by effective-from date, the latest one with `effectiveFrom <= date` applies, and a new version on an existing date replaces that version.
 
 ## Domain model
 ```kotlin
 data class Medication(
     val id: MedicationId, val profileId: ProfileId, val name: MedicationName,
     val form: MedicationForm?, val dosage: Dosage, val appearance: PillAppearance?,
-    val schedule: Schedule, val note: String?, val archived: Boolean
+    val schedules: List<ScheduleVersion>,   // at least one, ordered by effectiveFrom
+    val comment: EntryComment?, val archivedFrom: LocalDate?
 )
-data class Dosage(val strength: Strength?, val amountPerIntake: BigDecimal, val amountUnit: AmountUnit)
+data class Dosage(val strength: Strength?, val amountPerIntake: BigDecimal, val doseUnit: DoseUnit)
+data class Strength(val amount: BigDecimal, val unit: StrengthUnit)
+enum class StrengthUnit { MG, MCG, G, IU, MG_PER_ML, MCG_PER_ML, IU_PER_ML }
 enum class DoseUnit { MG, MCG, G, ML, IU, UNITS, DROPS, PUFFS, TABLETS, CAPSULES, PATCHES, APPLICATIONS, OTHER }
 enum class MedicationForm { TABLET, CAPSULE, LIQUID, DROPS, SPRAY, INHALER, INJECTION, PATCH, CREAM, OTHER }
 data class PillAppearance(val color: PillColor, val shape: PillShape)
+data class ScheduleVersion(val effectiveFrom: LocalDate, val schedule: Schedule)
 sealed interface Schedule {
     data object AsNeeded : Schedule
     data class Recurring(
@@ -70,24 +90,29 @@ sealed interface Schedule {
 }
 enum class IntakeStatus { TAKEN, SKIPPED }   // Pending and Missed are derived, not stored
 data class Intake(
-    val medicationId: MedicationId, val planned: LocalDateTime?,
-    val status: IntakeStatus, val takenAt: Instant?,
-    val actualAmount: BigDecimal? = null,   // set when it differs from the planned dose
-    val note: String? = null                // free text from the user, for example an injection site
+    val id: IntakeId,                          // own identity, so as-needed doses need no planned time
+    val medicationId: MedicationId,
+    val planned: LocalDateTime?,               // null for an as-needed dose
+    val status: IntakeStatus, val takenAt: Instant?,   // takenAt required when planned is null
+    val actualAmount: BigDecimal? = null,      // set when it differs from the planned dose
+    val comment: EntryComment? = null          // for example an injection site
 )
+data class Slot(val time: LocalDateTime, val items: List<PlannedItem>)   // derived, never stored
 ```
-- `Schedule.plannedFor(date)` is a pure function and the single source for the pillbox, reminders and adherence.
-- Validation lives in value objects (name 1 to 80 characters, amount greater than 0 and at most 1000, at most 8 times a day), consistent with `WeightKg` and the other metric value objects.
+- `Schedule.plannedFor(date)` is a pure function and the single source for the pillbox, reminders and adherence. A medication's `plannedFor(date)` first picks the schedule version in force.
+- **Intake identity:** every intake has its own id. A planned intake is unique by (medication id, planned time) through a unique index, so two as-needed doses on one day never collide (their planned time is null, and SQLite treats nulls as distinct in a unique index). Import deduplicates planned doses by (medication, planned time) and as-needed doses by (medication, `takenAt`).
+- `Slot` grouping is a pure function over planned intakes: same local date-time means same slot. It is the unit that reminders (next change) will notify and that "Taken all" acts on.
+- Validation lives in value objects (name 1 to 80 characters, amount greater than 0 and at most 1000, at most 8 times a day), consistent with `WeightKg` and the other metric value objects. Comments reuse `EntryComment` (ADR 0019): single line, at most 200 characters.
 - **Time zones:** planned times are local wall-clock times (`LocalDateTime`), so a 08:00 pill stays at 08:00 when travelling. The actual time taken is an `Instant`. On a daylight-saving change the planned time is resolved in the current zone.
-- **Missed:** an intake with no outcome after the grace period (2 hours, fixed in this change) is shown as missed. This is computed from the log when the pillbox or adherence is built, not by a background job, so it also works after the phone was switched off.
+- **Missed:** an intake with no outcome after the grace period (2 hours, fixed) is shown as missed. This is computed from the log when the pillbox is built, not by a background job, so it also works after the phone was switched off.
+- **Archive:** archiving sets `archivedFrom` to today. Planned intakes from that date are not generated, and earlier dates stay as they were.
 
-## Reminders (Android)
-- `ReminderSchedulerPort` (domain) is implemented in `app` on `AlarmManager`. The scheduler only sets the **next** alarm per medication and re-arms after it fires, after boot, after an app update, after a time-zone or clock change, and after any schedule edit.
-- **Exact alarms decision:** reminders are time-critical, but `SCHEDULE_EXACT_ALARM` is denied by default on Android 14 and later. Proposed approach: use exact scheduling when the permission is granted, otherwise fall back to `setAndAllowWhileIdle` (may be minutes late) and show a hint in settings with a link to grant exact alarms. The feature then works without the permission. This is recorded in the ADR and can be revisited.
-- Notification channel "Medication reminders" with high importance, a `Taken` action and a `Snooze` action. The actions go to a `BroadcastReceiver` that writes to the log through the same use cases as the UI, then updates or cancels the notification. They do not start an Activity.
-- Snooze posts the notification again after the chosen delay without changing the planned time, so adherence still compares against the original time. Snoozing past the grace period leaves the intake missed unless it is marked taken.
-- Notification text contains the medication name and dose. A **hide details on lock screen** setting (default on) shows only "Medication reminder" and uses public visibility with generic text, because a lock screen can be read by others.
-- `POST_NOTIFICATIONS` is requested when the first schedule is saved, not at app start. If it is denied, the pillbox still works and shows a banner explaining that reminders are off.
+## Grouped intakes
+People often take several medications together at one moment, for example three at 07:30 or four at 19:30. The pillbox therefore shows **slots**, not a flat list.
+- A slot is every planned intake at the same local time for the active profile. The slot card shows the time, one row per medication (icon, name, dose, status) and a **Taken all** action. Each row can still be marked Taken or Skipped on its own, so one skipped tablet does not force the others.
+- Two medications scheduled at 07:30 and 07:45 are two slots. The app does not merge nearby times or invent "moments" automatically.
+- Slots are a view over the data, so nothing extra is stored and editing a time simply regroups.
+- The reminders change uses the same slots, so one moment gives one notification.
 
 ## Appearance instead of a pill database
 Identification is done by the user, not by lookup: colour (about ten swatches) and shape (round, oval, capsule, oblong, square, other) are chosen when the medication is added and drawn as a vector icon (`Canvas`). Colour is never the only cue: the name and dose are always shown next to the icon, and the shapes are distinct for colour-blind users. A built-in database was rejected because it would need maintenance, would carry the risk of being wrong, and conflicts with the offline, no-claims stance.
@@ -112,50 +137,26 @@ The model is not tablet-specific. A medication has a **form** and a **dose unit*
 - **Injection site** may be added as a free-text note on an intake, which the user fills in. The app does not suggest or rotate sites.
 - **Icons follow the form** (pill, bottle, pen, spray or inhaler, patch) in addition to colour and shape.
 - **No calculation of doses.** The app does not calculate, suggest, round or adjust any dose, does not estimate a dose from glucose or food, and does not connect the glucose log to medication. Injectable medicines are treated exactly like any other medication: a name, a user-defined dose and a schedule. This is what keeps these medications on the right side of the medical device line (see `compliance`).
-- **Adherence** works the same for all forms: taken divided by due. The actual amount does not change the percentage, and the app does not judge whether an amount is right.
 
-## Porting guide (iPhone or another platform)
+## Units and terms follow the Dutch standard
+One naming scheme is used everywhere: `StrengthUnit` for what a unit of the medicine contains (strength) and `DoseUnit` for how much is taken per intake (dose). They are independent, so "500 mg tablet, dose 1 tablet" and "100 IU per ml pen, dose 20 units" both fit. Stored values are the enum names and are never converted. Only the displayed label depends on the language.
 
-The neutral specs (everything except `platform-*`) hold all business rules: they say what must happen, never which API does it. A port writes its own `platform-<name>` spec and reuses the rest unchanged. Where a neutral requirement needs a platform mechanism, this table shows where the mechanism lives for Android and what to choose on iOS.
+Dutch labels follow the wording of the Dutch pharmacy and patient sources (apotheek.nl and the KNMP, Thuisarts), which is what a Dutch user sees on a leaflet or at the pharmacy:
 
-| Neutral requirement | Android (`platform-android`) | iOS (suggested for a port) |
-|---|---|---|
-| Offline local storage, metric, migrations | Room (SQLite), hand-written migrations | SwiftData or Core Data, or SQLite with GRDB, explicit migrations |
-| Encrypted database at rest | SQLCipher, key wrapped by Android Keystore | SQLCipher or data protection class `complete`, key in Keychain (`ThisDeviceOnly`) |
-| Optional app lock, no own secret | `BiometricPrompt` with device credential | `LocalAuthentication` with `deviceOwnerAuthentication` |
-| No network | no `INTERNET` permission, build check | no networking code or entitlement, App Transport Security left strict, build check |
-| No backup of the database | `allowBackup=false`, data extraction rules | mark the files `isExcludedFromBackup`, no iCloud container |
-| Time-based local reminders with Taken and Snooze | `AlarmManager`, `BroadcastReceiver`, boot receiver | `UNUserNotificationCenter` with notification actions, scheduled requests (64 pending limit: schedule the next ones only) |
-| Hide details on a locked device | notification visibility private, public version | notification content previews, generic text in the notification |
-| App switcher and screenshot protection | `FLAG_SECURE` | blur or cover view when the scene becomes inactive |
-| Preferences (language, region, units) | `SharedPreferences` | `UserDefaults` |
-| In-app language | `attachBaseContext` with locale | per-app language setting or a locale override in the bundle |
-| Localized messages without stored text | `UiText` over string resources | message key plus arguments over `Localizable.strings` and `.stringsdict` for plurals |
-| Charts, icons, theming | Vico, Compose `Canvas`, Material 3 | Swift Charts, SwiftUI `Canvas` or SF Symbols, system colours |
-| Distribution | debug-signed APK on GitHub Releases | TestFlight or App Store, with its health-app review and privacy label rules |
-
-Rules for keeping specs portable:
-- Neutral specs name **behaviour and data**, not classes, permissions or APIs. Platform words (manifest, permission names, Room, Keystore, Compose) belong in `platform-<name>`.
-- Domain rules are pure and portable: schedules, adherence, units, ranges, CSV contract. A port reimplements them against the same scenarios, which can be reused as test cases.
-- Data contracts are shared: the CSV format (including enum names that are language-independent) and the rule that stored values are never converted.
-- Store and legal rules (Google Play, App Store review, MDR, AVG) are per distribution channel and are recorded in the compliance ADR, with a section per store.
-
-## Localization (English and Dutch)
-
-All medication text exists in English and Dutch, follows the in-app language and region (ADR 0013) and is produced as `UiText` (ADR 0015), so a language change re-translates what is on screen. Notification text is built from a context wrapped with the app locale (`withAppLocale`), not the device language, because receivers run without the Activity. User input (names, notes) is never translated, and stored values stay unconverted and locale-independent. Counted units use Android `<plurals>`, since English and Dutch both distinguish one from many.
-
-| Enum | English (1 / many) | Dutch (1 / many) |
-|---|---|---|
-| `MG`, `MCG`, `G`, `ML` | mg, mcg, g, ml | mg, mcg, g, ml |
-| `IU` | IU | IE |
-| `UNITS` | unit / units | eenheid / eenheden |
-| `DROPS` | drop / drops | druppel / druppels |
-| `PUFFS` | puff / puffs | pufje / pufjes |
-| `TABLETS` | tablet / tablets | tablet / tabletten |
-| `CAPSULES` | capsule / capsules | capsule / capsules |
-| `PATCHES` | patch / patches | pleister / pleisters |
-| `APPLICATIONS` | application / applications | applicatie / applicaties |
-| `OTHER` | free text label | vrije tekst |
+| Enum | English (1 / many) | Dutch (1 / many) | Note |
+|---|---|---|---|
+| `MG`, `G`, `ML` | mg, g, ml | mg, g, ml | Same symbols in both languages |
+| `MCG` | mcg | microgram | Written in full in Dutch (confirmed on apotheek.nl, 2026-10-06) |
+| `IU` | IU | IE | Internationale eenheid; "IE" confirmed on apotheek.nl, 2026-10-06 |
+| `UNITS` | unit / units | eenheid / eenheden | Pen-type injectables. NOT yet verified (task 4.3) |
+| `DROPS` | drop / drops | druppel / druppels | |
+| `PUFFS` | puff / puffs | pufje / pufjes | Inhaler and spray. NOT yet verified: apotheek.nl uses "dosis" and "inhalatie-apparaat" (task 4.3) |
+| `TABLETS` | tablet / tablets | tablet / tabletten | |
+| `CAPSULES` | capsule / capsules | capsule / capsules | |
+| `PATCHES` | patch / patches | pleister / pleisters | |
+| `APPLICATIONS` | application / applications | keer aanbrengen / keer aanbrengen | Cream, ointment. "Aanbrengen" is the verb apotheek.nl uses for applying; "smeren" only appears for spreading on a dressing (checked 2026-10-06) |
+| `OTHER` | free text label | vrije tekst | |
+| `MG_PER_ML`, `MCG_PER_ML`, `IU_PER_ML` | mg/ml, mcg/ml, IU/ml | mg/ml, microgram/ml, IE/ml | Strength only |
 
 | `MedicationForm` | English | Dutch |
 |---|---|---|
@@ -174,68 +175,62 @@ All medication text exists in English and Dutch, follows the in-app language and
 |---|---|---|
 | Statuses | Taken, Skipped, Missed, Pending | Ingenomen, Overgeslagen, Gemist, Gepland |
 | Time of day | Morning, Afternoon, Evening, Night | Ochtend, Middag, Avond, Nacht |
-| Tab | Medication | Medicatie |
-| Notification actions | Taken, Snooze | Ingenomen, Uitstellen |
+| Frequency | once a day, twice a day, every 3 days, once a week | 1 keer per dag, 2 keer per dag, elke 3 dagen, 1 keer per week |
+| Slot action | Taken all | Alles ingenomen |
+| Top bar button (description) | Pillbox | Pillendoos |
 
 Notes:
-- Symbols mg, mcg, g and ml are the same in both languages. The international unit is IU in English and IE (internationale eenheid) in Dutch. The label is a display choice only: the stored value is the enum, so both are always the same unit. The Dutch wording is checked against the usage on apotheek.nl and Thuisarts before release.
-- "Units" for pen-type injectables is "eenheden" in Dutch. It is a label only and is never converted to or from IE or ml.
+- The terms above are a first proposal from memory. They are **checked against apotheek.nl and Thuisarts in a browser before release** (task 1.6e), the same way the NHG limits were verified, and corrected here when the sources differ. Nothing is shipped as "Dutch standard" until that check is recorded in ADR 0020.
+- The unit label is a display choice only: the stored value is the enum, so IU and IE are always the same unit, and "units" is a label that is never converted to or from IU or ml.
 - Numbers use the region (Dutch decimal comma, US decimal point) and times use the region's short time style. Weekday names come from `java.time` with the active locale.
-- A missing translation is a failing test (matching key sets in `values` and `values-nl`), not a runtime fallback.
-- Dutch strings can be 30 to 50 percent longer, so layouts follow ADR 0010 (wrap, no fixed widths on chips and buttons).
+
+## Localization (English and Dutch)
+All medication text exists in English and Dutch, follows the in-app language and region (ADR 0013) and is produced as `UiText` (ADR 0015), so a language change re-translates what is on screen. User input (names, comments) is never translated, and stored values stay unconverted and locale-independent. Counted units use Android `<plurals>`, since English and Dutch both distinguish one from many. A missing translation is a failing test (matching key sets in `values` and `values-nl`), not a runtime fallback. Dutch strings can be 30 to 50 percent longer, so layouts follow ADR 0010 (wrap, no fixed widths on chips and buttons) and are checked at large font sizes.
 
 ## Persistence
-Room version 6 (the database is at version 5 today, after `add-entry-comments`) with three tables: `medication`, `medication_time` (one row per time per medication) and `intake`. `MIGRATION_5_6` only creates tables (hand-written like `MIGRATION_2_3`, which added the waist table). The move to an encrypted file (phase 4c) is a separate, one-time file migration that is independent of the schema version. Deleting a medication cascades to its times and, after confirmation, to its intake log. **Archive** is the default way to stop a medication, because it keeps history and adherence intact.
+Room version 6 (the database is at version 5 today, after `add-entry-comments`) with four tables: `medication`, `medication_schedule` (one row per schedule version), `medication_time` (one row per time per schedule version) and `intake`. `MIGRATION_5_6` only creates tables (hand-written like `MIGRATION_2_3`, which added the waist table). Read-mapping instead of a migration was considered and rejected because new tables cannot be derived from old rows. Deleting a medication cascades to its schedule versions, times and, after confirmation, its intake log. **Archive** is the default way to stop a medication, because it keeps history intact. `intake` has a unique index on (medication id, planned time) and an index on (medication id, taken-at) for as-needed doses.
 
-## Adherence
-`AdherenceCalculator(medications, intakes, range, now)` returns `taken`, `due`, `skipped`, `missed`, `percentage` and `streak`.
-- Due counts planned intakes in the range that are in the past, and ignores days before the medication's start date.
-- Skipped counts as due and not taken (it lowers adherence), but is shown separately because skipping on a doctor's advice differs from forgetting.
-- As-needed medications have no percentage, only a count.
-- Percentages are rounded to whole percent (half up), like the blood pressure averages.
+## UI structure
+The bottom bar keeps its three tabs (Log, History, Profile). Medication does not get a fourth tab: the app is already tight at large font sizes (the Activity tab label is clipped at 1.3x), and medication is a daily-use tool with its own screens, so it opens on top of the tabs.
 
-## Privacy first
-This is a set of requirements, not only a statement (see `specs/privacy/spec.md`):
-- **No network:** the app declares no `INTERNET` permission. A check fails the build if it appears in the manifest.
-- **No analytics or crash-reporting libraries**, and no third-party SDKs that collect data.
-- **No cloud backup or device transfer of the health database:** `android:allowBackup="false"` plus `dataExtractionRules` excluding the database. Users move data through CSV export, which they control.
-- **Export is explicit:** a file leaves the app only through the user's save or share action. No automatic uploads.
-- **Lock screen:** details hidden by default (above).
-- **App switcher:** an opt-in `FLAG_SECURE` setting hides content in recents and blocks screenshots (default off, since it also blocks the user's own screenshots).
-- **At rest:** the database is encrypted with SQLCipher and a Keystore-wrapped key, and an opt-in app lock uses the device credential. See "App lock and database encryption".
-- **Logs:** no medication names or doses are written to logcat in release builds.
-
-## App lock and database encryption
-
-Two separate protections, because they stop different threats. The lock stops a person who holds the unlocked phone. Encryption stops anyone who obtains the database file without the phone's keys (a copied or extracted file, a rooted or forensic read).
-
-**App lock (opt-in, off by default)**
-- A Profile setting "Lock the app". When on, the app asks the user to authenticate when it opens and after it has been in the background for a chosen time (immediately, 1 minute, 5 minutes).
-- Authentication is the **device's own credential**: fingerprint or face (class 3 biometrics) with the device PIN, pattern or password as fallback, through the system `BiometricPrompt` with `DEVICE_CREDENTIAL` allowed. The app stores **no PIN or secret of its own**, so there is nothing to leak, nothing to reset and no recovery flow.
-- On Android 8 and 9 (minSdk 26) the prompt falls back to the confirm-device-credential screen. If the device has no screen lock, the setting is disabled with an explanation, and it is never silently accepted.
-- While locked, no health data is composed on screen. Notifications still hide medication details on the lock screen by default, and tapping a reminder asks for authentication before opening Today.
-- The Taken action on a notification is allowed without unlocking the app, because it only writes an outcome and shows nothing. This is documented in the setting description.
-- The lock is a convenience barrier for privacy and is not a security claim beyond what the Android authenticator provides.
-
-**Database encryption at rest (opt-out not offered, applies to all data)**
-- The Room database is encrypted with SQLCipher (AES-256). It is the one widely used, audited answer for an encrypted SQLite database on Android, and Room supports it through a `SupportOpenHelperFactory`.
-- The database passphrase is a random 256-bit value generated on the device. It is stored only **wrapped** (AES-GCM) by a non-exportable **Android Keystore** key, hardware-backed (TEE or StrongBox) when the device has it. The wrapped value lives in no-backup storage. The key does not require user authentication, so changing a fingerprint or the screen lock never makes the data unreadable.
-- **One-time migration** of existing users: create the encrypted database from the plain one (`sqlcipher_export`), verify the row counts per table match, keep the plain file until verification passes, then remove the plain file and its journal files. The app never deletes the plain copy before verification, and on any failure it keeps the plain database and shows a localized message.
-- Because the key lives in the Keystore, the database cannot be moved to another phone or restored from a backup. Backup is already disabled, so CSV export remains the only way to move data, and the app says so in the privacy notice.
-- Honest limits (stated in ADR 0020): encryption does not protect data while the app is unlocked and running, or against malware with the user's access, and the Keystore key is lost on factory reset or app data clearing, which also removes the data.
-
-**Dependencies (exception to ADR 0003).** Two are needed and both are recorded in ADR 0020: `net.zetetic:sqlcipher-android` (community SQLCipher, BSD-style licence, runs offline, no data collection) and `androidx.biometric` (Google AndroidX, handles API 26 to 29 differences). Both are checked for licence, size (the native library adds a few MB per ABI), 16 KB page size support and absence of network code. If either fails review the fallback is documented in the ADR (`BiometricPrompt` framework API on API 28+ and `createConfirmDeviceCredentialIntent` below, and for encryption a field-level AES-GCM envelope on the medication tables only).
+- **Entry point:** a pill button (💊) in the top bar, left of the logo, visible on every tab. It opens the **pillbox screen** full screen with a back arrow. Back returns to the tab the user came from.
+- **Inside the pillbox screen:** a segmented switch for its views. Phase 1 has **Today** and **Medications**. The adherence change adds **Adherence** as a third view. More views can be added later without touching the bottom bar.
+- **Disclaimer and notice:** shown the first time the pillbox opens, and always reachable from Profile together with the Sources list.
 
 ```mermaid
 flowchart LR
-    OPEN["App opens or returns from background"] --> LOCKED{"Lock on and timeout passed?"}
-    LOCKED -->|yes| AUTH["Device credential prompt<br/>(biometric or PIN)"]
-    LOCKED -->|no| UI["Screens"]
-    AUTH -->|success| UI
-    AUTH -->|cancel or fail| STAY["Locked screen, nothing shown"]
-    UI --> DB[("SQLCipher database")]
-    KS["Android Keystore key<br/>(non-exportable)"] -->|unwraps passphrase| DB
+    TOP["Top bar 💊 button<br/>(on every tab)"] --> PB["Pillbox screen"]
+    PB --> TODAY["Today<br/>(slots + week strip)"]
+    PB --> LIST["Medications<br/>(list, add, edit, archive, delete)"]
+    PB -.-> ADH["Adherence<br/>(later change)"]
+    PB -->|back| TABS["Previous tab<br/>(Log, History or Profile)"]
+    PRO["Profile"] --> SET["Notice and Sources links"]
 ```
+
+| Place | Content |
+|---|---|
+| Pillbox > Today | Day view grouped morning (before 12:00), afternoon (12:00 to 18:00), evening (18:00 to 22:00) and night. Each slot card shows the time, a row per medication (icon, name, dose, status chip) and **Taken all**. Tapping a row offers Taken and Skip. Past intakes can be corrected. A button logs an as-needed dose. A week strip shows complete, partial, missed or empty days. |
+| Pillbox > Medications | The list with a + button. Add and edit: name, form, strength, dose and unit, schedule (with "apply from" date when editing), appearance, comment. Archive and delete (with confirmation). |
+| Log | Unchanged. Medication doses are not logged here. |
+| History | Unchanged. |
+| Profile | The not-a-medical-device notice and the Sources links. |
+
+Layout checks: the top bar already holds a title and the logo, so the pill button must fit at 2.0x font in Dutch (task 1.6d).
+
+## Alternatives considered
+- **Fourth bottom tab:** rejected, it crowds the bar at large font sizes and Dutch labels, and it forces every medication view into one tab. A separate screen scales to more views.
+- **Mutable single schedule (no versions):** rejected, an edit would silently change which past days count as planned, which breaks adherence for past days (see "Schedule edits and history").
+- **Store planned intakes as rows** (one per due time): rejected, it needs a generator job, enlarges the table, and makes schedule edits rewrite stored rows.
+- **User-defined "moments" (named groups such as "Breakfast") instead of grouping by time:** deferred, grouping by identical time covers the stated need (07:30, 19:30) with no extra concept to maintain.
+- **Drug database lookup:** rejected, see above.
+- **Photo identification:** rejected, it needs camera permission and image storage, with little gain over colour and shape.
+- **A separate free-text note type for medication:** rejected, `EntryComment` already has the single-line, 200-character, CSV-safe rules.
+
+## Risks
+- Medication is health-adjacent. Mitigation: the disclaimer, no advice, no interaction checks, and the compliance spec.
+- A schedule edit with an early effective-from date changes past planned intakes. Mitigation: the default is today, an earlier date is a deliberate choice, and recorded outcomes are never touched.
+- Dutch unit wording is unverified until task 1.6e. Mitigation: it is a release gate in the tasks.
+- Legal interpretation (MDR intended purpose, AVG for a distributed app) is not verified by a lawyer. Mitigation: keep claims minimal, and revisit before publishing beyond personal use (recorded as an open item in ADR 0021, not part of this change).
 
 ## Authorities, law and regulation
 Dutch sources are the reference wherever a feature touches clinical content or the law, in line with ADR 0005 (NHG and Voedingscentrum for thresholds).
@@ -245,54 +240,36 @@ Dutch sources are the reference wherever a feature touches clinical content or t
 | Clinical guidance and patient information | [NHG](https://www.nhg.org/) (guidelines, [Thuisarts](https://www.thuisarts.nl/)) | The app gives **no** clinical content. Where a screen needs guidance it links to Thuisarts or the NHG instead of paraphrasing it. |
 | Medicine information (what to do about a missed dose, interactions, side effects) | [apotheek.nl](https://www.apotheek.nl/) (KNMP) and the patient leaflet (bijsluiter) | The app gives **no advice at all**, and says nothing about what to do after a missed dose: a missed intake only shows the status "Missed". apotheek.nl and Thuisarts appear only as a neutral "Sources" list on the information screen, with no summary and no recommendation. This keeps the app out of dose-advice territory. |
 | Software as a medical device | EU MDR 2017/745, supervised in the Netherlands by the IGJ (Inspectie Gezondheidszorg en Jeugd) | Whether software is a medical device depends on the **intended purpose the manufacturer states**. This app is stated as a personal log and reminder tool. It must therefore not claim to diagnose, predict, advise on doses, check interactions or support treatment decisions. The "not medical advice" requirement, the missing drug database and the missing interaction check are deliberate for this reason. A change of intended purpose would need a fresh regulatory assessment (CE marking, notified body). |
-| Personal data | AVG (GDPR) and UAVG, supervised by the Autoriteit Persoonsgegevens | Health data is a special category of personal data. The design avoids processing it outside the device (no network, no backup, no analytics), which keeps the developer from collecting any health data. Whether the household exemption or other AVG rules apply to a distributed app is a legal question that should be checked before wider distribution (see risks). |
+| Personal data | AVG (GDPR) and UAVG, supervised by the Autoriteit Persoonsgegevens | Health data is a special category of personal data. The design avoids processing it outside the device (no network, no analytics; platform backup is under the user's control and is disclosed in the privacy notice), which keeps the developer from collecting any health data. Whether the household exemption or other AVG rules apply to a distributed app is a legal question that should be checked before wider distribution (see risks). |
 | Medicines and pharmacy law | Geneesmiddelenwet, KNMP and pharmacist practice | The app offers no medicine sale, prescription handling or pharmacist contact, so no pharmacy law applies. Prescription or pharmacy integration (for example the medication overview from the pharmacy) is out of scope and would need its own change. |
 | Health data exchange | Dutch healthcare standards for exchange (for example the medicatieoverzicht in the national infrastructure) | Out of scope. Export is CSV only, under the user's control. |
 
-**Decision (owner):** the app is purely a reminder and logging tool for personal use and must never become a medical device. This is a hard constraint on every feature, written as the `compliance` capability (`specs/compliance/spec.md`), with a review gate: any function that diagnoses, advises, alerts on health values, transmits data or serves care providers is blocked until a regulatory assessment ADR exists. The existing range labels for BMI, blood pressure and glucose are the closest current feature to the line, so they are reviewed in this change (task 4b.3) and reworded as neutral, sourced ranges instead of diagnostic labels.
+**Decision (owner):** the app is purely a reminder and logging tool for personal use and must never become a medical device. This is a hard constraint on every feature, written as the `compliance` capability (`specs/compliance/spec.md`), with a review gate: any function that diagnoses, advises, alerts on health values, transmits data or serves care providers is blocked until a regulatory assessment ADR exists. The existing range labels for BMI, blood pressure and glucose are the closest current feature to the line, so they were reworded as neutral, sourced ranges by the shipped change `reword-range-labels`.
 
 Where this table and a feature disagree, the feature gives way: if a later change adds drug information, interaction checks or dose advice, it must first record a regulatory assessment in an ADR.
 
-## UI structure
-Approved placement: a fourth bottom tab, **💊 Medication** (Dutch: Medicatie), second in the bar: Log, Medication, History, Profile. The emoji icon matches the existing tab icons. The tab is named Medication, not Pillbox, because it covers liquids, sprays and injections; the pillbox is the Today view inside it.
+## Porting guide (iPhone or another platform)
 
-```mermaid
-flowchart LR
-    LOG["📝 Log<br/>(measurements, unchanged)"]
-    MED["💊 Medication"]
-    HIS["📊 History"]
-    PRO["👤 Profile"]
-    MED --> TODAY["Today (pillbox day view + week strip)"]
-    MED --> LIST["Medications (list, add, edit, archive, delete)"]
-    MED --> ADH["Adherence (7/30/90 days, streak, missed)"]
-    PRO --> SET["Medication reminders settings,<br/>notice and Sources links"]
-    NOTIF["Reminder notification"] -->|tap| TODAY
-```
+The neutral specs (everything except `platform-*`) hold all business rules: they say what must happen, never which API does it. A port writes its own `platform-<name>` spec and reuses the rest unchanged. Where a neutral requirement needs a platform mechanism, this table shows where the mechanism lives for Android and what to choose on iOS.
 
-| Place | Content |
-|---|---|
-| Medication > Today | Day view grouped morning (before 12:00), afternoon (12:00 to 18:00), evening (18:00 to 22:00) and night. Each slot shows the icon, name, dose, planned time and a status chip. Tapping a pending slot offers Taken and Skip. Past intakes can be corrected. A button logs an as-needed dose. |
-| Medication > Medications | The list with a + button. Add and edit: name, form, dose and unit, schedule, appearance, note. Archive and delete (with confirmation). |
-| Medication > Adherence | Per-medication and overall adherence, streak, skipped and missed counts. |
-| Log | Unchanged. Medication doses are not logged here. |
-| History | Unchanged in this change. The adherence overlay on trend charts is a later phase. |
-| Profile | A "Medication reminders" section: notification permission status, lock-screen detail setting, secure-screen option, the not-a-medical-device notice and the Sources links. |
-| Notifications | Tapping opens Medication > Today. |
+| Neutral requirement | Android (`platform-android`) | iOS (suggested for a port) |
+|---|---|---|
+| Offline local storage, metric, migrations | Room (SQLite), hand-written migrations | SwiftData or Core Data, or SQLite with GRDB, explicit migrations |
+| Encrypted database at rest | SQLCipher, key wrapped by Android Keystore | SQLCipher or data protection class `complete`, key in Keychain (`ThisDeviceOnly`) |
+| Optional app lock, no own secret | `BiometricPrompt` with device credential | `LocalAuthentication` with `deviceOwnerAuthentication` |
+| No network | no `INTERNET` permission, build check | no networking code or entitlement, App Transport Security left strict, build check |
+| Encrypted database and its key excluded from backup | data extraction rules (`allowBackup` unchanged) | mark the files `isExcludedFromBackup`, no iCloud container |
+| Time-based local reminders with Taken and Snooze | `AlarmManager`, `BroadcastReceiver`, boot receiver | `UNUserNotificationCenter` with notification actions, scheduled requests (64 pending limit: schedule the next ones only) |
+| Hide details on a locked device | notification visibility private, public version | notification content previews, generic text in the notification |
+| App switcher and screenshot protection | `FLAG_SECURE` | blur or cover view when the scene becomes inactive |
+| Preferences (language, region, units) | `SharedPreferences` | `UserDefaults` |
+| In-app language | `attachBaseContext` with locale | per-app language setting or a locale override in the bundle |
+| Localized messages without stored text | `UiText` over string resources | message key plus arguments over `Localizable.strings` and `.stringsdict` for plurals |
+| Charts, icons, theming | Vico, Compose `Canvas`, Material 3 | Swift Charts, SwiftUI `Canvas` or SF Symbols, system colours |
+| Distribution | debug-signed APK on GitHub Releases | TestFlight or App Store, with its health-app review and privacy label rules |
 
-## Alternatives considered
-- **Store planned intakes as rows** (one per due time): rejected, it needs a generator job, enlarges the table, and makes schedule edits rewrite history.
-- **WorkManager for reminders:** rejected, its timing is deferred and inexact, which is wrong for dose reminders.
-- **Drug database lookup:** rejected, see above.
-- **Photo identification:** rejected, it needs camera permission and image storage, with little gain over colour and shape.
-- **App-specific PIN instead of the device credential:** rejected, it needs a stored hash, lockout rules and a recovery flow, and is weaker than the system authenticator.
-- **Encryption only for the medication tables (field-level AES-GCM):** kept as the documented fallback in ADR 0020 if SQLCipher fails review, because it leaves measurements unencrypted.
-- **Relying on Android file-based encryption alone:** rejected, it does not protect a copied or extracted database file.
-
-## Risks
-- Reminder reliability differs per manufacturer because of battery management. Mitigation: re-arm on boot, update and clock change, a settings hint about battery optimisation, and a visible notice when exact alarms are not granted.
-- Medication is health-adjacent. Mitigation: the disclaimer, no advice, no interaction checks.
-- The change is large. Mitigation: the phases in `tasks.md`.
-- Encrypting the existing database is a one-way change for current users. Mitigation: verify row counts before removing the plain file, keep the plain file on any failure, test on seeded and interrupted migrations, and ship phase 4c as its own release.
-- The Keystore key is lost on factory reset or clearing app data, so the data is lost with it, and the database cannot be restored from backup. Mitigation: no authentication binding on the key, CSV export, and a clear notice in the privacy text.
-- SQLCipher adds a few MB per ABI and a native library. Mitigation: size and 16 KB page size check in ADR 0020, with the field-level fallback.
-- Legal interpretation (MDR intended purpose, AVG for a distributed app) is not verified by a lawyer. Mitigation: keep claims minimal as above, and get a short legal or privacy review before publishing beyond personal use.
+Rules for keeping specs portable:
+- Neutral specs name **behaviour and data**, not classes, permissions or APIs. Platform words (manifest, permission names, Room, Keystore, Compose) belong in `platform-<name>`.
+- Domain rules are pure and portable: schedules, adherence, units, ranges, CSV contract. A port reimplements them against the same scenarios, which can be reused as test cases.
+- Data contracts are shared: the CSV format (including enum names that are language-independent) and the rule that stored values are never converted.
+- Store and legal rules (Google Play, App Store review, MDR, AVG) are per distribution channel and are recorded in the compliance ADR, with a section per store.

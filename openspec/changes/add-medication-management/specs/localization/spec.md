@@ -1,15 +1,11 @@
 ## ADDED Requirements
 
 ### Requirement: Medication text in English and Dutch
-Every user-visible medication string (screens, labels, validation messages, statuses, notifications, notification actions, the disclaimer, the Sources list) SHALL exist in English and Dutch, SHALL follow the in-app language, and SHALL be carried as a `UiText` message identifier and translated only when displayed. Medication names, notes and units entered by the user are shown as typed and are never translated.
+Every user-visible medication string (screens, labels, validation messages, statuses, the disclaimer, the Sources list) SHALL exist in English and Dutch, SHALL follow the in-app language, and SHALL be carried as a `UiText` message identifier and translated only when displayed. Medication names, notes and units entered by the user are shown as typed and are never translated.
 
 #### Scenario: Language change re-translates medication screens
-- **WHEN** the Medication tab is open and the language changes from English to Dutch
-- **THEN** all labels, statuses, forms and units on the screen appear in Dutch and the Medication tab stays selected
-
-#### Scenario: Notifications use the app language
-- **WHEN** a reminder is posted while the app language is Dutch and the device language is English
-- **THEN** the notification title, body, and the Taken and Snooze actions are in Dutch
+- **WHEN** the pillbox screen is open and the language changes from English to Dutch
+- **THEN** all labels, statuses, forms and units on the screen appear in Dutch and the pillbox screen stays open
 
 #### Scenario: Both languages complete
 - **WHEN** the project is tested
@@ -29,6 +25,10 @@ Medication forms and dose units SHALL be shown as localized labels, never as raw
 #### Scenario: International symbols unchanged
 - **WHEN** a dose of 5 ml or 500 mg is shown in Dutch or English
 - **THEN** the symbol is the same in both languages
+
+#### Scenario: Microgram written in full in Dutch
+- **WHEN** a strength or dose in micrograms is shown in Dutch
+- **THEN** the unit reads "microgram" in full and reads "mcg" in English, and the stored unit is the same in both cases
 
 #### Scenario: International unit label
 - **WHEN** a dose of 20 international units is shown
