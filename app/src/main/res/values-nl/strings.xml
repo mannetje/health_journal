@@ -189,7 +189,7 @@
 
     <string name="ranges_about">Over deze waarden</string>
     <string name="ranges_about_title">Over deze waarden</string>
-    <string name="ranges_about_body">De waarden volgen gepubliceerde richtlijnen, vooral de NHG-standaarden. Formuleringen komen ook van Diabetes Fonds, DVN en Hartstichting. Een label is geen diagnose en deze app is geen medisch hulpmiddel. Vragen over je waarden stel je aan je huisarts of apotheker.</string>
+    <string name="ranges_about_body">De waarden volgen gepubliceerde richtlijnen, vooral de NHG-standaarden. Formuleringen komen ook van Diabetes Fonds, DVN en Hartstichting. De middelomtrekwaarden komen van het Voedingscentrum. Een label is geen diagnose en deze app is geen medisch hulpmiddel. Vragen over je waarden stel je aan je huisarts of apotheker.</string>
     <string name="ranges_link_nhg">NHG</string>
     <string name="ranges_link_thuisarts">Thuisarts</string>
     <string name="ranges_link_diabetesfonds">Diabetes Fonds</string>

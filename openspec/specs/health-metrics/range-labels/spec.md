@@ -72,7 +72,7 @@ Band colours SHALL come from one sequential ramp (lowest band lightest, highest 
 - **THEN** it uses the darkest ramp step of that theme, no red, and its text is readable
 
 ### Requirement: Source and note reachable
-Every screen that shows a label SHALL offer an "About these ranges" note that states the ranges follow published guidelines (mainly NHG, with wording also used by Diabetes Fonds, DVN and Hartstichting), that a label is not a diagnosis and the app is not a medical device, and that questions go to the doctor or pharmacist, with links to Thuisarts and the named sources, and to Voedingscentrum for waist circumference. The note SHALL claim no endorsement and use no logos.
+Every screen that shows a label SHALL offer an "About these ranges" note that states the ranges follow published guidelines (mainly NHG, with wording also used by Diabetes Fonds, DVN and Hartstichting, and Voedingscentrum for waist circumference), that a label is not a diagnosis and the app is not a medical device, and that questions go to the doctor or pharmacist, with links to Thuisarts and the named sources, and to Voedingscentrum for waist circumference. The note SHALL claim no endorsement and use no logos.
 
 #### Scenario: Open the note
 - **WHEN** the user taps the info control next to a label

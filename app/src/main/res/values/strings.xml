@@ -189,7 +189,7 @@
 
     <string name="ranges_about">About these ranges</string>
     <string name="ranges_about_title">About these ranges</string>
-    <string name="ranges_about_body">The ranges follow published guidelines, mainly the NHG standards. Wording is also taken from Diabetes Fonds, DVN and Hartstichting. A label is not a diagnosis, and this app is not a medical device. Questions about your values go to your doctor or pharmacist.</string>
+    <string name="ranges_about_body">The ranges follow published guidelines, mainly the NHG standards. Wording is also taken from Diabetes Fonds, DVN and Hartstichting. Waist circumference ranges come from Voedingscentrum. A label is not a diagnosis, and this app is not a medical device. Questions about your values go to your doctor or pharmacist.</string>
     <string name="ranges_link_nhg">NHG</string>
     <string name="ranges_link_thuisarts">Thuisarts</string>
     <string name="ranges_link_diabetesfonds">Diabetes Fonds</string>
