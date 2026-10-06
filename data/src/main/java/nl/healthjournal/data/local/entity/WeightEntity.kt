@@ -14,5 +14,6 @@ data class WeightEntity(
     val profileId: String,
     val timestamp: Long, // Epoch millis
     val weightKg: Double,
-    val bmi: Double?
+    val bmi: Double?,
+    val comment: String? = null
 )

@@ -102,11 +102,11 @@ File: `data/src/main/java/nl/healthjournal/data/csv/CsvDataExportAdapter.kt`
 Export reads the history through the same port and writes one CSV line per entry:
 
 ```text
-timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification
-2026-09-09T08:30:00Z,150,95,70,HIGH
+timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification,comment
+2026-09-09T08:30:00Z,150,95,70,HIGH,"After a walk, felt fine"
 ```
 
-Import (`CsvDataImportAdapter.kt`) does not trust the `classification` column: it recomputes the category from the values, so a file with an old or wrong name still imports with the right band. A file from before the pulse existed (no `pulse_bpm` column) imports too.
+The `comment` cell is quoted per RFC 4180 when it holds a comma, quote or line break (`CsvQuoting.kt`). Import (`CsvDataImportAdapter.kt`) does not trust the `classification` column: it recomputes the category from the values, so a file with an old or wrong name still imports with the right band. A file from before the pulse existed (no `pulse_bpm` column) imports too.
 
 ## What to remember
 

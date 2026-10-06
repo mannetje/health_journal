@@ -25,6 +25,7 @@ import nl.healthjournal.domain.model.common.UnitSystem
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.BloodPressureReading
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.HeightCm
@@ -62,6 +63,7 @@ import nl.healthjournal.domain.usecase.RecordWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.RecordWeightUseCase
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
@@ -447,7 +449,7 @@ class ViewModelsTest {
         assertEquals(2, vm.uiState.value.weights.size)
 
         vm.startEdit(EntryRef.Weight(older))
-        vm.updateWeight(older, BigDecimal("85.5"), older.timestamp)
+        vm.updateWeight(older, BigDecimal("85.5"), older.timestamp, comment = null)
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(null, vm.uiState.value.editing)
         assertEquals(BigDecimal("85.5"), vm.uiState.value.weights.first { it.id == older.id }.weight.value)
@@ -482,7 +484,7 @@ class ViewModelsTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.startEdit(EntryRef.Weight(entry))
-        vm.updateWeight(entry, BigDecimal("-1"), entry.timestamp)
+        vm.updateWeight(entry, BigDecimal("-1"), entry.timestamp, comment = null)
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertNotNull(vm.uiState.value.editing)
@@ -516,5 +518,97 @@ class ViewModelsTest {
         vm.importCsv("weight", "timestamp,weight_kg,bmi\n2026-09-20T08:00:00Z,70.0,22.0")
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(1, vm.uiState.value.importResult?.importedCount)
+    }
+
+    @Test
+    fun `LoggingViewModel saves the comment on every entry type and clears it afterwards`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val vm = loggingViewModel(profileRepo, healthLogRepo)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        fun save() {
+            vm.saveCurrentMetric()
+            testDispatcher.scheduler.advanceUntilIdle()
+        }
+
+        vm.selectMetric(MetricType.WEIGHT)
+        vm.onWeightChanged("80")
+        vm.onCommentChanged("  after lunch  ")
+        save()
+        assertEquals("after lunch", healthLogRepo.weights.single().comment?.text)
+        assertEquals("", vm.uiState.value.commentInput)
+
+        vm.selectMetric(MetricType.BLOOD_PRESSURE)
+        vm.onCommentChanged("stressed")
+        save()
+        assertEquals("stressed", healthLogRepo.bps.single().comment?.text)
+
+        vm.selectMetric(MetricType.GLUCOSE)
+        vm.onCommentChanged("late dinner")
+        save()
+        assertEquals("late dinner", healthLogRepo.glucoses.single().comment?.text)
+
+        vm.selectMetric(MetricType.WAIST_CIRCUMFERENCE)
+        vm.onCommentChanged("morning")
+        save()
+        assertEquals("morning", healthLogRepo.waistCircumferences.single().comment?.text)
+
+        vm.selectMetric(MetricType.ACTIVITY)
+        vm.onActivityDurationChanged("30")
+        vm.onActivityDistanceChanged("2.5")
+        vm.onCommentChanged("park")
+        save()
+        assertEquals("park", healthLogRepo.activities.single().comment?.text)
+    }
+
+    @Test
+    fun `LoggingViewModel saves without a comment and caps the input at 200 single-line characters`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val vm = loggingViewModel(profileRepo, healthLogRepo)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.onCommentChanged("a".repeat(250))
+        assertEquals(200, vm.uiState.value.commentInput.length)
+        vm.onCommentChanged("one\ntwo")
+        assertEquals("one two", vm.uiState.value.commentInput)
+
+        vm.onCommentChanged("")
+        vm.onWeightChanged("80")
+        vm.saveCurrentMetric()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertNull(healthLogRepo.weights.single().comment)
+    }
+
+    @Test
+    fun `HistoryViewModel edit sets and clears the comment`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepo()
+        val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val entry = WeightEntry(
+            MeasurementId.generate(), profile.id, Instant.parse("2026-01-01T08:00:00Z"),
+            WeightKg(BigDecimal("80.0")), null, EntryComment("before")
+        )
+        healthLogRepo.weights.add(entry)
+        val vm = HistoryViewModel(
+            profileRepo,
+            GetHealthHistoryUseCase(healthLogRepo),
+            FakeExportAdapter(),
+            FakeImportAdapter(),
+            entryUseCases(healthLogRepo, profileRepo)
+        )
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.updateWeight(entry, entry.weight.value, entry.timestamp, comment = "after")
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals("after", vm.uiState.value.weights.single().comment?.text)
+
+        vm.updateWeight(entry, entry.weight.value, entry.timestamp, comment = "")
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertNull(vm.uiState.value.weights.single().comment)
     }
 }

@@ -43,6 +43,15 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
     }
 }
 
+/** Adds the optional `comment` column to the five entry tables. */
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        for (table in listOf("weights", "blood_pressures", "glucoses", "waist_circumferences", "activities")) {
+            db.execSQL("ALTER TABLE $table ADD COLUMN comment TEXT")
+        }
+    }
+}
+
 @Database(
     entities = [
         ProfileEntity::class,
@@ -52,7 +61,7 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
         ActivityEntity::class,
         WaistCircumferenceEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class HealthJournalDatabase : RoomDatabase() {
@@ -78,7 +87,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 context,
                 HealthJournalDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build()
         }
     }
 }

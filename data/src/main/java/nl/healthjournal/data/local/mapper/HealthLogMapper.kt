@@ -23,7 +23,8 @@ object HealthLogMapper {
             profileId = domain.profileId.value.toString(),
             timestamp = domain.timestamp.toEpochMilli(),
             weightKg = domain.weight.value.toDouble(),
-            bmi = domain.bmi?.toDouble()
+            bmi = domain.bmi?.toDouble(),
+            comment = domain.comment?.text
         )
     }
 
@@ -33,7 +34,8 @@ object HealthLogMapper {
             profileId = ProfileId.fromString(entity.profileId),
             timestamp = Instant.ofEpochMilli(entity.timestamp),
             weight = WeightKg(BigDecimal.valueOf(entity.weightKg)),
-            bmi = entity.bmi?.let { BigDecimal.valueOf(it) }
+            bmi = entity.bmi?.let { BigDecimal.valueOf(it) },
+            comment = EntryComment.ofOrNull(entity.comment)
         )
     }
 
@@ -46,7 +48,8 @@ object HealthLogMapper {
             systolic = domain.reading.systolic,
             diastolic = domain.reading.diastolic,
             category = domain.category.name,
-            pulse = domain.reading.pulse
+            pulse = domain.reading.pulse,
+            comment = domain.comment?.text
         )
     }
 
@@ -56,7 +59,8 @@ object HealthLogMapper {
             profileId = ProfileId.fromString(entity.profileId),
             timestamp = Instant.ofEpochMilli(entity.timestamp),
             reading = BloodPressureReading(entity.systolic, entity.diastolic, entity.pulse),
-            category = NhgBloodPressureCategory.fromStoredName(entity.category)
+            category = NhgBloodPressureCategory.fromStoredName(entity.category),
+            comment = EntryComment.ofOrNull(entity.comment)
         )
     }
 
@@ -68,7 +72,8 @@ object HealthLogMapper {
             timestamp = domain.timestamp.toEpochMilli(),
             glucoseMmolL = domain.glucose.valueInMmolL.toDouble(),
             context = domain.context.name,
-            category = domain.category.name
+            category = domain.category.name,
+            comment = domain.comment?.text
         )
     }
 
@@ -79,7 +84,8 @@ object HealthLogMapper {
             timestamp = Instant.ofEpochMilli(entity.timestamp),
             glucose = GlucoseLevel(BigDecimal.valueOf(entity.glucoseMmolL)),
             context = GlucoseContext.valueOf(entity.context),
-            category = NhgGlucoseCategory.valueOf(entity.category)
+            category = NhgGlucoseCategory.valueOf(entity.category),
+            comment = EntryComment.ofOrNull(entity.comment)
         )
     }
 
@@ -90,7 +96,8 @@ object HealthLogMapper {
             profileId = domain.profileId.value.toString(),
             startTime = domain.startTime.toEpochMilli(),
             endTime = domain.endTime.toEpochMilli(),
-            distanceMeters = domain.distanceInMeters
+            distanceMeters = domain.distanceInMeters,
+            comment = domain.comment?.text
         )
     }
 
@@ -100,7 +107,8 @@ object HealthLogMapper {
             profileId = ProfileId.fromString(entity.profileId),
             startTime = Instant.ofEpochMilli(entity.startTime),
             endTime = Instant.ofEpochMilli(entity.endTime),
-            distanceInMeters = entity.distanceMeters
+            distanceInMeters = entity.distanceMeters,
+            comment = EntryComment.ofOrNull(entity.comment)
         )
     }
 
@@ -111,7 +119,8 @@ object HealthLogMapper {
             profileId = domain.profileId.value.toString(),
             timestamp = domain.timestamp.toEpochMilli(),
             waistCm = domain.waist.value,
-            category = domain.category?.name
+            category = domain.category?.name,
+            comment = domain.comment?.text
         )
     }
 
@@ -121,7 +130,8 @@ object HealthLogMapper {
             profileId = ProfileId.fromString(entity.profileId),
             timestamp = Instant.ofEpochMilli(entity.timestamp),
             waist = WaistCircumferenceCm(entity.waistCm),
-            category = entity.category?.let { NhgWaistCircumferenceCategory.valueOf(it) }
+            category = entity.category?.let { NhgWaistCircumferenceCategory.valueOf(it) },
+            comment = EntryComment.ofOrNull(entity.comment)
         )
     }
 }

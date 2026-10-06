@@ -14,5 +14,6 @@ data class ActivityEntity(
     val profileId: String,
     val startTime: Long,
     val endTime: Long,
-    val distanceMeters: Double
+    val distanceMeters: Double,
+    val comment: String? = null
 )

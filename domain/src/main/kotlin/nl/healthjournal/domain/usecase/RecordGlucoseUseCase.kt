@@ -1,5 +1,6 @@
 package nl.healthjournal.domain.usecase
 
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.GlucoseContext
@@ -19,7 +20,8 @@ class RecordGlucoseUseCase(
         valueInMmolL: BigDecimal? = null,
         valueInMgDl: BigDecimal? = null,
         timestamp: Instant = Instant.now(),
-        measurementId: MeasurementId = MeasurementId.generate()
+        measurementId: MeasurementId = MeasurementId.generate(),
+        comment: String? = null
     ): GlucoseEntry {
         require(valueInMmolL != null || valueInMgDl != null) {
             "Either valueInMmolL or valueInMgDl must be provided"
@@ -39,7 +41,8 @@ class RecordGlucoseUseCase(
             timestamp = timestamp,
             glucose = level,
             context = context,
-            category = category
+            category = category,
+            comment = EntryComment.ofOrNull(comment)
         )
 
         healthLogRepository.saveGlucose(entry)

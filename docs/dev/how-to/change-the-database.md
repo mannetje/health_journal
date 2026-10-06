@@ -28,7 +28,7 @@ Prefer a **read mapping** when only the meaning of a stored string changes. The 
    }
    ```
 
-4. Register it: `.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)` in `create`, and append yours. The list always contains every migration, never only the newest. The database is at version 4 today, so the next change is `Migration(4, 5)`.
+4. Register it: `.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)` in `create`, and append yours. The list always contains every migration, never only the newest. The database is at version 5 today, so the next change is `Migration(5, 6)`.
 5. **Never use destructive migration** (`fallbackToDestructiveMigration`). Existing users must keep their data.
 6. New columns must be nullable or have a default, so existing rows stay valid.
 

@@ -1,5 +1,6 @@
 package nl.healthjournal.domain.usecase
 
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import nl.healthjournal.domain.model.metrics.WeightKg
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
@@ -18,11 +19,12 @@ class UpdateWeightUseCase(
         id: MeasurementId,
         profileId: ProfileId,
         weightKg: BigDecimal,
-        timestamp: Instant
+        timestamp: Instant,
+        comment: String? = null
     ): WeightEntry? {
         val weight = WeightKg(weightKg)
         val bmi = profileRepository.getById(profileId)?.calculateBmi(weight)?.bmi
-        val entry = WeightEntry(id = id, profileId = profileId, timestamp = timestamp, weight = weight, bmi = bmi)
+        val entry = WeightEntry(id = id, profileId = profileId, timestamp = timestamp, weight = weight, bmi = bmi, comment = EntryComment.ofOrNull(comment))
         return entry.takeIf { healthLogRepository.updateWeight(it) }
     }
 }

@@ -225,26 +225,27 @@ class HistoryViewModel(
         }
     }
 
-    fun updateWeight(entry: WeightEntry, weightKg: BigDecimal, timestamp: Instant) =
-        runUpdate { entryUseCases.updateWeight(entry.id, entry.profileId, weightKg, timestamp) }
+    fun updateWeight(entry: WeightEntry, weightKg: BigDecimal, timestamp: Instant, comment: String?) =
+        runUpdate { entryUseCases.updateWeight(entry.id, entry.profileId, weightKg, timestamp, comment = comment) }
 
-    fun updateBloodPressure(entry: BloodPressureEntry, systolic: Int, diastolic: Int, timestamp: Instant) =
-        runUpdate { entryUseCases.updateBloodPressure(entry.id, entry.profileId, systolic, diastolic, timestamp) }
+    fun updateBloodPressure(entry: BloodPressureEntry, systolic: Int, diastolic: Int, timestamp: Instant, comment: String?) =
+        runUpdate { entryUseCases.updateBloodPressure(entry.id, entry.profileId, systolic, diastolic, timestamp, comment = comment) }
 
-    fun updateGlucose(entry: GlucoseEntry, context: GlucoseContext, valueInMmolL: BigDecimal, timestamp: Instant) =
-        runUpdate { entryUseCases.updateGlucose(entry.id, entry.profileId, context, valueInMmolL, timestamp) }
+    fun updateGlucose(entry: GlucoseEntry, context: GlucoseContext, valueInMmolL: BigDecimal, timestamp: Instant, comment: String?) =
+        runUpdate { entryUseCases.updateGlucose(entry.id, entry.profileId, context, valueInMmolL, timestamp, comment = comment) }
 
-    fun updateWaistCircumference(entry: WaistCircumferenceEntry, waistCm: Double, timestamp: Instant) =
-        runUpdate { entryUseCases.updateWaistCircumference(entry.id, entry.profileId, waistCm, timestamp) }
+    fun updateWaistCircumference(entry: WaistCircumferenceEntry, waistCm: Double, timestamp: Instant, comment: String?) =
+        runUpdate { entryUseCases.updateWaistCircumference(entry.id, entry.profileId, waistCm, timestamp, comment = comment) }
 
-    fun updateActivity(session: ActivitySession, durationSeconds: Long, distanceInMeters: Double) =
+    fun updateActivity(session: ActivitySession, durationSeconds: Long, distanceInMeters: Double, comment: String?) =
         runUpdate {
             entryUseCases.updateActivity(
                 session.id,
                 session.profileId,
                 session.startTime,
                 session.startTime.plusSeconds(durationSeconds),
-                distanceInMeters
+                distanceInMeters,
+                comment = comment
             )
         }
 

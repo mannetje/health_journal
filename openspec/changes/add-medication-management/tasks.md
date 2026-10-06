@@ -11,7 +11,7 @@
 - [ ] 1.1c Use only placeholder medication names ("Medication A") in specs, tests, strings and screenshots; name field is free text without suggestions
 - [ ] 1.2 `Schedule.plannedFor(date)` with tests (weekdays, every N days, start and end, daylight saving)
 - [ ] 1.3 `MedicationRepositoryPort` and use cases (save, archive, delete, record intake, list day)
-- [ ] 1.4 Room v5 (the database is at v4 today): `MedicationEntity`, `MedicationTimeEntity`, `IntakeEntity`, DAOs, mapper, `RoomMedicationRepository`, hand-written `MIGRATION_4_5` and a migration test (shares the in-memory test setup with the missing edit/delete DAO tests)
+- [ ] 1.4 Room v6 (the database is at v5 today): `MedicationEntity`, `MedicationTimeEntity`, `IntakeEntity`, DAOs, mapper, `RoomMedicationRepository`, hand-written `MIGRATION_5_6` and a migration test (shares the in-memory test setup with the missing edit/delete DAO tests)
 - [ ] 1.4b Wire the use cases in `HealthJournalApp` and a `MedicationViewModel.Factory` in `MainActivity`, add the fourth `NavigationBarItem`, clear messages on tab change
 - [ ] 1.5 Medication tab (💊, second position) with sub-tabs Today (pillbox day view and week strip), Medications (list, add and edit) and Adherence placeholder; pill icon; Profile section for medication settings and notice
 - [ ] 1.6 English and Dutch strings, `UiText` messages, disclaimer
@@ -64,7 +64,7 @@
 
 ## 4d. Contracts and portability
 - [ ] 4d.1 `data-export` delta: medications, schedule and intakes CSV files, enum names, round trip and duplicate-skipping tests
-- [ ] 4d.2 `platform-android` delta (reminders, permissions, backup rules, lock, SQLCipher, notification locale, Room v5) implemented and the manifest check added
+- [ ] 4d.2 `platform-android` delta (reminders, permissions, backup rules, lock, SQLCipher, notification locale, Room v6) implemented and the manifest check added
 - [ ] 4d.3 Keep the neutral specs platform-free: a review check that `privacy`, `medication`, `compliance`, `localization` and `data-export` contain no platform API names (manifest, Keystore, AlarmManager, Room, Compose)
 
 ## 5. Phase 5: Docs

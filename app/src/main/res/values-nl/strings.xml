@@ -51,6 +51,8 @@
     <string name="log_distance_placeholder_imperial">bijv. 3,1</string>
     <string name="log_saving">Opslaan…</string>
     <string name="log_record_entry">Opslaan</string>
+    <string name="comment_label">Opmerking (optioneel)</string>
+    <string name="comment_counter">%1$d/%2$d</string>
     <string name="log_waist_label">Middelomtrek (cm)</string>
     <string name="log_waist_placeholder">bijv. 82</string>
     <string name="log_waist_badge">Middelomtrek: %1$s cm — %2$s</string>
@@ -74,6 +76,7 @@
     <string name="history_start_line">Start: %1$s</string>
     <string name="history_waist_line">Middelomtrek: %1$s cm</string>
     <string name="history_export_dialog_title">CSV Exporteren</string>
+    <string name="history_export_comments_note">Opmerkingen staan in de geëxporteerde bestanden.</string>
     <string name="history_export_weight">Gewicht CSV Exporteren</string>
     <string name="history_export_bp">Bloeddruk CSV Exporteren</string>
     <string name="history_export_glucose">Glucose CSV Exporteren</string>

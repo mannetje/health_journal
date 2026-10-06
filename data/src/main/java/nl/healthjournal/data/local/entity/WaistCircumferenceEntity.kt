@@ -14,5 +14,6 @@ data class WaistCircumferenceEntity(
     val profileId: String,
     val timestamp: Long, // Epoch millis
     val waistCm: Double,
-    val category: String?
+    val category: String?,
+    val comment: String? = null
 )

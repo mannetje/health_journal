@@ -1,1 +1,0 @@
-Planned: ADR 0019, "Optional comment on every entry" (nullable `comment` column on each entry table, 200-character limit, RFC 4180 CSV quoting). To be written in `docs/adr/` when the change is implemented.

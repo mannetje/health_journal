@@ -23,7 +23,7 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.5.0)](https://github.com/mannetje/health_journal/releases/latest)**  
+👉 **[Download Latest APK (v1.5.1)](https://github.com/mannetje/health_journal/releases/latest)**  
 See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ---
@@ -64,6 +64,7 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ### Key Features
 - **Body Weight & BMI:** Record body weight in kilograms, automatically deriving Body Mass Index (BMI) based on profile height, categorized according to NHG/WHO standards.
+- **Optional comments:** every entry type (weight, blood pressure, glucose, waist, activity) can carry a short single-line note of up to 200 characters. Add it while logging or in the edit dialog; History shows it under the entry (two lines, then an ellipsis). Comments are stored in the same database and included in CSV export and import ([ADR 0019](docs/adr/0019-entry-comments.md)).
 - **Waist Circumference (optional):** Record waist circumference in centimetres; categorized against Voedingscentrum's sex-specific healthy-range thresholds when Profile sex is set. It is recorded on its own Waist tab (never part of the weight entry) and has its own History filter, edit, delete, CSV export and import. Labels use the authority wording (Healthy, Increased risk, High risk) with the range for the profile's sex.
 - **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, with an optional pulse (30 to 250 bpm), automatically shown against three bands from the Dutch NHG standard: Normal (below 140/90), High (from 140/90) and Seriously raised (from 180/110). Labels name the band with its range and never a condition; an "About these ranges" note links the sources. Older entries keep working: the six previous names are read as the new bands.
 - **Smart input pickers:** weight and waist use a horizontal ruler picker, and blood pressure and pulse use three stacked scrolling rows. The starting value comes from a fallback chain: your latest entry, then a value derived from your profile (for example height for weight), then a standard default ([ADR 0018](docs/adr/0018-smart-input-pickers.md)). Each entry saves one metric; waist has its own tab.
@@ -154,7 +155,7 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.5.0-debug.apk`.
+2. Download `health-journal-v1.5.1-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
@@ -224,14 +225,16 @@ All data files must be encoded in **UTF-8**.
 
 | Metric | Format | Headers | Example Row |
 |---|---|---|---|
-| **Weight & BMI** | CSV | `timestamp,weight_kg,bmi` | `2026-09-09T10:00:00Z,74.5,23.5` |
-| **Blood Pressure** | CSV | `timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification` | `2026-09-09T08:30:00Z,124,78,68,NORMAL` |
-| **Blood Glucose** | CSV | `timestamp,glucose_mmol_l,context,classification` | `2026-09-09T07:15:00Z,5.4,FASTING,NORMAL` |
-| **Waist Circumference** | CSV | `timestamp,waist_cm,classification` | `2026-09-09T08:00:00Z,86.5,INCREASED_RISK` |
-| **Activity Session** | CSV | `start_timestamp,end_timestamp,distance_m,duration_s` | `2026-09-09T18:00:00Z,2026-09-09T18:45:00Z,5200,2700` |
+| **Weight & BMI** | CSV | `timestamp,weight_kg,bmi,comment` | `2026-09-09T10:00:00Z,74.5,23.5,After breakfast` |
+| **Blood Pressure** | CSV | `timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification,comment` | `2026-09-09T08:30:00Z,124,78,68,NORMAL,` |
+| **Blood Glucose** | CSV | `timestamp,glucose_mmol_l,context,classification,comment` | `2026-09-09T07:15:00Z,5.4,FASTING,NORMAL,"Felt dizzy, rested"` |
+| **Waist Circumference** | CSV | `timestamp,waist_cm,classification,comment` | `2026-09-09T08:00:00Z,86.5,INCREASED_RISK,` |
+| **Activity Session** | CSV | `start_timestamp,end_timestamp,distance_m,duration_s,comment` | `2026-09-09T18:00:00Z,2026-09-09T18:45:00Z,5200,2700,Evening walk` |
 | **Weight (Libra)** | Libra CSV (`net.cachapa.libra`) | `#Units: kg\|lbs`, `#date;weight;...` (semicolon-delimited) | `2026-09-09T08:00:00.000Z;74.5;;;` |
 
 > **Older blood pressure files** without the `pulse_bpm` column still import (the pulse stays empty). The classification column is always recomputed on import.
+
+> **Comments:** every file ends with an optional `comment` column (single line, at most 200 characters). Cells with a comma or a quote are wrapped in double quotes (RFC 4180). Older files without the column still import. In the standard CSV an over-long comment skips that row; the Libra import reads its `comments` column and cuts a longer comment to its first 200 characters.
 
 > **Libra auto-detection:** Pasting a Libra export into the Weight import or selecting "Libra (CSV)" in the import dialog will both work. Unit conversion from lbs to kg (factor: 1 lb = 0.45359237 kg) is applied automatically when `#Units: lbs` is present.
 
@@ -264,6 +267,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0016: Updating the Profile Edits the Active Profile](docs/adr/0016-profile-update-edits-active-profile.md)
 - [ADR 0017: In-App Theme Choice (System, Light, Dark)](docs/adr/0017-in-app-theme-choice.md)
 - [ADR 0018: Smart Input Pickers, Pulse and Standalone Waist](docs/adr/0018-smart-input-pickers.md)
+- [ADR 0019: Optional Comment on Every Entry](docs/adr/0019-entry-comments.md)
 
 ---
 
@@ -295,6 +299,7 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
   - [x] [Edit and delete entries](openspec/changes/archive/2026-09-30-feature-edit-delete-entries/proposal.md) — Edit/Delete icon buttons on History entries, pre-filled edit dialog, delete confirmation (implemented; pending emulator verification).
   - [x] [Optional waist circumference tracking](openspec/changes/archive/2026-10-05-add-waist-circumference-tracking/proposal.md) — sex-specific Voedingscentrum thresholds; low-priority/optional.
   - [x] [Smart Pre-fill and Scrolling Number Pickers](openspec/changes/archive/2026-10-05-feature-smart-input-pickers/proposal.md) — canvas ruler pickers, stacked BP/pulse scrolling rows, and smart pre-fill fallback chain.
+  - [x] [Optional comments on all entries](openspec/changes/archive/2026-10-06-add-entry-comments/proposal.md) — single-line note (max 200 characters) on every entry type, shown in History, in CSV and in the Libra import (1.5.1).
 - [ ] **Phase 5: Medication management (💊 tab)** (proposed, see the [OpenSpec change](openspec/changes/add-medication-management/proposal.md)). A personal reminder and logging tool, never a medical device, with no advice and no medicine names built in:
   - [ ] Phase 5a: Medications (any form: tablets, liquids, sprays, injectables; custom doses and units) and the pillbox day view, in English and Dutch.
   - [ ] Phase 5b: Reminders with Taken and Snooze actions.

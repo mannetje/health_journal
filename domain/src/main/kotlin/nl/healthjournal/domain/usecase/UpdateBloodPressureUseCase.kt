@@ -1,5 +1,6 @@
 package nl.healthjournal.domain.usecase
 
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.BloodPressureReading
 import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
@@ -18,7 +19,8 @@ class UpdateBloodPressureUseCase(
         systolic: Int,
         diastolic: Int,
         timestamp: Instant,
-        pulse: Int? = null
+        pulse: Int? = null,
+        comment: String? = null
     ): BloodPressureEntry? {
         val reading = BloodPressureReading(systolic = systolic, diastolic = diastolic, pulse = pulse)
         val entry = BloodPressureEntry(
@@ -26,7 +28,8 @@ class UpdateBloodPressureUseCase(
             profileId = profileId,
             timestamp = timestamp,
             reading = reading,
-            category = NhgBloodPressureCategory.classify(reading)
+            category = NhgBloodPressureCategory.classify(reading),
+            comment = EntryComment.ofOrNull(comment)
         )
         return entry.takeIf { healthLogRepository.updateBloodPressure(it) }
     }

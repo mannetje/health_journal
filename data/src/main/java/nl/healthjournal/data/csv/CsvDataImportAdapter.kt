@@ -21,6 +21,9 @@ import java.time.ZoneOffset
 /** Factor for converting pounds to kilograms (1 lb = 0.45359237 kg). */
 private val LBS_TO_KG = BigDecimal("0.45359237")
 
+/** Position of the `comments` column in a Libra export. */
+private const val LIBRA_COMMENT_COLUMN = 8
+
 /** Physiological weight bounds used for Libra row validation. */
 private const val WEIGHT_MIN_KG = 1.0
 private const val WEIGHT_MAX_KG = 700.0
@@ -75,14 +78,16 @@ class CsvDataImportAdapter(
 
         val profile = profileRepository.getById(profileId)
         val dataLines = lines.drop(1)
+        val commentColumn = CsvQuoting.split(lines.first()).indexOfFirst { it.equals("comment", ignoreCase = true) }
         val skippedRows = mutableListOf<SkippedRow>()
         var importedCount = 0
 
         for ((index, line) in dataLines.withIndex()) {
             val lineNumber = lineNumbers[index + 1] // physical line; the header is the first non-blank line
-            val parts = line.split(",").map { it.trim() }
+            val parts = CsvQuoting.split(line)
 
             try {
+                val comment = parseComment(parts, commentColumn)
                 when (normalizedType) {
                     "weight" -> {
                         if (parts.size < 2) {
@@ -98,7 +103,8 @@ class CsvDataImportAdapter(
                             profileId = profileId,
                             timestamp = timestamp,
                             weight = weightKg,
-                            bmi = bmi
+                            bmi = bmi,
+                            comment = comment
                         )
                         healthLogRepository.saveWeight(entry)
                         importedCount++
@@ -119,7 +125,8 @@ class CsvDataImportAdapter(
                             profileId = profileId,
                             timestamp = timestamp,
                             reading = reading,
-                            category = category
+                            category = category,
+                            comment = comment
                         )
                         healthLogRepository.saveBloodPressure(entry)
                         importedCount++
@@ -139,7 +146,8 @@ class CsvDataImportAdapter(
                             timestamp = timestamp,
                             glucose = glucoseLevel,
                             context = context,
-                            category = category
+                            category = category,
+                            comment = comment
                         )
                         healthLogRepository.saveGlucose(entry)
                         importedCount++
@@ -157,7 +165,8 @@ class CsvDataImportAdapter(
                             profileId = profileId,
                             startTime = startTime,
                             endTime = endTime,
-                            distanceInMeters = distanceMeters
+                            distanceInMeters = distanceMeters,
+                            comment = comment
                         )
                         healthLogRepository.saveActivity(session)
                         importedCount++
@@ -176,7 +185,8 @@ class CsvDataImportAdapter(
                             profileId = profileId,
                             timestamp = timestamp,
                             waist = waist,
-                            category = category
+                            category = category,
+                            comment = comment
                         )
                         healthLogRepository.saveWaistCircumference(entry)
                         importedCount++
@@ -292,7 +302,8 @@ class CsvDataImportAdapter(
                     profileId = profileId,
                     timestamp = timestamp,
                     weight = weight,
-                    bmi = bmi
+                    bmi = bmi,
+                    comment = parseComment(parts, LIBRA_COMMENT_COLUMN, clip = true)
                 )
                 healthLogRepository.saveWeight(entry)
                 importedCount++
@@ -302,6 +313,23 @@ class CsvDataImportAdapter(
         }
 
         return ImportResult(importedCount = importedCount, skippedRows = skippedRows)
+    }
+
+    /**
+     * Reads the optional comment cell at [index]. Returns null when the column is absent or blank.
+     * A comment over the limit fails the row, unless [clip] is set (Libra import): then it is cut to
+     * the first [EntryComment.MAX_LENGTH] characters.
+     */
+    private fun parseComment(parts: List<String>, index: Int, clip: Boolean = false): EntryComment? {
+        val raw = parts.getOrNull(index) ?: return null
+        var text = EntryComment.normalize(raw)
+        if (text.length > EntryComment.MAX_LENGTH) {
+            if (!clip) {
+                throw IllegalArgumentException("Comment longer than ${EntryComment.MAX_LENGTH} characters")
+            }
+            text = text.take(EntryComment.MAX_LENGTH).trimEnd()
+        }
+        return EntryComment.ofOrNull(text)
     }
 
     /**

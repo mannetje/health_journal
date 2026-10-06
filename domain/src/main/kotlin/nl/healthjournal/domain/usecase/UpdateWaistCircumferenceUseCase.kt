@@ -1,5 +1,6 @@
 package nl.healthjournal.domain.usecase
 
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceCm
@@ -17,11 +18,12 @@ class UpdateWaistCircumferenceUseCase(
         id: MeasurementId,
         profileId: ProfileId,
         waistCm: Double,
-        timestamp: Instant
+        timestamp: Instant,
+        comment: String? = null
     ): WaistCircumferenceEntry? {
         val waist = WaistCircumferenceCm(waistCm)
         val category = profileRepository.getById(profileId)?.classifyWaistCircumference(waist)
-        val entry = WaistCircumferenceEntry(id = id, profileId = profileId, timestamp = timestamp, waist = waist, category = category)
+        val entry = WaistCircumferenceEntry(id = id, profileId = profileId, timestamp = timestamp, waist = waist, category = category, comment = EntryComment.ofOrNull(comment))
         return entry.takeIf { healthLogRepository.updateWaistCircumference(it) }
     }
 }

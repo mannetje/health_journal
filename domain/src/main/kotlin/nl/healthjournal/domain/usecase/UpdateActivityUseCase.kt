@@ -1,5 +1,6 @@
 package nl.healthjournal.domain.usecase
 
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
@@ -15,14 +16,16 @@ class UpdateActivityUseCase(
         profileId: ProfileId,
         startTime: Instant,
         endTime: Instant,
-        distanceInMeters: Double
+        distanceInMeters: Double,
+        comment: String? = null
     ): ActivitySession? {
         val session = ActivitySession(
             id = id,
             profileId = profileId,
             startTime = startTime,
             endTime = endTime,
-            distanceInMeters = distanceInMeters
+            distanceInMeters = distanceInMeters,
+            comment = EntryComment.ofOrNull(comment)
         )
         return session.takeIf { healthLogRepository.updateActivity(it) }
     }

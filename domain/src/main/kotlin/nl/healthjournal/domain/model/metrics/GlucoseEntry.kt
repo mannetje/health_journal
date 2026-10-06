@@ -11,5 +11,6 @@ data class GlucoseEntry(
     val timestamp: Instant,
     val glucose: GlucoseLevel,
     val context: GlucoseContext,
-    val category: NhgGlucoseCategory
+    val category: NhgGlucoseCategory,
+    val comment: EntryComment? = null
 )

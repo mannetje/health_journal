@@ -11,10 +11,10 @@ class CsvDataExportAdapter(
     override suspend fun exportWeightCsv(profileId: ProfileId): String {
         val history = healthLogRepository.getWeightHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
-        sb.append("timestamp,weight_kg,bmi\n")
+        sb.append("timestamp,weight_kg,bmi,comment\n")
         for (entry in history) {
             val bmiStr = entry.bmi?.toPlainString() ?: ""
-            sb.append("${entry.timestamp},${entry.weight.value.toPlainString()},$bmiStr\n")
+            sb.append("${entry.timestamp},${entry.weight.value.toPlainString()},$bmiStr,${CsvQuoting.cell(entry.comment?.text)}\n")
         }
         return sb.toString()
     }
@@ -22,10 +22,10 @@ class CsvDataExportAdapter(
     override suspend fun exportBloodPressureCsv(profileId: ProfileId): String {
         val history = healthLogRepository.getBloodPressureHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
-        sb.append("timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification\n")
+        sb.append("timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification,comment\n")
         for (entry in history) {
             val pulseStr = entry.reading.pulse?.toString() ?: ""
-            sb.append("${entry.timestamp},${entry.reading.systolic},${entry.reading.diastolic},$pulseStr,${entry.category.name}\n")
+            sb.append("${entry.timestamp},${entry.reading.systolic},${entry.reading.diastolic},$pulseStr,${entry.category.name},${CsvQuoting.cell(entry.comment?.text)}\n")
         }
         return sb.toString()
     }
@@ -33,9 +33,9 @@ class CsvDataExportAdapter(
     override suspend fun exportGlucoseCsv(profileId: ProfileId): String {
         val history = healthLogRepository.getGlucoseHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
-        sb.append("timestamp,glucose_mmol_l,context,classification\n")
+        sb.append("timestamp,glucose_mmol_l,context,classification,comment\n")
         for (entry in history) {
-            sb.append("${entry.timestamp},${entry.glucose.valueInMmolL.toPlainString()},${entry.context.name},${entry.category.name}\n")
+            sb.append("${entry.timestamp},${entry.glucose.valueInMmolL.toPlainString()},${entry.context.name},${entry.category.name},${CsvQuoting.cell(entry.comment?.text)}\n")
         }
         return sb.toString()
     }
@@ -43,9 +43,9 @@ class CsvDataExportAdapter(
     override suspend fun exportActivityCsv(profileId: ProfileId): String {
         val history = healthLogRepository.getActivityHistory(profileId).sortedBy { it.startTime }
         val sb = StringBuilder()
-        sb.append("start_timestamp,end_timestamp,distance_m,duration_s\n")
+        sb.append("start_timestamp,end_timestamp,distance_m,duration_s,comment\n")
         for (session in history) {
-            sb.append("${session.startTime},${session.endTime},${session.distanceInMeters},${session.durationInSeconds}\n")
+            sb.append("${session.startTime},${session.endTime},${session.distanceInMeters},${session.durationInSeconds},${CsvQuoting.cell(session.comment?.text)}\n")
         }
         return sb.toString()
     }
@@ -53,10 +53,10 @@ class CsvDataExportAdapter(
     override suspend fun exportWaistCircumferenceCsv(profileId: ProfileId): String {
         val history = healthLogRepository.getWaistCircumferenceHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
-        sb.append("timestamp,waist_cm,classification\n")
+        sb.append("timestamp,waist_cm,classification,comment\n")
         for (entry in history) {
             val categoryStr = entry.category?.name ?: ""
-            sb.append("${entry.timestamp},${entry.waist.value},$categoryStr\n")
+            sb.append("${entry.timestamp},${entry.waist.value},$categoryStr,${CsvQuoting.cell(entry.comment?.text)}\n")
         }
         return sb.toString()
     }

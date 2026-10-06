@@ -10,5 +10,6 @@ data class WaistCircumferenceEntry(
     val profileId: ProfileId,
     val timestamp: Instant,
     val waist: WaistCircumferenceCm,
-    val category: NhgWaistCircumferenceCategory? = null
+    val category: NhgWaistCircumferenceCategory? = null,
+    val comment: EntryComment? = null
 )

@@ -1,5 +1,6 @@
 package nl.healthjournal.domain.usecase
 
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.ActivitySession
@@ -14,14 +15,16 @@ class RecordActivityUseCase(
         startTime: Instant,
         endTime: Instant,
         distanceInMeters: Double,
-        measurementId: MeasurementId = MeasurementId.generate()
+        measurementId: MeasurementId = MeasurementId.generate(),
+        comment: String? = null
     ): ActivitySession {
         val session = ActivitySession(
             id = measurementId,
             profileId = profileId,
             startTime = startTime,
             endTime = endTime,
-            distanceInMeters = distanceInMeters
+            distanceInMeters = distanceInMeters,
+            comment = EntryComment.ofOrNull(comment)
         )
 
         healthLogRepository.saveActivity(session)

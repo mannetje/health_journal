@@ -77,6 +77,9 @@ data class LoggingUiState(
     val waistInput: String = "90.0",
     val previewWaistCategory: NhgWaistCircumferenceCategory? = null,
 
+    // Optional comment for the entry being logged (one draft, cleared after save and on tab change)
+    val commentInput: String = "",
+
     val isSaving: Boolean = false,
     val successMessage: UiText? = null,
     val errorMessage: UiText? = null
@@ -168,6 +171,7 @@ class LoggingViewModel(
     fun selectMetric(metric: MetricType) {
         _uiState.value = _uiState.value.copy(
             selectedMetric = metric,
+            commentInput = "",
             errorMessage = null,
             successMessage = null
         )
@@ -342,6 +346,7 @@ class LoggingViewModel(
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSaving = true, errorMessage = null, successMessage = null)
+            val comment = _uiState.value.commentInput
             try {
                 when (_uiState.value.selectedMetric) {
                     MetricType.WEIGHT -> {
@@ -349,7 +354,7 @@ class LoggingViewModel(
                         val weightKg = _uiState.value.weightInput.parseDecimal()?.let { current.weightToKg(it) }
                             ?: throw UiTextException(UiText.Res(R.string.log_err_weight, current.weightSymbol))
                         val timestamp = Instant.now()
-                        recordWeightUseCase(profile.id, UnitConversion.toStoredKg(weightKg), timestamp)
+                        recordWeightUseCase(profile.id, UnitConversion.toStoredKg(weightKg), timestamp, comment = comment)
                         _uiState.value = _uiState.value.copy(
                             previewBmi = null,
                             previewBmiCategory = null,
@@ -362,7 +367,7 @@ class LoggingViewModel(
                         val dia = _uiState.value.diastolicInput.toIntOrNull()
                             ?: throw UiTextException(UiText.Res(R.string.log_err_diastolic))
                         val pulse = _uiState.value.pulseValue
-                        recordBloodPressureUseCase(profile.id, sys, dia, pulse)
+                        recordBloodPressureUseCase(profile.id, sys, dia, pulse, comment = comment)
                         _uiState.value = _uiState.value.copy(
                             successMessage = UiText.Res(R.string.log_msg_bp_saved)
                         )
@@ -374,13 +379,15 @@ class LoggingViewModel(
                             recordGlucoseUseCase(
                                 profileId = profile.id,
                                 context = _uiState.value.glucoseContext,
-                                valueInMgDl = BigDecimal.valueOf(gVal)
+                                valueInMgDl = BigDecimal.valueOf(gVal),
+                                comment = comment
                             )
                         } else {
                             recordGlucoseUseCase(
                                 profileId = profile.id,
                                 context = _uiState.value.glucoseContext,
-                                valueInMmolL = BigDecimal.valueOf(gVal)
+                                valueInMmolL = BigDecimal.valueOf(gVal),
+                                comment = comment
                             )
                         }
                         _uiState.value = _uiState.value.copy(
@@ -402,7 +409,8 @@ class LoggingViewModel(
                             profileId = profile.id,
                             startTime = startTime,
                             endTime = endTime,
-                            distanceInMeters = distanceMeters
+                            distanceInMeters = distanceMeters,
+                            comment = comment
                         )
                         _uiState.value = _uiState.value.copy(
                             activityDurationInput = "",
@@ -414,19 +422,26 @@ class LoggingViewModel(
                         val cm = _uiState.value.waistInput.toDoubleOrNull()
                             ?.takeIf { it in WaistCircumferenceCm.MIN_CM..WaistCircumferenceCm.MAX_CM }
                             ?: throw UiTextException(UiText.Res(R.string.log_err_waist))
-                        recordWaistCircumferenceUseCase(profile.id, cm)
+                        recordWaistCircumferenceUseCase(profile.id, cm, comment = comment)
                         _uiState.value = _uiState.value.copy(
                             previewWaistCategory = null,
                             successMessage = UiText.Res(R.string.log_msg_waist_saved)
                         )
                     }
                 }
+                _uiState.value = _uiState.value.copy(commentInput = "")
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(errorMessage = e.toUiText(R.string.log_err_save_failed))
             } finally {
                 _uiState.value = _uiState.value.copy(isSaving = false)
             }
         }
+    }
+
+    /** Keeps the draft comment single-line and within the limit, so the field can never hold an invalid value. */
+    fun onCommentChanged(input: String) {
+        val cleaned = input.replace(Regex("[\r\n]+"), " ").take(EntryComment.MAX_LENGTH)
+        _uiState.value = _uiState.value.copy(commentInput = cleaned, errorMessage = null)
     }
 
     fun clearMessages() {

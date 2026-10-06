@@ -10,7 +10,8 @@ data class ActivitySession(
     val profileId: ProfileId,
     val startTime: Instant,
     val endTime: Instant,
-    val distanceInMeters: Double
+    val distanceInMeters: Double,
+    val comment: EntryComment? = null
 ) {
     init {
         require(endTime.isAfter(startTime)) {

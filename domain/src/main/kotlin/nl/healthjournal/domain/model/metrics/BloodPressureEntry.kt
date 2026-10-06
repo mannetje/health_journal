@@ -10,5 +10,6 @@ data class BloodPressureEntry(
     val profileId: ProfileId,
     val timestamp: Instant,
     val reading: BloodPressureReading,
-    val category: NhgBloodPressureCategory
+    val category: NhgBloodPressureCategory,
+    val comment: EntryComment? = null
 )

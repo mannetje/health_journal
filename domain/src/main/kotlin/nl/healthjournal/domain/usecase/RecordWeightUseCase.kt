@@ -1,5 +1,6 @@
 package nl.healthjournal.domain.usecase
 
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.WeightEntry
@@ -17,7 +18,8 @@ class RecordWeightUseCase(
         profileId: ProfileId,
         weightKg: BigDecimal,
         timestamp: Instant = Instant.now(),
-        measurementId: MeasurementId = MeasurementId.generate()
+        measurementId: MeasurementId = MeasurementId.generate(),
+        comment: String? = null
     ): WeightEntry {
         val weight = WeightKg(weightKg)
         val profile = profileRepository.getById(profileId)
@@ -29,7 +31,8 @@ class RecordWeightUseCase(
             profileId = profileId,
             timestamp = timestamp,
             weight = weight,
-            bmi = bmi
+            bmi = bmi,
+            comment = EntryComment.ofOrNull(comment)
         )
 
         healthLogRepository.saveWeight(entry)

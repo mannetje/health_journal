@@ -15,5 +15,6 @@ data class GlucoseEntity(
     val timestamp: Long,
     val glucoseMmolL: Double,
     val context: String,
-    val category: String
+    val category: String,
+    val comment: String? = null
 )

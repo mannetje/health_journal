@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
+import nl.healthjournal.app.ui.common.CommentField
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.asString
 import nl.healthjournal.domain.model.common.GlucoseUnit
@@ -276,6 +277,11 @@ fun LogMetricScreen(
                 }
             }
         }
+
+        CommentField(
+            value = state.commentInput,
+            onValueChange = { viewModel.onCommentChanged(it) }
+        )
 
         if (state.selectedMetric != MetricType.ACTIVITY) {
             RangeSourceNote()

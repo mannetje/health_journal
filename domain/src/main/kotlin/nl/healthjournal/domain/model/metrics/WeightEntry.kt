@@ -10,5 +10,6 @@ data class WeightEntry(
     val profileId: ProfileId,
     val timestamp: Instant,
     val weight: WeightKg,
-    val bmi: BigDecimal? = null
+    val bmi: BigDecimal? = null,
+    val comment: EntryComment? = null
 )

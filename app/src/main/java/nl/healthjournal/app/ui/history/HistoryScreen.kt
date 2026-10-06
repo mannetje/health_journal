@@ -15,6 +15,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
+import nl.healthjournal.domain.model.metrics.EntryComment
+import androidx.compose.ui.text.style.TextOverflow
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.asString
 import nl.healthjournal.app.ui.common.formatDecimal
@@ -195,6 +197,7 @@ fun HistoryScreen(
                                         Text(stringResource(R.string.history_weight_line, units.formatWeight(w.weight.value.toDouble())), style = MaterialTheme.typography.titleMedium)
                                         w.bmi?.let { Text(stringResource(R.string.history_bmi_line, formatDecimal(it.toDouble(), 1))) }
                                         Text(stringResource(R.string.history_time_line, w.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        CommentLine(w.comment)
                                 }
                             })
                         }
@@ -209,6 +212,7 @@ fun HistoryScreen(
                                         Text(stringResource(R.string.history_bp_line, bp.reading.systolic.toString(), bp.reading.diastolic.toString()), style = MaterialTheme.typography.titleMedium)
                                         Text(bp.category.label())
                                         Text(stringResource(R.string.history_time_line, bp.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        CommentLine(bp.comment)
                                 }
                             })
                         }
@@ -223,6 +227,7 @@ fun HistoryScreen(
                                         Text(stringResource(R.string.history_glucose_line, units.formatGlucose(g.glucose.valueInMmolL.toDouble()), g.context.label()), style = MaterialTheme.typography.titleMedium)
                                         Text(g.category.label(g.context))
                                         Text(stringResource(R.string.history_time_line, g.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        CommentLine(g.comment)
                                 }
                             })
                         }
@@ -236,6 +241,7 @@ fun HistoryScreen(
                                 ) {
                                         Text(stringResource(R.string.history_activity_line, units.formatDistance(a.distanceInMeters), formatMinutes(a.durationInSeconds)), style = MaterialTheme.typography.titleMedium)
                                         Text(stringResource(R.string.history_start_line, a.startTime.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        CommentLine(a.comment)
                                 }
                             })
                         }
@@ -250,6 +256,7 @@ fun HistoryScreen(
                                     Text(stringResource(R.string.history_waist_line, wc.waist.value.toString()), style = MaterialTheme.typography.titleMedium)
                                     wc.category?.let { Text(it.label(state.activeProfile?.sex)) }
                                     Text(stringResource(R.string.history_time_line, wc.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    CommentLine(wc.comment)
                                 }
                             })
                         }
@@ -269,6 +276,11 @@ fun HistoryScreen(
             title = { Text(stringResource(R.string.history_export_dialog_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        stringResource(R.string.history_export_comments_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Button(onClick = { viewModel.exportCsv("weight") }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.history_export_weight))
                     }
@@ -369,4 +381,16 @@ fun HistoryScreen(
             }
         )
     }
+}
+
+/** The entry comment under a History row: at most two lines with an ellipsis, nothing when there is none. */
+@Composable
+private fun CommentLine(comment: EntryComment?) {
+    if (comment == null) return
+    Text(
+        text = comment.text,
+        style = MaterialTheme.typography.bodyMedium,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis
+    )
 }

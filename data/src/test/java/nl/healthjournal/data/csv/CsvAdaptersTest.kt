@@ -13,6 +13,7 @@ import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.math.BigDecimal
@@ -115,7 +116,7 @@ class CsvAdaptersTest {
 
         // Empty export produces header-only CSV
         val emptyCsv = exportAdapter.exportWeightCsv(profile.id)
-        assertEquals("timestamp,weight_kg,bmi\n", emptyCsv)
+        assertEquals("timestamp,weight_kg,bmi,comment\n", emptyCsv)
 
         // Add entries
         val entry1 = WeightEntry(
@@ -130,7 +131,7 @@ class CsvAdaptersTest {
         healthLogRepo.saveWeight(entry1)
 
         val csv = exportAdapter.exportWeightCsv(profile.id)
-        assertTrue(csv.startsWith("timestamp,weight_kg,bmi\n"))
+        assertTrue(csv.startsWith("timestamp,weight_kg,bmi,comment\n"))
         assertTrue(csv.contains("2026-09-20T08:00:00Z,75.0,23.1"))
         assertTrue(csv.contains("2026-09-21T08:00:00Z,74.5,23.0"))
 
@@ -159,7 +160,7 @@ class CsvAdaptersTest {
         healthLogRepo.saveBloodPressure(entry)
 
         val csv = exportAdapter.exportBloodPressureCsv(profile.id)
-        assertTrue(csv.startsWith("timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification\n"))
+        assertTrue(csv.startsWith("timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification,comment\n"))
         assertTrue(csv.contains("2026-09-20T08:00:00Z,120,80,,NORMAL"))
 
         healthLogRepo.bloodPressures.clear()
@@ -186,7 +187,7 @@ class CsvAdaptersTest {
         healthLogRepo.saveGlucose(entry)
 
         val csv = exportAdapter.exportGlucoseCsv(profile.id)
-        assertTrue(csv.startsWith("timestamp,glucose_mmol_l,context,classification\n"))
+        assertTrue(csv.startsWith("timestamp,glucose_mmol_l,context,classification,comment\n"))
         assertTrue(csv.contains("2026-09-20T08:00:00Z,5.4,FASTING,NORMAL"))
 
         healthLogRepo.glucoses.clear()
@@ -215,7 +216,7 @@ class CsvAdaptersTest {
         healthLogRepo.saveActivity(session)
 
         val csv = exportAdapter.exportActivityCsv(profile.id)
-        assertTrue(csv.startsWith("start_timestamp,end_timestamp,distance_m,duration_s\n"))
+        assertTrue(csv.startsWith("start_timestamp,end_timestamp,distance_m,duration_s,comment\n"))
         assertTrue(csv.contains("2026-09-20T08:00:00Z,2026-09-20T09:00:00Z,5000.0,3600"))
 
         healthLogRepo.activities.clear()
@@ -491,7 +492,7 @@ class CsvAdaptersTest {
 
         // Empty export produces header-only CSV
         val emptyCsv = exportAdapter.exportWaistCircumferenceCsv(profile.id)
-        assertEquals("timestamp,waist_cm,classification\n", emptyCsv)
+        assertEquals("timestamp,waist_cm,classification,comment\n", emptyCsv)
 
         // Add entries with and without a category
         val entry1 = WaistCircumferenceEntry(
@@ -506,7 +507,7 @@ class CsvAdaptersTest {
         healthLogRepo.saveWaistCircumference(entry2)
 
         val csv = exportAdapter.exportWaistCircumferenceCsv(profile.id)
-        assertTrue(csv.startsWith("timestamp,waist_cm,classification\n"))
+        assertTrue(csv.startsWith("timestamp,waist_cm,classification,comment\n"))
         assertTrue(csv.contains("2026-09-20T08:00:00Z,82.0,INCREASED_RISK"))
         assertTrue(csv.contains("2026-09-21T08:00:00Z,78.0,"))
 
@@ -540,5 +541,115 @@ class CsvAdaptersTest {
         val result = importAdapter.importCsv(profile.id, "waist_circumference", csv)
         assertEquals(1, result.importedCount)
         assertEquals(NhgWaistCircumferenceCategory.INCREASED_RISK, healthLogRepo.waistCircumferences.single().category)
+    }
+
+    // --- Comments ---
+
+    @Test
+    fun `comment with comma and quote survives export and import`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        val text = "dizzy, then \"fine\""
+        logRepo.saveWeight(
+            WeightEntry(
+                MeasurementId.generate(), profile.id, Instant.parse("2026-09-20T08:00:00Z"),
+                WeightKg(BigDecimal("75.0")), null, EntryComment(text)
+            )
+        )
+        val csv = CsvDataExportAdapter(logRepo).exportWeightCsv(profile.id)
+        assertTrue(csv.contains(",\"dizzy, then \"\"fine\"\"\"\n"))
+
+        logRepo.weights.clear()
+        val result = importer.importCsv(profile.id, "weight", csv)
+        assertEquals(1, result.importedCount)
+        assertEquals(text, logRepo.weights.single().comment?.text)
+    }
+
+    @Test
+    fun `comment round trips for every entry type`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        val export = CsvDataExportAdapter(logRepo)
+        val comment = EntryComment("after a walk")
+        val at = Instant.parse("2026-09-20T08:00:00Z")
+        logRepo.saveBloodPressure(
+            BloodPressureEntry(MeasurementId.generate(), profile.id, at, BloodPressureReading(120, 80), NhgBloodPressureCategory.NORMAL, comment)
+        )
+        logRepo.saveGlucose(
+            GlucoseEntry(MeasurementId.generate(), profile.id, at, GlucoseLevel(BigDecimal("5.4")), GlucoseContext.FASTING, NhgGlucoseCategory.NORMAL, comment)
+        )
+        logRepo.saveActivity(ActivitySession(MeasurementId.generate(), profile.id, at, at.plusSeconds(3600), 5000.0, comment))
+        logRepo.saveWaistCircumference(
+            WaistCircumferenceEntry(MeasurementId.generate(), profile.id, at, WaistCircumferenceCm(82.0), null, comment)
+        )
+
+        val bp = export.exportBloodPressureCsv(profile.id)
+        val glucose = export.exportGlucoseCsv(profile.id)
+        val activity = export.exportActivityCsv(profile.id)
+        val waist = export.exportWaistCircumferenceCsv(profile.id)
+        logRepo.bloodPressures.clear(); logRepo.glucoses.clear(); logRepo.activities.clear(); logRepo.waistCircumferences.clear()
+
+        importer.importCsv(profile.id, "blood_pressure", bp)
+        importer.importCsv(profile.id, "glucose", glucose)
+        importer.importCsv(profile.id, "activity", activity)
+        importer.importCsv(profile.id, "waist_circumference", waist)
+
+        assertEquals(comment, logRepo.bloodPressures.single().comment)
+        assertEquals(comment, logRepo.glucoses.single().comment)
+        assertEquals(comment, logRepo.activities.single().comment)
+        assertEquals(comment, logRepo.waistCircumferences.single().comment)
+    }
+
+    @Test
+    fun `older file without comment column imports with no comment`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        val result = importer.importCsv(profile.id, "weight", lines("timestamp,weight_kg,bmi", "2026-09-20T08:00:00Z,75.0,23.1"))
+        assertEquals(1, result.importedCount)
+        assertNull(logRepo.weights.single().comment)
+    }
+
+    @Test
+    fun `empty comment cell imports as no comment`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        importer.importCsv(profile.id, "weight", lines("timestamp,weight_kg,bmi,comment", "2026-09-20T08:00:00Z,75.0,23.1,"))
+        assertNull(logRepo.weights.single().comment)
+    }
+
+    @Test
+    fun `comment over the limit skips the row with a reason`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        val csv = lines(
+            "timestamp,weight_kg,bmi,comment",
+            "2026-09-20T08:00:00Z,75.0,23.1," + "a".repeat(201),
+            "2026-09-21T08:00:00Z,75.0,23.1," + "a".repeat(200)
+        )
+        val result = importer.importCsv(profile.id, "weight", csv)
+        assertEquals(1, result.importedCount)
+        assertEquals("Comment longer than 200 characters", result.skippedRows.single().reason)
+        assertEquals(2, result.skippedRows.single().lineNumber)
+    }
+
+    @Test
+    fun `libra comments column becomes the entry comment`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        val csv = lines(
+            "#Version: 6", "#Units: kg",
+            "#date;weight;weight trend;body fat;body fat trend;muscle mass;body water;bone mass;comments",
+            "2026-09-20T08:00:00.000Z;74.5;;;;;;;test comment"
+        )
+        assertEquals(1, importer.importCsv(profile.id, "libra", csv).importedCount)
+        assertEquals("test comment", logRepo.weights.single().comment?.text)
+    }
+
+    @Test
+    fun `libra comment over the limit is clipped instead of skipped`() = runBlocking {
+        val (logRepo, profile, importer) = importSetup()
+        val csv = lines(
+            "#Version: 6", "#Units: kg",
+            "#date;weight;weight trend;body fat;body fat trend;muscle mass;body water;bone mass;comments",
+            "2026-09-20T08:00:00.000Z;74.5;;;;;;;" + "a".repeat(250)
+        )
+        val result = importer.importCsv(profile.id, "libra", csv)
+        assertEquals(1, result.importedCount)
+        assertTrue(result.skippedRows.isEmpty())
+        assertEquals("a".repeat(200), logRepo.weights.single().comment?.text)
     }
 }

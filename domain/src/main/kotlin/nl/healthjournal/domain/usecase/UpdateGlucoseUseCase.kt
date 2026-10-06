@@ -1,5 +1,6 @@
 package nl.healthjournal.domain.usecase
 
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.GlucoseLevel
@@ -19,7 +20,8 @@ class UpdateGlucoseUseCase(
         profileId: ProfileId,
         context: GlucoseContext,
         valueInMmolL: BigDecimal,
-        timestamp: Instant
+        timestamp: Instant,
+        comment: String? = null
     ): GlucoseEntry? {
         val level = GlucoseLevel(valueInMmolL)
         val entry = GlucoseEntry(
@@ -28,7 +30,8 @@ class UpdateGlucoseUseCase(
             timestamp = timestamp,
             glucose = level,
             context = context,
-            category = NhgGlucoseCategory.classify(level, context)
+            category = NhgGlucoseCategory.classify(level, context),
+            comment = EntryComment.ofOrNull(comment)
         )
         return entry.takeIf { healthLogRepository.updateGlucose(it) }
     }

@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
+import nl.healthjournal.app.ui.common.CommentField
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.asString
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
@@ -28,6 +29,7 @@ import nl.healthjournal.app.ui.common.parseDecimal
 import nl.healthjournal.app.ui.common.weightFromKg
 import nl.healthjournal.app.ui.common.weightToKg
 import nl.healthjournal.domain.model.common.UnitConversion
+import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseLevel
 import java.math.BigDecimal
@@ -134,6 +136,17 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
     }
     var distance by remember { mutableStateOf(initialDistance) }
     var waist by remember { mutableStateOf(initialWaist) }
+    var comment by remember {
+        mutableStateOf(
+            when (ref) {
+                is EntryRef.Weight -> ref.entry.comment
+                is EntryRef.BloodPressure -> ref.entry.comment
+                is EntryRef.Glucose -> ref.entry.comment
+                is EntryRef.Activity -> ref.session.comment
+                is EntryRef.WaistCircumference -> ref.entry.comment
+            }?.text.orEmpty()
+        )
+    }
 
     fun save() {
         invalid = false
@@ -143,14 +156,14 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
                 if (kg == null || kg !in 1.0..700.0) invalid = true
                 else {
                     val stored = if (weight == initialWeight) ref.entry.weight.value else UnitConversion.toStoredKg(kg)
-                    viewModel.updateWeight(ref.entry, stored, dateTime.atZone(zone).toInstant())
+                    viewModel.updateWeight(ref.entry, stored, dateTime.atZone(zone).toInstant(), comment)
                 }
             }
             is EntryRef.BloodPressure -> {
                 val sys = systolic.toIntOrNull()?.takeIf { it in 40..300 }
                 val dia = diastolic.toIntOrNull()?.takeIf { it in 20..200 }
                 if (sys == null || dia == null || sys <= dia) invalid = true
-                else viewModel.updateBloodPressure(ref.entry, sys, dia, dateTime.atZone(zone).toInstant())
+                else viewModel.updateBloodPressure(ref.entry, sys, dia, dateTime.atZone(zone).toInstant(), comment)
             }
             is EntryRef.Glucose -> {
                 val unchanged = glucose == initialGlucose
@@ -158,7 +171,7 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
                 if (mmol == null || mmol < GlucoseLevel.MIN_GLUCOSE.toDouble() || mmol > GlucoseLevel.MAX_GLUCOSE.toDouble()) invalid = true
                 else {
                     val stored = if (unchanged) ref.entry.glucose.valueInMmolL else BigDecimal.valueOf(mmol).setScale(2, java.math.RoundingMode.HALF_UP)
-                    viewModel.updateGlucose(ref.entry, glucoseContext, stored, dateTime.atZone(zone).toInstant())
+                    viewModel.updateGlucose(ref.entry, glucoseContext, stored, dateTime.atZone(zone).toInstant(), comment)
                 }
             }
             is EntryRef.Activity -> {
@@ -166,12 +179,12 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
                 val meters = if (distance == initialDistance) ref.session.distanceInMeters
                 else distance.parseDecimal()?.takeIf { it >= 0 }?.let { units.distanceToMeters(it) }
                 if (minutes == null || meters == null) invalid = true
-                else viewModel.updateActivity(ref.session, Math.round(minutes * 60), meters)
+                else viewModel.updateActivity(ref.session, Math.round(minutes * 60), meters, comment)
             }
             is EntryRef.WaistCircumference -> {
                 val cm = waist.toDoubleOrNull()?.takeIf { it in nl.healthjournal.domain.model.metrics.WaistCircumferenceCm.MIN_CM..nl.healthjournal.domain.model.metrics.WaistCircumferenceCm.MAX_CM }
                 if (cm == null) invalid = true
-                else viewModel.updateWaistCircumference(ref.entry, cm, dateTime.atZone(zone).toInstant())
+                else viewModel.updateWaistCircumference(ref.entry, cm, dateTime.atZone(zone).toInstant(), comment)
             }
         }
     }
@@ -245,6 +258,11 @@ private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: Hist
                 } else {
                     DateTimeFields(dateTime) { dateTime = it }
                 }
+
+                CommentField(
+                    value = comment,
+                    onValueChange = { comment = it.replace(Regex("[\r\n]+"), " ").take(EntryComment.MAX_LENGTH) }
+                )
 
                 if (invalid) {
                     Text(
