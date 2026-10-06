@@ -26,7 +26,7 @@ Before writing code, **propose the change**: create an OpenSpec change describin
 ## 3. App (`app/src/main/java/nl/healthjournal/app/`)
 
 1. In `HealthJournalApp.kt`, create the use cases once and, for update and delete, add them to `EntryUseCases` in `ui/history/HistoryViewModel.kt`.
-2. **Logging:** extend `MetricType` and the state in `ui/logging/LoggingViewModel.kt`, and add the input form in `ui/logging/LogMetricScreen.kt`. If the user types a quantity that has display units (weight, glucose, distance), convert it to metric before validating (see `ui/common/UnitFormat.kt` and [ADR 0014](../../adr/0014-units-presentation.md)).
+2. **Logging:** extend `MetricType` and the state in `ui/logging/LoggingViewModel.kt`, and add the input form in `ui/logging/LogMetricScreen.kt`. If the user types a quantity that has display units (weight, glucose, distance), convert it to metric before validating (see `ui/common/UnitFormat.kt` and [ADR 0014](../../adr/0014-units-presentation.md)). Each metric saves as its own entry; do not add an optional second metric to another metric's form (see [ADR 0018](../../adr/0018-smart-input-pickers.md)).
 3. **History:** add the entries to the list and the filter in `ui/history/HistoryViewModel.kt` and `HistoryScreen.kt`, plus edit and delete dialogs in `EntryDialogs.kt`.
 4. **Trend chart**, optional: a `…TrendSection.kt` in `ui/history/charts/`, built from the shared pieces in `TrendBuildingBlocks.kt` and `ChartPrimitives.kt`.
 5. **Text:** every user-facing string goes in **both** `res/values/strings.xml` and `res/values-nl/strings.xml`. See [Add a translation](add-a-translation.md).

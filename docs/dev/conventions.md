@@ -21,6 +21,7 @@ Short rules that keep the code and the docs consistent. When a rule has a reason
 - ViewModels expose `UiText`, not resolved strings ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)).
 - Layouts must survive long Dutch text and larger fonts ([ADR 0010](../adr/0010-responsive-dutch-ui-layout.md)).
 - Touch targets are at least 48 dp and icons have a content description.
+- Ask `isAppDarkTheme()` (in `ui/theme/Theme.kt`) whether dark is active, never `isSystemInDarkTheme()`, so the Light, Dark and System choice in Profile applies everywhere ([ADR 0017](../adr/0017-in-app-theme-choice.md)).
 - The app is a logging tool, not a medical device. Text gives information only: no advice, no diagnosis, no condition names ([range labels](how-to/change-a-range-label.md)).
 
 ## Kotlin style

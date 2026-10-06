@@ -24,7 +24,7 @@ Tests are plain JUnit 4 with `kotlinx-coroutines-test`. There is no Robolectric 
 
 ## Not covered by unit tests
 
-Compose screens, Room migrations and the Android back stack are checked by hand. Before a release, run the app on a device in English and Dutch, in light and dark theme, and install over the previous version to check that data survives ([Change the database](how-to/change-the-database.md)).
+Compose screens, Room migrations and the Android back stack are checked by hand. Before a release, run the app on a device in English and Dutch, with each Theme choice in Profile (System, Light and Dark), and install over the previous version to check that data survives ([Change the database](how-to/change-the-database.md)).
 
 ## Known gaps
 
