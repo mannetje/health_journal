@@ -12,15 +12,15 @@ class GlucoseRangesTest {
 
     @Test
     fun `fasting ranges`() {
-        assertEquals(GlucoseRange(RangeShape.BELOW, 3.5), glucoseRange(NhgGlucoseCategory.HYPOGLYCAEMIA, GlucoseContext.FASTING))
-        assertEquals(GlucoseRange(RangeShape.BETWEEN, 3.5, 6.0), glucoseRange(NhgGlucoseCategory.NORMAL, GlucoseContext.FASTING))
+        assertEquals(GlucoseRange(RangeShape.BELOW, 3.9), glucoseRange(NhgGlucoseCategory.HYPOGLYCAEMIA, GlucoseContext.FASTING))
+        assertEquals(GlucoseRange(RangeShape.BETWEEN, 3.9, 6.0), glucoseRange(NhgGlucoseCategory.NORMAL, GlucoseContext.FASTING))
         assertEquals(GlucoseRange(RangeShape.ABOVE_TO, 6.0, 6.9), glucoseRange(NhgGlucoseCategory.IMPAIRED_FASTING, GlucoseContext.FASTING))
         assertEquals(GlucoseRange(RangeShape.ABOVE, 6.9), glucoseRange(NhgGlucoseCategory.DIABETES_RANGE, GlucoseContext.FASTING))
     }
 
     @Test
     fun `after a meal ranges`() {
-        assertEquals(GlucoseRange(RangeShape.BETWEEN_BELOW, 3.5, 7.8), glucoseRange(NhgGlucoseCategory.NORMAL, GlucoseContext.POSTPRANDIAL))
+        assertEquals(GlucoseRange(RangeShape.BETWEEN_BELOW, 3.9, 7.8), glucoseRange(NhgGlucoseCategory.NORMAL, GlucoseContext.POSTPRANDIAL))
         assertEquals(
             GlucoseRange(RangeShape.BETWEEN, 7.8, 11.0),
             glucoseRange(NhgGlucoseCategory.IMPAIRED_GLUCOSE_TOLERANCE, GlucoseContext.POSTPRANDIAL)

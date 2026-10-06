@@ -36,7 +36,11 @@ Thresholds SHALL follow NHG. Where Diabetes Fonds, DVN or Hartstichting differ f
 
 #### Scenario: Conflicting low glucose limit
 - **WHEN** another source gives a different low glucose limit than the one in use and no NHG text supports a change
-- **THEN** the limit stays at 3.5 mmol/L
+- **THEN** the limit stays as it is
+
+#### Scenario: Low glucose limit follows NHG
+- **WHEN** NHG (decision tree on hypoglycaemia and Thuisarts, checked 2026-10-06) gives 3.9 mmol/L as the low limit
+- **THEN** the low glucose limit is 3.9 mmol/L, not the 3.5 or 4.0 used by other sources
 
 ### Requirement: Blood pressure bands
 The blood pressure band SHALL be: SERIOUSLY_RAISED when systolic is at least 180 or diastolic is at least 110; else HIGH when systolic is at least 140 or diastolic is at least 90; else NORMAL. No other band SHALL exist.

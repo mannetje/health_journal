@@ -72,10 +72,10 @@ class NhgClassificationTest {
 
     @Test
     fun `Glucose Fasting NHG classification scenarios`() {
-        val hypo = GlucoseLevel(BigDecimal("3.4"))
+        val hypo = GlucoseLevel(BigDecimal("3.8"))
         assertEquals(NhgGlucoseCategory.HYPOGLYCAEMIA, NhgGlucoseCategory.classify(hypo, GlucoseContext.FASTING))
 
-        val normalLow = GlucoseLevel(BigDecimal("3.5"))
+        val normalLow = GlucoseLevel(BigDecimal("3.9"))
         assertEquals(NhgGlucoseCategory.NORMAL, NhgGlucoseCategory.classify(normalLow, GlucoseContext.FASTING))
 
         val normalHigh = GlucoseLevel(BigDecimal("6.0"))

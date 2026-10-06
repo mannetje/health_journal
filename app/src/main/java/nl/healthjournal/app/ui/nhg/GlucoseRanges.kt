@@ -11,15 +11,15 @@ data class GlucoseRange(val shape: RangeShape, val low: Double, val high: Double
 /** The range shown with a glucose label. Mirrors the limits of [NhgGlucoseCategory.classify]. */
 fun glucoseRange(category: NhgGlucoseCategory, context: GlucoseContext): GlucoseRange = when (context) {
     GlucoseContext.FASTING -> when (category) {
-        NhgGlucoseCategory.HYPOGLYCAEMIA -> GlucoseRange(RangeShape.BELOW, 3.5)
-        NhgGlucoseCategory.NORMAL -> GlucoseRange(RangeShape.BETWEEN, 3.5, 6.0)
+        NhgGlucoseCategory.HYPOGLYCAEMIA -> GlucoseRange(RangeShape.BELOW, 3.9)
+        NhgGlucoseCategory.NORMAL -> GlucoseRange(RangeShape.BETWEEN, 3.9, 6.0)
         NhgGlucoseCategory.IMPAIRED_FASTING, NhgGlucoseCategory.IMPAIRED_GLUCOSE_TOLERANCE ->
             GlucoseRange(RangeShape.ABOVE_TO, 6.0, 6.9)
         NhgGlucoseCategory.DIABETES_RANGE -> GlucoseRange(RangeShape.ABOVE, 6.9)
     }
     GlucoseContext.POSTPRANDIAL -> when (category) {
-        NhgGlucoseCategory.HYPOGLYCAEMIA -> GlucoseRange(RangeShape.BELOW, 3.5)
-        NhgGlucoseCategory.NORMAL -> GlucoseRange(RangeShape.BETWEEN_BELOW, 3.5, 7.8)
+        NhgGlucoseCategory.HYPOGLYCAEMIA -> GlucoseRange(RangeShape.BELOW, 3.9)
+        NhgGlucoseCategory.NORMAL -> GlucoseRange(RangeShape.BETWEEN_BELOW, 3.9, 7.8)
         NhgGlucoseCategory.IMPAIRED_FASTING, NhgGlucoseCategory.IMPAIRED_GLUCOSE_TOLERANCE ->
             GlucoseRange(RangeShape.BETWEEN, 7.8, 11.0)
         NhgGlucoseCategory.DIABETES_RANGE -> GlucoseRange(RangeShape.ABOVE, 11.0)

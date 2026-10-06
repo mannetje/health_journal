@@ -12,7 +12,7 @@ enum class NhgGlucoseCategory {
     DIABETES_RANGE;
 
     companion object {
-        private val HYPO_THRESHOLD = BigDecimal("3.5")
+        private val HYPO_THRESHOLD = BigDecimal("3.9")
         private val FASTING_NORMAL_MAX = BigDecimal("6.0")
         private val FASTING_IMPAIRED_MAX = BigDecimal("6.9")
 
