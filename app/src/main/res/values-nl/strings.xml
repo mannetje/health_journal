@@ -195,6 +195,7 @@
     <string name="ranges_link_diabetesfonds">Diabetes Fonds</string>
     <string name="ranges_link_dvn">DVN</string>
     <string name="ranges_link_hartstichting">Hartstichting (bloeddruk)</string>
+    <string name="ranges_link_voedingscentrum">Voedingscentrum (middelomtrek)</string>
     <string name="ranges_close">Sluiten</string>
     <string name="common_save">Opslaan</string>
     <string name="common_delete">Verwijderen</string>

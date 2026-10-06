@@ -57,7 +57,7 @@ Rules for keeping specs portable:
 - **NHG**: Nederlands Huisartsen Genootschap, the Dutch GP guideline whose thresholds define the BMI, blood pressure and glucose categories.
 - **Range label**: the neutral "name · range" text shown for a BMI, blood pressure or glucose value. It never names a condition.
 - **Blood pressure bands**: Normal (below 140/90), High (from 140/90), Seriously raised (from 180/110). Old six-band names are mapped on read.
-- **Source order**: NHG leads; Thuisarts, Diabetes Fonds, DVN and Hartstichting inform the wording.
+- **Source order**: NHG leads; Thuisarts, Diabetes Fonds, DVN and Hartstichting inform the wording. Waist circumference follows Voedingscentrum wording and is linked from the same sheet.
 - **Active profile**: the one profile currently used for logging and history.
 - **Range anchor**: trend ranges count back from the newest entry, not the clock.
 

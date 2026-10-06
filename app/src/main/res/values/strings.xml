@@ -195,6 +195,7 @@
     <string name="ranges_link_diabetesfonds">Diabetes Fonds</string>
     <string name="ranges_link_dvn">DVN</string>
     <string name="ranges_link_hartstichting">Hartstichting (blood pressure)</string>
+    <string name="ranges_link_voedingscentrum">Voedingscentrum (waist circumference)</string>
     <string name="ranges_close">Close</string>
     <string name="common_save">Save</string>
     <string name="common_delete">Delete</string>

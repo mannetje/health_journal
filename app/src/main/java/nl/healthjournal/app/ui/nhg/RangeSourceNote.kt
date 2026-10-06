@@ -33,7 +33,8 @@ private val RANGE_SOURCES = listOf(
     RangeSource(R.string.ranges_link_thuisarts, "https://www.thuisarts.nl"),
     RangeSource(R.string.ranges_link_diabetesfonds, "https://www.diabetesfonds.nl"),
     RangeSource(R.string.ranges_link_dvn, "https://www.dvn.nl"),
-    RangeSource(R.string.ranges_link_hartstichting, "https://www.hartstichting.nl/oorzaken/bloeddruk")
+    RangeSource(R.string.ranges_link_hartstichting, "https://www.hartstichting.nl/oorzaken/bloeddruk"),
+    RangeSource(R.string.ranges_link_voedingscentrum, "https://www.voedingscentrum.nl")
 )
 
 /** A small "About these ranges" button that opens the source and not-a-diagnosis note. One per screen. */
