@@ -12,6 +12,8 @@ The authoritative text is the [range-labels spec](../../../openspec/specs/health
 - Colours come from one **neutral ramp** (a darker step is a higher band, never a verdict). See [ADR 0006](../../adr/0006-health-trend-visualizations.md).
 - The source and a not-a-diagnosis note are reachable from every screen that shows a label ("About these ranges").
 
+**Waist circumference is the exception.** Its labels follow the wording of the Dutch authority (Voedingscentrum, in line with NHG): Healthy, Increased risk, High risk, with the sex-specific range. Do not neutralise them; change them only when the authority's wording changes. See the [waist circumference spec](../../../openspec/specs/health-metrics/waist-circumference/spec.md).
+
 ## Where the code lives
 
 | What | File |
