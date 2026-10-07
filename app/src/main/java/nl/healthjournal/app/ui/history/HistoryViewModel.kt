@@ -112,9 +112,10 @@ class HistoryViewModel(
         _uiState.value = _uiState.value.copy(selectedDateRange = range)
     }
 
-    fun loadHistory() {
+    /** [clearError] is false when the caller has just set an error that the reload must not wipe. */
+    fun loadHistory(clearError: Boolean = true) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = if (clearError) null else _uiState.value.errorMessage)
             try {
                 val profile = profileRepository.getActiveProfile()
                 if (profile == null) {
@@ -218,7 +219,7 @@ class HistoryViewModel(
                     pendingDelete = null,
                     errorMessage = if (deleted) null else UiText.Res(R.string.history_err_not_found)
                 )
-                loadHistory()
+                loadHistory(clearError = deleted)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(pendingDelete = null, errorMessage = UiText.Res(R.string.history_err_delete, e.message.orEmpty()))
             }
