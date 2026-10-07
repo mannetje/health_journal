@@ -5,8 +5,8 @@
 - [x] 0.4 One Snooze action, length 10, 30 or 60 minutes set in Profile, default 10 (approved 2026-10-07)
 
 ## 1. Domain
-- [ ] 1.1 `NextSlot(medications, after)` pure function over schedule versions and the active profile, with tests for the next slot across midnight, versions, archive, as-needed (no slot), daylight saving and several medications at one time
-- [ ] 1.2 `ReminderSchedulerPort` (arm, cancel) and a use case that finds the slot at a time and records "Taken all" for its `openItems` through the existing `RecordSlotIntakesUseCase`, never overwriting an existing outcome, with tests
+- [x] 1.1 `NextSlot(medications, after)` pure function over schedule versions and the active profile, with tests for the next slot across midnight, versions, archive, as-needed (no slot), daylight saving and several medications at one time
+- [x] 1.2 `ReminderSchedulerPort` (arm, cancel) and a use case that finds the slot at a time and records "Taken all" for its `openItems` through the existing `RecordSlotIntakesUseCase`, never overwriting an existing outcome, with tests
 
 ## 2. App
 - [ ] 2.1 `AlarmManager` implementation (next alarm only, exact when granted else inexact), one-shot snooze alarm using the snooze length from settings
