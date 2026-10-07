@@ -4,8 +4,8 @@
 - [x] 0.3 The trend-chart overlay is deferred (approved 2026-10-06)
 
 ## 1. Domain
-- [ ] 1.1 `AdherenceCalculator` with tests: rounding (half up, 26 of 28 is 93), skipped, missed versus inside grace, as-needed, start and end dates, archive date, schedule version in force, an edit from today leaving earlier days unchanged, an edit from an earlier date changing them, orphan outcomes, due 0 shows no percentage, streak across days with nothing planned
-- [ ] 1.2 `GetAdherence` use case for 7, 30 and 90 days
+- [x] 1.1 `AdherenceCalculator` with tests: rounding (half up, 26 of 28 is 93), skipped, missed versus inside grace, as-needed, start and end dates, archive date, schedule version in force, an edit from today leaving earlier days unchanged, an edit from an earlier date changing them, orphan outcomes, due 0 shows no percentage, streak across days with nothing planned
+- [x] 1.2 `GetAdherence` use case for 7, 30 and 90 days
 
 ## 2. App
 - [ ] 2.1 Adherence view in the pillbox screen: overall and per-medication rows, streak, skipped and missed counts, missed list; neutral wording
