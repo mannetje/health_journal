@@ -38,8 +38,8 @@
 - [x] 5.1 Keep `INTERNET` out of the manifest, with a build check that fails if present (`PrivacyChecksTest` fails if the manifest requests INTERNET)
 - [x] 5.2 Release-build logging check (no names or doses) (`PrivacyChecksTest` scans the production sources of all modules for logging calls; none exist today)
 - [x] 5.3 Privacy notice states that platform backup is outside the app's control and CSV export is the user-controlled copy (English and Dutch) (the notice dialog carries the paragraph, `medication_privacy_text`)
-- [ ] 5.4 Intended-purpose statement (personal logging tool, not a medical device) in the app (first open and Profile), README and ADR 0021
-- [ ] 5.5 Missed shows the status only (no instruction); a neutral Sources list with apotheek.nl and Thuisarts links in English and Dutch
+- [x] 5.4 Intended-purpose statement (personal logging tool, not a medical device) in the app (first open and Profile), README and ADR 0021 (first open and Profile in the app, README feature bullet, ADR 0021)
+- [x] 5.5 Missed shows the status only (no instruction); a neutral Sources list with apotheek.nl and Thuisarts links in English and Dutch (status only in the pillbox; Sources dialog with links in English and Dutch, checked on the emulator 2026-10-06)
 - [ ] 5.6 No-advice audit of every existing and new user-visible string in English and Dutch (errors, empty states, banners, dialogs, README), and a unit or lint check that lists medication strings for review when they change
 - [ ] 5.7 Wording check of README, CHANGELOG, store listing and screenshots against the claims rules
 - [ ] 5.8 Confirm there is no alert, urgency or reminder driven by a health value
