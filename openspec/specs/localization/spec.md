@@ -110,3 +110,14 @@ Medication screens SHALL remain usable with long Dutch strings and large font se
 #### Scenario: Long Dutch labels
 - **WHEN** the screen is shown in Dutch with the largest font setting
 - **THEN** form, unit and action labels wrap or truncate with ellipsis and stay operable
+
+### Requirement: Notifications use the app language
+Notification titles, bodies and action labels for medication reminders SHALL be in the in-app language, not the device language.
+
+#### Scenario: English device, Dutch app
+- **WHEN** a reminder is posted while the app language is Dutch and the device language is English
+- **THEN** the notification title, body, and the Taken all and Snooze actions are in Dutch
+
+#### Scenario: Both languages complete
+- **WHEN** the project is tested
+- **THEN** a test SHALL fail if a reminder string key exists in one language and not in the other
