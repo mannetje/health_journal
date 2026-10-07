@@ -449,4 +449,29 @@
     <string name="reminder_permission_body">To remind you at the planned times, the app needs permission to show notifications. Reminders stay on this device.</string>
     <string name="reminder_permission_allow">Continue</string>
     <string name="reminder_permission_later">Not now</string>
+
+    <!-- Medication: adherence overview -->
+    <string name="medication_tab_adherence">Adherence</string>
+    <string name="adherence_range_label">Period</string>
+    <plurals name="adherence_range_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="adherence_overall">Overall</string>
+    <string name="adherence_percentage">%1$d%%</string>
+    <string name="adherence_taken_of_due">%1$d of %2$d planned intakes taken</string>
+    <string name="adherence_skipped_count">Skipped: %1$d</string>
+    <string name="adherence_missed_count">Missed: %1$d</string>
+    <plurals name="adherence_doses_logged">
+        <item quantity="one">%1$d dose logged</item>
+        <item quantity="other">%1$d doses logged</item>
+    </plurals>
+    <string name="adherence_streak_title">In a row</string>
+    <plurals name="adherence_streak_days">
+        <item quantity="one">%1$d day with everything taken</item>
+        <item quantity="other">%1$d days with everything taken</item>
+    </plurals>
+    <string name="adherence_missed_title">Missed intakes</string>
+    <string name="adherence_empty">Nothing was planned in this period.</string>
+    <string name="adherence_note">Based on your planned times and what you recorded. This is an overview, not medical advice.</string>
 </resources>

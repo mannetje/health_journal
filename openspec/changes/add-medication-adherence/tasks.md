@@ -8,8 +8,8 @@
 - [x] 1.2 `GetAdherence` use case for 7, 30 and 90 days
 
 ## 2. App
-- [ ] 2.1 Adherence view in the pillbox screen: overall and per-medication rows, streak, skipped and missed counts, missed list; neutral wording
-- [ ] 2.2 English and Dutch strings, `UiText`; layout check at 1.3x and 2.0x; ViewModel tests
+- [x] 2.1 Adherence view in the pillbox screen: overall and per-medication rows, streak, skipped and missed counts, missed list; neutral wording
+- [x] 2.2 English and Dutch strings, `UiText`; layout check at 1.3x and 2.0x; ViewModel tests
 
 ## 3. Docs
 - [ ] 3.1 README, CHANGELOG (Unreleased), affected specs, the specs index and `scripts/check-docs.sh`

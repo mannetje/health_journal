@@ -14,6 +14,8 @@ import nl.healthjournal.app.ui.common.UiTextException
 import nl.healthjournal.app.ui.common.parseDecimal
 import nl.healthjournal.app.ui.common.toUiText
 import nl.healthjournal.domain.model.common.ProfileId
+import nl.healthjournal.domain.model.medication.Adherence
+import nl.healthjournal.domain.model.medication.AdherenceReport
 import nl.healthjournal.domain.model.medication.DayPattern
 import nl.healthjournal.domain.model.medication.DoseUnit
 import nl.healthjournal.domain.model.medication.IntakeStatus
@@ -32,6 +34,7 @@ import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.ArchiveMedicationUseCase
 import nl.healthjournal.domain.usecase.ChangeMedicationScheduleUseCase
 import nl.healthjournal.domain.usecase.DeleteMedicationUseCase
+import nl.healthjournal.domain.usecase.GetAdherenceUseCase
 import nl.healthjournal.domain.usecase.GetPillboxDayUseCase
 import nl.healthjournal.domain.usecase.RecordIntakeUseCase
 import nl.healthjournal.domain.usecase.RecordSlotIntakesUseCase
@@ -51,7 +54,8 @@ data class MedicationUseCases(
     val save: SaveMedicationUseCase,
     val changeSchedule: ChangeMedicationScheduleUseCase,
     val archive: ArchiveMedicationUseCase,
-    val delete: DeleteMedicationUseCase
+    val delete: DeleteMedicationUseCase,
+    val getAdherence: GetAdherenceUseCase
 )
 
 /** How one day of the week strip looks. Days with nothing planned, or nothing due yet, are [EMPTY]. */
@@ -144,6 +148,9 @@ data class MedicationUiState(
     val day: PillboxDay? = null,
     val week: List<WeekDay> = emptyList(),
     val medications: List<Medication> = emptyList(),
+    /** The range of the Adherence view in days: 7, 30 or 90. */
+    val adherenceDays: Int = 30,
+    val adherence: AdherenceReport? = null,
     val isLoading: Boolean = false,
     val errorMessage: UiText? = null,
     val successMessage: UiText? = null
@@ -169,6 +176,12 @@ class MedicationViewModel(
     /** Reloads the profile, the medication list, the selected day and the week strip. */
     fun refresh() {
         viewModelScope.launch { load() }
+    }
+
+    fun selectAdherenceRange(days: Int) {
+        if (days !in Adherence.RANGES_IN_DAYS) return
+        _uiState.value = _uiState.value.copy(adherenceDays = days)
+        refresh()
     }
 
     fun selectDate(date: LocalDate) {
@@ -272,7 +285,7 @@ class MedicationViewModel(
         try {
             val profile = profileRepository.getActiveProfile()
             if (profile == null) {
-                _uiState.value = _uiState.value.copy(profileId = null, day = null, week = emptyList(), medications = emptyList(), isLoading = false)
+                _uiState.value = _uiState.value.copy(profileId = null, day = null, week = emptyList(), medications = emptyList(), adherence = null, isLoading = false)
                 return
             }
             val today = LocalDate.now(clock)
@@ -284,9 +297,10 @@ class MedicationViewModel(
             }
             val medications = medicationRepository.getMedications(profile.id, includeArchived = true)
                 .sortedBy { it.name.value.lowercase() }
+            val adherence = useCases.getAdherence(profile.id, _uiState.value.adherenceDays)
             _uiState.value = _uiState.value.copy(
                 profileId = profile.id, today = today, day = day, week = week,
-                medications = medications, isLoading = false
+                medications = medications, adherence = adherence, isLoading = false
             )
         } catch (e: Exception) {
             fail(e.toUiText(R.string.medication_err_load_failed))

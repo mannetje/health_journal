@@ -92,7 +92,8 @@ class HealthJournalApp : Application() {
             save = SaveMedicationUseCase(medicationRepository),
             changeSchedule = ChangeMedicationScheduleUseCase(medicationRepository),
             archive = ArchiveMedicationUseCase(medicationRepository),
-            delete = DeleteMedicationUseCase(medicationRepository)
+            delete = DeleteMedicationUseCase(medicationRepository),
+            getAdherence = GetAdherenceUseCase(medicationRepository)
         )
 
         reminders = ReminderCoordinator(

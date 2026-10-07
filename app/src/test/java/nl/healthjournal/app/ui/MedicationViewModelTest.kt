@@ -32,6 +32,7 @@ import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.ArchiveMedicationUseCase
 import nl.healthjournal.domain.usecase.ChangeMedicationScheduleUseCase
 import nl.healthjournal.domain.usecase.DeleteMedicationUseCase
+import nl.healthjournal.domain.usecase.GetAdherenceUseCase
 import nl.healthjournal.domain.usecase.GetPillboxDayUseCase
 import nl.healthjournal.domain.usecase.RecordIntakeUseCase
 import nl.healthjournal.domain.usecase.RecordSlotIntakesUseCase
@@ -103,7 +104,8 @@ class MedicationViewModelTest {
             save = SaveMedicationUseCase(repo),
             changeSchedule = ChangeMedicationScheduleUseCase(repo),
             archive = ArchiveMedicationUseCase(repo),
-            delete = DeleteMedicationUseCase(repo)
+            delete = DeleteMedicationUseCase(repo),
+            getAdherence = GetAdherenceUseCase(repo, clock)
         )
         return MedicationViewModel(FakeProfileRepo(profile), repo, useCases, clock)
     }
@@ -331,5 +333,55 @@ class MedicationViewModelTest {
     @Test
     fun `weekStatusOf is empty for a day with nothing planned`() {
         assertEquals(DayStatus.EMPTY, weekStatusOf(PillboxDay(today, emptyList(), emptyList())))
+    }
+
+    @Test
+    fun `adherence loads for 30 days and follows the chosen range`() = runTest {
+        val repo = FakeMedicationRepo()
+        val vm = viewModel(repo)
+        idle()
+        vm.saveMedication(draft())
+        idle()
+
+        assertEquals(30, vm.uiState.value.adherenceDays)
+        assertEquals(30L, vm.uiState.value.adherence!!.let { java.time.temporal.ChronoUnit.DAYS.between(it.from, it.to) + 1 })
+        // The daily 08:00 intake of today is past its grace period at 10:00 and has no outcome.
+        assertEquals(1, vm.uiState.value.adherence!!.overall!!.missed)
+
+        vm.selectAdherenceRange(7)
+        idle()
+        assertEquals(7, vm.uiState.value.adherenceDays)
+        assertEquals(7L, vm.uiState.value.adherence!!.let { java.time.temporal.ChronoUnit.DAYS.between(it.from, it.to) + 1 })
+    }
+
+    @Test
+    fun `a range outside 7, 30 and 90 is ignored`() = runTest {
+        val vm = viewModel(FakeMedicationRepo())
+        idle()
+        vm.selectAdherenceRange(14)
+        idle()
+        assertEquals(30, vm.uiState.value.adherenceDays)
+    }
+
+    @Test
+    fun `adherence follows what is recorded`() = runTest {
+        val repo = FakeMedicationRepo()
+        val vm = viewModel(repo)
+        idle()
+        vm.saveMedication(draft())
+        idle()
+        val medication = vm.uiState.value.medications.single()
+        vm.recordIntake(medication.id, today.atTime(8, 0), IntakeStatus.TAKEN)
+        idle()
+
+        assertEquals(1, vm.uiState.value.adherence!!.overall!!.taken)
+        assertEquals(100, vm.uiState.value.adherence!!.overall!!.percentage)
+    }
+
+    @Test
+    fun `without a profile there is no adherence`() = runTest {
+        val vm = viewModel(FakeMedicationRepo(), profile = null)
+        idle()
+        assertNull(vm.uiState.value.adherence)
     }
 }

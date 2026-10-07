@@ -35,6 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -58,7 +62,7 @@ import java.time.format.TextStyle
 
 private val TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm")
 
-/** The pillbox: a switch between today's intakes and the medication list, plus the add and edit form. */
+/** The pillbox: a switch between today's intakes, the medication list and the adherence overview, plus the add and edit form. */
 @Composable
 fun PillboxScreen(
     viewModel: MedicationViewModel,
@@ -112,6 +116,8 @@ fun PillboxScreen(
             )
         } else if (tab == 0) {
             TodayView(state, viewModel)
+        } else if (tab == 2) {
+            AdherenceView(state, viewModel::selectAdherenceRange)
         } else {
             MedicationListView(
                 medications = state.medications,
@@ -122,18 +128,57 @@ fun PillboxScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PillboxSwitch(selected: Int, onSelect: (Int) -> Unit) {
-    val labels = listOf(R.string.medication_tab_today, R.string.medication_tab_medications)
-    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)) {
-        labels.forEachIndexed { index, label ->
-            SegmentedButton(
-                selected = selected == index,
-                onClick = { onSelect(index) },
-                shape = SegmentedButtonDefaults.itemShape(index, labels.size),
-                modifier = Modifier.heightIn(min = 48.dp)
-            ) { Text(stringResource(label), textAlign = TextAlign.Center) }
+    val labels = listOf(R.string.medication_tab_today, R.string.medication_tab_medications, R.string.medication_tab_adherence)
+        .map { stringResource(it) }
+    ChoiceRow(
+        labels = labels,
+        selected = selected,
+        onSelect = onSelect,
+        stackFromFontScale = 1.3f,
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+    )
+}
+
+/**
+ * One choice out of a few. A segmented row while the labels fit; with a large font scale the options stack,
+ * because a label broken in the middle of a word is hard to read.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ChoiceRow(
+    labels: List<String>,
+    selected: Int,
+    onSelect: (Int) -> Unit,
+    stackFromFontScale: Float,
+    modifier: Modifier = Modifier
+) {
+    if (LocalDensity.current.fontScale >= stackFromFontScale) {
+        Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            labels.forEachIndexed { index, label ->
+                val isSelected = selected == index
+                val buttonModifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+                    .semantics { role = Role.RadioButton; this.selected = isSelected }
+                if (isSelected) {
+                    Button(onClick = { onSelect(index) }, modifier = buttonModifier) { Text(label, textAlign = TextAlign.Center) }
+                } else {
+                    OutlinedButton(onClick = { onSelect(index) }, modifier = buttonModifier) { Text(label, textAlign = TextAlign.Center) }
+                }
+            }
+        }
+    } else {
+        SingleChoiceSegmentedButtonRow(modifier) {
+            labels.forEachIndexed { index, label ->
+                SegmentedButton(
+                    selected = selected == index,
+                    onClick = { onSelect(index) },
+                    shape = SegmentedButtonDefaults.itemShape(index, labels.size),
+                    modifier = Modifier.heightIn(min = 48.dp)
+                ) { Text(label, textAlign = TextAlign.Center) }
+            }
         }
     }
 }

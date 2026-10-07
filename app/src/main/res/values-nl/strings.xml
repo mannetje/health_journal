@@ -449,4 +449,29 @@
     <string name="reminder_permission_body">Om je op de geplande tijden te herinneren, heeft de app toestemming nodig om meldingen te tonen. Herinneringen blijven op dit toestel.</string>
     <string name="reminder_permission_allow">Doorgaan</string>
     <string name="reminder_permission_later">Nu niet</string>
+
+    <!-- Medication: adherence overview -->
+    <string name="medication_tab_adherence">Therapietrouw</string>
+    <string name="adherence_range_label">Periode</string>
+    <plurals name="adherence_range_days">
+        <item quantity="one">%1$d dag</item>
+        <item quantity="other">%1$d dagen</item>
+    </plurals>
+    <string name="adherence_overall">Totaal</string>
+    <string name="adherence_percentage">%1$d%%</string>
+    <string name="adherence_taken_of_due">%1$d van %2$d geplande innames ingenomen</string>
+    <string name="adherence_skipped_count">Overgeslagen: %1$d</string>
+    <string name="adherence_missed_count">Gemist: %1$d</string>
+    <plurals name="adherence_doses_logged">
+        <item quantity="one">%1$d dosis vastgelegd</item>
+        <item quantity="other">%1$d doses vastgelegd</item>
+    </plurals>
+    <string name="adherence_streak_title">Op rij</string>
+    <plurals name="adherence_streak_days">
+        <item quantity="one">%1$d dag met alles ingenomen</item>
+        <item quantity="other">%1$d dagen met alles ingenomen</item>
+    </plurals>
+    <string name="adherence_missed_title">Gemiste innames</string>
+    <string name="adherence_empty">In deze periode was niets gepland.</string>
+    <string name="adherence_note">Gebaseerd op je geplande tijden en wat je hebt vastgelegd. Dit is een overzicht, geen medisch advies.</string>
 </resources>
