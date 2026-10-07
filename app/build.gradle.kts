@@ -30,6 +30,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Adds the createDebugUnitTestCoverageReport task (JaCoCo, built into AGP)
+            enableUnitTestCoverage = true
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

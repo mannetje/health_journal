@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    jacoco
 }
 
 java {
@@ -23,4 +24,12 @@ dependencies {
 
 tasks.test {
     useJUnit()
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }

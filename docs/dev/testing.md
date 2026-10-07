@@ -22,6 +22,16 @@ Tests are plain JUnit 4 with `kotlinx-coroutines-test`. There is no Robolectric 
 - A bug fix starts with a failing test.
 - A string test can read `res/values*/strings.xml` directly, as `RangeLabelStringsTest` does, to keep English and Dutch aligned.
 
+## Coverage
+
+CI measures line coverage of the unit tests with JaCoCo and prints it, with a code statistics table, on the run summary page. To see it locally, run the tasks below and open the HTML reports under each module's `build/reports`.
+
+```bash
+./gradlew :domain:jacocoTestReport :data:createDebugUnitTestCoverageReport :app:createDebugUnitTestCoverageReport
+```
+
+The numbers are for information. There is no threshold that fails the build. `scripts/job-summary.sh` builds the summary.
+
 ## Not covered by unit tests
 
 Compose screens, Room migrations and the Android back stack are checked by hand. Before a release, run the app on a device in English and Dutch, with each Theme choice in Profile (System, Light and Dark), at large font scales (1.3x and 2.0x to verify Dutch labels like "Activiteit" do not clip in tab rows or navigation bars), and install over the previous version to check that data survives ([Change the database](how-to/change-the-database.md)).

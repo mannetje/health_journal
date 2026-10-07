@@ -37,6 +37,30 @@ jobs:
       - name: Run Tests
         run: ./gradlew test
 
+      - name: Unit test coverage (JaCoCo)
+        id: coverage
+        continue-on-error: true
+        run: ./gradlew :domain:jacocoTestReport :data:createDebugUnitTestCoverageReport :app:createDebugUnitTestCoverageReport
+
+      - name: Code statistics and coverage summary
+        if: always()
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y --no-install-recommends cloc > /dev/null
+          bash scripts/job-summary.sh
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            domain/build/reports/jacoco/test
+            data/build/reports/coverage/test/debug
+            app/build/reports/coverage/test/debug
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
