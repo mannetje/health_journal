@@ -429,4 +429,24 @@
     <string name="medication_err_time_required">Voeg minstens één tijd toe</string>
     <string name="medication_err_interval_invalid">Vul een aantal dagen van 1 tot 365 in</string>
     <string name="medication_err_weekday_required">Kies minstens één dag</string>
+
+    <!-- Medication reminders -->
+    <string name="reminder_channel_name">Medicatieherinneringen</string>
+    <string name="reminder_channel_description">Een herinnering op het tijdstip van een geplande inname</string>
+    <string name="reminder_title_generic">Medicatieherinnering</string>
+    <string name="reminder_action_snooze">Uitstellen</string>
+    <string name="reminder_line">%1$s, %2$s</string>
+    <string name="reminder_settings_title">Herinneringen</string>
+    <string name="reminder_open_settings">Instellingen openen</string>
+    <string name="reminder_hint_notifications_off">Meldingen staan uit voor deze app, dus herinneringen worden niet getoond.</string>
+    <string name="reminder_hint_exact_off">Exacte alarmen zijn niet toegestaan. Herinneringen werken nog wel, maar kunnen enkele minuten te laat komen.</string>
+    <string name="reminder_hint_battery">Komen herinneringen te laat of niet aan, bekijk dan de batterij-instellingen van je toestel voor deze app.</string>
+    <string name="reminder_snooze_label">Duur van uitstellen</string>
+    <string name="reminder_snooze_minutes">%1$d min</string>
+    <string name="reminder_lock_screen_label">Details tonen op het vergrendelscherm</string>
+    <string name="reminder_lock_screen_hint">Uit: het vergrendelscherm meldt alleen dat er een herinnering klaarstaat.</string>
+    <string name="reminder_permission_title">Herinneringen toestaan?</string>
+    <string name="reminder_permission_body">Om je op de geplande tijden te herinneren, heeft de app toestemming nodig om meldingen te tonen. Herinneringen blijven op dit toestel.</string>
+    <string name="reminder_permission_allow">Doorgaan</string>
+    <string name="reminder_permission_later">Nu niet</string>
 </resources>

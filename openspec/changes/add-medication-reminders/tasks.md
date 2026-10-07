@@ -9,14 +9,14 @@
 - [x] 1.2 `ReminderSchedulerPort` (arm, cancel) and a use case that finds the slot at a time and records "Taken all" for its `openItems` through the existing `RecordSlotIntakesUseCase`, never overwriting an existing outcome, with tests
 
 ## 2. App
-- [ ] 2.1 `AlarmManager` implementation (next alarm only, exact when granted else inexact), one-shot snooze alarm using the snooze length from settings
-- [ ] 2.2 Notification channel, slot notification (inbox style when details are shown, generic when hidden), `BroadcastReceiver` (`goAsync`) for Taken all and Snooze, tap opens the pillbox on that slot
+- [x] 2.1 `AlarmManager` implementation (next alarm only, exact when granted else inexact), one-shot snooze alarm using the snooze length from settings
+- [x] 2.2 Notification channel, slot notification (inbox style when details are shown, generic when hidden), `BroadcastReceiver` (`goAsync`) for Taken all and Snooze, tap opens the pillbox on that slot
 - [ ] 2.3 Notification text and action labels built from an app-locale context, tested in Dutch on an English device
-- [ ] 2.4 Boot, app-update, time-zone and clock-change receivers; re-arm on schedule edit, archive, delete and profile switch
-- [ ] 2.5 Permission flow with explanation, denied banner, exact-alarm hint, battery hint
-- [ ] 2.6 Profile section for reminder settings: snooze length (default 10 minutes) and the lock-screen details setting (default hidden)
+- [x] 2.4 Boot, app-update, time-zone and clock-change receivers; re-arm on schedule edit, archive, delete and profile switch
+- [x] 2.5 Permission flow with explanation, denied banner, exact-alarm hint, battery hint
+- [x] 2.6 Profile section for reminder settings: snooze length (default 10 minutes) and the lock-screen details setting (default hidden)
 - [ ] 2.7 English and Dutch strings, `UiText`; layout check at 1.3x and 2.0x
-- [ ] 2.8 Recording an outcome in the pillbox updates or cancels that slot's notification
+- [x] 2.8 Recording an outcome in the pillbox updates or cancels that slot's notification
 
 ## 3. Verification
 - [ ] 3.1 Emulator and real-device check, including reboot, Doze, a slot with three medications, Taken all, Snooze and a medication archived before the alarm

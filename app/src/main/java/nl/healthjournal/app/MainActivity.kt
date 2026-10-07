@@ -1,7 +1,14 @@
 package nl.healthjournal.app
 
+import android.Manifest
+import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
@@ -21,6 +28,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import nl.healthjournal.app.reminder.ReminderIntents
 import nl.healthjournal.app.settings.GlucoseUnitChoice
 import nl.healthjournal.app.settings.LanguagePreference
 import nl.healthjournal.app.settings.MedicationNoticePreference
@@ -37,6 +47,8 @@ import nl.healthjournal.app.ui.medication.MedicationNoticeDialog
 import nl.healthjournal.app.ui.medication.MedicationViewModel
 import nl.healthjournal.app.ui.medication.PillboxScreen
 import nl.healthjournal.app.ui.profile.ProfileScreen
+import nl.healthjournal.app.ui.profile.ReminderSettingsSection
+import nl.healthjournal.app.ui.profile.ReminderSettingsState
 import nl.healthjournal.app.ui.profile.ProfileViewModel
 import nl.healthjournal.app.ui.theme.BrandNavy
 import nl.healthjournal.app.ui.theme.HealthJournalTheme
@@ -89,8 +101,56 @@ class MainActivity : ComponentActivity() {
         MedicationViewModel.Factory(
             app.profileRepository,
             app.medicationRepository,
-            app.medicationUseCases
+            app.medicationUseCases,
+            app.reminders
         )
+    }
+
+    /** Set when a reminder notification was tapped; the composition opens the pillbox and clears it. */
+    private var pillboxRequested by mutableStateOf(false)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra(ReminderIntents.EXTRA_OPEN_PILLBOX, false)) pillboxRequested = true
+    }
+
+    private var notificationsAllowed by mutableStateOf(true)
+    private var exactAlarmsAllowed by mutableStateOf(true)
+
+    private val notificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { refreshReminderState() }
+
+    private fun refreshReminderState() {
+        notificationsAllowed = getSystemService(NotificationManager::class.java).areNotificationsEnabled()
+        exactAlarmsAllowed = app.reminders.canScheduleExact()
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    private fun openNotificationSettings() {
+        startActivity(
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        )
+    }
+
+    private fun openExactAlarmSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            startActivity(
+                Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:$packageName"))
+            )
+        }
+    }
+
+    /** Notifications may be stale after time spent outside the app (a dose taken elsewhere, a changed schedule). */
+    override fun onResume() {
+        super.onResume()
+        refreshReminderState()
+        lifecycleScope.launch { app.reminders.changed() }
     }
 
     /** Applies the chosen app language and region to the whole Activity, including dialogs and pickers. */
@@ -102,6 +162,9 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null && intent.getBooleanExtra(ReminderIntents.EXTRA_OPEN_PILLBOX, false)) {
+            pillboxRequested = true
+        }
         setContent {
             val languagePreference = remember { LanguagePreference(this) }
             var currentLanguage by remember { mutableStateOf(languagePreference.language) }
@@ -120,6 +183,25 @@ class MainActivity : ComponentActivity() {
                 // The pillbox is a separate screen over the tabs, so Back returns to the tab it was opened from.
                 var showPillbox by rememberSaveable { mutableStateOf(false) }
                 BackHandler(enabled = showPillbox) { showPillbox = false }
+
+                var snoozeMinutes by remember { mutableStateOf(app.reminderPreference.snoozeMinutes) }
+                var showDetails by remember { mutableStateOf(app.reminderPreference.showDetailsOnLockScreen) }
+                var showPermissionDialog by remember { mutableStateOf(false) }
+                // Ask once, with an explanation, when the first schedule exists and the pillbox is in view.
+                val hasMedication = medicationViewModel.uiState.collectAsState().value.medications.isNotEmpty()
+                LaunchedEffect(hasMedication, showPillbox) {
+                    if (hasMedication && showPillbox && !app.reminderPreference.permissionAsked &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationsAllowed
+                    ) {
+                        showPermissionDialog = true
+                    }
+                }
+                LaunchedEffect(pillboxRequested) {
+                    if (pillboxRequested) {
+                        showPillbox = true
+                        pillboxRequested = false
+                    }
+                }
 
                 // Banners belong to the screen that raised them. Skip the first run so a banner survives the
                 // Activity recreation caused by a language change (ADR 0015).
@@ -250,7 +332,28 @@ class MainActivity : ComponentActivity() {
                                     languagePreference.region = it
                                     recreate()
                                 },
-                                onShowMedicationNotice = { showNoticeFromProfile = true }
+                                onShowMedicationNotice = { showNoticeFromProfile = true },
+                                reminderSettings = {
+                                    ReminderSettingsSection(
+                                        state = ReminderSettingsState(
+                                            snoozeMinutes = snoozeMinutes,
+                                            showDetailsOnLockScreen = showDetails,
+                                            notificationsAllowed = notificationsAllowed,
+                                            exactAlarmsAllowed = exactAlarmsAllowed
+                                        ),
+                                        onSnoozeChange = {
+                                            snoozeMinutes = it
+                                            app.reminderPreference.snoozeMinutes = it
+                                        },
+                                        onShowDetailsChange = {
+                                            showDetails = it
+                                            app.reminderPreference.showDetailsOnLockScreen = it
+                                            lifecycleScope.launch { app.reminders.changed() }
+                                        },
+                                        onOpenNotificationSettings = ::openNotificationSettings,
+                                        onOpenExactAlarmSettings = ::openExactAlarmSettings
+                                    )
+                                }
                             )
                         }
                     }
@@ -259,6 +362,29 @@ class MainActivity : ComponentActivity() {
                     MedicationNoticeDialog(
                         confirmLabel = stringResource(android.R.string.ok),
                         onConfirm = { showNoticeFromProfile = false }
+                    )
+                }
+                if (showPermissionDialog) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            showPermissionDialog = false
+                            app.reminderPreference.permissionAsked = true
+                        },
+                        title = { Text(stringResource(R.string.reminder_permission_title)) },
+                        text = { Text(stringResource(R.string.reminder_permission_body)) },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showPermissionDialog = false
+                                app.reminderPreference.permissionAsked = true
+                                requestNotificationPermission()
+                            }) { Text(stringResource(R.string.reminder_permission_allow)) }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = {
+                                showPermissionDialog = false
+                                app.reminderPreference.permissionAsked = true
+                            }) { Text(stringResource(R.string.reminder_permission_later)) }
+                        }
                     )
                 }
             }

@@ -50,7 +50,8 @@ fun ProfileScreen(
     onGlucoseUnitChange: (GlucoseUnitChoice) -> Unit = {},
     currentTheme: ThemeChoice = ThemeChoice.SYSTEM,
     onThemeChange: (ThemeChoice) -> Unit = {},
-    onShowMedicationNotice: () -> Unit = {}
+    onShowMedicationNotice: () -> Unit = {},
+    reminderSettings: @Composable () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val units = LocalDisplayUnits.current
@@ -296,6 +297,8 @@ fun ProfileScreen(
         ) {
             Text(stringResource(R.string.profile_medication_notice_button), textAlign = TextAlign.Center)
         }
+
+        reminderSettings()
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(stringResource(R.string.profile_units_label), style = MaterialTheme.typography.labelLarge)

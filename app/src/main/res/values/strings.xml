@@ -429,4 +429,24 @@
     <string name="medication_err_time_required">Add at least one time</string>
     <string name="medication_err_interval_invalid">Enter a number of days from 1 to 365</string>
     <string name="medication_err_weekday_required">Choose at least one day</string>
+
+    <!-- Medication reminders -->
+    <string name="reminder_channel_name">Medication reminders</string>
+    <string name="reminder_channel_description">A reminder at the time of a planned intake</string>
+    <string name="reminder_title_generic">Medication reminder</string>
+    <string name="reminder_action_snooze">Snooze</string>
+    <string name="reminder_line">%1$s, %2$s</string>
+    <string name="reminder_settings_title">Reminders</string>
+    <string name="reminder_open_settings">Open settings</string>
+    <string name="reminder_hint_notifications_off">Notifications are off for this app, so reminders are not shown.</string>
+    <string name="reminder_hint_exact_off">Exact alarms are not allowed. Reminders still work but can arrive a few minutes late.</string>
+    <string name="reminder_hint_battery">If reminders arrive late or not at all, check the battery settings of your device for this app.</string>
+    <string name="reminder_snooze_label">Snooze length</string>
+    <string name="reminder_snooze_minutes">%1$d min</string>
+    <string name="reminder_lock_screen_label">Show details on the lock screen</string>
+    <string name="reminder_lock_screen_hint">Off: the lock screen only says that a reminder is waiting.</string>
+    <string name="reminder_permission_title">Allow reminders?</string>
+    <string name="reminder_permission_body">To remind you at the planned times, the app needs permission to show notifications. Reminders stay on this device.</string>
+    <string name="reminder_permission_allow">Continue</string>
+    <string name="reminder_permission_later">Not now</string>
 </resources>

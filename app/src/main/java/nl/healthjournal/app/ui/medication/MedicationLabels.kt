@@ -1,5 +1,6 @@
 package nl.healthjournal.app.ui.medication
 
+import android.content.Context
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
@@ -135,13 +136,17 @@ fun formatAmount(amount: BigDecimal): String =
 
 /** "2 tablets", "1,5 ml": the amount taken per intake, as entered and never converted. */
 @Composable
-fun doseText(amount: BigDecimal, unit: DoseUnit): String {
+fun doseText(amount: BigDecimal, unit: DoseUnit): String = LocalContext.current.doseString(amount, unit)
+
+/** The same text without Compose, for notifications. The context decides the language. */
+fun Context.doseString(amount: BigDecimal, unit: DoseUnit): String {
     val number = formatAmount(amount)
     val plurals = unit.pluralsRes()
     return when {
-        plurals != null -> pluralText(plurals, if (amount.compareTo(BigDecimal.ONE) == 0) 1 else 2, number)
-        unit == DoseUnit.OTHER -> stringResource(R.string.medication_dose_other, number)
-        else -> stringResource(R.string.medication_amount_unit, number, stringResource(unit.nameRes()))
+        plurals != null ->
+            resources.getQuantityString(plurals, if (amount.compareTo(BigDecimal.ONE) == 0) 1 else 2, number)
+        unit == DoseUnit.OTHER -> getString(R.string.medication_dose_other, number)
+        else -> getString(R.string.medication_amount_unit, number, getString(unit.nameRes()))
     }
 }
 

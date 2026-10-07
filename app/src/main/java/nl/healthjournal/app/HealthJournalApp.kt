@@ -1,6 +1,10 @@
 package nl.healthjournal.app
 
 import android.app.Application
+import nl.healthjournal.app.reminder.AlarmReminderScheduler
+import nl.healthjournal.app.reminder.ReminderCoordinator
+import nl.healthjournal.app.reminder.ReminderNotifier
+import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.ui.history.EntryUseCases
 import nl.healthjournal.app.ui.medication.MedicationUseCases
 import nl.healthjournal.data.DataModule
@@ -50,6 +54,11 @@ class HealthJournalApp : Application() {
     lateinit var medicationUseCases: MedicationUseCases
         private set
 
+    val reminderPreference: ReminderPreference by lazy { ReminderPreference(this) }
+    private val reminderScheduler: AlarmReminderScheduler by lazy { AlarmReminderScheduler(this) }
+    lateinit var reminders: ReminderCoordinator
+        private set
+
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -84,6 +93,16 @@ class HealthJournalApp : Application() {
             changeSchedule = ChangeMedicationScheduleUseCase(medicationRepository),
             archive = ArchiveMedicationUseCase(medicationRepository),
             delete = DeleteMedicationUseCase(medicationRepository)
+        )
+
+        reminders = ReminderCoordinator(
+            context = this,
+            profileRepository = profileRepository,
+            rearmReminders = RearmRemindersUseCase(medicationRepository, reminderScheduler),
+            takeAllForSlot = TakeAllForSlotUseCase(medicationUseCases.getDay, medicationUseCases.recordSlot),
+            scheduler = reminderScheduler,
+            notifier = ReminderNotifier(this),
+            preference = reminderPreference
         )
     }
 

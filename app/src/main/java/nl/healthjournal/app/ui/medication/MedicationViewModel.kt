@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nl.healthjournal.app.R
+import nl.healthjournal.app.reminder.ReminderHooks
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.UiTextException
 import nl.healthjournal.app.ui.common.parseDecimal
@@ -152,7 +153,8 @@ class MedicationViewModel(
     private val profileRepository: ProfileRepositoryPort,
     private val medicationRepository: MedicationRepositoryPort,
     private val useCases: MedicationUseCases,
-    private val clock: Clock = Clock.systemDefaultZone()
+    private val clock: Clock = Clock.systemDefaultZone(),
+    private val reminders: ReminderHooks = ReminderHooks.None
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -222,6 +224,7 @@ class MedicationViewModel(
                         useCases.changeSchedule(existing, parsed.schedule, draft.applyFrom ?: today)
                     }
                 }
+                reminders.changed()
                 _uiState.value = _uiState.value.copy(
                     successMessage = UiText.Res(R.string.medication_msg_saved), errorMessage = null
                 )
@@ -249,6 +252,7 @@ class MedicationViewModel(
         viewModelScope.launch {
             try {
                 action()
+                reminders.changed()
                 _uiState.value = _uiState.value.copy(
                     errorMessage = null,
                     successMessage = successRes?.let { UiText.Res(it) }
@@ -330,10 +334,13 @@ class MedicationViewModel(
     class Factory(
         private val profileRepository: ProfileRepositoryPort,
         private val medicationRepository: MedicationRepositoryPort,
-        private val useCases: MedicationUseCases
+        private val useCases: MedicationUseCases,
+        private val reminders: ReminderHooks = ReminderHooks.None
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            MedicationViewModel(profileRepository, medicationRepository, useCases) as T
+            MedicationViewModel(
+                profileRepository, medicationRepository, useCases, reminders = reminders
+            ) as T
     }
 }
