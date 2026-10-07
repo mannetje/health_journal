@@ -49,6 +49,6 @@
 - [x] 6.1 ADR 0020 (model, schedule versions, slots, pillbox screen, Dutch term check) and ADR 0021 (compliance and privacy record, with deferred items: licence file, legal review, trend overlay) (ADRs 0020 and 0021 written 2026-10-06)
 - [x] 6.2 Add the ADRs to the README ADR list and the ADR index; update the domain diagram and glossary in `docs/dev` (README ADR list; `docs/dev/architecture.md`, `database.md` and `pillbox.md`; the repo has no ADR index file or glossary page, so none was added)
 - [x] 6.3 README feature bullet, architecture diagram and disclaimer; CHANGELOG (Unreleased); `scripts/check-docs.sh` green (README feature bullet and architecture diagram, CHANGELOG Unreleased; check-docs green)
-- [ ] 6.4 Archive the change: add `medication`, `privacy`, `compliance` to `openspec/specs`, merge the `localization`, `data-export` and `platform-android` deltas, add them to `openspec/specs/README.md`
+- [x] 6.4 Archive the change: add `medication`, `privacy`, `compliance` to `openspec/specs`, merge the `localization`, `data-export` and `platform-android` deltas, add them to `openspec/specs/README.md`
 - [x] 6.5 Keep the neutral specs platform-free: a review check that `privacy`, `medication`, `compliance`, `localization` and `data-export` contain no platform API names (manifest, Keystore, AlarmManager, Room, Compose) (checked 2026-10-07: none of the five deltas names a platform API; the only platform mention is the pointer to the `platform-android` spec)
-- [ ] 6.6 Commits carry no attribution trailer
+- [x] 6.6 Commits carry no attribution trailer

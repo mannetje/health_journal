@@ -18,6 +18,9 @@ These specs are the platform-neutral source of truth for every business rule. A 
 | [health-trends/blood-pressure](health-trends/blood-pressure/spec.md) | Averages, gauges, distribution |
 | [health-trends/glucose](health-trends/glucose/spec.md) | In-range bars, chips |
 | health-metrics/range-labels (added when `reword-range-labels` is archived) | Neutral "name · range" labels, three blood pressure bands, source order, neutral colours |
+| [medication](medication/spec.md) | Medications, schedules, intake outcomes, pillbox view |
+| [privacy](privacy/spec.md) | No transmission, controlled export, no sensitive logging |
+| [compliance](compliance/spec.md) | Intended purpose, no advice, wording rules, review gate |
 | [data-export](data-export/spec.md) | CSV export and import, Libra |
 | [localization](localization/spec.md) | Languages, region, message resolution |
 | [theming](theming/spec.md) | Light/dark palette, top bar |
