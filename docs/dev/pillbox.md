@@ -22,6 +22,14 @@ The pill button in the top bar opens the pillbox. The first time, a notice expla
 | <img src="../screenshots/light-pillbox-notice.png" width="200" alt="First-open notice with source links"> | <img src="../screenshots/light-pillbox-today.png" width="200" alt="Today view with a taken slot, light theme"> | <img src="../screenshots/light-pillbox-medications.png" width="200" alt="Medication list, light theme"> | <img src="../screenshots/light-pillbox-edit.png" width="200" alt="New medication form, light theme"> |
 | | <img src="../screenshots/dark-pillbox-today.png" width="200" alt="Today view with a taken slot, dark theme"> | <img src="../screenshots/dark-pillbox-medications.png" width="200" alt="Medication list, dark theme"> | <img src="../screenshots/dark-pillbox-edit.png" width="200" alt="New medication form, dark theme"> |
 
+## Reminders
+
+One notification per time slot, posted at the planned time. Taken all records the open items of the slot, Snooze posts it again after the length chosen in Profile. Neither button opens the app. The Profile tab holds the snooze length and the lock-screen setting. See [ADR 0022](../adr/0022-medication-reminders.md).
+
+| Notification | Profile settings |
+|--------------|------------------|
+| <img src="../screenshots/light-reminder-notification.png" width="320" alt="Reminder notification for 14:05 with Taken all and Snooze buttons"> | <img src="../screenshots/light-reminder-settings.png" width="200" alt="Reminders section in Profile with snooze length and lock-screen switch"> |
+
 ## Rules to keep
 
 - View models hold `UiText`, never translated text.

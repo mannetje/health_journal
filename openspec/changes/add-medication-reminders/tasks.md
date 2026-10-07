@@ -15,7 +15,7 @@
 - [x] 2.4 Boot, app-update, time-zone and clock-change receivers; re-arm on schedule edit, archive, delete and profile switch
 - [x] 2.5 Permission flow with explanation, denied banner, exact-alarm hint, battery hint
 - [x] 2.6 Profile section for reminder settings: snooze length (default 10 minutes) and the lock-screen details setting (default hidden)
-- [ ] 2.7 English and Dutch strings, `UiText`; layout check at 1.3x and 2.0x
+- [x] 2.7 English and Dutch strings, `UiText`; layout check at 1.3x and 2.0x
 - [x] 2.8 Recording an outcome in the pillbox updates or cancels that slot's notification
 
 ## 3. Verification

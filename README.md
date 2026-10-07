@@ -52,6 +52,13 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 > The screenshots use synthetic sample data. The top bar uses the brand navy with the Health Journal logo in both themes ([ADR 0011](docs/adr/0011-app-icon-and-adaptive-layers.md)).
 
+**Medication reminders**
+
+| Notification | Reminder settings |
+|--------------|-------------------|
+| <img src="docs/screenshots/light-reminder-notification.png" width="380" alt="Reminder notification with neutral text and Taken all and Snooze buttons"> | <img src="docs/screenshots/light-reminder-settings.png" width="250" alt="Reminders section in Profile with snooze length and lock-screen switch"> |
+
+
 **App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](docs/adr/0011-app-icon-and-adaptive-layers.md)):
 
 <img src="docs/screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">
