@@ -28,6 +28,7 @@ Contributions in English are welcome; the app itself is in English and Dutch, an
 ## Pull request checklist
 
 - [ ] `./gradlew test` passes
+- [ ] Android Lint has no errors: `./gradlew :app:lintDebug`
 - [ ] New or changed behaviour has tests
 - [ ] English and Dutch strings are both updated
 - [ ] No condition names, advice or warnings in user-facing text

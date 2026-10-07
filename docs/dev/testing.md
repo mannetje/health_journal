@@ -3,16 +3,19 @@
 Tests are plain JUnit 4 with `kotlinx-coroutines-test`. There is no Robolectric and no instrumented test suite, which keeps `./gradlew test` fast and runnable in CI.
 
 ```bash
-./gradlew test
+./gradlew test             # unit tests, all modules
+./gradlew :app:lintDebug   # Android Lint (errors fail CI)
 ```
+
+Both run on every push and pull request. [Continuous integration](ci.md) describes the workflows, the run summary and the artifacts.
 
 ## What to test where
 
 | Module | Folder | What |
 |--------|--------|------|
-| `domain` | `domain/src/test/kotlin/…` | Value object limits, unit conversion, NHG classifiers (both sides of every boundary), use cases with fake ports (`usecase/UseCasesTest.kt`) |
-| `data` | `data/src/test/java/…` | Mappers (`local/mapper/`), CSV export and import (`csv/CsvAdaptersTest.kt`), repositories against fake DAOs (`repository/RoomRepositoriesTest.kt`) |
-| `app` | `app/src/test/java/…` | ViewModels (`ui/ViewModelsTest.kt`), history and chart maths (`ui/history/`), glucose ranges and label strings (`ui/nhg/`), unit preferences (`settings/`) |
+| `domain` | `domain/src/test/kotlin/…` | Value object limits, unit conversion, NHG classifiers (both sides of every boundary), use cases with fake ports (`usecase/UseCasesTest.kt`, `usecase/EntryCommentUseCasesTest.kt`), the medication model (`model/medication/`) and its use cases (`usecase/MedicationUseCasesTest.kt`, which also holds the in-memory `FakeMedicationRepository`) |
+| `data` | `data/src/test/java/…` | Mappers (`local/mapper/`), CSV export and import (`csv/CsvAdaptersTest.kt`, `csv/MedicationCsvTest.kt`), repositories against fake DAOs (`repository/RoomRepositoriesTest.kt`, `repository/RoomMedicationRepositoryTest.kt`) |
+| `app` | `app/src/test/java/…` | ViewModels (`ui/ViewModelsTest.kt`, `ui/MedicationViewModelTest.kt`), history and chart maths (`ui/history/`), glucose ranges and label strings (`ui/nhg/`, `ui/MedicationStringsTest.kt`), medication formatting (`ui/MedicationFormatTest.kt`), unit and theme preferences (`settings/`), and the privacy checks (`PrivacyChecksTest.kt`) |
 
 ## Rules of thumb
 
@@ -30,7 +33,9 @@ CI measures line coverage of the unit tests with JaCoCo and prints it, with a co
 ./gradlew :domain:jacocoTestReport :data:createDebugUnitTestCoverageReport :app:createDebugUnitTestCoverageReport
 ```
 
-The numbers are for information. There is no threshold that fails the build. `scripts/job-summary.sh` builds the summary.
+The numbers are for information. There is no threshold that fails the build. `scripts/job-summary.sh` builds the summary, and the HTML and XML reports are attached to each CI run as the `coverage-reports` artifact for 14 days ([Continuous integration](ci.md)).
+
+Line coverage when this was written: `domain` about 90%, `data` about 32%, `app` about 20%. The last two look low for a reason, not from neglect: in `data` most lines are the code Room generates for the DAOs, and in `app` most lines are Compose screens and `MainActivity`. Neither can run in a plain JVM unit test. The logic (use cases, mappers, CSV, ViewModels) is covered; the rest needs Robolectric or an instrumented suite.
 
 ## Not covered by unit tests
 
@@ -38,4 +43,4 @@ Compose screens, Room migrations and the Android back stack are checked by hand.
 
 ## Known gaps
 
-There are no tests for the DAOs against a real database, and none for the CSV file picker flow. Contributions here are welcome.
+There are no tests for the DAOs against a real database (the repositories are tested against fake DAOs that mirror the SQL), no migration test for database version 6, no tests for the Compose screens, and none for the CSV file picker flow. Adding Robolectric or an instrumented suite would close most of this. Contributions here are welcome.

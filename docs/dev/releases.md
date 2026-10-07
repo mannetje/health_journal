@@ -20,7 +20,7 @@ Semantic Versioning, tags `vX.Y.Z`. The version lives in `app/build.gradle.kts` 
    git push origin vX.Y.Z
    ```
 
-7. The workflow in `.github/workflows/android.yml` builds the debug APK, runs the tests, takes the release notes from the matching CHANGELOG section and publishes a GitHub Release with `health-journal-vX.Y.Z-debug.apk`.
+7. The workflow in `.github/workflows/android.yml` builds the debug APK, runs the tests, takes the release notes from the matching CHANGELOG section and publishes a GitHub Release with `health-journal-vX.Y.Z-debug.apk`. The same workflow also runs on every push and pull request; see [Continuous integration](ci.md).
 
 ## Signing
 

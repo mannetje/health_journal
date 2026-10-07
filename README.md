@@ -205,7 +205,7 @@ flowchart LR
 | **Architecture** | AndroidX ViewModel & Flow | Reactive state holding aligned with lifecycle management. |
 | **Persistence** | Jetpack Room SQLite | Type-safe, compile-time verified local database with Coroutines. |
 | **Concurrency** | Kotlinx Coroutines & Flow | Asynchronous execution and reactive data streams. |
-| **CI/CD** | GitHub Actions | Automated test verification and APK artifact compilation. |
+| **CI/CD** | GitHub Actions, CodeQL, Dependabot | Tests, coverage, lint, spec validation and the APK build on every push and pull request; weekly security analysis and dependency updates. See [Continuous integration](docs/dev/ci.md). |
 | **Tooling & Release** | GitHub CLI (`gh`) | Automated branch, PR, and GitHub Release asset distribution. |
 
 ---
@@ -244,6 +244,18 @@ All data files must be encoded in **UTF-8**.
 ## Developer Documentation
 
 New here? The [developer docs](docs/dev/README.md) explain how the code and the architecture fit together (with a walk-through of one entry from screen to database) and include how-to guides. Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### Automated checks
+
+| Check | Runs | What it does |
+|---|---|---|
+| **Android CI & Build APK** | every push and pull request, and on `v*` tags | docs check, unit tests, coverage summary, debug APK; publishes a GitHub Release on a tag |
+| **Android Lint** | every push and pull request | Android Lint; errors fail the check |
+| **OpenSpec** | when `openspec/` changes | validates all specs in strict mode |
+| **CodeQL** | every push and pull request, and weekly | security analysis of the Kotlin code |
+| **Dependabot** | weekly (Monday) | grouped pull requests for Gradle dependencies and GitHub Actions |
+
+To run the same checks locally before you push: `./gradlew test :app:lintDebug` and `bash scripts/check-docs.sh`. The [CI page](docs/dev/ci.md) explains each workflow, where to find the coverage summary and APK artifacts, and how to handle a Dependabot pull request.
 
 ---
 
