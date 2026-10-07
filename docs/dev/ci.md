@@ -47,7 +47,7 @@ Results are under **Security, Code scanning** in the repository. A pull request 
 
 Every Monday Dependabot looks for newer versions of two things and opens grouped pull requests:
 
-- **Gradle dependencies**, in three groups so that tied libraries move together: Kotlin, KSP, Compose and Room; the other AndroidX libraries; and the test libraries. Major version bumps are ignored on purpose: they are reviewed and done by hand.
+- **Gradle dependencies**, in three groups so that tied libraries move together: Kotlin, KSP, Compose and Room; the other AndroidX libraries; and the test libraries. Major version bumps are ignored on purpose: they are reviewed and done by hand. A few releases that need compileSdk 37 and a newer Android Gradle plugin (`androidx.core` 1.19 and later, vico 3.3 and later) are ignored too, until that upgrade is done; the rules are marked in `.github/dependabot.yml`.
 - **GitHub Actions** used by the workflows, in one group. The workflows pin an action to a major version tag.
 
 Commit messages start with `chore(deps)` or `chore(ci)`.
