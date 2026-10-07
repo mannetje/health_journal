@@ -61,6 +61,9 @@ import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
 import nl.healthjournal.domain.usecase.RecordGlucoseUseCase
 import nl.healthjournal.domain.usecase.RecordWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.RecordWeightUseCase
+import nl.healthjournal.app.ui.history.charts.TrendDateRange
+import nl.healthjournal.domain.model.metrics.GlucoseLevel
+import org.junit.Assert.assertTrue
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -610,5 +613,187 @@ class ViewModelsTest {
         vm.updateWeight(entry, entry.weight.value, entry.timestamp, comment = "")
         testDispatcher.scheduler.advanceUntilIdle()
         assertNull(vm.uiState.value.weights.single().comment)
+    }
+
+    // --- HistoryViewModel: other entry types, failures and messages
+
+    private fun historyViewModel(
+        profileRepo: ProfileRepositoryPort,
+        health: FakeHealthLogRepo,
+        export: DataExportPort = FakeExportAdapter(),
+        import: DataImportPort = FakeImportAdapter()
+    ) = HistoryViewModel(profileRepo, GetHealthHistoryUseCase(health), export, import, entryUseCases(health, profileRepo))
+
+    private val at = Instant.parse("2026-03-01T08:00:00Z")
+
+    @Test
+    fun `HistoryViewModel edits and deletes every entry type`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val health = FakeHealthLogRepo()
+        val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val bp = BloodPressureEntry(MeasurementId.generate(), profile.id, at, BloodPressureReading(130, 85), NhgBloodPressureCategory.NORMAL)
+        val glucose = GlucoseEntry(
+            MeasurementId.generate(), profile.id, at, GlucoseLevel(BigDecimal("5.5")),
+            GlucoseContext.FASTING, NhgGlucoseCategory.NORMAL
+        )
+        val waist = WaistCircumferenceEntry(MeasurementId.generate(), profile.id, at, WaistCircumferenceCm(90.0))
+        val activity = ActivitySession(MeasurementId.generate(), profile.id, at, at.plusSeconds(600), 1000.0)
+        health.bps.add(bp)
+        health.glucoses.add(glucose)
+        health.waistCircumferences.add(waist)
+        health.activities.add(activity)
+        val vm = historyViewModel(profileRepo, health)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.updateBloodPressure(bp, 140, 90, at, comment = "evening")
+        vm.updateGlucose(glucose, GlucoseContext.POSTPRANDIAL, BigDecimal("7.2"), at, comment = null)
+        vm.updateWaistCircumference(waist, 92.5, at, comment = null)
+        vm.updateActivity(activity, durationSeconds = 1200, distanceInMeters = 2500.0, comment = null)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val state = vm.uiState.value
+        assertEquals(140, state.bloodPressures.single().reading.systolic)
+        assertEquals("evening", state.bloodPressures.single().comment?.text)
+        assertEquals(GlucoseContext.POSTPRANDIAL, state.glucoses.single().context)
+        assertEquals(92.5, state.waistCircumferences.single().waist.value, 0.0)
+        assertEquals(2500.0, state.activities.single().distanceInMeters, 0.0)
+        assertEquals(at.plusSeconds(1200), state.activities.single().endTime)
+
+        val refs = listOf(
+            EntryRef.BloodPressure(bp),
+            EntryRef.Glucose(glucose),
+            EntryRef.WaistCircumference(waist),
+            EntryRef.Activity(activity)
+        )
+        for (ref in refs) {
+            vm.requestDelete(ref)
+            vm.confirmDelete()
+            testDispatcher.scheduler.advanceUntilIdle()
+        }
+        val after = vm.uiState.value
+        assertTrue(after.bloodPressures.isEmpty() && after.glucoses.isEmpty())
+        assertTrue(after.waistCircumferences.isEmpty() && after.activities.isEmpty())
+        assertNull(after.errorMessage)
+    }
+
+    @Test
+    fun `HistoryViewModel reports an entry that no longer exists`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val health = FakeHealthLogRepo()
+        val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val gone = WeightEntry(MeasurementId.generate(), profile.id, at, WeightKg(BigDecimal("80.0")), null)
+        val vm = historyViewModel(profileRepo, health)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.updateWeight(gone, BigDecimal("81.0"), at, comment = null)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(R.string.history_err_not_found, (vm.uiState.value.editError as UiText.Res).id)
+
+        vm.cancelEdit()
+        assertNull(vm.uiState.value.editError)
+
+        vm.requestDelete(EntryRef.Weight(gone))
+        vm.confirmDelete()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(R.string.history_err_not_found, (vm.uiState.value.errorMessage as UiText.Res).id)
+        assertNull(vm.uiState.value.pendingDelete)
+    }
+
+    @Test
+    fun `HistoryViewModel without a profile shows nothing and ignores export and import`() = runTest {
+        val vm = historyViewModel(FakeProfileRepo(), FakeHealthLogRepo())
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.exportCsv("weight")
+        vm.importCsv("weight", "x")
+        vm.confirmDelete()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val state = vm.uiState.value
+        assertNull(state.activeProfile)
+        assertEquals(false, state.isLoading)
+        assertNull(state.exportedCsvContent)
+        assertNull(state.importResult)
+    }
+
+    @Test
+    fun `HistoryViewModel shows an error when the history cannot be loaded`() = runTest {
+        val broken = object : ProfileRepositoryPort by FakeProfileRepo() {
+            override suspend fun getActiveProfile(): Profile? = error("disk")
+        }
+        val vm = historyViewModel(broken, FakeHealthLogRepo())
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertNotNull(vm.uiState.value.errorMessage)
+        assertEquals(false, vm.uiState.value.isLoading)
+    }
+
+    @Test
+    fun `HistoryViewModel exports each metric and an unknown one as empty`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepo())
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val expected = mapOf(
+            "bp" to "timestamp,systolic_mmhg,diastolic_mmhg,classification\n",
+            "glucose" to "timestamp,glucose_mmol_l,context,classification\n",
+            "activity" to "start_timestamp,end_timestamp,distance_m,duration_s\n",
+            "waist" to "timestamp,waist_cm,classification\n",
+            "unknown" to ""
+        )
+        for ((metric, csv) in expected) {
+            vm.exportCsv(metric)
+            testDispatcher.scheduler.advanceUntilIdle()
+            assertEquals(metric, csv, vm.uiState.value.exportedCsvContent)
+        }
+    }
+
+    @Test
+    fun `HistoryViewModel keeps going when export or import fails`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val failingExport = object : DataExportPort by FakeExportAdapter() {
+            override suspend fun exportWeightCsv(profileId: ProfileId): String = error("no space")
+        }
+        val failingImport = object : DataImportPort {
+            override suspend fun importCsv(profileId: ProfileId, metricType: String, csvContent: String): ImportResult =
+                error("bad file")
+        }
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepo(), failingExport, failingImport)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.exportCsv("weight")
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(R.string.history_err_export, (vm.uiState.value.errorMessage as UiText.Res).id)
+
+        vm.importCsv("weight", "x")
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(R.string.history_err_import, (vm.uiState.value.errorMessage as UiText.Res).id)
+
+        vm.importCsv("libra", "x")
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(R.string.history_err_import_libra, (vm.uiState.value.errorMessage as UiText.Res).id)
+    }
+
+    @Test
+    fun `HistoryViewModel clears its messages and tracks the date range`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepo())
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.exportCsv("weight")
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertNotNull(vm.uiState.value.infoMessage)
+
+        vm.clearMessages()
+
+        assertNull(vm.uiState.value.infoMessage)
+        assertNull(vm.uiState.value.exportedCsvContent)
+        val range = TrendDateRange.values().last()
+        vm.setDateRange(range)
+        assertEquals(range, vm.uiState.value.selectedDateRange)
     }
 }
