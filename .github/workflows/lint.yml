@@ -11,8 +11,6 @@ jobs:
   lint:
     name: Android Lint
     runs-on: ubuntu-latest
-    # Reports only until the first run is clean; remove this line to make lint block merges
-    continue-on-error: true
 
     steps:
       - name: Checkout code
