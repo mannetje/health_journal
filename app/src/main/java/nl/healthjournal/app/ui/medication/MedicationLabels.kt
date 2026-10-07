@@ -3,6 +3,7 @@ package nl.healthjournal.app.ui.medication
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import nl.healthjournal.app.R
@@ -159,12 +160,13 @@ fun Medication.frequencyText(): String {
     val schedule = schedules.last().schedule
     if (schedule !is Schedule.Recurring) return stringResource(R.string.medication_as_needed)
     val perDay = pluralText(R.plurals.medication_freq_per_day, schedule.times.size, schedule.times.size)
+    val locale = LocalConfiguration.current.locales[0]
     return when (val days = schedule.days) {
         is DayPattern.EveryNDays ->
             "$perDay, " + pluralText(R.plurals.medication_freq_every_n_days, days.interval, days.interval)
         is DayPattern.Weekdays ->
             if (days.days.size == DayOfWeek.entries.size) perDay
-            else perDay + ", " + days.days.sorted().joinToString(", ") { it.getDisplayName(TextStyle.SHORT, Locale.getDefault()) }
+            else perDay + ", " + days.days.sorted().joinToString(", ") { it.getDisplayName(TextStyle.SHORT, locale) }
     }
 }
 

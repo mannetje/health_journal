@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -64,7 +65,6 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.format.TextStyle
-import java.util.Locale
 
 private val TIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -232,9 +232,10 @@ private fun ScheduleSection(draft: MedicationDraft, isNew: Boolean, onChange: (M
                 modifier = Modifier.fillMaxWidth()
             )
         } else {
+            val locale = LocalConfiguration.current.locales[0]
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 DayOfWeek.entries.forEach { day ->
-                    Chip(day.getDisplayName(TextStyle.SHORT, Locale.getDefault()), day in draft.weekdays) {
+                    Chip(day.getDisplayName(TextStyle.SHORT, locale), day in draft.weekdays) {
                         onChange(draft.copy(weekdays = if (day in draft.weekdays) draft.weekdays - day else draft.weekdays + day))
                     }
                 }

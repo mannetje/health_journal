@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -53,7 +54,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.format.TextStyle
-import java.util.Locale
 
 private val TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -206,9 +206,10 @@ private fun TodayView(state: MedicationUiState, viewModel: MedicationViewModel) 
 
 @Composable
 private fun WeekStrip(week: List<WeekDay>, selected: java.time.LocalDate, onSelect: (java.time.LocalDate) -> Unit) {
+    val locale = LocalConfiguration.current.locales[0]
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         week.forEach { weekDay ->
-            val name = weekDay.date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+            val name = weekDay.date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale)
             val dateText = weekDay.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
             val statusText = stringResource(weekDay.status.labelRes())
             val symbol = when (weekDay.status) {
