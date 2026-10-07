@@ -16,7 +16,7 @@
 
 ## 2. Data
 - [x] 2.1 Room v6 (the database is at v5 today): `MedicationEntity`, `MedicationScheduleEntity`, `MedicationTimeEntity`, `IntakeEntity` (unique index on medication and planned time), DAOs, mapper, `RoomMedicationRepository`
-- [ ] 2.2 Hand-written `MIGRATION_5_6` (tables only) and a migration test that keeps every existing row (shares the in-memory test setup with the missing edit/delete DAO tests) Progress: `MIGRATION_5_6` is written; the migration test (`data/.../local/MigrationTest.kt`, Robolectric, ADR 0003 exception) is written on 2026-10-07 and must pass once before this is ticked; the edit/delete DAO tests are still open
+- [x] 2.2 Hand-written `MIGRATION_5_6` (tables only) and a migration test that keeps every existing row (shares the in-memory test setup with the missing edit/delete DAO tests) Progress: `MIGRATION_5_6` is written; the migration test (`data/.../local/MigrationTest.kt`, Robolectric, ADR 0003 exception) is written and passes (2026-10-07, 2 tests); the edit/delete DAO tests are still open
 - [x] 2.3 CSV export and import of medications, schedule versions and the intake log (`CsvQuoting` for comments), with round-trip, import-twice (planned and as-needed), orphan, unknown-enum and over-long-comment tests
 
 ## 3. App
