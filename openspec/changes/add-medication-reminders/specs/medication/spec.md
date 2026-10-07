@@ -21,7 +21,7 @@ The system SHALL post one local notification per slot (all planned intakes of th
 
 #### Scenario: Open the slot
 - **WHEN** the user taps the notification
-- **THEN** the app opens the pillbox on Today at that slot, where each intake can be marked Taken or Skipped separately
+- **THEN** the app opens the pillbox on Today, where each intake can be marked Taken or Skipped separately
 
 #### Scenario: Snooze
 - **WHEN** the user taps Snooze and the snooze length in Profile is 30 minutes
@@ -56,11 +56,11 @@ The system SHALL ask for notification permission only when the user first saves 
 
 #### Scenario: Permission denied
 - **WHEN** notification permission is denied
-- **THEN** the pillbox SHALL still work and the system SHALL show a banner explaining that reminders are off
+- **THEN** the pillbox SHALL still work and the system SHALL show a hint in Profile explaining that reminders are off
 
 #### Scenario: Permission later granted in settings
 - **WHEN** the user grants permission in the system settings and returns to the app
-- **THEN** the banner disappears and reminders are armed
+- **THEN** the hint disappears and reminders are armed
 
 ### Requirement: Reminder text is neutral
 A reminder SHALL contain only the planned time and the user's own medication names and doses, or the generic text "Medication reminder" when details are hidden, with no instruction, advice, warning or encouragement wording.

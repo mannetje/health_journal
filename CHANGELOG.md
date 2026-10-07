@@ -4,6 +4,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Added
+- **Medication reminders:** one notification per time slot at the planned time, with Taken all and Snooze actions that do not open the app. Tapping it opens the pillbox. The lock screen shows only "Medication reminder" unless you turn on details in Profile, where you also set the snooze length (10, 30 or 60 minutes). Reminders are set again after a restart, an app update and a clock or time-zone change. Exact alarms are used when allowed, otherwise reminders can arrive a few minutes late. Text follows the app language ([ADR 0022](docs/adr/0022-medication-reminders.md)).
+
 ## [1.5.3] - 2026-10-07
 
 ### Added

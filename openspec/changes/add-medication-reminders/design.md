@@ -25,10 +25,10 @@
 - Details shown: title is the time ("07:30"), body is an inbox style list "Medication A, 1 tablet" per line. Details hidden (default): public version and lock-screen text is only "Medication reminder".
 - No instruction wording ("take now", "do not miss"), no advice, no encouragement (spec `compliance`).
 - Texts are built from a context wrapped with the app locale (`withAppLocale`), because receivers run without the Activity (ADR 0013).
-- Tapping opens the pillbox on Today and scrolls to the slot.
+- Tapping opens the pillbox on Today. Scrolling to the slot is a follow-up.
 
 ## Permission flow
-`POST_NOTIFICATIONS` (Android 13+) is requested when the first schedule is saved, after a short explanation. If the user denies, nothing else changes except a banner in the pillbox. If the user later grants it in system settings the banner disappears on return and reminders are armed. No prompt on Android 12 and lower.
+`POST_NOTIFICATIONS` (Android 13+) is requested when the first schedule is saved, after a short explanation. If the user denies, nothing else changes except a hint in Profile with a link to the system setting. If the user later grants it the hint disappears on return and reminders are armed. No prompt on Android 12 and lower.
 
 ```mermaid
 flowchart LR
@@ -38,7 +38,7 @@ flowchart LR
     R -->|pending intakes| P[One notification]
     P -->|Taken all| L[(Intake log)]
     P -->|Snooze| A
-    P -->|tap| UI[Pillbox: that slot]
+    P -->|tap| UI[Pillbox: Today]
     B[Boot, update, time change, edit] --> N
 ```
 

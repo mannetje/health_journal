@@ -10,7 +10,7 @@
 
 ## 2. App
 - [x] 2.1 `AlarmManager` implementation (next alarm only, exact when granted else inexact), one-shot snooze alarm using the snooze length from settings
-- [x] 2.2 Notification channel, slot notification (inbox style when details are shown, generic when hidden), `BroadcastReceiver` (`goAsync`) for Taken all and Snooze, tap opens the pillbox on that slot
+- [x] 2.2 Notification channel, slot notification (inbox style when details are shown, generic when hidden), `BroadcastReceiver` (`goAsync`) for Taken all and Snooze, tap opens the pillbox on Today
 - [ ] 2.3 Notification text and action labels built from an app-locale context, tested in Dutch on an English device
 - [x] 2.4 Boot, app-update, time-zone and clock-change receivers; re-arm on schedule edit, archive, delete and profile switch
 - [x] 2.5 Permission flow with explanation, denied banner, exact-alarm hint, battery hint
@@ -20,9 +20,9 @@
 
 ## 3. Verification
 - [ ] 3.1 Emulator and real-device check, including reboot, Doze, a slot with three medications, Taken all, Snooze and a medication archived before the alarm
-- [ ] 3.2 Wording check of every notification string against the `compliance` no-advice rule
+- [x] 3.2 Wording check of every notification string against the `compliance` no-advice rule
 
 ## 4. Docs
-- [ ] 4.1 ADR 0022 (AlarmManager, grouping, exact-alarm decision), README, CHANGELOG (Unreleased), affected specs, the ADR index and `scripts/check-docs.sh`
+- [x] 4.1 ADR 0022 (AlarmManager, grouping, exact-alarm decision), README, CHANGELOG (Unreleased), affected specs, the ADR index and `scripts/check-docs.sh`
 - [ ] 4.2 Archive the change and merge the deltas into `openspec/specs`
 - [ ] 4.3 Commits carry no attribution trailer
