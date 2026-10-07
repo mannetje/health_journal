@@ -1,0 +1,41 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      # Kotlin, KSP, Compose and Room are tied together; update them in one pull request
+      kotlin-and-compose:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "com.google.devtools.ksp*"
+          - "androidx.compose*"
+          - "androidx.room*"
+      androidx:
+        patterns:
+          - "androidx.*"
+      testing:
+        patterns:
+          - "junit*"
+          - "org.jetbrains.kotlinx:kotlinx-coroutines-test*"
+    ignore:
+      # Major versions are reviewed by hand
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      actions:
+        patterns:
+          - "*"
