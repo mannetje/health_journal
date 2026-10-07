@@ -84,6 +84,14 @@ private fun SingleNumberRowPicker(
         derivedStateOf { listState.firstVisibleItemIndex }
     }
 
+    // The value can arrive after the first composition, and the list state only uses the initial index once.
+    LaunchedEffect(value) {
+        val target = (value - range.first).coerceIn(0, totalCount - 1)
+        if (target != listState.firstVisibleItemIndex && !listState.isScrollInProgress) {
+            listState.scrollToItem(target)
+        }
+    }
+
     LaunchedEffect(selectedIndex) {
         val newValue = (range.first + selectedIndex).coerceIn(range.first, range.last)
         if (newValue != value) {

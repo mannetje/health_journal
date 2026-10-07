@@ -54,6 +54,15 @@ fun HorizontalRulerPicker(
         derivedStateOf { listState.firstVisibleItemIndex }
     }
 
+    // The value can arrive after the first composition (the last entry is loaded asynchronously), and the
+    // list state only uses the initial index once. Move the tape when the value changes from outside.
+    LaunchedEffect(value) {
+        val target = ((value - range.start) / step).roundToInt().coerceIn(0, totalSteps)
+        if (target != listState.firstVisibleItemIndex && !listState.isScrollInProgress) {
+            listState.scrollToItem(target)
+        }
+    }
+
     LaunchedEffect(centerIndex) {
         val calculatedValue = (range.start + centerIndex * step).coerceIn(range.start, range.endInclusive)
         val roundedValue = (calculatedValue * 10).roundToInt() / 10.0
