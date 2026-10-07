@@ -41,7 +41,7 @@
 - [x] 5.4 Intended-purpose statement (personal logging tool, not a medical device) in the app (first open and Profile), README and ADR 0021 (first open and Profile in the app, README feature bullet, ADR 0021)
 - [x] 5.5 Missed shows the status only (no instruction); a neutral Sources list with apotheek.nl and Thuisarts links in English and Dutch (status only in the pillbox; Sources dialog with links in English and Dutch, checked on the emulator 2026-10-06)
 - [x] 5.6 No-advice audit of every existing and new user-visible string in English and Dutch (errors, empty states, banners, dialogs, README), and a unit or lint check that lists medication strings for review when they change (audit of all strings found only the notice and input checks; `MedicationStringsTest` fails if a medication string reads like advice or urgency)
-- [ ] 5.7 Wording check of README, CHANGELOG, store listing and screenshots against the claims rules
+- [x] 5.7 Wording check of README, CHANGELOG, store listing and screenshots against the claims rules (checked 2026-10-07: README and CHANGELOG make no outcome, treatment, certification or endorsement claims and name NHG, Thuisarts and apotheek.nl only as sources; the pillbox screenshots show only "Medication A", with no advice; the repo has no store listing yet, so repeat this check on the listing text before it is published)
 - [x] 5.8 Confirm there is no alert, urgency or reminder driven by a health value (checked 2026-10-07: no notifications or alarms exist in the code; repeat in the reminders change)
 - [x] 5.9 Range labels (BMI, blood pressure, glucose): done by the separate change `reword-range-labels` (shipped in 1.5.0), NHG leading
 
@@ -50,5 +50,5 @@
 - [x] 6.2 Add the ADRs to the README ADR list and the ADR index; update the domain diagram and glossary in `docs/dev` (README ADR list; `docs/dev/architecture.md`, `database.md` and `pillbox.md`; the repo has no ADR index file or glossary page, so none was added)
 - [x] 6.3 README feature bullet, architecture diagram and disclaimer; CHANGELOG (Unreleased); `scripts/check-docs.sh` green (README feature bullet and architecture diagram, CHANGELOG Unreleased; check-docs green)
 - [ ] 6.4 Archive the change: add `medication`, `privacy`, `compliance` to `openspec/specs`, merge the `localization`, `data-export` and `platform-android` deltas, add them to `openspec/specs/README.md`
-- [ ] 6.5 Keep the neutral specs platform-free: a review check that `privacy`, `medication`, `compliance`, `localization` and `data-export` contain no platform API names (manifest, Keystore, AlarmManager, Room, Compose)
+- [x] 6.5 Keep the neutral specs platform-free: a review check that `privacy`, `medication`, `compliance`, `localization` and `data-export` contain no platform API names (manifest, Keystore, AlarmManager, Room, Compose) (checked 2026-10-07: none of the five deltas names a platform API; the only platform mention is the pointer to the `platform-android` spec)
 - [ ] 6.6 Commits carry no attribution trailer
