@@ -27,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,12 +63,22 @@ private val TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm")
 fun PillboxScreen(
     viewModel: MedicationViewModel,
     showNotice: Boolean,
-    onNoticeAccepted: () -> Unit
+    onNoticeAccepted: () -> Unit,
+    openOnToday: Boolean = false,
+    onOpenedOnToday: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     var tab by rememberSaveable { mutableStateOf(0) }
     // A draft being edited replaces the list; null shows the list.
     var editing by remember { mutableStateOf<MedicationDraft?>(null) }
+
+    LaunchedEffect(openOnToday) {
+        if (openOnToday) {
+            tab = 0
+            editing = null
+            onOpenedOnToday()
+        }
+    }
 
     if (showNotice) {
         MedicationNoticeDialog(confirmLabel = stringResource(R.string.medication_notice_accept), onConfirm = onNoticeAccepted)

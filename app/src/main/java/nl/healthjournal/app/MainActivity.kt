@@ -182,6 +182,8 @@ class MainActivity : ComponentActivity() {
                 var currentTab by rememberSaveable { mutableStateOf(AppNavDestination.LOG) }
                 // The pillbox is a separate screen over the tabs, so Back returns to the tab it was opened from.
                 var showPillbox by rememberSaveable { mutableStateOf(false) }
+                // Set by a tap on a reminder notification; the pillbox then shows Today whatever it showed before.
+                var openPillboxOnToday by remember { mutableStateOf(false) }
                 BackHandler(enabled = showPillbox) { showPillbox = false }
 
                 var snoozeMinutes by remember { mutableStateOf(app.reminderPreference.snoozeMinutes) }
@@ -199,6 +201,7 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(pillboxRequested) {
                     if (pillboxRequested) {
                         showPillbox = true
+                        openPillboxOnToday = true
                         pillboxRequested = false
                     }
                 }
@@ -288,6 +291,8 @@ class MainActivity : ComponentActivity() {
                             PillboxScreen(
                                 viewModel = medicationViewModel,
                                 showNotice = !noticeAccepted,
+                                openOnToday = openPillboxOnToday,
+                                onOpenedOnToday = { openPillboxOnToday = false },
                                 onNoticeAccepted = {
                                     noticePreference.accepted = true
                                     noticeAccepted = true
