@@ -407,6 +407,7 @@
     <!-- Medication: notice and sources -->
     <string name="medication_notice_title">Voordat je begint</string>
     <string name="medication_notice_text">De pillendoos is een persoonlijk logboek. Het is geen medisch hulpmiddel en geeft geen medisch advies. Het controleert geen doseringen of interacties en zegt niet wat je moet doen na een gemiste inname. Vraag je arts of apotheker naar je medicatie.</string>
+    <string name="medication_privacy_text">Je medicatie blijft op dit apparaat. De app heeft geen internettoegang. Android kan de appgegevens opnemen in een back-up van het apparaat; daar heeft de app geen invloed op. Exporteer een CSV via Historie voor een kopie die je zelf beheert.</string>
     <string name="medication_notice_accept">Begrepen</string>
     <string name="medication_sources_title">Bronnen</string>
     <string name="medication_source_apotheek">apotheek.nl</string>

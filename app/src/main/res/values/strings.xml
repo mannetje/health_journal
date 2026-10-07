@@ -407,6 +407,7 @@
     <!-- Medication: notice and sources -->
     <string name="medication_notice_title">Before you start</string>
     <string name="medication_notice_text">The pillbox is a personal log. It is not a medical device and it gives no medical advice. It does not check doses or interactions, and it does not say what to do after a missed dose. Ask your doctor or pharmacist about your medication.</string>
+    <string name="medication_privacy_text">Your medication stays on this device. The app has no internet access. Android may include the app data in a device backup, which the app cannot control. Export a CSV from History for a copy that you control.</string>
     <string name="medication_notice_accept">Understood</string>
     <string name="medication_sources_title">Sources</string>
     <string name="medication_source_apotheek">apotheek.nl</string>

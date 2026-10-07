@@ -33,6 +33,11 @@ fun MedicationNoticeDialog(confirmLabel: String, onConfirm: () -> Unit, onDismis
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(stringResource(R.string.medication_notice_text), style = MaterialTheme.typography.bodyMedium)
                 Text(
+                    stringResource(R.string.medication_privacy_text),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+                Text(
                     stringResource(R.string.medication_sources_title),
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(top = 16.dp)
