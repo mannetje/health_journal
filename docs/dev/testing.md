@@ -13,7 +13,7 @@ Both run on every push and pull request. [Continuous integration](ci.md) describ
 
 | Module | Folder | What |
 |--------|--------|------|
-| `domain` | `domain/src/test/kotlin/…` | Value object limits, unit conversion, NHG classifiers (both sides of every boundary), use cases with fake ports (`usecase/UseCasesTest.kt`, `usecase/EntryCommentUseCasesTest.kt`), the medication model (`model/medication/`) and its use cases (`usecase/MedicationUseCasesTest.kt`, which also holds the in-memory `FakeMedicationRepository`) |
+| `domain` | `domain/src/test/kotlin/…` | Value object limits, unit conversion, NHG classifiers (both sides of every boundary), use cases with fake ports (`usecase/UseCasesTest.kt`, `usecase/EntryCommentUseCasesTest.kt`), the medication model (`model/medication/`, including `AdherenceTest`) and its use cases (`usecase/MedicationUseCasesTest.kt`, which also holds the in-memory `FakeMedicationRepository`) |
 | `data` | `data/src/test/java/…` | Mappers (`local/mapper/`), CSV export and import (`csv/CsvAdaptersTest.kt`, `csv/MedicationCsvTest.kt`), repositories against fake DAOs (`repository/RoomRepositoriesTest.kt`, `repository/RoomMedicationRepositoryTest.kt`) |
 | `app` | `app/src/test/java/…` | ViewModels (`ui/ViewModelsTest.kt`, `ui/MedicationViewModelTest.kt`), history and chart maths (`ui/history/`), glucose ranges and label strings (`ui/nhg/`, `ui/MedicationStringsTest.kt`), medication formatting (`ui/MedicationFormatTest.kt`), unit and theme preferences (`settings/`), and the privacy checks (`PrivacyChecksTest.kt`) |
 

@@ -23,7 +23,7 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.5.3)](https://github.com/mannetje/health_journal/releases/latest)**  
+👉 **[Download Latest APK (v1.5.4)](https://github.com/mannetje/health_journal/releases/latest)**  
 See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ---
@@ -111,6 +111,7 @@ flowchart TD
         LANG["LanguagePreference (SharedPreferences), Language + region applied on the Activity base context (ADR 0013)"]
         UNITS["UnitPreference + LocalDisplayUnits, display units only, storage stays metric (ADR 0014)"]
         UITEXT["UiText: ViewModels hold message resource ids, screens resolve them (ADR 0015)"]
+        REM["Reminders: alarm, notification, Taken all and Snooze receivers (ADR 0022)"]
         UI --> VM
         UI --> LANG
         UI --> UNITS
@@ -124,15 +125,19 @@ flowchart TD
 
         subgraph DomainModel["Domain Model"]
             AR["Profile Aggregate Root"]
-            VO["Value Objects (GlucoseLevel, BloodPressureReading, WaistCircumferenceCm, Medication, Intake)"]
+            VO["Value Objects (GlucoseLevel, BloodPressureReading, WaistCircumferenceCm)"]
+            MED["Medication model: Medication, ScheduleVersion, Intake, Pillbox, Adherence"]
             NHG["NHG Clinical Evaluation Rules"]
             AR --> VO
             AR --> NHG
+            MED --> VO
         end
 
         subgraph SecondaryPorts["Driven / Secondary Ports"]
             PRP["ProfileRepositoryPort (interface)"]
             HLP["HealthLogRepositoryPort (save, update, delete, history)"]
+            MRP["MedicationRepositoryPort (medications, schedule versions, intakes)"]
+            RSP["ReminderSchedulerPort (one alarm for the next slot)"]
             DEP["DataExportPort / DataImportPort (interface)"]
         end
 
@@ -155,8 +160,36 @@ flowchart TD
     VM -->|"Invokes Use Cases"| UC
     Mappers -->|"Implements"| PRP
     Mappers -->|"Implements"| HLP
+    Mappers -->|"Implements"| MRP
+    REM -->|"Implements"| RSP
+    REM -->|"Invokes Use Cases"| UC
     Parser -->|"Implements"| DEP
 ```
+
+### Medication: plan, record, remind, measure
+
+The pillbox never stores what is planned. A schedule is stored as versions, the plan for a day is computed from them, and only outcomes (taken or skipped) are written. The same `Medication.plannedFor(date)` feeds the Today view, the reminders and the adherence figures, so the three can never disagree.
+
+```mermaid
+flowchart LR
+    SCH["Schedule versions<br/>(one per edit, with a start date)"] --> PLAN["plannedFor(date)<br/>planned times of a day"]
+    PLAN --> PIL["Pillbox.statusOf<br/>Pending, Missed, Taken, Skipped"]
+    OUT[("Intakes<br/>recorded outcomes only")] --> PIL
+    PIL --> TODAY["Today view"]
+    PLAN --> NEXT["NextSlot"] --> ALARM["One alarm for the next slot"] --> NOTE["Notification<br/>Taken all, Snooze"]
+    NOTE -->|"Taken all"| OUT
+    TODAY -->|"Taken, Skip"| OUT
+    PIL --> ADH["Adherence.report<br/>7, 30 or 90 days"] --> VIEW["Adherence view"]
+```
+
+| Status | When | Counts in adherence |
+|---|---|---|
+| Pending | planned time not yet 2 hours ago, nothing recorded | not yet |
+| Missed | 2 hours or more after the planned time, nothing recorded | due, not taken |
+| Taken | an outcome of Taken is recorded | due, taken |
+| Skipped | an outcome of Skipped is recorded | due, not taken, shown separately |
+
+Adherence is plain counting: taken divided by due, rounded half up, shown with the skipped and missed counts. There are no targets and no good or bad colours. As-needed medications show only a dose count. The streak (days in a row with everything planned taken) does not depend on the chosen range.
 
 ---
 
@@ -165,7 +198,7 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.5.3-debug.apk`.
+2. Download `health-journal-v1.5.4-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
@@ -208,7 +241,7 @@ flowchart LR
 
 | Category | Technology | Rationale / Constraints |
 |---|---|---|
-| **Language** | Kotlin 2.3 (KSP 2.3, Room 2.8) | Modern, concise, expressive, type-safe language. |
+| **Language** | Kotlin 2.4 (KSP 2.3, Room 2.8) | Modern, concise, expressive, type-safe language. |
 | **Domain Layer** | Pure Kotlin (JVM) | Completely isolated from Android SDK and UI frameworks. |
 | **Presentation** | Jetpack Compose (BOM) | Declarative UI framework with reactive state management. |
 | **Architecture** | AndroidX ViewModel & Flow | Reactive state holding aligned with lifecycle management. |
@@ -223,9 +256,9 @@ flowchart LR
 
 | Module | Type | Responsibilities & Dependencies |
 |---|---|---|
-| [`:domain`](domain/) | Pure Kotlin JVM Library | Contains Aggregate Roots (`Profile`), Entities, Value Objects (`GlucoseLevel`, `BloodPressureReading`, `WaistCircumferenceCm`, `ProfileId`), Use Cases, and Port Interfaces. **Zero Android/Jetpack dependencies.** |
+| [`:domain`](domain/) | Pure Kotlin JVM Library | Contains Aggregate Roots (`Profile`), Entities, Value Objects (`GlucoseLevel`, `BloodPressureReading`, `WaistCircumferenceCm`, `ProfileId`), the medication model (`Medication`, `ScheduleVersion`, `Intake`, `Pillbox`, `Adherence`), Use Cases, and Port Interfaces. **Zero Android/Jetpack dependencies.** |
 | [`:data`](data/) | Android Library | Infrastructure adapter implementing domain repository and data import/export ports using Room SQLite and CSV streams. Depends on `:domain`. |
-| [`:app`](app/) | Android Application | Presentation adapter containing Jetpack Compose UI screens, navigation, and ViewModels. Depends on `:domain` and runtime `:data`. |
+| [`:app`](app/) | Android Application | Presentation adapter containing Jetpack Compose UI screens (including the pillbox), navigation, ViewModels, and the reminder alarm, notification and receivers. Depends on `:domain` and runtime `:data`. |
 
 ---
 
@@ -312,6 +345,26 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
 
 ## Roadmap
 
+| Phase | Scope | Status | Released in |
+|---|---|---|---|
+| 0 to 3 | Specs, governance, domain model, Room and CSV adapters, Compose UI | Done | before 1.5 |
+| 4 | Trend charts, dark theme, localization, edit and delete, waist, pickers, comments | Done | up to 1.5.2 |
+| 5a | Medication management and the pillbox | Done | 1.5.3 |
+| 5b | Medication reminders | Done | 1.5.4 |
+| 5c | Medication adherence | Done | 1.5.4 |
+| 5d | Database encryption and app lock | Proposed | |
+
+```mermaid
+flowchart LR
+    P0["Phase 0-3<br/>Foundation"]:::done --> P4["Phase 4<br/>Trends, theming,<br/>localization, metrics"]:::done
+    P4 --> P5A["5a Pillbox"]:::done
+    P5A --> P5B["5b Reminders"]:::done
+    P5A --> P5C["5c Adherence"]:::done
+    P5A --> P5D["5d Encryption<br/>and app lock"]:::next
+    classDef done fill:#dbeafe,stroke:#1e3a8a,color:#0f172a
+    classDef next fill:#fff,stroke:#64748b,stroke-dasharray: 4 3,color:#0f172a
+```
+
 - [x] **Phase 0: Specifications & Architecture Governance** — OpenSpec change definition, initial ADR, living README, Hexagonal boundary definition.
 - [x] **Phase 1: Gradle Build & Pure Kotlin Domain Model** — Multi-module Gradle build, Value Objects (`ProfileId`, `GlucoseLevel`, `BloodPressureReading`), `Profile` Aggregate Root, and Dutch NHG evaluation rules.
 - [x] **Phase 2: Data Infrastructure Layer** — Room SQLite Database, DAOs, Entity-to-Domain mappers, and CSV parser/generator adapters.
@@ -326,7 +379,7 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
   - [x] [Smart Pre-fill and Scrolling Number Pickers](openspec/changes/archive/2026-10-05-feature-smart-input-pickers/proposal.md) — canvas ruler pickers, stacked BP/pulse scrolling rows, and smart pre-fill fallback chain.
   - [x] [Optional comments on all entries](openspec/changes/archive/2026-10-06-add-entry-comments/proposal.md) — single-line note (max 200 characters) on every entry type, shown in History, in CSV and in the Libra import (1.5.1).
 - [ ] **Phase 5: Medication management (💊 pillbox)** (proposed as four OpenSpec changes). A personal reminder and logging tool, never a medical device, with no advice and no medicine names built in. The pillbox is a separate screen opened from a 💊 button in the top bar, not a fourth tab. The neutral wording of the range labels shipped in 1.5.0.
-  - [ ] [Phase 5a: Medication management](openspec/changes/archive/2026-10-07-add-medication-management/proposal.md): medications (any form: tablets, liquids, sprays, injectables; custom doses and Dutch-standard units), schedule versions, the pillbox day view with grouped time slots and "Taken all", the intake log, CSV export and import, English and Dutch. Database version 6. Records the privacy and compliance decisions (ADR 0020, 0021).
+  - [x] [Phase 5a: Medication management](openspec/changes/archive/2026-10-07-add-medication-management/proposal.md): medications (any form: tablets, liquids, sprays, injectables; custom doses and Dutch-standard units), schedule versions, the pillbox day view with grouped time slots and "Taken all", the intake log, CSV export and import, English and Dutch. Database version 6. Records the privacy and compliance decisions (ADR 0020, 0021).
   - [x] [Phase 5b: Reminders](openspec/changes/archive/2026-10-07-add-medication-reminders/proposal.md): one notification per time slot with Taken all and Snooze actions, neutral text, permission flow (ADR 0022). Depends on 5a.
   - [x] [Phase 5c: Adherence](openspec/changes/archive/2026-10-07-add-medication-adherence/proposal.md): percentages for 7, 30 and 90 days, streak and missed list as a view in the pillbox. Depends on 5a. The overlay on the trend charts is deferred.
   - [ ] [Phase 5d: Database encryption and app lock](openspec/changes/add-database-encryption-and-lock/proposal.md): encrypted database, opt-in lock with the device credential, secure screen, backup rules (ADR 0023). Independent of 5a to 5c.

@@ -1,6 +1,6 @@
 # Pillbox
 
-The pillbox is a personal log of medication and intakes. It is not a medical device: it gives no advice, checks no doses or interactions, and a missed intake only shows the status "Missed". The screens below are the English UI, shown in both themes.
+The pillbox is a personal log of medication and intakes. It is not a medical device: it gives no advice, checks no doses or interactions, and a missed intake only shows the status "Missed". The three views are Today, Medications and Adherence. The screens below are the English UI, shown in both themes.
 
 ## Where it lives
 
@@ -9,6 +9,7 @@ The pillbox is a personal log of medication and intakes. It is not a medical dev
 | Domain (model, pillbox derivation, use cases) | `domain/src/main/kotlin/nl/healthjournal/domain` |
 | Data (Room tables, CSV, migration 5 to 6) | `data/src/main/java/nl/healthjournal/data` |
 | UI (screens, view model, labels) | `app/src/main/java/nl/healthjournal/app/ui/medication` |
+| Reminders (alarm, notification, receivers) | `app/src/main/java/nl/healthjournal/app/reminder` |
 | Notice preference | `app/src/main/java/nl/healthjournal/app/settings/MedicationNoticePreference.kt` |
 
 The tables are in the [database page](database.md). The requirements are in `openspec/specs/medication/spec.md`.
@@ -39,4 +40,34 @@ One notification per time slot, posted at the planned time. Taken all records th
 
 ## Adherence
 
-The third view of the pillbox screen. `Adherence.report` (domain) walks the days of the range and takes the planned times from `Medication.plannedFor`, the same source as the pillbox and the reminders, so a schedule edit from today leaves earlier days unchanged. A planned time counts as due once it is taken, skipped or missed (grace period over); percentage is taken divided by due, rounded half up, and absent when nothing was due. Outcomes whose planned time is no longer planned are ignored. The streak counts days back from today on which everything planned was taken; days with nothing planned neither extend nor break it. On large font scales the view switches stack the choices vertically instead of breaking labels.
+The third view of the pillbox screen, next to Today and Medications. It shows taken against planned intakes for the last 7, 30 or 90 days, overall and per medication. It is a count, not a grade: one neutral colour, no targets, no advice.
+
+`Adherence.report` (domain) walks the days of the range and takes the planned times from `Medication.plannedFor`, the same source as the pillbox and the reminders, so a schedule edit from today leaves earlier days unchanged. `GetAdherenceUseCase` loads the medications (archived ones too) and all intakes and calls it. The view model keeps the chosen range (default 30 days) and refreshes on every change.
+
+```mermaid
+flowchart LR
+    MED["Medications<br/>(with archived)"] --> REP["Adherence.report"]
+    INT["All intakes"] --> REP
+    CLK["Clock, zone"] --> REP
+    REP --> ROWS["Rows per medication<br/>taken, skipped, missed, doses"]
+    REP --> OVR["Overall counts"]
+    REP --> STR["Streak<br/>(up to 365 days, not range bound)"]
+    REP --> MIS["Missed list<br/>(newest first)"]
+```
+
+### Rules
+
+| Rule | Behaviour |
+|---|---|
+| Due | taken + skipped + missed. A pending intake inside the 2 hour grace period is not counted yet |
+| Percentage | taken / due, rounded half up (26 of 28 is 93). Absent when nothing was due |
+| Skipped | counts as due and not taken, and is shown apart from missed |
+| As needed | only a dose count for the range, never a percentage |
+| Outcome without a plan | ignored (the schedule no longer produces that time) |
+| Start, end and archive dates | days before the start or from the end or archive date are not due |
+| Streak | days in a row back from today where something was planned and all of it was taken. A skipped or missed intake ends it. Days with nothing planned, or still pending, neither extend nor break it |
+| Range | changes the figures and the missed list, never the streak |
+
+Large font scales stack the range choices and the three-way pillbox switch vertically (`ChoiceRow`) instead of breaking words. Each card has merged TalkBack semantics. Strings are in `strings.xml` and `values-nl/strings.xml` under "Medication: adherence overview".
+
+Tests: `AdherenceTest` (calculation), `MedicationViewModelTest` (range, no profile) in the unit test suites.

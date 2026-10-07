@@ -4,9 +4,17 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.5.4] - 2026-10-07
+
 ### Added
 - **Medication reminders:** one notification per time slot at the planned time, with Taken all and Snooze actions that do not open the app. Tapping it opens the pillbox. The lock screen shows only "Medication reminder" unless you turn on details in Profile, where you also set the snooze length (10, 30 or 60 minutes). Reminders are set again after a restart, an app update and a clock or time-zone change. Exact alarms are used when allowed, otherwise reminders can arrive a few minutes late. Text follows the app language ([ADR 0022](docs/adr/0022-medication-reminders.md)).
 - **Medication adherence:** a third view in the pillbox (next to Today and Medications) shows taken against planned intakes for the last 7, 30 or 90 days, per medication and overall, with skipped and missed counts, the days in a row with everything taken and the list of missed intakes. Skipped counts as not taken but is shown separately; as-needed medications show only the number of doses. Wording is neutral status only, with no targets or advice.
+
+### Documentation
+- The README has a roadmap table and diagram, a medication flow diagram and an updated architecture diagram. The developer docs describe the reminders and the adherence view, and the architecture page shows how the pillbox, the reminders and adherence share one plan.
+
+### Upgrade note
+- No database change: the schema stays at version 6.
 
 ## [1.5.3] - 2026-10-07
 
