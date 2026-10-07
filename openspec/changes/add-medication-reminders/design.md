@@ -8,12 +8,16 @@
 - The notification id is derived from the slot's local date-time, so a re-arm or an edit never creates a second notification for the same moment.
 - When the alarm fires the receiver rebuilds the slot from the current data (not from extras), so a medication archived or already marked taken a minute ago is not listed. If nothing is pending in the slot, no notification is posted.
 - **Taken all** writes TAKEN with the current time for every still-pending intake in the slot through the same use case as the pillbox. It never overwrites an outcome that already exists (for example a Skipped one).
+- The receiver rebuilds the slot with the existing `GetPillboxDayUseCase` and `Slot.openItems` (pending and missed items without an outcome, ADR 0020) and records them with the existing `RecordSlotIntakesUseCase`; "never overwrite" comes from only passing `openItems`.
+- Recording an outcome in the pillbox updates or cancels the notification of that slot, so a notification never lists a medication that is already done.
+- Receivers run outside the Activity: they use `goAsync()` and the application container for the use cases, and finish within the broadcast time limit.
 - Individual choices (skip one, take another) are made in the pillbox. The notification does not offer per-medication buttons, because notification actions are limited and tiny at large font sizes.
 
 ## Scheduling
 - `ReminderSchedulerPort` (domain) is implemented in `app` on `AlarmManager`. Only the **next** alarm is set, and it is re-armed after it fires, after boot, after an app update, after a time-zone or clock change, and after any schedule, archive, delete or profile switch.
 - **Exact alarms (approved):** use `setExactAndAllowWhileIdle` when `SCHEDULE_EXACT_ALARM` is granted, otherwise `setAndAllowWhileIdle` (may be minutes late) and show a hint in Profile with a link to the system setting. The feature works without the permission.
 - Reminders belong to the active profile only. Switching profile cancels the old alarm and arms the new one.
+- **One Snooze action (approved 2026-10-07):** a notification cannot show a picker, so there is a single Snooze button and its length (10, 30 or 60 minutes, default 10) is set in Profile. The action never opens the app.
 - Snooze posts the same slot notification again after the chosen delay as a separate one-shot alarm, without changing the planned time, so later adherence still compares with the original time. A slot snoozed past the grace period shows as missed unless marked taken.
 
 ## Notification content

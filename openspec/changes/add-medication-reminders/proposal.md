@@ -5,7 +5,7 @@ The pillbox (`add-medication-management`) shows what is planned, but only when t
 
 ## What Changes
 - **Grouped reminders:** one local notification per slot (all planned intakes at the same local time), with **Taken all** and **Snooze** actions. With details shown the body lists each medication with its dose, otherwise it only says "Medication reminder".
-- **Actions without opening the app:** Taken all records every pending intake of the slot as taken and dismisses the notification. Snooze offers 10, 30 and 60 minutes and keeps the original planned time. Tapping the notification opens the pillbox on that slot, where each medication can still be marked Taken or Skipped on its own.
+- **Actions without opening the app:** Taken all records every pending intake of the slot as taken and dismisses the notification. Snooze is one button; its length (10, 30 or 60 minutes, default 10) is a setting in Profile, because a notification cannot show a picker. Snooze keeps the original planned time. Tapping the notification opens the pillbox on that slot, where each medication can still be marked Taken or Skipped on its own.
 - **Reliability:** reminders are re-armed after reboot, app update, time or time-zone change and any schedule or archive change. Exact alarms are used when granted, otherwise inexact alarms with a hint.
 - **Permission flow:** notification permission is asked when the first schedule is saved, with a short explanation first. If denied, the pillbox keeps working and a banner says reminders are off.
 - **Lock screen:** details are hidden by default, with a setting to show them.

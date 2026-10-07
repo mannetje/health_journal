@@ -24,8 +24,16 @@ The system SHALL post one local notification per slot (all planned intakes of th
 - **THEN** the app opens the pillbox on Today at that slot, where each intake can be marked Taken or Skipped separately
 
 #### Scenario: Snooze
-- **WHEN** the user taps Snooze and picks 30 minutes
-- **THEN** the system SHALL show the reminder again after 30 minutes and SHALL keep the original planned time
+- **WHEN** the user taps Snooze and the snooze length in Profile is 30 minutes
+- **THEN** the system SHALL show the reminder again after 30 minutes without opening the app and SHALL keep the original planned time
+
+#### Scenario: Snooze length is a setting
+- **WHEN** the user opens the reminder settings
+- **THEN** the user can choose 10, 30 or 60 minutes as the snooze length, with 10 minutes as the default
+
+#### Scenario: Notification follows the pillbox
+- **WHEN** the user records an outcome for every medication of a slot in the pillbox while its notification is shown
+- **THEN** that notification SHALL be removed, and with outcomes for only some of them it SHALL list only the rest
 
 #### Scenario: Reminders survive reboot
 - **WHEN** the device restarts
