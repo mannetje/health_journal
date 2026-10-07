@@ -86,4 +86,20 @@ class MedicationStringsTest {
         assertEquals("IU", en.strings.getValue("medication_unit_iu"))
         assertEquals("mcg", en.strings.getValue("medication_unit_mcg"))
     }
+
+    @Test
+    fun `medication strings give no advice or urgency`() {
+        // The notice states that the app gives no advice, so it is the only text that may name it.
+        val advice = Regex(
+            "should|recommend|consult|urgent|immediately|don't forget|raadpleeg|dringend|direct|aanbevel|vergeet niet",
+            RegexOption.IGNORE_CASE
+        )
+        for ((lang, entries) in listOf("en" to en, "nl" to nl)) {
+            val texts = entries.strings.filterKeys { it != "medication_notice_text" } +
+                entries.plurals.flatMap { (name, items) -> items.map { "$name.${it.key}" to it.value } }
+            for ((key, text) in texts) {
+                assertTrue("$lang $key reads like advice: $text", !advice.containsMatchIn(text))
+            }
+        }
+    }
 }
