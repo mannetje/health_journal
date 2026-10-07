@@ -115,7 +115,7 @@ flowchart TD
 
         subgraph DomainModel["Domain Model"]
             AR["Profile Aggregate Root"]
-            VO["Value Objects (GlucoseLevel, BloodPressureReading, WaistCircumferenceCm)"]
+            VO["Value Objects (GlucoseLevel, BloodPressureReading, WaistCircumferenceCm, Medication, Intake)"]
             NHG["NHG Clinical Evaluation Rules"]
             AR --> VO
             AR --> NHG

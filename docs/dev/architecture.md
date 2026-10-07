@@ -26,9 +26,10 @@ Located at `domain/src/main/kotlin/nl/healthjournal/domain/`.
 
 - `model/metrics/` holds value objects and entries: `BloodPressureReading` (validates ranges in its `init` block), `GlucoseLevel`, `WeightKg`, `WaistCircumferenceCm`, and entries such as `BloodPressureEntry`.
 - `model/nhg/` holds the classifiers that map a value to a range, for example `NhgBloodPressureCategory.classify`.
+- `model/medication/` holds the pillbox model: `Medication`, `Dosage`, `ScheduleVersion`, `Intake`, and the pure derivation of the day (slots, Pending and Missed). See [ADR 0020](../adr/0020-medication-model-and-pillbox.md) and the [pillbox page](pillbox.md).
 - `model/profile/` holds `Profile`, the aggregate root (height, birth date, optional sex, BMI calculation).
 - `usecase/` holds one class per action: `RecordBloodPressureUseCase`, `UpdateBloodPressureUseCase`, `DeleteBloodPressureUseCase`, and so on.
-- `port/secondary/` holds the interfaces the core needs: `HealthLogRepositoryPort`, `ProfileRepositoryPort`, `DataExportPort`, `DataImportPort`.
+- `port/secondary/` holds the interfaces the core needs: `HealthLogRepositoryPort`, `ProfileRepositoryPort`, `MedicationRepositoryPort`, `DataExportPort`, `DataImportPort`.
 
 A **use case** is a small class with one `operator fun invoke`. It builds and validates the model, applies the rules, and calls a port. It is the only place that decides *what happens* when a user records something.
 
@@ -37,7 +38,7 @@ A **use case** is a small class with one `operator fun invoke`. It builds and va
 Located at `data/src/main/java/nl/healthjournal/data/`.
 
 - `local/` has the Room `HealthJournalDatabase`, one `*Entity` and one `*Dao` per table, and `mapper/` which converts between entities and domain objects.
-- `repository/` has `RoomHealthLogRepository` and `RoomProfileRepository`, the adapters that implement the ports.
+- `repository/` has `RoomHealthLogRepository`, `RoomProfileRepository` and `RoomMedicationRepository`, the adapters that implement the ports.
 - `csv/` has `CsvDataExportAdapter` and `CsvDataImportAdapter`.
 - `DataModule.kt` creates the database and exposes the ports as ready-made objects.
 
