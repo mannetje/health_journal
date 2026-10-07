@@ -31,7 +31,7 @@ flowchart LR
 
 ## Dutch term check
 
-Checked against apotheek.nl and Thuisarts on 2026-10-06. Confirmed: IE, microgram, tabletten, capsules, druppels, "keer aanbrengen" and eenheden. Differs: those sources use "dosis" and "inhalaties" for inhalers, and "pufjes" is informal spoken Dutch; the app still shows "pufjes". The Dutch wording for colours, shapes, messages and the notice is a first proposal and still needs review by a Dutch speaker before release (task 4.3).
+Checked against apotheek.nl and Thuisarts on 2026-10-06. Confirmed: IE, microgram, tabletten, capsules, druppels, "keer aanbrengen" and eenheden. Differs: those sources use "dosis" and "inhalaties" for inhalers, and "pufjes" is informal spoken Dutch; the app still shows "pufjes". Decision 2026-10-07: keep "pufje / pufjes". It is short and familiar to users, and the unit label is only a counter next to an amount the user typed; the app makes no statement about how to use an inhaler. Revisit if a Dutch reviewer or the sources make "inhalaties" the clear norm. The Dutch wording for colours, shapes, messages and the notice is a first proposal and still needs review by a Dutch speaker before release (task 4.3).
 
 ## Consequences
 

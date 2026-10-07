@@ -44,7 +44,7 @@ Store metric units and plain types. Do not store anything that depends on the us
 - Test CSV export and import if the shape changed (`data/src/test/java/nl/healthjournal/data/csv/CsvAdaptersTest.kt`).
 - Repository logic is tested against fake DAOs in `RoomRepositoriesTest.kt`.
 
-Migrations run only on a device. Test a migration by installing the previous release on an emulator, adding data, installing your build over it and checking the data is still there. Debug builds use a fixed signing key, so this works ([ADR 0008](../../adr/0008-fixed-debug-signing-key.md)).
+The schema is not exported, so a migration test builds the old database by hand: see `MigrationTest.kt` in `data/src/test/java/nl/healthjournal/data/local/`. It creates the previous version with plain SQL, opens it through Room with the migrations, and checks that every row is kept. Extend it for your migration. Also test on a device: install the previous release on an emulator, add data, install your build over it and check that the data is still there. Debug builds use a fixed signing key, so this works ([ADR 0008](../../adr/0008-fixed-debug-signing-key.md)).
 
 ## Tell the users
 

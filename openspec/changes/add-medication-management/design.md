@@ -150,7 +150,7 @@ Dutch labels follow the wording of the Dutch pharmacy and patient sources (apoth
 | `IU` | IU | IE | Internationale eenheid; "IE" confirmed on apotheek.nl, 2026-10-06 |
 | `UNITS` | unit / units | eenheid / eenheden | Pen-type injectables. "eenheden" confirmed on thuisarts.nl and in package leaflets, 2026-10-06 |
 | `DROPS` | drop / drops | druppel / druppels | |
-| `PUFFS` | puff / puffs | pufje / pufjes | Inhaler and spray. Checked 2026-10-06: apotheek.nl and Thuisarts use "dosis / doses" and "inhalaties"; "pufjes" is informal spoken Dutch |
+| `PUFFS` | puff / puffs | pufje / pufjes | Inhaler and spray. Checked 2026-10-06: apotheek.nl and Thuisarts use "dosis / doses" and "inhalaties"; "pufjes" is informal spoken Dutch. Decision 2026-10-07: keep "pufje / pufjes" (short and familiar), recorded in ADR 0020 |
 | `TABLETS` | tablet / tablets | tablet / tabletten | |
 | `CAPSULES` | capsule / capsules | capsule / capsules | |
 | `PATCHES` | patch / patches | pleister / pleisters | |

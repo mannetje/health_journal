@@ -16,7 +16,7 @@
 
 ## 2. Data
 - [x] 2.1 Room v6 (the database is at v5 today): `MedicationEntity`, `MedicationScheduleEntity`, `MedicationTimeEntity`, `IntakeEntity` (unique index on medication and planned time), DAOs, mapper, `RoomMedicationRepository`
-- [ ] 2.2 Hand-written `MIGRATION_5_6` (tables only) and a migration test that keeps every existing row (shares the in-memory test setup with the missing edit/delete DAO tests) Progress: `MIGRATION_5_6` is written; the migration test is deferred, because the data module has no instrumented or Robolectric setup yet
+- [ ] 2.2 Hand-written `MIGRATION_5_6` (tables only) and a migration test that keeps every existing row (shares the in-memory test setup with the missing edit/delete DAO tests) Progress: `MIGRATION_5_6` is written; the migration test (`data/.../local/MigrationTest.kt`, Robolectric, ADR 0003 exception) is written on 2026-10-07 and must pass once before this is ticked; the edit/delete DAO tests are still open
 - [x] 2.3 CSV export and import of medications, schedule versions and the intake log (`CsvQuoting` for comments), with round-trip, import-twice (planned and as-needed), orphan, unknown-enum and over-long-comment tests
 
 ## 3. App
@@ -28,9 +28,9 @@
 - [x] 3.6 Accessibility: descriptions for icons and chips, 48 dp targets, contrast in both themes
 
 ## 4. Localization
-- [ ] 4.1 `values` and `values-nl` strings for every form, unit (with `<plurals>` for counted units), status, time-of-day group, frequency phrase and action; labels come from string resources, never raw enum names
+- [x] 4.1 `values` and `values-nl` strings for every form, unit (with `<plurals>` for counted units), status, time-of-day group, frequency phrase and action; labels come from string resources, never raw enum names (confirmed by the user 2026-10-07; `MedicationStringsTest` keeps the two key sets and the plurals aligned)
 - [x] 4.2 Tests: matching English and Dutch key sets for medication strings; plural formatting (1 tablet, 2 tabletten, 1 puff, 2 pufjes); IU shown as IE and mcg as microgram in Dutch; decimal comma versus point; language change keeps stored units and amounts. Progress 2026-10-06: `MedicationStringsTest` covers key sets, plurals, placeholders and IE and microgram; `MedicationFormatTest` covers the decimal comma and that the display language does not change a stored amount
-- [ ] 4.3 Check the Dutch terms in the design table against apotheek.nl and Thuisarts in a browser (release gate; ADR 0020 written 2026-10-06 with the progress so far), correct the table, and record the result and date in ADR 0020. Progress 2026-10-06: IE, microgram, tabletten, capsules, druppels, "keer aanbrengen" and "eenheden" confirmed; apotheek.nl and Thuisarts use "dosis / doses" and "inhalaties" for inhalers ("pufjes" is informal spoken Dutch)
+- [x] 4.3 Check the Dutch terms in the design table against apotheek.nl and Thuisarts in a browser (release gate; ADR 0020 written 2026-10-06 with the progress so far), correct the table, and record the result and date in ADR 0020. Progress 2026-10-06: IE, microgram, tabletten, capsules, druppels, "keer aanbrengen" and "eenheden" confirmed; apotheek.nl and Thuisarts use "dosis / doses" and "inhalaties" for inhalers ("pufjes" is informal spoken Dutch). Decision 2026-10-07: keep "pufje / pufjes" in the app, a deliberate choice for a short, familiar word, recorded in ADR 0020; every other term is confirmed
 - [x] 4.4 Layout check with long Dutch strings and large font (ADR 0010) on the pillbox screens and the top bar with the pill button, at 1.3x and 2.0x. Checked 2026-10-06 on the emulator in Dutch at 1.3x and 2.0x: top bar with the pill button, Today, Medications and the form; nothing clipped
 - [x] 4.5 ViewModel tests; emulator check in English and Dutch, including a language switch while the pillbox screen is open. Done 2026-10-06: ViewModel tests pass; a language switch with the pillbox open keeps the screen and re-translates it, but drops an unsaved edit form (known limitation)
 

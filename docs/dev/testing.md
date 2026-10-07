@@ -1,6 +1,6 @@
 # Testing
 
-Tests are plain JUnit 4 with `kotlinx-coroutines-test`. There is no Robolectric and no instrumented test suite, which keeps `./gradlew test` fast and runnable in CI.
+Tests are plain JUnit 4 with `kotlinx-coroutines-test`. Robolectric is used only for the database migration test; there is no instrumented test suite. This keeps `./gradlew test` fast and runnable in CI.
 
 ```bash
 ./gradlew test             # unit tests, all modules
@@ -39,8 +39,8 @@ Line coverage when this was written: `domain` about 90%, `data` about 32%, `app`
 
 ## Not covered by unit tests
 
-Compose screens, Room migrations and the Android back stack are checked by hand. Before a release, run the app on a device in English and Dutch, with each Theme choice in Profile (System, Light and Dark), at large font scales (1.3x and 2.0x to verify Dutch labels like "Activiteit" do not clip in tab rows or navigation bars), and install over the previous version to check that data survives ([Change the database](how-to/change-the-database.md)).
+Compose screens and the Android back stack are checked by hand; the migration from version 5 to 6 has a test (`data/src/test/java/nl/healthjournal/data/local/MigrationTest.kt`). Before a release, run the app on a device in English and Dutch, with each Theme choice in Profile (System, Light and Dark), at large font scales (1.3x and 2.0x to verify Dutch labels like "Activiteit" do not clip in tab rows or navigation bars), and install over the previous version to check that data survives ([Change the database](how-to/change-the-database.md)).
 
 ## Known gaps
 
-There are no tests for the DAOs against a real database (the repositories are tested against fake DAOs that mirror the SQL), no migration test for database version 6, no tests for the Compose screens, and none for the CSV file picker flow. Adding Robolectric or an instrumented suite would close most of this. Contributions here are welcome.
+There are no tests for the DAOs against a real database (the repositories are tested against fake DAOs that mirror the SQL), no migration tests before version 5, no tests for the Compose screens, and none for the CSV file picker flow. The Robolectric setup of the migration test can be reused to close most of this. Contributions here are welcome.
