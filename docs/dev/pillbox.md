@@ -11,7 +11,7 @@ The pillbox is a personal log of medication and intakes. It is not a medical dev
 | UI (screens, view model, labels) | `app/src/main/java/nl/healthjournal/app/ui/medication` |
 | Notice preference | `app/src/main/java/nl/healthjournal/app/settings/MedicationNoticePreference.kt` |
 
-The tables are in the [database page](database.md). The requirements are in `openspec/changes/add-medication-management`.
+The tables are in the [database page](database.md). The requirements are in `openspec/specs/medication/spec.md`.
 
 ## Screens
 
