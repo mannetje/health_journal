@@ -36,3 +36,7 @@ One notification per time slot, posted at the planned time. Taken all records th
 - Statuses are shown with text and an icon, never colour alone.
 - Touch targets are at least 48 dp. The layout was checked at font scale 1.3 and in Dutch.
 - Use "Medication A" style placeholders in docs, tests and screenshots, never real medicine names.
+
+## Adherence
+
+The third view of the pillbox screen. `Adherence.report` (domain) walks the days of the range and takes the planned times from `Medication.plannedFor`, the same source as the pillbox and the reminders, so a schedule edit from today leaves earlier days unchanged. A planned time counts as due once it is taken, skipped or missed (grace period over); percentage is taken divided by due, rounded half up, and absent when nothing was due. Outcomes whose planned time is no longer planned are ignored. The streak counts days back from today on which everything planned was taken; days with nothing planned neither extend nor break it. On large font scales the view switches stack the choices vertically instead of breaking labels.

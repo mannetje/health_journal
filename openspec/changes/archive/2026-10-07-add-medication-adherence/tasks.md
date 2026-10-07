@@ -12,6 +12,6 @@
 - [x] 2.2 English and Dutch strings, `UiText`; layout check at 1.3x and 2.0x; ViewModel tests
 
 ## 3. Docs
-- [ ] 3.1 README, CHANGELOG (Unreleased), affected specs, the specs index and `scripts/check-docs.sh`
-- [ ] 3.2 Archive the change and merge the delta into `openspec/specs/medication`
-- [ ] 3.3 Commits carry no attribution trailer
+- [x] 3.1 README, CHANGELOG (Unreleased), affected specs, the specs index and `scripts/check-docs.sh`
+- [x] 3.2 Archive the change and merge the delta into `openspec/specs/medication`
+- [x] 3.3 Commits carry no attribution trailer
