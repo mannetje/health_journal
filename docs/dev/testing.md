@@ -1,6 +1,6 @@
 # Testing
 
-Tests are plain JUnit 4 with `kotlinx-coroutines-test`. Robolectric is used only for the database migration test; there is no instrumented test suite. This keeps `./gradlew test` fast and runnable in CI.
+Tests are plain JUnit 4 with `kotlinx-coroutines-test`. Robolectric is used only for the tests that need a real SQLite (the migration test and the medication DAO test); there is no instrumented test suite. This keeps `./gradlew test` fast and runnable in CI.
 
 ```bash
 ./gradlew test             # unit tests, all modules
@@ -43,4 +43,4 @@ Compose screens and the Android back stack are checked by hand; the migration fr
 
 ## Known gaps
 
-There are no tests for the DAOs against a real database (the repositories are tested against fake DAOs that mirror the SQL), no migration tests before version 5, no tests for the Compose screens, and none for the CSV file picker flow. The Robolectric setup of the migration test can be reused to close most of this. Contributions here are welcome.
+Only the medication DAO is tested against a real database (`local/MedicationDaoTest.kt`); the other DAOs are covered through fake DAOs that mirror the SQL. There are no migration tests before version 5, no tests for the Compose screens, and none for the CSV file picker flow. The Robolectric setup can be reused to close most of this. Contributions here are welcome.
