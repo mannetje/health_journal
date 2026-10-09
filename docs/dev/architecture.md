@@ -91,5 +91,7 @@ Because the three share one source, a schedule edit from today changes the plan 
 
 ## Where to go next
 
+- [C4 diagrams](c4.md) show the same structure at four zoom levels, with the reminder and adherence scenarios as sequence diagrams.
+- [Design](design.md) holds the principles, the screen map and the layout rules.
 - [Life of an entry](life-of-an-entry.md) walks through all of this with real code.
 - All decisions are in `docs/adr/`.

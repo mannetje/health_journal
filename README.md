@@ -101,6 +101,8 @@ The application enforces **Hexagonal Architecture** (Ports and Adapters) paired 
 3. **Dependency Minimization:** We strictly prioritize the native Android SDK, official AndroidX/Jetpack libraries, and official Kotlinx libraries over third-party dependencies. Any external library must be justified via an [Architecture Decision Record (ADR)](docs/adr/).
 4. **Offline-First:** Room SQLite serves as the local source of truth.
 
+> More views: [C4 diagrams](docs/dev/c4.md) (context, containers, components, scenarios, deployment) and the [design page](docs/dev/design.md) (principles, screen map, state flow).
+
 ### Hexagonal Architecture & Boundary Flow
 
 ```mermaid

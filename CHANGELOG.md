@@ -4,6 +4,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Documentation
+- New developer pages: [C4 diagrams](docs/dev/c4.md) (system context, containers, components of each module, reminder, adherence and entry sequences, deployment) and [Design](docs/dev/design.md) (principles, quality goals, screen map, state flow, layout rules, medication state diagram).
+
 ## [1.5.4] - 2026-10-07
 
 ### Added
