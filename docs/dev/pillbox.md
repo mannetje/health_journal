@@ -46,9 +46,7 @@ The third view shows taken against planned intakes for 7, 30 or 90 days, overall
 - Touch targets are at least 48 dp. The layout was checked at font scale 1.3 and in Dutch.
 - Use "Medication A" style placeholders in docs, tests and screenshots, never real medicine names.
 
-## Adherence
-
-The third view of the pillbox screen, next to Today and Medications. It shows taken against planned intakes for the last 7, 30 or 90 days, overall and per medication. It is a count, not a grade: one neutral colour, no targets, no advice.
+## How adherence is calculated
 
 `Adherence.report` (domain) walks the days of the range and takes the planned times from `Medication.plannedFor`, the same source as the pillbox and the reminders, so a schedule edit from today leaves earlier days unchanged. `GetAdherenceUseCase` loads the medications (archived ones too) and all intakes and calls it. The view model keeps the chosen range (default 30 days) and refreshes on every change.
 
