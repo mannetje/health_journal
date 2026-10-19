@@ -31,6 +31,14 @@ One notification per time slot, posted at the planned time. Taken all records th
 |--------------|------------------|
 | <img src="../screenshots/light-reminder-notification.png" width="320" alt="Reminder notification for 14:05 with Taken all and Snooze buttons"> | <img src="../screenshots/light-reminder-settings.png" width="200" alt="Reminders section in Profile with snooze length and lock-screen switch"> |
 
+## Adherence
+
+The third view shows taken against planned intakes for 7, 30 or 90 days, overall and per medication, with skipped and missed counts. The figures are derived from the plan and the recorded outcomes, so correcting an outcome changes them the next time they are read. Neutral wording only.
+
+| Light | Dark |
+|-------|------|
+| <img src="../screenshots/light-pillbox-adherence.png" width="200" alt="Adherence view, light theme"> | <img src="../screenshots/dark-pillbox-adherence.png" width="200" alt="Adherence view, dark theme"> |
+
 ## Rules to keep
 
 - View models hold `UiText`, never translated text.
