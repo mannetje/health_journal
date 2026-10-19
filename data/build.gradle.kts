@@ -54,7 +54,13 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    // ADR 0023: encrypted database (BSD-style licence, no network code, see ADR 0023)
+    implementation(libs.sqlcipher.android)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric) // real SQLite for the migration test, see ADR 0003
+
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

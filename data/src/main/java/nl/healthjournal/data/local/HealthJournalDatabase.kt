@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import nl.healthjournal.data.local.dao.*
 import nl.healthjournal.data.local.entity.*
 
@@ -159,12 +160,27 @@ abstract class HealthJournalDatabase : RoomDatabase() {
             ).allowMainThreadQueries().build()
         }
 
+        /**
+         * Opens or creates the on-disk encrypted database.
+         * The passphrase is obtained from [DatabaseKeyProvider] (Keystore-wrapped, no-backup
+         * storage) and converted to the char-array form SQLCipher expects, then zeroed.
+         *
+         * The native SQLCipher library is loaded here (required before any DB access).
+         */
         fun create(context: Context): HealthJournalDatabase {
+            System.loadLibrary("sqlcipher")
+            val passphrase = DatabaseKeyProvider(context).getOrCreatePassphrase()
+            val factory = SupportOpenHelperFactory(passphrase)
+            passphrase.fill(0)
+
             return Room.databaseBuilder(
                 context,
                 HealthJournalDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6).build()
+            )
+                .openHelperFactory(factory)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                .build()
         }
     }
 }

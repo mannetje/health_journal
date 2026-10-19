@@ -3,10 +3,10 @@
 - [x] 0.2 Backup: keep `allowBackup="true"` and exclude the database and wrapped key through extraction rules (approved 2026-10-06)
 
 ## 1. Domain
-- [ ] 1.1 `AppLockPort` and a lock state (locked, unlocked, timeout) with tests; setting stored in the existing preferences
+- [x] 1.1 `AppLockPort` and a lock state (locked, unlocked, timeout) with tests; setting stored in the existing preferences
 
 ## 2. Data
-- [ ] 2.1 `DatabaseKeyProvider` (Keystore AES-GCM wrapping, no user-authentication binding, no-backup storage) and a `SupportOpenHelperFactory` for Room, with an instrumented test on key creation and reopen
+- [x] 2.1 `DatabaseKeyProvider` (Keystore AES-GCM wrapping, no user-authentication binding, no-backup storage) and a `SupportOpenHelperFactory` for Room, with an instrumented test on key creation and reopen
 - [ ] 2.2 One-time plain to encrypted migration with row-count verification, keep the plain file until verified, failure keeps data and retries; tests on a seeded database including edge cases (empty, large, interrupted)
 
 ## 3. App
