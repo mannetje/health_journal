@@ -19,6 +19,7 @@ Health Journal is an offline-first Android app for logging weight, blood pressur
 | 7 | [Database](database.md) | see every table and how they relate (entity-relationship diagram) |
 | 8 | [Pillbox](pillbox.md) | see the medication feature (Today, Medications, Adherence, reminders), where it lives and what it looks like |
 | 9 | [Continuous integration](ci.md) | see which GitHub Actions run, what they check, how Dependabot is used and how to run the same checks locally |
+| 10 | [Graphs](graphs.md) | see how the History graph view is built, with the waist and glucose graphs as worked examples, and a checklist for a new graph |
 
 How-to guides for common changes:
 

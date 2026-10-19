@@ -37,6 +37,7 @@ import nl.healthjournal.app.ui.common.formatWeight
 import nl.healthjournal.app.ui.history.charts.BloodPressureStatisticsSection
 import nl.healthjournal.app.ui.history.charts.BloodPressureTrendSection
 import nl.healthjournal.app.ui.history.charts.DateRangeSelector
+import nl.healthjournal.app.ui.history.charts.GlucoseStatisticsSection
 import nl.healthjournal.app.ui.history.charts.GlucoseTrendSection
 import nl.healthjournal.app.ui.history.charts.WeightTrendSection
 import nl.healthjournal.app.ui.history.charts.filterByDateRange
@@ -325,7 +326,10 @@ fun HistoryScreen(
                                     BloodPressureTrendSection(entries = bloodPressures)
                                     BloodPressureStatisticsSection(entries = state.bloodPressures, range = state.selectedDateRange)
                                 }
-                                HistoryFilter.GLUCOSE -> GlucoseTrendSection(entries = glucoses)
+                                HistoryFilter.GLUCOSE -> {
+                                    GlucoseTrendSection(entries = glucoses)
+                                    GlucoseStatisticsSection(glucoses = glucoses, allGlucoses = state.glucoses)
+                                }
                                 HistoryFilter.WAIST_CIRCUMFERENCE -> {
                                     WaistTrendSection(entries = waists, profile = state.activeProfile)
                                     WaistStatisticsSection(

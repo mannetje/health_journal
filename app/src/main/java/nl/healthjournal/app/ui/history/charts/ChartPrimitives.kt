@@ -37,11 +37,14 @@ import java.time.Instant
 import java.time.ZoneId
 import kotlin.math.max
 
+/** Beyond this many points a series is drawn as a plain line: markers would merge into a thick band. */
+private const val MAX_MARKED_POINTS = 60
+
 data class ChartPoint(val timestamp: Instant, val value: Float)
 
 /**
  * One line. [pointColors], when given, is parallel to [points] and draws a marker per point in that colour
- * (used to tint blood pressure readings by band); without it the line has no markers.
+ * (used to tint readings by band); without it, or with more than 60 points, the line has no markers.
  */
 data class ChartSeries(
     val points: List<ChartPoint>,
@@ -114,7 +117,9 @@ fun LineTrendChart(
             LineCartesianLayer.Line(
                 fill = LineCartesianLayer.LineFill.single(Fill(s.color)),
                 stroke = LineCartesianLayer.LineStroke.Continuous(thickness = s.strokeWidthDp.dp),
-                pointProvider = s.pointColors?.let { colors -> tintedPoints(s, colors, referenceEpochSecond) }
+                pointProvider = s.pointColors
+                    ?.takeIf { s.points.size <= MAX_MARKED_POINTS }
+                    ?.let { colors -> tintedPoints(s, colors, referenceEpochSecond) }
             )
         }
     )

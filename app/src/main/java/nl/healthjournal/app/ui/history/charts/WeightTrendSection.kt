@@ -37,11 +37,12 @@ fun WeightTrendSection(entries: List<WeightEntry>, modifier: Modifier = Modifier
         val rawPoints = sorted.map { ChartPoint(it.timestamp, units.weightFromKg(it.weight.value.toDouble()).toFloat()) }
         val averagePoints = movingAverage(rawPoints, windowSize)
         val averageColor = MaterialTheme.colorScheme.primary
+        val rawColor = MaterialTheme.colorScheme.secondary
 
         LineTrendChart(
             series = if (rawPoints.size >= 2) {
                 listOf(
-                    ChartSeries(rawPoints, MaterialTheme.colorScheme.secondary, strokeWidthDp = 2f),
+                    ChartSeries(rawPoints, rawColor, strokeWidthDp = 2f, pointColors = rawPoints.map { rawColor }),
                     ChartSeries(averagePoints, averageColor, strokeWidthDp = 3f)
                 )
             } else {
