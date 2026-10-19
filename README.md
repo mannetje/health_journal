@@ -70,6 +70,13 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 |-------|------|
 | <img src="docs/screenshots/light-history-timeline.png" width="250" alt="History with year and month chips above the list and a month header, light theme"> | <img src="docs/screenshots/dark-history-timeline.png" width="250" alt="History with year and month chips above the list and a month header, dark theme"> |
 
+**Graph view and weight statistics** (graph/list toggle in the History title row, sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="docs/screenshots/light-history-graph.png" width="250" alt="History graph view with the weight trend chart, light theme"> | <img src="docs/screenshots/dark-history-graph.png" width="250" alt="History graph view with the weight trend chart, dark theme"> |
+| <img src="docs/screenshots/light-weight-statistics.png" width="250" alt="Lowest and highest weight and the weight change table, light theme"> | <img src="docs/screenshots/dark-weight-statistics.png" width="250" alt="Lowest and highest weight and the weight change table, dark theme"> |
+
 **App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](docs/adr/0011-app-icon-and-adaptive-layers.md)):
 
 <img src="docs/screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">

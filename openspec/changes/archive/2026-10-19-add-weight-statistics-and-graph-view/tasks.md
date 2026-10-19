@@ -12,9 +12,9 @@
 - [x] 2.1 Toggle icon and per-filter state; graph view without the list; list view without the chart; timeline offset 0
 - [x] 2.2 Weight graph sections: lowest/highest cards, change table with kg/% toggle
 - [x] 2.3 `BarTrendChart`, the monthly chart with year chips and the yearly chart
-- [ ] 2.4 English and Dutch strings and content descriptions; layout check at font scale 1.3 and 2.0, light and dark
+- [x] 2.4 English and Dutch strings and content descriptions; layout check at font scale 1.3 and 2.0, light and dark
 
 ## 3. Docs
-- [ ] 3.1 README, CHANGELOG, `docs/dev/design.md`, `docs/dev/testing.md`
-- [ ] 3.2 Screenshots of the graph view and the weight statistics (light and dark)
-- [ ] 3.3 Archive the change and merge the delta into `openspec/specs/health-trends`
+- [x] 3.1 README, CHANGELOG, `docs/dev/design.md`, `docs/dev/testing.md`
+- [x] 3.2 Screenshots of the graph view and the weight statistics (light and dark)
+- [x] 3.3 Archive the change and merge the delta into `openspec/specs/health-trends`
