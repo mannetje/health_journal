@@ -11,10 +11,10 @@
 - [x] 2.1 Year row and month row above the list; tap jumps; chips scroll to follow the selection; selected state by fill and check icon; dimmed months not clickable; hidden when fewer than 2 months
 - [x] 2.2 Month headers with the entry count as list items
 - [x] 2.3 Scroll and selection stay in sync: scroll → selection → chips, tap → animated scroll → selection; no second selected state
-- [ ] 2.4 English and Dutch strings (month header, count, "no entries", content descriptions); layout check at font scale 1.3 and 2.0 in both languages, light and dark
+- [x] 2.4 English and Dutch strings (month header, count, "no entries", content descriptions); layout check at font scale 1.3 and 2.0 in both languages, light and dark
 
 ## 3. Docs
 - [x] 3.1 README (History), CHANGELOG (Unreleased), `docs/dev/design.md` (screen map, layout rules), `docs/dev/testing.md`, the specs index and `scripts/check-docs.sh`
 - [x] 3.2 Screenshots of the History tab with the rows (light and dark, sample data)
-- [ ] 3.3 Archive the change and merge the delta into `openspec/specs/entry-management`
+- [x] 3.3 Archive the change and merge the delta into `openspec/specs/entry-management`
 - [x] 3.4 Commits carry no attribution trailer
