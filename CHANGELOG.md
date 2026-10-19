@@ -6,6 +6,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ### Added
 - **Graph view in History:** under the Weight, Blood pressure and Glucose filters an icon next to the title switches between the entries and the graph. The list no longer starts with the chart; the 7/30/90-day range selector stays above both views. The choice is remembered per filter while the app is open.
+- **Blood pressure graphs** in the Blood Pressure graph view: points on the trend chart coloured by NHG band, a scatter chart (diastolic across, systolic up) on the three bands with newer readings more prominent, how steady your readings are (usual change and biggest jump between two readings), and a comparison of systolic, diastolic, pulse, mean arterial pressure and pulse pressure with the previous period (newest value, range, change, "stable" under 2). Figures only, no good or bad colour; in English and Dutch.
 - **Weight statistics** in the Weight graph view, over all weight entries: the lowest and highest weight with their dates, the change and change per week over the last week, 15 days, month, three months, six months and year (a dash when the history is shorter), a switch between kg (or lb) and percent, a bar chart of the change per month with year chips, and a bar chart of the change per year. Figures only, one neutral colour for gain and loss.
 
 ### Fixed

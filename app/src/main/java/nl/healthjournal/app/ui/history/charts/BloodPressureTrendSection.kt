@@ -37,12 +37,13 @@ fun BloodPressureTrendSection(entries: List<BloodPressureEntry>, modifier: Modif
     TrendCard(title = stringResource(R.string.trend_bp_title), modifier = modifier) {
         val systolicPoints = sorted.map { ChartPoint(it.timestamp, it.reading.systolic.toFloat()) }
         val diastolicPoints = sorted.map { ChartPoint(it.timestamp, it.reading.diastolic.toFloat()) }
+        val bandColors = sorted.map { getBpColor(it.category) }
 
         LineTrendChart(
             series = if (sorted.size >= 2) {
                 listOf(
-                    ChartSeries(systolicPoints, MaterialTheme.colorScheme.error, strokeWidthDp = 3f),
-                    ChartSeries(diastolicPoints, MaterialTheme.colorScheme.primary, strokeWidthDp = 3f)
+                    ChartSeries(systolicPoints, MaterialTheme.colorScheme.error, strokeWidthDp = 3f, pointColors = bandColors),
+                    ChartSeries(diastolicPoints, MaterialTheme.colorScheme.primary, strokeWidthDp = 3f, pointColors = bandColors)
                 )
             } else {
                 emptyList()

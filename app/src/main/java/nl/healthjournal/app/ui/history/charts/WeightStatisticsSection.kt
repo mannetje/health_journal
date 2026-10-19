@@ -172,7 +172,7 @@ private fun periodName(period: ChangePeriod): Int = when (period) {
 }
 
 /** One decimal with an explicit plus for a gain; a value that rounds to zero carries no sign. */
-private fun signed(value: Double): String {
+internal fun signed(value: Double): String {
     val text = formatDecimal(value, 1)
     return when {
         text.trimStart('-').all { it == '0' || it == '.' || it == ',' } -> text.trimStart('-')

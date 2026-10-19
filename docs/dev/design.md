@@ -32,7 +32,7 @@ The bottom bar has three tabs. The pill button in the top bar opens the pillbox,
 ```mermaid
 flowchart TD
     APP(["Health Journal"]) --> LOG["Log tab<br/>Weight, BP, Glucose, Waist, Activity"]
-    APP --> HIST["History tab<br/>filters, list or graph view, year and month rows, trend charts, weight statistics, edit, delete, CSV"]
+    APP --> HIST["History tab<br/>filters, list or graph view, year and month rows, trend charts, weight and blood pressure statistics, edit, delete, CSV"]
     APP --> PROF["Profile tab<br/>height, birth date, sex, language, region,<br/>units, theme, reminder settings"]
     APP -->|"pill button"| PILL["Pillbox"]
     PILL -->|"first time"| NOTICE["Notice: a log, not a medical device<br/>links to apotheek.nl and Thuisarts"]
@@ -73,7 +73,7 @@ flowchart LR
 | Status | text and icon, never colour alone |
 | Colour for ranges | one neutral blue-grey ramp; a darker step is a higher band, not a warning |
 | Adherence | one neutral colour for the bar, counts as text |
-| History list and graph | under Weight, Blood Pressure and Glucose an icon in the title row switches between entries and graph (per filter, list by default); the range selector stays above both. Weight statistics ignore the range and show figures only |
+| History list and graph | under Weight, Blood Pressure and Glucose an icon in the title row switches between entries and graph (per filter, list by default); the range selector stays above both. Weight statistics ignore the range and show figures only. The blood pressure graph view adds a scatter chart on the NHG bands, reading steadiness and a comparison with the previous period (window counted back from the newest reading), all figures only |
 | Bar charts | zero line, gain above and loss below in one neutral colour, value printed on the bar, scrolls sideways instead of squeezing labels |
 | History year and month rows | scrolling rows of filter chips, selected chip has a check icon, months without entries are dimmed. The selection is derived from the list position, never stored |
 

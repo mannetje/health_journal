@@ -32,6 +32,7 @@ import nl.healthjournal.app.ui.common.formatDistance
 import nl.healthjournal.app.ui.common.formatGlucose
 import nl.healthjournal.app.ui.common.formatMinutes
 import nl.healthjournal.app.ui.common.formatWeight
+import nl.healthjournal.app.ui.history.charts.BloodPressureStatisticsSection
 import nl.healthjournal.app.ui.history.charts.BloodPressureTrendSection
 import nl.healthjournal.app.ui.history.charts.DateRangeSelector
 import nl.healthjournal.app.ui.history.charts.GlucoseTrendSection
@@ -314,7 +315,10 @@ fun HistoryScreen(
                                     WeightTrendSection(entries = weights)
                                     WeightStatisticsSection(entries = state.weights)
                                 }
-                                HistoryFilter.BLOOD_PRESSURE -> BloodPressureTrendSection(entries = bloodPressures)
+                                HistoryFilter.BLOOD_PRESSURE -> {
+                                    BloodPressureTrendSection(entries = bloodPressures)
+                                    BloodPressureStatisticsSection(entries = state.bloodPressures, range = state.selectedDateRange)
+                                }
                                 HistoryFilter.GLUCOSE -> GlucoseTrendSection(entries = glucoses)
                                 else -> Unit
                             }

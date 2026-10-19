@@ -3,6 +3,7 @@ package nl.healthjournal.app.ui.history.charts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProdu
 import com.patrykandpatrick.vico.compose.cartesian.Zoom
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.compose.cartesian.data.LineCartesianLayerModel
 import com.patrykandpatrick.vico.compose.cartesian.data.lineModel
 import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
@@ -28,6 +30,7 @@ import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
 import com.patrykandpatrick.vico.compose.common.Fill
 import com.patrykandpatrick.vico.compose.common.ProvideVicoTheme
+import com.patrykandpatrick.vico.compose.common.component.ShapeComponent
 import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
 import java.time.Instant
@@ -36,7 +39,16 @@ import kotlin.math.max
 
 data class ChartPoint(val timestamp: Instant, val value: Float)
 
-data class ChartSeries(val points: List<ChartPoint>, val color: Color, val strokeWidthDp: Float = 3f)
+/**
+ * One line. [pointColors], when given, is parallel to [points] and draws a marker per point in that colour
+ * (used to tint blood pressure readings by band); without it the line has no markers.
+ */
+data class ChartSeries(
+    val points: List<ChartPoint>,
+    val color: Color,
+    val strokeWidthDp: Float = 3f,
+    val pointColors: List<Color>? = null
+)
 
 /**
  * A [Vico](https://github.com/patrykandpatrick/vico)-backed line chart drawing one or more
@@ -101,7 +113,8 @@ fun LineTrendChart(
         series.map { s ->
             LineCartesianLayer.Line(
                 fill = LineCartesianLayer.LineFill.single(Fill(s.color)),
-                stroke = LineCartesianLayer.LineStroke.Continuous(thickness = s.strokeWidthDp.dp)
+                stroke = LineCartesianLayer.LineStroke.Continuous(thickness = s.strokeWidthDp.dp),
+                pointProvider = s.pointColors?.let { colors -> tintedPoints(s, colors, referenceEpochSecond) }
             )
         }
     )
@@ -132,6 +145,33 @@ fun LineTrendChart(
 }
 
 private const val SECONDS_PER_HOUR = 3600L
+private val MarkerSize = 9.dp
+
+/** Markers keyed by the x-value ([hoursSince]) of their point, so each reading keeps its own colour. */
+private class TintedPointProvider(
+    private val points: Map<Double, LineCartesianLayer.Point>,
+    private val largest: LineCartesianLayer.Point
+) : LineCartesianLayer.PointProvider {
+    override fun getPoint(entry: LineCartesianLayerModel.Entry, extraStore: ExtraStore) = points[entry.x]
+
+    override fun getLargestPoint(extraStore: ExtraStore) = largest
+}
+
+private fun tintedPoints(series: ChartSeries, colors: List<Color>, referenceEpochSecond: Long): LineCartesianLayer.PointProvider {
+    fun marker(color: Color) = LineCartesianLayer.Point(
+        component = ShapeComponent(
+            fill = Fill(color),
+            shape = CircleShape,
+            strokeFill = Fill(series.color),
+            strokeThickness = 1.5.dp
+        ),
+        size = MarkerSize
+    )
+    val points = series.points.indices.associate { i ->
+        hoursSince(referenceEpochSecond, series.points[i].timestamp).toDouble() to marker(colors[i])
+    }
+    return TintedPointProvider(points, marker(series.color))
+}
 
 private fun hoursSince(referenceEpochSecond: Long, instant: Instant): Float =
     ((instant.epochSecond - referenceEpochSecond) / SECONDS_PER_HOUR).toFloat()
