@@ -7,6 +7,9 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import kotlinx.coroutines.launch
+import java.time.ZoneId
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -159,15 +162,114 @@ fun HistoryScreen(
         val glucoses = if (ranged) state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.glucoses
         val waists = if (ranged) state.waistCircumferences.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.waistCircumferences
 
+        val showChart = state.selectedFilter != HistoryFilter.ALL && state.selectedFilter != HistoryFilter.ACTIVITY && state.selectedFilter != HistoryFilter.WAIST_CIRCUMFERENCE
+        // One chronological list (newest first) so no metric hides below a long run of another.
+        val filter = state.selectedFilter
+        val rows = buildList<Pair<java.time.Instant, @Composable () -> Unit>> {
+            if (filter == HistoryFilter.ALL || filter == HistoryFilter.WEIGHT) {
+                weights.forEach { w ->
+                    add(w.timestamp to {
+                        EntryCard(
+                            onEdit = { viewModel.startEdit(EntryRef.Weight(w)) },
+                            onDelete = { viewModel.requestDelete(EntryRef.Weight(w)) }
+                        ) {
+                                Text(stringResource(R.string.history_weight_line, units.formatWeight(w.weight.value.toDouble())), style = MaterialTheme.typography.titleMedium)
+                                w.bmi?.let { Text(stringResource(R.string.history_bmi_line, formatDecimal(it.toDouble(), 1))) }
+                                Text(stringResource(R.string.history_time_line, w.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                CommentLine(w.comment)
+                        }
+                    })
+                }
+            }
+            if (filter == HistoryFilter.ALL || filter == HistoryFilter.BLOOD_PRESSURE) {
+                bloodPressures.forEach { bp ->
+                    add(bp.timestamp to {
+                        EntryCard(
+                            onEdit = { viewModel.startEdit(EntryRef.BloodPressure(bp)) },
+                            onDelete = { viewModel.requestDelete(EntryRef.BloodPressure(bp)) }
+                        ) {
+                                Text(stringResource(R.string.history_bp_line, bp.reading.systolic.toString(), bp.reading.diastolic.toString()), style = MaterialTheme.typography.titleMedium)
+                                Text(bp.category.label())
+                                Text(stringResource(R.string.history_time_line, bp.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                CommentLine(bp.comment)
+                        }
+                    })
+                }
+            }
+            if (filter == HistoryFilter.ALL || filter == HistoryFilter.GLUCOSE) {
+                glucoses.forEach { g ->
+                    add(g.timestamp to {
+                        EntryCard(
+                            onEdit = { viewModel.startEdit(EntryRef.Glucose(g)) },
+                            onDelete = { viewModel.requestDelete(EntryRef.Glucose(g)) }
+                        ) {
+                                Text(stringResource(R.string.history_glucose_line, units.formatGlucose(g.glucose.valueInMmolL.toDouble()), g.context.label()), style = MaterialTheme.typography.titleMedium)
+                                Text(g.category.label(g.context))
+                                Text(stringResource(R.string.history_time_line, g.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                CommentLine(g.comment)
+                        }
+                    })
+                }
+            }
+            if (filter == HistoryFilter.ALL || filter == HistoryFilter.ACTIVITY) {
+                state.activities.forEach { a ->
+                    add(a.startTime to {
+                        EntryCard(
+                            onEdit = { viewModel.startEdit(EntryRef.Activity(a)) },
+                            onDelete = { viewModel.requestDelete(EntryRef.Activity(a)) }
+                        ) {
+                                Text(stringResource(R.string.history_activity_line, units.formatDistance(a.distanceInMeters), formatMinutes(a.durationInSeconds)), style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.history_start_line, a.startTime.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                CommentLine(a.comment)
+                        }
+                    })
+                }
+            }
+            if (filter == HistoryFilter.ALL || filter == HistoryFilter.WAIST_CIRCUMFERENCE) {
+                waists.forEach { wc ->
+                    add(wc.timestamp to {
+                        EntryCard(
+                            onEdit = { viewModel.startEdit(EntryRef.WaistCircumference(wc)) },
+                            onDelete = { viewModel.requestDelete(EntryRef.WaistCircumference(wc)) }
+                        ) {
+                            Text(stringResource(R.string.history_waist_line, wc.waist.value.toString()), style = MaterialTheme.typography.titleMedium)
+                            wc.category?.let { Text(it.label(state.activeProfile?.sex)) }
+                            Text(stringResource(R.string.history_time_line, wc.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            CommentLine(wc.comment)
+                        }
+                    })
+                }
+            }
+        }.sortedByDescending { it.first }
+        val times = rows.map { it.first }
+        val timeline = remember(times, showChart) { HistoryTimeline(times, ZoneId.systemDefault(), leading = if (showChart) 1 else 0) }
+        val listState = rememberLazyListState()
+        // The selected period is derived from the list position, so scrolling and the chips cannot disagree.
+        val selectedMonth by remember(timeline) { derivedStateOf { timeline.monthAt(listState.firstVisibleItemIndex) } }
+        val scope = rememberCoroutineScope()
+        LaunchedEffect(state.selectedFilter, state.selectedDateRange) { listState.scrollToItem(0) }
+
+        if (timeline.navigable && !state.isLoading) {
+            selectedMonth?.let { month ->
+                TimelineRows(
+                    timeline = timeline,
+                    selected = month,
+                    onMonth = { target -> timeline.indexOf(target)?.let { scope.launch { listState.animateScrollToItem(it) } } },
+                    onYear = { year -> timeline.indexOfYear(year)?.let { scope.launch { listState.animateScrollToItem(it) } } }
+                )
+            }
+        }
+
         if (state.isLoading) {
             CircularProgressIndicator(modifier = Modifier.padding(16.dp))
         } else {
             LazyColumn(
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
                 // Trend chart scrolls together with the entries below it, so the entries stay reachable.
-                if (state.selectedFilter != HistoryFilter.ALL && state.selectedFilter != HistoryFilter.ACTIVITY && state.selectedFilter != HistoryFilter.WAIST_CIRCUMFERENCE) {
+                if (showChart) {
                     item {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             DateRangeSelector(
@@ -184,85 +286,12 @@ fun HistoryScreen(
                     }
                 }
 
-                // One chronological list (newest first) so no metric hides below a long run of another.
-                val filter = state.selectedFilter
-                val rows = buildList<Pair<java.time.Instant, @Composable () -> Unit>> {
-                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.WEIGHT) {
-                        weights.forEach { w ->
-                            add(w.timestamp to {
-                                EntryCard(
-                                    onEdit = { viewModel.startEdit(EntryRef.Weight(w)) },
-                                    onDelete = { viewModel.requestDelete(EntryRef.Weight(w)) }
-                                ) {
-                                        Text(stringResource(R.string.history_weight_line, units.formatWeight(w.weight.value.toDouble())), style = MaterialTheme.typography.titleMedium)
-                                        w.bmi?.let { Text(stringResource(R.string.history_bmi_line, formatDecimal(it.toDouble(), 1))) }
-                                        Text(stringResource(R.string.history_time_line, w.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        CommentLine(w.comment)
-                                }
-                            })
-                        }
+                items(timeline.items) { item ->
+                    when (item) {
+                        is TimelineItem.Header -> MonthHeader(item.month, item.count)
+                        is TimelineItem.Entry -> rows[item.row].second()
                     }
-                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.BLOOD_PRESSURE) {
-                        bloodPressures.forEach { bp ->
-                            add(bp.timestamp to {
-                                EntryCard(
-                                    onEdit = { viewModel.startEdit(EntryRef.BloodPressure(bp)) },
-                                    onDelete = { viewModel.requestDelete(EntryRef.BloodPressure(bp)) }
-                                ) {
-                                        Text(stringResource(R.string.history_bp_line, bp.reading.systolic.toString(), bp.reading.diastolic.toString()), style = MaterialTheme.typography.titleMedium)
-                                        Text(bp.category.label())
-                                        Text(stringResource(R.string.history_time_line, bp.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        CommentLine(bp.comment)
-                                }
-                            })
-                        }
-                    }
-                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.GLUCOSE) {
-                        glucoses.forEach { g ->
-                            add(g.timestamp to {
-                                EntryCard(
-                                    onEdit = { viewModel.startEdit(EntryRef.Glucose(g)) },
-                                    onDelete = { viewModel.requestDelete(EntryRef.Glucose(g)) }
-                                ) {
-                                        Text(stringResource(R.string.history_glucose_line, units.formatGlucose(g.glucose.valueInMmolL.toDouble()), g.context.label()), style = MaterialTheme.typography.titleMedium)
-                                        Text(g.category.label(g.context))
-                                        Text(stringResource(R.string.history_time_line, g.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        CommentLine(g.comment)
-                                }
-                            })
-                        }
-                    }
-                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.ACTIVITY) {
-                        state.activities.forEach { a ->
-                            add(a.startTime to {
-                                EntryCard(
-                                    onEdit = { viewModel.startEdit(EntryRef.Activity(a)) },
-                                    onDelete = { viewModel.requestDelete(EntryRef.Activity(a)) }
-                                ) {
-                                        Text(stringResource(R.string.history_activity_line, units.formatDistance(a.distanceInMeters), formatMinutes(a.durationInSeconds)), style = MaterialTheme.typography.titleMedium)
-                                        Text(stringResource(R.string.history_start_line, a.startTime.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        CommentLine(a.comment)
-                                }
-                            })
-                        }
-                    }
-                    if (filter == HistoryFilter.ALL || filter == HistoryFilter.WAIST_CIRCUMFERENCE) {
-                        waists.forEach { wc ->
-                            add(wc.timestamp to {
-                                EntryCard(
-                                    onEdit = { viewModel.startEdit(EntryRef.WaistCircumference(wc)) },
-                                    onDelete = { viewModel.requestDelete(EntryRef.WaistCircumference(wc)) }
-                                ) {
-                                    Text(stringResource(R.string.history_waist_line, wc.waist.value.toString()), style = MaterialTheme.typography.titleMedium)
-                                    wc.category?.let { Text(it.label(state.activeProfile?.sex)) }
-                                    Text(stringResource(R.string.history_time_line, wc.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    CommentLine(wc.comment)
-                                }
-                            })
-                        }
-                    }
-                }.sortedByDescending { it.first }
-                items(rows) { row -> row.second() }
+                }
             }
         }
     }

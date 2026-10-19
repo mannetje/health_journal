@@ -32,7 +32,7 @@ The bottom bar has three tabs. The pill button in the top bar opens the pillbox,
 ```mermaid
 flowchart TD
     APP(["Health Journal"]) --> LOG["Log tab<br/>Weight, BP, Glucose, Waist, Activity"]
-    APP --> HIST["History tab<br/>filters, trend charts, edit, delete, CSV"]
+    APP --> HIST["History tab<br/>filters, year and month rows, trend charts, edit, delete, CSV"]
     APP --> PROF["Profile tab<br/>height, birth date, sex, language, region,<br/>units, theme, reminder settings"]
     APP -->|"pill button"| PILL["Pillbox"]
     PILL -->|"first time"| NOTICE["Notice: a log, not a medical device<br/>links to apotheek.nl and Thuisarts"]
@@ -73,6 +73,7 @@ flowchart LR
 | Status | text and icon, never colour alone |
 | Colour for ranges | one neutral blue-grey ramp; a darker step is a higher band, not a warning |
 | Adherence | one neutral colour for the bar, counts as text |
+| History year and month rows | scrolling rows of filter chips, selected chip has a check icon, months without entries are dimmed. The selection is derived from the list position, never stored |
 
 ## Medication design in one view
 

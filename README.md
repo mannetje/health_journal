@@ -95,6 +95,7 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 - **Localized messages and profile edits:** success and error banners follow the app language (English/Dutch) because ViewModels pass resource ids instead of text ([ADR 0015](docs/adr/0015-localized-viewmodel-messages.md)). *Update Profile* edits the existing profile in place instead of adding another ([ADR 0016](docs/adr/0016-profile-update-edits-active-profile.md)).
 - **Edit and Delete Entries:** every History entry has an Edit and a Delete icon button (48 dp targets, localized TalkBack descriptions; no swipe gestures). Edit opens a pre-filled dialog to change the values and the date/time (activities keep their start time); delete asks for confirmation first and is permanent. The list, trend charts and statistics refresh immediately ([ADR 0012](docs/adr/0012-edit-and-delete-entries.md)).
 - **History Filters:** All, Weight, BP, Glucose, Waist, and Activity. "All" shows weight, blood pressure, glucose, waist and activity entries interleaved in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
+- **History timeline navigation:** a year row and a month row above the list (every filter, every entry type) jump to a period and follow the scrolling, so they always show the period at the top. Months without entries are dimmed; each month has a header with the entry count. The rows are hidden when all entries are from one month.
 
 ## Technical Architecture
 

@@ -75,6 +75,12 @@
     <string name="history_activity_line">Activity: %1$s (%2$s)</string>
     <string name="history_start_line">Start: %1$s</string>
     <string name="history_waist_line">Waist: %1$s cm</string>
+    <string name="history_month_header">%1$s %2$d</string>
+    <plurals name="history_month_entries">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
+    <string name="history_nav_no_entries">No entries</string>
     <string name="history_export_dialog_title">Export CSV</string>
     <string name="history_export_comments_note">Comments are included in the exported files.</string>
     <string name="history_export_weight">Export Weight CSV</string>
