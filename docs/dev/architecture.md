@@ -29,7 +29,7 @@ Located at `domain/src/main/kotlin/nl/healthjournal/domain/`.
 - `model/medication/` holds the pillbox model: `Medication`, `Dosage`, `ScheduleVersion`, `Intake`, the pure derivation of the day (slots, Pending and Missed), `NextSlot` (the next reminder) and `Adherence` (taken against planned over 7, 30 or 90 days). See [ADR 0020](../adr/0020-medication-model-and-pillbox.md) and the [pillbox page](pillbox.md).
 - `model/profile/` holds `Profile`, the aggregate root (height, birth date, optional sex, BMI calculation).
 - `usecase/` holds one class per action: `RecordBloodPressureUseCase`, `UpdateBloodPressureUseCase`, `DeleteBloodPressureUseCase`, and so on.
-- `port/secondary/` holds the interfaces the core needs: `HealthLogRepositoryPort`, `ProfileRepositoryPort`, `MedicationRepositoryPort`, `ReminderSchedulerPort`, `DataExportPort`, `DataImportPort`.
+- `port/secondary/` holds the interfaces the core needs: `HealthLogRepositoryPort`, `ProfileRepositoryPort`, `MedicationRepositoryPort`, `ReminderSchedulerPort`, `DataExportPort`, `DataImportPort` and the medication export and import ports (`MedicationDataPorts.kt`).
 
 A **use case** is a small class with one `operator fun invoke`. It builds and validates the model, applies the rules, and calls a port. It is the only place that decides *what happens* when a user records something.
 
@@ -39,7 +39,7 @@ Located at `data/src/main/java/nl/healthjournal/data/`.
 
 - `local/` has the Room `HealthJournalDatabase`, one `*Entity` and one `*Dao` per table, and `mapper/` which converts between entities and domain objects.
 - `repository/` has `RoomHealthLogRepository`, `RoomProfileRepository` and `RoomMedicationRepository`, the adapters that implement the ports.
-- `csv/` has `CsvDataExportAdapter` and `CsvDataImportAdapter`.
+- `csv/` has `CsvDataExportAdapter`, `CsvDataImportAdapter` and the medication pair `CsvMedicationExportAdapter`, `CsvMedicationImportAdapter`.
 - `DataModule.kt` creates the database and exposes the ports as ready-made objects.
 
 Entities are deliberately separate from domain objects. Storage details (a `Long` timestamp, an enum stored as a `String`) never leak into the core. The price is mapping code; see the trade-off in ADR 0002.
@@ -49,7 +49,7 @@ Entities are deliberately separate from domain objects. Storage details (a `Long
 Located at `app/src/main/java/nl/healthjournal/app/`.
 
 - `HealthJournalApp.kt` is the **composition root**: it creates `DataModule` and every use case once. There is no dependency injection framework on purpose ([ADR 0003](../adr/0003-dependency-minimization.md)).
-- `ui/` has one package per screen area (`logging`, `history`, `profile`), each with a `*Screen` (Compose) and a `*ViewModel`. The History list is grouped by month in `ui/history/HistoryTimeline`; the year and month chips are derived from the scroll position and a tap is only a jump to a list index, so the two cannot disagree ([spec](../../openspec/specs/entry-management/spec.md)). Shared pieces are in `ui/common`, `ui/theme` and `ui/nhg` (range labels and colours).
+- `ui/` has one package per screen area (`logging`, `history`, `profile`, `medication`), each with a `*Screen` (Compose) and a `*ViewModel`. The History list is grouped by month in `ui/history/HistoryTimeline`; the year and month chips are derived from the scroll position and a tap is only a jump to a list index, so the two cannot disagree ([spec](../../openspec/specs/entry-management/spec.md)). The graph view is in `ui/history/charts` (statistics, trend sections and the Vico chart primitives; see [Graphs](graphs.md)). Shared pieces are in `ui/common`, `ui/theme` and `ui/nhg` (range labels and colours).
 - `reminder/` is the second driving adapter next to the screens: `AlarmReminderScheduler` implements `ReminderSchedulerPort` with `AlarmManager`, `ReminderNotifier` posts the notification, and the receivers handle the alarm, Taken all, Snooze and a restart or clock change by calling the same use cases as the UI ([ADR 0022](../adr/0022-medication-reminders.md)).
 - `settings/` holds display preferences: language and region, and display units. See [ADR 0014](../adr/0014-units-presentation.md).
 - `res/values/strings.xml` and `res/values-nl/strings.xml` hold all user-facing text.
