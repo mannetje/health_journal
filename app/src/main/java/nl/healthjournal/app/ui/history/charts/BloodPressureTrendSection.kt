@@ -38,12 +38,27 @@ fun BloodPressureTrendSection(entries: List<BloodPressureEntry>, modifier: Modif
         val systolicPoints = sorted.map { ChartPoint(it.timestamp, it.reading.systolic.toFloat()) }
         val diastolicPoints = sorted.map { ChartPoint(it.timestamp, it.reading.diastolic.toFloat()) }
         val bandColors = sorted.map { getBpColor(it.category) }
+        val systolicName = stringResource(R.string.trend_bp_systolic)
+        val diastolicName = stringResource(R.string.trend_bp_diastolic)
+        fun mmHg(value: Float) = "${value.toInt()} mmHg"
 
         LineTrendChart(
             series = if (sorted.size >= 2) {
                 listOf(
-                    ChartSeries(systolicPoints, MaterialTheme.colorScheme.error, strokeWidthDp = 3f, pointColors = bandColors),
-                    ChartSeries(diastolicPoints, MaterialTheme.colorScheme.primary, strokeWidthDp = 3f, pointColors = bandColors)
+                    ChartSeries(
+                        systolicPoints,
+                        MaterialTheme.colorScheme.error,
+                        strokeWidthDp = 3f,
+                        pointColors = bandColors,
+                        selection = SeriesSelection(systolicName, ::mmHg)
+                    ),
+                    ChartSeries(
+                        diastolicPoints,
+                        MaterialTheme.colorScheme.primary,
+                        strokeWidthDp = 3f,
+                        pointColors = bandColors,
+                        selection = SeriesSelection(diastolicName, ::mmHg)
+                    )
                 )
             } else {
                 emptyList()

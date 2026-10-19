@@ -168,7 +168,12 @@ private fun RatioCard(waists: List<WaistCircumferenceEntry>, heightCm: Int) {
                     reference,
                     strokeWidthDp = 1.5f
                 ),
-                ChartSeries(points, MaterialTheme.colorScheme.primary, strokeWidthDp = 3f)
+                ChartSeries(
+                    points,
+                    MaterialTheme.colorScheme.primary,
+                    strokeWidthDp = 3f,
+                    selection = SeriesSelection(null) { formatDecimal(it.toDouble(), 1) + " %" }
+                )
             )
         } else {
             emptyList()

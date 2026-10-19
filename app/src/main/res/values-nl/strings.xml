@@ -562,4 +562,13 @@
     <string name="glucose_rise_none">Nog geen twee metingen binnen %1$d uur met een stijging.</string>
     <string name="glucose_rise_value">%1$s naar %2$s op %3$s</string>
     <string name="glucose_no_data">Nog geen metingen.</string>
+    <string name="chart_selection_difference">Verschil over %1$s</string>
+    <plurals name="chart_selection_days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagen</item>
+    </plurals>
+    <plurals name="chart_selection_hours">
+        <item quantity="one">%d uur</item>
+        <item quantity="other">%d uur</item>
+    </plurals>
 </resources>

@@ -4,6 +4,14 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.5.9] - 2026-10-19
+
+### Added
+- **Inspect entries on the trend charts:** tap an entry on the weight, blood pressure, glucose, waist or waist-to-height ratio chart and a vertical line marks it, with its date, time and value and unit below the chart. Only real entries can be selected, never limit lines or moving averages. Tap a second entry to see both and the difference (value, percent and time between them), tap a third to start over, or tap the selected entry again to clear. Figures only; in English and Dutch. Panning and zooming work as before.
+
+### Changed
+- The README shows three sample screenshots; all others moved to `docs/screenshots.md`.
+
 ## [1.5.8] - 2026-10-19
 
 ### Changed

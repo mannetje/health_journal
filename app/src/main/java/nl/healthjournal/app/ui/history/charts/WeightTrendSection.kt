@@ -42,7 +42,13 @@ fun WeightTrendSection(entries: List<WeightEntry>, modifier: Modifier = Modifier
         LineTrendChart(
             series = if (rawPoints.size >= 2) {
                 listOf(
-                    ChartSeries(rawPoints, rawColor, strokeWidthDp = 2f, pointColors = rawPoints.map { rawColor }),
+                    ChartSeries(
+                        rawPoints,
+                        rawColor,
+                        strokeWidthDp = 2f,
+                        pointColors = rawPoints.map { rawColor },
+                        selection = SeriesSelection(null) { formatWeight(it.toDouble(), units) }
+                    ),
                     ChartSeries(averagePoints, averageColor, strokeWidthDp = 3f)
                 )
             } else {

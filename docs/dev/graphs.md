@@ -21,14 +21,17 @@ All of this lives in `app/src/main/java/nl/healthjournal/app/ui/history/charts/`
 | Block | File | Use it for |
 |-------|------|------------|
 | `LineTrendChart(series, emptyMessage)` | `ChartPrimitives.kt` | A Vico line chart with pan and zoom. Needs at least two points in total. |
-| `ChartSeries(points, color, strokeWidthDp, pointColors)` | `ChartPrimitives.kt` | One line. `pointColors` (parallel to `points`) draws a dot per entry in that colour. |
+| `ChartSeries(points, color, strokeWidthDp, pointColors, selection)` | `ChartPrimitives.kt` | One line. `pointColors` (parallel to `points`) draws a dot per entry in that colour. `selection` makes its entries tappable. |
+| `SeriesSelection(name, format)` | `ChartSelection.kt` | Optional name and a function that formats a value with its unit, shown when an entry is selected. Leave `selection` null on limit lines and averages: they are not selectable. |
+| `PointSelection` | `PointSelection.kt` | Pure logic: `nearest` entry in time (newest on a tie), `next` selection (select, compare, start over, clear) and `difference`. |
 | `TrendCard`, `StatChipRow`, `CategoryDistributionBar` | `TrendBuildingBlocks.kt` | Card frame, row of figures, bar of category shares. |
 | `ChangePeriod` | `WeightStatistics.kt` | Month, 3 months, 6 months, year for "change over a period". |
 | `getGlucoseColor`, `getWaistColor` | `ui/nhg/NhgColors.kt` | Category colours, so a band has one colour everywhere. |
 | `label()` | `ui/nhg/NhgLabels.kt` | Localised category names. |
 
-Two tricks worth knowing:
+Three tricks worth knowing:
 
+- **Selecting entries.** `LineTrendChart` handles taps itself. Vico only reports taps when a marker is set, so the chart sets an invisible one, a `TapSelectionController` turns each tap into an x-value, `PointSelection.nearest` snaps it to a real entry of a series that has `selection`, and the selected entries are drawn as persistent guideline markers. The text (date, value, difference) is a Compose `SelectionSummary` under the chart, so it is translated, wraps and is read by TalkBack. To make a new chart selectable, give its data series a `SeriesSelection`.
 - **Horizontal reference lines.** `LineTrendChart` has no "limit line" feature. A limit is a series with two points (first and last timestamp) at the same value, drawn thin (`strokeWidthDp = 1.5f`). Glucose draws three (3.9, 6.0 and 7.8 mmol/L); waist draws two.
 - **A dot per entry.** Pass `pointColors`. For band-coloured points use the category colour of each entry; for a plain dot use one colour for all (`rawPoints.map { rawColor }` on the weight chart).
 
@@ -59,7 +62,7 @@ Change: `openspec/changes/archive/` (`add-glucose-graphs`). Files: `GlucoseStati
 
 1. Propose it: an OpenSpec change with a `health-trends` delta (see [CONTRIBUTING.md](../../CONTRIBUTING.md)).
 2. Statistics class and unit test first, in `charts/`.
-3. Trend section: `ChartSeries` per line, limit lines as two-point series, `pointColors` for dots.
+3. Trend section: `ChartSeries` per line, limit lines as two-point series, `pointColors` for dots, `SeriesSelection` on the entries series.
 4. Statistics section: cards from `TrendBuildingBlocks.kt`, `Canvas` for anything Vico cannot draw.
 5. Hook both into `HistoryScreen.kt` under the metric's filter.
 6. Strings in **both** `values/strings.xml` and `values-nl/strings.xml` (see [Add a translation](how-to/add-a-translation.md)). Wording is neutral: figures, no advice.
@@ -70,4 +73,6 @@ Change: `openspec/changes/archive/` (`add-glucose-graphs`). Files: `GlucoseStati
 - `@Composable` functions (`MaterialTheme.colorScheme`, `getGlucoseColor`, `stringResource`) cannot be called from a plain local `fun` or non-inline lambda. Inline lambdas (`map`, `buildList`, `forEach`) are fine; otherwise compute colours first and pass them in.
 - `LineTrendChart` shows the empty message with fewer than two points in total. Guard series construction the way `WaistTrendSection` does.
 - Point markers shrink with the length of the series (`markerSizeDp` in `ChartPrimitives.kt`: 9 dp up to 30 points, 3 dp from 300). Do not give long series a fixed marker size, otherwise the dots merge into a thick band.
+- Keep selection state keyed on the series' points, not on the `ChartSeries` objects. They hold lambdas (`SeriesSelection.format`), so a rebuilt copy is never equal and would reset the selection on every recomposition.
+- Chart x-values are whole hours (`hoursSince`), so entries within the same hour share a position and a tap there selects the earliest of them. They are visually indistinguishable, so this is accepted.
 - Do not trust the clock: use the newest entry as "now", and test with fixed dates.

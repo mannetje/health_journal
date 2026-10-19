@@ -562,4 +562,13 @@
     <string name="glucose_rise_none">No two readings less than %1$d hours apart with a rise yet.</string>
     <string name="glucose_rise_value">%1$s to %2$s on %3$s</string>
     <string name="glucose_no_data">No readings yet.</string>
+    <string name="chart_selection_difference">Difference over %1$s</string>
+    <plurals name="chart_selection_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="chart_selection_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
 </resources>

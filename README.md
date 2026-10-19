@@ -23,76 +23,18 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.5.8)](https://github.com/mannetje/health_journal/releases/latest)**  
+👉 **[Download Latest APK (v1.5.9)](https://github.com/mannetje/health_journal/releases/latest)**  
 See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ---
 
 ## Screenshots
 
-**Light theme**
-
-| Log | History | Profile |
+| Log | Weight trend | Glucose trend |
 |---|---|---|
-| <img src="docs/screenshots/light-log.png" width="250" alt="Log screen with a neutral blood pressure range label, light theme"> | <img src="docs/screenshots/light-history.png" width="250" alt="History list with name, range labels and comments, light theme"> | <img src="docs/screenshots/light-profile.png" width="250" alt="Profile screen, light theme"> |
+| <img src="docs/screenshots/light-log.png" width="250" alt="Log screen with a neutral blood pressure range label, light theme"> | <img src="docs/screenshots/light-weight.png" width="250" alt="Weight trend chart with a dot per entry and moving average, light theme"> | <img src="docs/screenshots/light-glucose.png" width="250" alt="Glucose trend with fasting and post-meal lines and NHG limit lines, light theme"> |
 
-| Weight trend | Blood pressure trend | Glucose trend |
-|---|---|---|
-| <img src="docs/screenshots/light-weight.png" width="250" alt="Weight trend chart with a dot per entry and moving average, light theme"> | <img src="docs/screenshots/light-blood-pressure.png" width="250" alt="Blood pressure trend with dots per reading, average label and distribution by band, light theme"> | <img src="docs/screenshots/light-glucose.png" width="250" alt="Glucose trend with fasting and post-meal lines and NHG limit lines, light theme"> |
-
-**Dark theme**
-
-| Log | History | Profile |
-|---|---|---|
-| <img src="docs/screenshots/dark-log.png" width="250" alt="Log screen with a neutral blood pressure range label, dark theme"> | <img src="docs/screenshots/dark-history.png" width="250" alt="History list with name, range labels and comments, dark theme"> | <img src="docs/screenshots/dark-profile.png" width="250" alt="Profile screen, dark theme"> |
-
-| Weight trend | Blood pressure trend | Glucose trend |
-|---|---|---|
-| <img src="docs/screenshots/dark-weight.png" width="250" alt="Weight trend chart with a dot per entry and moving average, dark theme"> | <img src="docs/screenshots/dark-blood-pressure.png" width="250" alt="Blood pressure trend with dots per reading, average label and distribution by band, dark theme"> | <img src="docs/screenshots/dark-glucose.png" width="250" alt="Glucose trend with fasting and post-meal lines and NHG limit lines, dark theme"> |
-
-> The screenshots use synthetic sample data. The top bar uses the brand navy with the Health Journal logo in both themes ([ADR 0011](docs/adr/0011-app-icon-and-adaptive-layers.md)).
-
-**Medication reminders**
-
-| Notification | Reminder settings |
-|--------------|-------------------|
-| <img src="docs/screenshots/light-reminder-notification.png" width="380" alt="Reminder notification with neutral text and Taken all and Snooze buttons"> | <img src="docs/screenshots/light-reminder-settings.png" width="250" alt="Reminders section in Profile with snooze length and lock-screen switch"> |
-
-**Medication adherence** (taken against planned intakes over 7, 30 or 90 days, sample data)
-
-| Light | Dark |
-|-------|------|
-| <img src="docs/screenshots/light-pillbox-adherence.png" width="250" alt="Adherence view with overall and per-medication taken, skipped and missed counts, light theme"> | <img src="docs/screenshots/dark-pillbox-adherence.png" width="250" alt="Adherence view with overall and per-medication taken, skipped and missed counts, dark theme"> |
-
-**History timeline navigation** (year and month rows follow the scrolling, sample data)
-
-| Light | Dark |
-|-------|------|
-| <img src="docs/screenshots/light-history-timeline.png" width="250" alt="History with year and month chips above the list and a month header, light theme"> | <img src="docs/screenshots/dark-history-timeline.png" width="250" alt="History with year and month chips above the list and a month header, dark theme"> |
-
-**Graph view and weight statistics** (graph/list toggle in the History title row, sample data)
-
-| Light | Dark |
-|-------|------|
-| <img src="docs/screenshots/light-history-graph.png" width="250" alt="History graph view with the weight trend chart, light theme"> | <img src="docs/screenshots/dark-history-graph.png" width="250" alt="History graph view with the weight trend chart, dark theme"> |
-| <img src="docs/screenshots/light-weight-statistics.png" width="250" alt="Lowest and highest weight and the weight change table, light theme"> | <img src="docs/screenshots/dark-weight-statistics.png" width="250" alt="Lowest and highest weight and the weight change table, dark theme"> |
-
-**Blood pressure graphs** (scatter chart on the NHG bands, steadiness and comparison with the previous period, sample data)
-
-| Light | Dark |
-|-------|------|
-| <img src="docs/screenshots/light-bp-scatter.png" width="250" alt="Blood pressure graph with readings as dots on the three NHG bands, light theme"> | <img src="docs/screenshots/dark-bp-scatter.png" width="250" alt="Blood pressure graph with readings as dots on the three NHG bands, dark theme"> |
-| <img src="docs/screenshots/light-bp-statistics.png" width="250" alt="Reading steadiness and comparison with the previous period, light theme"> | <img src="docs/screenshots/dark-bp-statistics.png" width="250" alt="Reading steadiness and comparison with the previous period, dark theme"> |
-
-**Glucose graphs** (time in range per NHG category, by time of day, sample data)
-
-| Light | Dark |
-|-------|------|
-| <img src="docs/screenshots/light-glucose-statistics.png" width="250" alt="Glucose time in range per NHG category, fasting and after a meal, light theme"> | <img src="docs/screenshots/dark-glucose-statistics.png" width="250" alt="Glucose time in range per NHG category, fasting and after a meal, dark theme"> |
-
-**App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](docs/adr/0011-app-icon-and-adaptive-layers.md)):
-
-<img src="docs/screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">
+More screenshots (dark theme, graphs and statistics, medication reminders, adherence, history timeline, app icon): **[all screenshots](docs/screenshots.md)**. They use synthetic sample data.
 
 ---
 
@@ -116,7 +58,7 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 - **Privacy by Design:** 100% offline-first. Your health data stays on your device.
 - **Light & Dark Theme:** Follows the device light/dark setting by default, and can be set to Light or Dark in Profile ([ADR 0017](docs/adr/0017-in-app-theme-choice.md)), with a brand-navy top bar and logo in both themes; range colors are a neutral blue-grey ramp (a darker step is a higher band, never a warning), with lighter variants in dark mode.
 - **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen. Layouts are checked in Dutch so labels stay on one line ([ADR 0010](docs/adr/0010-responsive-dutch-ui-layout.md)); dialogs and pickers follow the app language too. A separate *Regional formats* setting (System / Netherlands / US) controls date and number formats independently of the language, so English text with Dutch dates works ([ADR 0013](docs/adr/0013-activity-base-context-for-app-language.md)). The Profile date of birth is chosen with a Material date picker that opens in text-entry mode.
-- **Glucose graphs:** the glucose graph shows fasting and after-meal readings as two lines with category-coloured points and the NHG limits as lines, plus time in range per NHG category, values by time of day, extremes, change per period, spread, the last 30 days against the 30 before and the largest rise between two readings. The weight chart shows a dot per entry.
+- **Glucose graphs:** the glucose graph shows fasting and after-meal readings as two lines with category-coloured points and the NHG limits as lines, plus time in range per NHG category, values by time of day, extremes, change per period, spread, the last 30 days against the 30 before and the largest rise between two readings. The weight chart shows a dot per entry. **Inspect entries:** tap an entry on any trend chart (weight, blood pressure, glucose, waist, waist-to-height ratio) to see its date, time and value with a vertical line; tap a second entry to see both and the difference in value, percent and time. Tap the selected entry again to clear.
 - **Graph view and weight statistics:** under Weight, Blood Pressure and Glucose an icon next to the History title switches between the entries and the graph. The weight graph adds the lowest and highest weight, the change per week, 15 days, month, three months, six months and year (kg or %), and bar charts of the change per month (pick a year) and per year, all from your full history. The blood pressure graph adds band-coloured points, a scatter chart on the NHG bands, how steady your readings are, and a comparison of systolic, diastolic, pulse, mean arterial pressure and pulse pressure with the previous period (English and Dutch). The waist graph adds NHG limit lines, extremes and change, the distance to the limits, the waist-to-height ratio and a waist against weight scatter.
 - **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range, counted back from the newest entry so imported historical data still shows). The time axis follows the zoom level: years, months, weeks or days, with labels on calendar boundaries, a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
 - **Units:** data is always stored in metric (kg, cm, mmol/L, meters). What you see and type is a separate Profile setting: Metric or Imperial (lb, mi, ft/in) and mmol/L or mg/dL, defaulting from the region (US and UK imperial, mg/dL in the US, Germany, France and others). Every input shows its unit, and History, charts and statistics follow it ([ADR 0014](docs/adr/0014-units-presentation.md)). CSV files stay metric.
@@ -234,7 +176,7 @@ Adherence is plain counting: taken divided by due, rounded half up, shown with t
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.5.8-debug.apk`.
+2. Download `health-journal-v1.5.9-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 

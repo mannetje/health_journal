@@ -1,0 +1,67 @@
+# Screenshots
+
+All screenshots of the Health Journal app, in the light and dark theme. Back to the [README](../README.md).
+
+**Light theme**
+
+| Log | History | Profile |
+|---|---|---|
+| <img src="screenshots/light-log.png" width="250" alt="Log screen with a neutral blood pressure range label, light theme"> | <img src="screenshots/light-history.png" width="250" alt="History list with name, range labels and comments, light theme"> | <img src="screenshots/light-profile.png" width="250" alt="Profile screen, light theme"> |
+
+| Weight trend | Blood pressure trend | Glucose trend |
+|---|---|---|
+| <img src="screenshots/light-weight.png" width="250" alt="Weight trend chart with a dot per entry and moving average, light theme"> | <img src="screenshots/light-blood-pressure.png" width="250" alt="Blood pressure trend with dots per reading, average label and distribution by band, light theme"> | <img src="screenshots/light-glucose.png" width="250" alt="Glucose trend with fasting and post-meal lines and NHG limit lines, light theme"> |
+
+**Dark theme**
+
+| Log | History | Profile |
+|---|---|---|
+| <img src="screenshots/dark-log.png" width="250" alt="Log screen with a neutral blood pressure range label, dark theme"> | <img src="screenshots/dark-history.png" width="250" alt="History list with name, range labels and comments, dark theme"> | <img src="screenshots/dark-profile.png" width="250" alt="Profile screen, dark theme"> |
+
+| Weight trend | Blood pressure trend | Glucose trend |
+|---|---|---|
+| <img src="screenshots/dark-weight.png" width="250" alt="Weight trend chart with a dot per entry and moving average, dark theme"> | <img src="screenshots/dark-blood-pressure.png" width="250" alt="Blood pressure trend with dots per reading, average label and distribution by band, dark theme"> | <img src="screenshots/dark-glucose.png" width="250" alt="Glucose trend with fasting and post-meal lines and NHG limit lines, dark theme"> |
+
+> The screenshots use synthetic sample data. The top bar uses the brand navy with the Health Journal logo in both themes ([ADR 0011](adr/0011-app-icon-and-adaptive-layers.md)).
+
+**Medication reminders**
+
+| Notification | Reminder settings |
+|--------------|-------------------|
+| <img src="screenshots/light-reminder-notification.png" width="380" alt="Reminder notification with neutral text and Taken all and Snooze buttons"> | <img src="screenshots/light-reminder-settings.png" width="250" alt="Reminders section in Profile with snooze length and lock-screen switch"> |
+
+**Medication adherence** (taken against planned intakes over 7, 30 or 90 days, sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-pillbox-adherence.png" width="250" alt="Adherence view with overall and per-medication taken, skipped and missed counts, light theme"> | <img src="screenshots/dark-pillbox-adherence.png" width="250" alt="Adherence view with overall and per-medication taken, skipped and missed counts, dark theme"> |
+
+**History timeline navigation** (year and month rows follow the scrolling, sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-history-timeline.png" width="250" alt="History with year and month chips above the list and a month header, light theme"> | <img src="screenshots/dark-history-timeline.png" width="250" alt="History with year and month chips above the list and a month header, dark theme"> |
+
+**Graph view and weight statistics** (graph/list toggle in the History title row, sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-history-graph.png" width="250" alt="History graph view with the weight trend chart, light theme"> | <img src="screenshots/dark-history-graph.png" width="250" alt="History graph view with the weight trend chart, dark theme"> |
+| <img src="screenshots/light-weight-statistics.png" width="250" alt="Lowest and highest weight and the weight change table, light theme"> | <img src="screenshots/dark-weight-statistics.png" width="250" alt="Lowest and highest weight and the weight change table, dark theme"> |
+
+**Blood pressure graphs** (scatter chart on the NHG bands, steadiness and comparison with the previous period, sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-bp-scatter.png" width="250" alt="Blood pressure graph with readings as dots on the three NHG bands, light theme"> | <img src="screenshots/dark-bp-scatter.png" width="250" alt="Blood pressure graph with readings as dots on the three NHG bands, dark theme"> |
+| <img src="screenshots/light-bp-statistics.png" width="250" alt="Reading steadiness and comparison with the previous period, light theme"> | <img src="screenshots/dark-bp-statistics.png" width="250" alt="Reading steadiness and comparison with the previous period, dark theme"> |
+
+**Glucose graphs** (time in range per NHG category, by time of day, sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-glucose-statistics.png" width="250" alt="Glucose time in range per NHG category, fasting and after a meal, light theme"> | <img src="screenshots/dark-glucose-statistics.png" width="250" alt="Glucose time in range per NHG category, fasting and after a meal, dark theme"> |
+
+**App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](adr/0011-app-icon-and-adaptive-layers.md)):
+
+<img src="screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">

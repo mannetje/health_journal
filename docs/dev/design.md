@@ -32,7 +32,7 @@ The bottom bar has three tabs. The pill button in the top bar opens the pillbox,
 ```mermaid
 flowchart TD
     APP(["Health Journal"]) --> LOG["Log tab<br/>Weight, BP, Glucose, Waist, Activity"]
-    APP --> HIST["History tab<br/>filters, list or graph view, year and month rows, trend charts, weight and blood pressure statistics, edit, delete, CSV"]
+    APP --> HIST["History tab<br/>filters, list or graph view, year and month rows, trend charts (tap an entry for its value, tap a second for the difference), weight and blood pressure statistics, edit, delete, CSV"]
     APP --> PROF["Profile tab<br/>height, birth date, sex, language, region,<br/>units, theme, reminder settings"]
     APP -->|"pill button"| PILL["Pillbox"]
     PILL -->|"first time"| NOTICE["Notice: a log, not a medical device<br/>links to apotheek.nl and Thuisarts"]

@@ -43,7 +43,8 @@ fun WaistTrendSection(entries: List<WaistCircumferenceEntry>, profile: Profile?,
                         points,
                         MaterialTheme.colorScheme.primary,
                         strokeWidthDp = 3f,
-                        pointColors = bandColors
+                        pointColors = bandColors,
+                        selection = SeriesSelection(null) { "${formatDecimal(it.toDouble(), 1)} cm" }
                     )
                 )
             }

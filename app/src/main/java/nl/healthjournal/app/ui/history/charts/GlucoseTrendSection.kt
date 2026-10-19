@@ -59,7 +59,18 @@ fun GlucoseTrendSection(entries: List<GlucoseEntry>, modifier: Modifier = Modifi
                 listOf(GlucoseContext.FASTING to fastingColor, GlucoseContext.POSTPRANDIAL to postColor).forEach { (context, color) ->
                     val indices = sorted.indices.filter { sorted[it].context == context }
                     if (indices.isNotEmpty()) {
-                        add(ChartSeries(indices.map { points[it] }, color, strokeWidthDp = 3f, pointColors = indices.map { categoryColors[it] }))
+                        val name = stringResource(
+                            if (context == GlucoseContext.FASTING) R.string.log_glucose_context_fasting else R.string.log_glucose_context_postprandial
+                        )
+                        add(
+                            ChartSeries(
+                                indices.map { points[it] },
+                                color,
+                                strokeWidthDp = 3f,
+                                pointColors = indices.map { categoryColors[it] },
+                                selection = SeriesSelection(name) { "${formatDecimal(it.toDouble(), units.glucoseDigits)} ${units.glucoseSymbol}" }
+                            )
+                        )
                     }
                 }
             }
