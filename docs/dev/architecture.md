@@ -49,7 +49,7 @@ Entities are deliberately separate from domain objects. Storage details (a `Long
 Located at `app/src/main/java/nl/healthjournal/app/`.
 
 - `HealthJournalApp.kt` is the **composition root**: it creates `DataModule` and every use case once. There is no dependency injection framework on purpose ([ADR 0003](../adr/0003-dependency-minimization.md)).
-- `ui/` has one package per screen area (`logging`, `history`, `profile`), each with a `*Screen` (Compose) and a `*ViewModel`. Shared pieces are in `ui/common`, `ui/theme` and `ui/nhg` (range labels and colours).
+- `ui/` has one package per screen area (`logging`, `history`, `profile`), each with a `*Screen` (Compose) and a `*ViewModel`. The History list is grouped by month in `ui/history/HistoryTimeline`; the year and month chips are derived from the scroll position and a tap is only a jump to a list index, so the two cannot disagree ([spec](../../openspec/specs/entry-management/spec.md)). Shared pieces are in `ui/common`, `ui/theme` and `ui/nhg` (range labels and colours).
 - `reminder/` is the second driving adapter next to the screens: `AlarmReminderScheduler` implements `ReminderSchedulerPort` with `AlarmManager`, `ReminderNotifier` posts the notification, and the receivers handle the alarm, Taken all, Snooze and a restart or clock change by calling the same use cases as the UI ([ADR 0022](../adr/0022-medication-reminders.md)).
 - `settings/` holds display preferences: language and region, and display units. See [ADR 0014](../adr/0014-units-presentation.md).
 - `res/values/strings.xml` and `res/values-nl/strings.xml` hold all user-facing text.
