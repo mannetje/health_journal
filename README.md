@@ -43,30 +43,36 @@ More screenshots (dark theme, graphs and statistics, medication reminders, adher
 **Health Journal** empowers individuals to track and understand their vital health metrics locally on their device, with zero reliance on cloud services or external servers. All evaluation logic adheres strictly to clinical standards, defaulting to the official guidelines of the **Dutch College of General Practitioners** (*Nederlands Huisartsen Genootschap* / NHG).
 
 ### Key Features
-- **Body Weight & BMI:** Record body weight in kilograms, automatically deriving Body Mass Index (BMI) based on profile height, categorized according to NHG/WHO standards.
-- **Optional comments:** every entry type (weight, blood pressure, glucose, waist, activity) can carry a short single-line note of up to 200 characters. Add it while logging or in the edit dialog; History shows it under the entry (two lines, then an ellipsis). Comments are stored in the same database and included in CSV export and import ([ADR 0019](docs/adr/0019-entry-comments.md)).
-- **Waist Circumference (optional):** Record waist circumference in centimetres; categorized against Voedingscentrum's sex-specific healthy-range thresholds when Profile sex is set. It is recorded on its own Waist tab (never part of the weight entry) and has its own History filter, edit, delete, CSV export and import. Labels use the authority wording (Healthy, Increased risk, High risk) with the range for the profile's sex.
-- **Blood Pressure (BP):** Record systolic and diastolic values in mmHg, with an optional pulse (30 to 250 bpm), automatically shown against three bands from the Dutch NHG standard: Normal (below 140/90), High (from 140/90) and Seriously raised (from 180/110). Labels name the band with its range and never a condition; an "About these ranges" note links the sources. Older entries keep working: the six previous names are read as the new bands.
-- **Smart input pickers:** weight and waist use a horizontal ruler picker, and blood pressure and pulse use three stacked scrolling rows. The starting value comes from a fallback chain: your latest entry, then a value derived from your profile (for example height for weight), then a standard default ([ADR 0018](docs/adr/0018-smart-input-pickers.md)). Each entry saves one metric; waist has its own tab.
-- **Blood Glucose:** Store blood glucose in canonical **mmol/L** (Dutch standard) and show it as **mmol/L** or **mg/dL**. Fasting and postprandial measurements are evaluated against clinical NHG target ranges and shown as "name · range" (Low, Normal, Slightly raised, High blood glucose) with only the range for the entry's context.
-- **Activity Tracking:** Manually log workout and physical activity sessions from the Log screen (duration + distance), or bulk-import sessions; each session records start time, end time, and distance in metres.
-- **Profile Sex Field (optional):** Selectable male/female on the Profile screen. Purely demographic — has no effect on BMI, blood pressure, or glucose classification (Dutch NHG guidelines do not differentiate these by sex).
-- **Data Portability:** Complete data ownership via standardized UTF-8 CSV import and export capabilities. Import accepts a file chosen with the system file picker or pasted CSV text.
-- **Pillbox (💊):** a personal medication log opened from the 💊 button in the top bar. Add any medication (tablets, liquids, sprays, injectables) with a dose and a schedule, see the day grouped by time, mark a slot Taken all or Skipped, and log an as-needed dose. A missed dose shows its status only. The pillbox is a personal log, not a medical device. It gives no medical advice, does not check doses or interactions, and has no medicine names built in. A neutral Sources list links to apotheek.nl and Thuisarts. Medication is included in the CSV export and import ([ADR 0020](docs/adr/0020-medication-model-and-pillbox.md), [ADR 0021](docs/adr/0021-medication-compliance-and-privacy.md)).
-- **Medication reminders:** one notification per time slot at the planned time, with Taken all and Snooze buttons that do not open the app. The lock screen shows only "Medication reminder" unless you turn on details in Profile, which also sets the snooze length. Reminders are set again after a restart or a clock change. Notification text is neutral and gives no advice ([ADR 0022](docs/adr/0022-medication-reminders.md)).
-- **Medication adherence:** a third view in the pillbox shows, for the last 7, 30 or 90 days, how many planned intakes were taken, with a percentage per medication and overall, skipped and missed counts, the days in a row with everything taken, and the list of missed intakes. Figures are plain counts: no good or bad colours, targets or advice. As-needed medications show only the number of doses.
-- **Privacy by Design & Database Encryption:** 100% offline-first. All data is encrypted at rest using SQLCipher (AES-256) with a random key wrapped by a hardware-backed Android Keystore key (TEE/StrongBox) without user-authentication binding ([ADR 0023](docs/adr/0023-database-encryption-and-app-lock.md)). Because Keystore keys do not move across devices or cloud backups, the encrypted database is excluded from Android backups (`dataExtractionRules`) to prevent unrecoverable restores. CSV export/import in History is the supported way to back up or move data.
-- **App Lock & Secure Screen (optional):** Lock the app behind the device's own credential (strong biometrics or screen lock PIN/pattern/password) with configurable timeout (immediately, 1 minute, 5 minutes). While locked, no health data is rendered. An optional Secure Screen setting enables `FLAG_SECURE` to block screenshots and hide app previews in the app switcher ([ADR 0023](docs/adr/0023-database-encryption-and-app-lock.md)).
-- **Light & Dark Theme:** Follows the device light/dark setting by default, and can be set to Light or Dark in Profile ([ADR 0017](docs/adr/0017-in-app-theme-choice.md)), with a brand-navy top bar and logo in both themes; range colors are a neutral blue-grey ramp (a darker step is a higher band, never a warning), with lighter variants in dark mode.
-- **Dutch/English Localization:** UI text follows the device's system language by default (English/Dutch), with a manual override selector (System/English/Dutch) on the Profile screen. Layouts are checked in Dutch so labels stay on one line ([ADR 0010](docs/adr/0010-responsive-dutch-ui-layout.md)); dialogs and pickers follow the app language too. A separate *Regional formats* setting (System / Netherlands / US) controls date and number formats independently of the language, so English text with Dutch dates works ([ADR 0013](docs/adr/0013-activity-base-context-for-app-language.md)). The Profile date of birth is chosen with a Material date picker that opens in text-entry mode.
-- **Glucose graphs:** the glucose graph shows fasting and after-meal readings as two lines with category-coloured points and the NHG limits as lines, plus time in range per NHG category, values by time of day, extremes, change per period, spread, the last 30 days against the 30 before and the largest rise between two readings. The weight chart shows a dot per entry. **Inspect entries:** tap an entry on any trend chart (weight, blood pressure, glucose, waist, waist-to-height ratio) to see its date, time and value with a vertical line; tap a second entry to see both and the difference in value, percent and time. Tap the selected entry again to clear.
-- **Graph view and weight statistics:** under Weight, Blood Pressure and Glucose an icon next to the History title switches between the entries and the graph. The weight graph adds the lowest and highest weight, the change per week, 15 days, month, three months, six months and year (kg or %), and bar charts of the change per month (pick a year) and per year, all from your full history. The blood pressure graph adds band-coloured points, a scatter chart on the NHG bands, how steady your readings are, and a comparison of systolic, diastolic, pulse, mean arterial pressure and pulse pressure with the previous period (English and Dutch). The waist graph adds NHG limit lines, extremes and change, the distance to the limits, the waist-to-height ratio and a waist against weight scatter.
-- **Health Trend Charts:** Weight, Blood Pressure, and Glucose History filters show a pannable/pinch-zoomable trend chart (7/30/90-day/all-time range, counted back from the newest entry so imported historical data still shows). The time axis follows the zoom level: years, months, weeks or days, with labels on calendar boundaries, a moving average for weight, NHG category gauges and distribution for blood pressure, and Time-in-Range breakdowns for glucose.
-- **Units:** data is always stored in metric (kg, cm, mmol/L, meters). What you see and type is a separate Profile setting: Metric or Imperial (lb, mi, ft/in) and mmol/L or mg/dL, defaulting from the region (US and UK imperial, mg/dL in the US, Germany, France and others). Every input shows its unit, and History, charts and statistics follow it ([ADR 0014](docs/adr/0014-units-presentation.md)). CSV files stay metric.
-- **Localized messages and profile edits:** success and error banners follow the app language (English/Dutch) because ViewModels pass resource ids instead of text ([ADR 0015](docs/adr/0015-localized-viewmodel-messages.md)). *Update Profile* edits the existing profile in place instead of adding another ([ADR 0016](docs/adr/0016-profile-update-edits-active-profile.md)).
-- **Edit and Delete Entries:** every History entry has an Edit and a Delete icon button (48 dp targets, localized TalkBack descriptions; no swipe gestures). Edit opens a pre-filled dialog to change the values and the date/time (activities keep their start time); delete asks for confirmation first and is permanent. The list, trend charts and statistics refresh immediately ([ADR 0012](docs/adr/0012-edit-and-delete-entries.md)).
-- **History Filters:** All, Weight, BP, Glucose, Waist, and Activity. "All" shows weight, blood pressure, glucose, waist and activity entries interleaved in one chronological list (newest first); the single-metric filters show the trend chart plus that metric's entries.
-- **History timeline navigation:** a year row and a month row above the list (every filter, every entry type) jump to a period and follow the scrolling, so they always show the period at the top. Months without entries are dimmed; each month has a header with the entry count. The rows are hidden when all entries are from one month.
+
+#### 📊 Tracked Health Metrics
+- **Body Weight & BMI:** Record weight in kg or lb; automatically calculates Body Mass Index (BMI) categorized against NHG/WHO standards.
+- **Waist Circumference (optional):** Record waist measurement in cm; evaluated against Voedingscentrum's sex-specific healthy-range thresholds when profile sex is set.
+- **Blood Pressure & Pulse:** Record systolic, diastolic (mmHg), and pulse (30–250 bpm); evaluated against NHG 3-band categories (Normal, High, Seriously raised).
+- **Blood Glucose:** Record fasting and postprandial levels in mmol/L or mg/dL; evaluated against NHG context-specific target ranges.
+- **Physical Activity:** Track duration and distance for workout sessions manually or via bulk import.
+- **Medication Pillbox (💊):** Manage medications (tablets, liquids, sprays, injectables) with flexible schedule versions, daily time slots, and intake logs.
+- **Entry Comments:** Add an optional single-line note (up to 200 characters) to any measurement or activity entry.
+
+#### 🎛️ Smart Input & User Experience
+- **Interactive Number Pickers:** Tactile horizontal measuring tape ruler pickers for Weight and Waist (0.1 step precision) and stacked color-coded rows for Blood Pressure & Pulse.
+- **Smart 3-Tier Pre-fill:** Automatically pre-fills log forms using a fallback chain: latest measurement → profile-derived target → standard sane default.
+- **Medication Reminders & Adherence:** Scheduled time slot notifications with Taken/Snooze actions, plus 7/30/90-day adherence statistics and streak tracking.
+- **Timeline & Trend Visualizations:** Interactive pinch-zoom trend charts, moving averages, range gauges, and interleaved chronological history timeline with month/year quick navigation.
+
+#### 🔒 Privacy, Security & Data Sovereignty
+- **100% Offline-First:** No network permissions required (`INTERNET` permission absent). Zero telemetry, tracking, or cloud sync.
+- **SQLCipher AES-256 Encryption:** Database encrypted at rest using a hardware-backed key generated via Android Keystore (TEE/StrongBox).
+- **Opt-in App Lock:** Secure app access using system Device Credentials (PIN/pattern/password) or Biometrics (fingerprint/face) with configurable auto-lock timeouts.
+- **Secure Screen Protection:** Optional `FLAG_SECURE` mode blocks screenshots and hides app switcher preview cards.
+- **Complete Data Portability:** Standardized UTF-8 CSV import and export for all health metrics, medications, and comments. Supports auto-detecting Libra CSV files.
+
+#### 🌍 Customization & Localization
+- **Dutch & English Localization:** Fully localized UI text in English and Dutch, with manual language selection or system default.
+- **Independent Regional Formats:** Custom date and number formatting styles (Netherlands / US / System) independent of language choice.
+- **Presentation Units:** Toggle between Metric (kg, cm, m) and Imperial (lb, mi, ft/in) as well as mmol/L or mg/dL glucose units.
+- **Light & Dark Themes:** Automatic system theme matching or manual System/Light/Dark selection.
+
+---
 
 ## Technical Architecture
 
@@ -76,9 +82,9 @@ The application enforces **Hexagonal Architecture** (Ports and Adapters) paired 
 1. **Strict Isolation:** The `:domain` module is pure Kotlin. It has zero dependencies on `android.*`, `androidx.*`, or database persistence libraries.
 2. **Dependency Rule:** All dependencies point inward toward `:domain`. Presentation (`:app`) and Infrastructure (`:data`) are outer adapters implementing or consuming domain ports.
 3. **Dependency Minimization:** We strictly prioritize the native Android SDK, official AndroidX/Jetpack libraries, and official Kotlinx libraries over third-party dependencies. Any external library must be justified via an [Architecture Decision Record (ADR)](docs/adr/).
-4. **Offline-First:** Room SQLite serves as the local source of truth.
+4. **Offline-First:** Room SQLite with SQLCipher serves as the encrypted local source of truth.
 
-> More views: [C4 diagrams](docs/dev/c4.md) (context, containers, components, scenarios, deployment) and the [design page](docs/dev/design.md) (principles, screen map, state flow).
+> More views: [C4 diagrams](docs/dev/c4.md) (context, containers, components, scenarios, deployment), [Design page](docs/dev/design.md), and [Privacy & Security](docs/dev/privacy-and-security.md).
 
 ### Hexagonal Architecture & Boundary Flow
 
@@ -87,13 +93,15 @@ flowchart TD
     subgraph Presentation["Presentation Adapter (:app)"]
         UI["Jetpack Compose UI (Screens, Theme & branded top bar)"]
         VM["AndroidX ViewModel & UI State"]
-        LANG["LanguagePreference (SharedPreferences), Language + region applied on the Activity base context (ADR 0013)"]
+        LANG["LanguagePreference (SharedPreferences), Language + region applied on Activity base context (ADR 0013)"]
         UNITS["UnitPreference + LocalDisplayUnits, display units only, storage stays metric (ADR 0014)"]
         UITEXT["UiText: ViewModels hold message resource ids, screens resolve them (ADR 0015)"]
         REM["Reminders: alarm, notification, Taken all and Snooze receivers (ADR 0022)"]
+        LOCK["App Lock & Security: AppLockManager, BiometricPrompt, FLAG_SECURE (ADR 0023)"]
         UI --> VM
         UI --> LANG
         UI --> UNITS
+        UI --> LOCK
         VM --> UITEXT
     end
 
@@ -117,6 +125,7 @@ flowchart TD
             HLP["HealthLogRepositoryPort (save, update, delete, history)"]
             MRP["MedicationRepositoryPort (medications, schedule versions, intakes)"]
             RSP["ReminderSchedulerPort (one alarm for the next slot)"]
+            ALP["AppLockPort (lock state & security)"]
             DEP["DataExportPort / DataImportPort (interface)"]
         end
 
@@ -125,9 +134,11 @@ flowchart TD
     end
 
     subgraph Infrastructure["Infrastructure Adapters (:data)"]
-        subgraph Persistence["Room SQLite Adapter"]
-            DB["Room Database & DAOs"]
+        subgraph Persistence["Room SQLite & SQLCipher Adapter"]
+            DB["Room Database & DAOs (Encrypted at Rest)"]
+            KEY["DatabaseKeyProvider (Android Keystore AES-GCM)"]
             Mappers["Entity <-> Domain Mappers"]
+            DB --> KEY
             DB --> Mappers
         end
 
@@ -140,35 +151,11 @@ flowchart TD
     Mappers -->|"Implements"| PRP
     Mappers -->|"Implements"| HLP
     Mappers -->|"Implements"| MRP
+    LOCK -->|"Implements"| ALP
     REM -->|"Implements"| RSP
     REM -->|"Invokes Use Cases"| UC
     Parser -->|"Implements"| DEP
 ```
-
-### Medication: plan, record, remind, measure
-
-The pillbox never stores what is planned. A schedule is stored as versions, the plan for a day is computed from them, and only outcomes (taken or skipped) are written. The same `Medication.plannedFor(date)` feeds the Today view, the reminders and the adherence figures, so the three can never disagree.
-
-```mermaid
-flowchart LR
-    SCH["Schedule versions<br/>(one per edit, with a start date)"] --> PLAN["plannedFor(date)<br/>planned times of a day"]
-    PLAN --> PIL["Pillbox.statusOf<br/>Pending, Missed, Taken, Skipped"]
-    OUT[("Intakes<br/>recorded outcomes only")] --> PIL
-    PIL --> TODAY["Today view"]
-    PLAN --> NEXT["NextSlot"] --> ALARM["One alarm for the next slot"] --> NOTE["Notification<br/>Taken all, Snooze"]
-    NOTE -->|"Taken all"| OUT
-    TODAY -->|"Taken, Skip"| OUT
-    PIL --> ADH["Adherence.report<br/>7, 30 or 90 days"] --> VIEW["Adherence view"]
-```
-
-| Status | When | Counts in adherence |
-|---|---|---|
-| Pending | planned time not yet 2 hours ago, nothing recorded | not yet |
-| Missed | 2 hours or more after the planned time, nothing recorded | due, not taken |
-| Taken | an outcome of Taken is recorded | due, taken |
-| Skipped | an outcome of Skipped is recorded | due, not taken, shown separately |
-
-Adherence is plain counting: taken divided by due, rounded half up, shown with the skipped and missed counts. There are no targets and no good or bad colours. As-needed medications show only a dose count. The streak (days in a row with everything planned taken) does not depend on the chosen range.
 
 ---
 
@@ -197,23 +184,6 @@ If you build locally or have the Android SDK:
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-### Release & Signing Flow
-
-Pushing a `vX.Y.Z` tag builds and publishes the APK. Every build, local or CI, is signed with the committed debug key so that updates install in place ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
-
-```mermaid
-flowchart LR
-    Dev["Bump versionCode / versionName<br/>+ update docs"] --> Commit["git commit + push master"]
-    Commit --> Tag["git tag vX.Y.Z + push tag"]
-    Tag --> CI["GitHub Actions:<br/>tests + assembleDebug"]
-    KS[("app/debug.keystore<br/>fixed debug key")] --> CI
-    KS --> Local["Local ./gradlew installDebug"]
-    CI --> APK["health-journal-vX.Y.Z-debug.apk"]
-    APK --> Rel["GitHub Release"]
-    Rel --> Phone["Sideload on phone<br/>(same signature = in-place update)"]
-    Local --> Phone
-```
-
 ---
 
 ## Core Technologies
@@ -224,20 +194,9 @@ flowchart LR
 | **Domain Layer** | Pure Kotlin (JVM) | Completely isolated from Android SDK and UI frameworks. |
 | **Presentation** | Jetpack Compose (BOM) | Declarative UI framework with reactive state management. |
 | **Architecture** | AndroidX ViewModel & Flow | Reactive state holding aligned with lifecycle management. |
-| **Persistence** | Jetpack Room SQLite | Type-safe, compile-time verified local database with Coroutines. |
-| **Concurrency** | Kotlinx Coroutines & Flow | Asynchronous execution and reactive data streams. |
-| **CI/CD** | GitHub Actions, CodeQL, Dependabot | Tests, coverage, lint, spec validation and the APK build on every push and pull request; weekly security analysis and dependency updates. See [Continuous integration](docs/dev/ci.md). |
-| **Tooling & Release** | GitHub CLI (`gh`) | Automated branch, PR, and GitHub Release asset distribution. |
-
----
-
-## Module Structure
-
-| Module | Type | Responsibilities & Dependencies |
-|---|---|---|
-| [`:domain`](domain/) | Pure Kotlin JVM Library | Contains Aggregate Roots (`Profile`), Entities, Value Objects (`GlucoseLevel`, `BloodPressureReading`, `WaistCircumferenceCm`, `ProfileId`), the medication model (`Medication`, `ScheduleVersion`, `Intake`, `Pillbox`, `Adherence`), Use Cases, and Port Interfaces. **Zero Android/Jetpack dependencies.** |
-| [`:data`](data/) | Android Library | Infrastructure adapter implementing domain repository and data import/export ports using Room SQLite and CSV streams. Depends on `:domain`. |
-| [`:app`](app/) | Android Application | Presentation adapter containing Jetpack Compose UI screens (including the pillbox), navigation, ViewModels, and the reminder alarm, notification and receivers. Depends on `:domain` and runtime `:data`. |
+| **Persistence** | Jetpack Room + SQLCipher | Type-safe, compile-time verified local encrypted database. |
+| **Security** | Android Keystore & BiometricPrompt | Hardware-backed key wrapping and native authentication. |
+| **CI/CD** | GitHub Actions, CodeQL, Dependabot | Tests, coverage, lint, spec validation and APK builds on push. |
 
 ---
 
@@ -254,29 +213,23 @@ All data files must be encoded in **UTF-8**.
 | **Activity Session** | CSV | `start_timestamp,end_timestamp,distance_m,duration_s,comment` | `2026-09-09T18:00:00Z,2026-09-09T18:45:00Z,5200,2700,Evening walk` |
 | **Weight (Libra)** | Libra CSV (`net.cachapa.libra`) | `#Units: kg\|lbs`, `#date;weight;...` (semicolon-delimited) | `2026-09-09T08:00:00.000Z;74.5;;;` |
 
-> **Older blood pressure files** without the `pulse_bpm` column still import (the pulse stays empty). The classification column is always recomputed on import.
-
-> **Comments:** every file ends with an optional `comment` column (single line, at most 200 characters). Cells with a comma or a quote are wrapped in double quotes (RFC 4180). Older files without the column still import. In the standard CSV an over-long comment skips that row; the Libra import reads its `comments` column and cuts a longer comment to its first 200 characters.
-
-> **Libra auto-detection:** Pasting a Libra export into the Weight import or selecting "Libra (CSV)" in the import dialog will both work. Unit conversion from lbs to kg (factor: 1 lb = 0.45359237 kg) is applied automatically when `#Units: lbs` is present.
-
 ---
 
 ## Developer Documentation
 
-New here? The [developer docs](docs/dev/README.md) explain how the code and the architecture fit together (with a walk-through of one entry from screen to database) and include how-to guides. Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
+New here? The [developer docs](docs/dev/README.md) explain how the code and the architecture fit together and include how-to guides. Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Automated checks
 
 | Check | Runs | What it does |
 |---|---|---|
-| **Android CI & Build APK** | every push and pull request, and on `v*` tags | docs check, unit tests, coverage summary, debug APK; publishes a GitHub Release on a tag |
-| **Android Lint** | every push and pull request | Android Lint; errors fail the check |
+| **Android CI & Build APK** | every push and pull request, and on `v*` tags | docs check, unit tests, coverage summary, debug APK |
+| **Android Lint** | every push and pull request | Android Lint checks |
 | **OpenSpec** | when `openspec/` changes | validates all specs in strict mode |
 | **CodeQL** | every push and pull request, and weekly | security analysis of the Kotlin code |
-| **Dependabot** | weekly (Monday) | grouped pull requests for Gradle dependencies and GitHub Actions |
+| **Dependabot** | weekly (Monday) | grouped pull requests for Gradle dependencies |
 
-To run the same checks locally before you push: `./gradlew test :app:lintDebug` and `bash scripts/check-docs.sh`. The [CI page](docs/dev/ci.md) explains each workflow, where to find the coverage summary and APK artifacts, and how to handle a Dependabot pull request.
+To run local checks before pushing: `./gradlew test :app:lintDebug` and `bash scripts/check-docs.sh`.
 
 ---
 
@@ -289,7 +242,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0004: Room SQLite for Offline-First Persistence](docs/adr/0004-room-for-offline-first-persistence.md)
 - [ADR 0005: Dutch NHG Clinical Guidelines](docs/adr/0005-dutch-nhg-guidelines.md)
 - [ADR 0006: Health Trend Visualizations](docs/adr/0006-health-trend-visualizations.md)
-- [ADR 0007: Build Toolchain Upgrade (Kotlin 2.3.0, KSP 2.3.0, Room 2.8.5)](docs/adr/0007-build-toolchain-upgrade.md)
+- [ADR 0007: Build Toolchain Upgrade](docs/adr/0007-build-toolchain-upgrade.md)
 - [ADR 0008: Fixed Debug Signing Key for Sideloaded APKs](docs/adr/0008-fixed-debug-signing-key.md)
 - [ADR 0009: Localized Context and the Activity Result Registry](docs/adr/0009-localized-context-activity-result-registry.md)
 - [ADR 0010: Responsive Layout and Dutch UI Wording](docs/adr/0010-responsive-dutch-ui-layout.md)
@@ -309,20 +262,6 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 
 ---
 
-## Development Workflow & OpenSpec
-
-This project uses [OpenSpec](https://openspec.dev/) to drive specification, design, and implementation workflows:
-- **Specs:** [`openspec/specs/`](openspec/specs/README.md) hold every business rule in platform-neutral form (enough to rebuild the app on another platform); Android-only choices are in [`platform-android`](openspec/specs/platform-android/spec.md).
-- **Changes:** proposals and deltas live in [`openspec/changes/`](openspec/changes/).
-- **Workflows:**
-  - `/opsx-propose`: Formulate new capabilities and specifications.
-  - `/opsx-apply`: Implement verified changes in code.
-  - `/opsx-sync`: Synchronize delta specifications with main capability specs.
-  - `/opsx-archive`: Archive completed features into living specifications.
-- **Git & GitHub:** Managed with the GitHub CLI (`gh`). Pull requests and reviews accompany each milestone.
-
----
-
 ## Roadmap
 
 | Phase | Scope | Status | Released in |
@@ -332,7 +271,7 @@ This project uses [OpenSpec](https://openspec.dev/) to drive specification, desi
 | 5a | Medication management and the pillbox | Done | 1.5.3 |
 | 5b | Medication reminders | Done | 1.5.4 |
 | 5c | Medication adherence | Done | 1.5.4 |
-| 5d | Database encryption and app lock | Proposed | |
+| 5d | Database encryption and app lock | Done | 1.5.9 |
 
 ```mermaid
 flowchart LR
@@ -340,9 +279,8 @@ flowchart LR
     P4 --> P5A["5a Pillbox"]:::done
     P5A --> P5B["5b Reminders"]:::done
     P5A --> P5C["5c Adherence"]:::done
-    P5A --> P5D["5d Encryption<br/>and app lock"]:::next
+    P5A --> P5D["5d Encryption<br/>and app lock"]:::done
     classDef done fill:#dbeafe,stroke:#1e3a8a,color:#0f172a
-    classDef next fill:#fff,stroke:#64748b,stroke-dasharray: 4 3,color:#0f172a
 ```
 
 - [x] **Phase 0: Specifications & Architecture Governance** — OpenSpec change definition, initial ADR, living README, Hexagonal boundary definition.
@@ -354,13 +292,12 @@ flowchart LR
   - [x] [Dark theme](openspec/changes/archive/2026-09-28-add-dark-theme/proposal.md) — full light/dark support, following the system setting by default with a System, Light or Dark choice in Profile ([ADR 0017](docs/adr/0017-in-app-theme-choice.md)).
   - [x] [Dutch/English localization](openspec/changes/archive/2026-09-28-add-localization/proposal.md) — system-language-following UI text, overridable from Profile settings.
   - [x] [Optional Profile sex field](openspec/changes/archive/2026-09-28-add-profile-sex-field/proposal.md) — selectable male/female, not required, no effect on existing BMI/BP/glucose calculations.
-  - [x] [Edit and delete entries](openspec/changes/archive/2026-09-30-feature-edit-delete-entries/proposal.md) — Edit/Delete icon buttons on History entries, pre-filled edit dialog, delete confirmation (implemented; pending emulator verification).
+  - [x] [Edit and delete entries](openspec/changes/archive/2026-09-30-feature-edit-delete-entries/proposal.md) — Edit/Delete icon buttons on History entries, pre-filled edit dialog, delete confirmation.
   - [x] [Optional waist circumference tracking](openspec/changes/archive/2026-10-05-add-waist-circumference-tracking/proposal.md) — sex-specific Voedingscentrum thresholds; low-priority/optional.
   - [x] [Smart Pre-fill and Scrolling Number Pickers](openspec/changes/archive/2026-10-05-feature-smart-input-pickers/proposal.md) — canvas ruler pickers, stacked BP/pulse scrolling rows, and smart pre-fill fallback chain.
   - [x] [Optional comments on all entries](openspec/changes/archive/2026-10-06-add-entry-comments/proposal.md) — single-line note (max 200 characters) on every entry type, shown in History, in CSV and in the Libra import (1.5.1).
-- [ ] **Phase 5: Medication management (💊 pillbox)** (proposed as four OpenSpec changes). A personal reminder and logging tool, never a medical device, with no advice and no medicine names built in. The pillbox is a separate screen opened from a 💊 button in the top bar, not a fourth tab. The neutral wording of the range labels shipped in 1.5.0.
-  - [x] [Phase 5a: Medication management](openspec/changes/archive/2026-10-07-add-medication-management/proposal.md): medications (any form: tablets, liquids, sprays, injectables; custom doses and Dutch-standard units), schedule versions, the pillbox day view with grouped time slots and "Taken all", the intake log, CSV export and import, English and Dutch. Database version 6. Records the privacy and compliance decisions (ADR 0020, 0021).
-  - [x] [Phase 5b: Reminders](openspec/changes/archive/2026-10-07-add-medication-reminders/proposal.md): one notification per time slot with Taken all and Snooze actions, neutral text, permission flow (ADR 0022). Depends on 5a.
-  - [x] [Phase 5c: Adherence](openspec/changes/archive/2026-10-07-add-medication-adherence/proposal.md): percentages for 7, 30 and 90 days, streak and missed list as a view in the pillbox. Depends on 5a. The overlay on the trend charts is deferred.
-  - [x] [Phase 5d: Database encryption and app lock](openspec/changes/archive/2026-10-19-add-database-encryption-and-lock/proposal.md): encrypted database, opt-in lock with the device credential, secure screen, backup rules (ADR 0023). Independent of 5a to 5c.
-  - Deferred: a licence file and a legal review of the compliance wording.
+- [x] **Phase 5: Medication management (💊 pillbox) & Security**:
+  - [x] [Phase 5a: Medication management](openspec/changes/archive/2026-10-07-add-medication-management/proposal.md): medications, schedule versions, pillbox day view with grouped time slots, intake log, CSV.
+  - [x] [Phase 5b: Reminders](openspec/changes/archive/2026-10-07-add-medication-reminders/proposal.md): one notification per time slot with Taken all and Snooze actions, neutral text, permission flow (ADR 0022).
+  - [x] [Phase 5c: Adherence](openspec/changes/archive/2026-10-07-add-medication-adherence/proposal.md): percentages for 7, 30 and 90 days, streak and missed list as a view in the pillbox.
+  - [x] [Phase 5d: Database encryption and app lock](openspec/changes/archive/2026-10-19-add-database-encryption-and-lock/proposal.md): encrypted database (SQLCipher AES-256), opt-in lock with device credentials/biometrics, secure screen (`FLAG_SECURE`), backup rules (ADR 0023).
