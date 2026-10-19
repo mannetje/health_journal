@@ -61,6 +61,7 @@
     <string name="history_title">Health History</string>
     <string name="history_import_button">Import</string>
     <string name="history_export_button">Export</string>
+    <string name="history_more_options">More options</string>
     <string name="history_filter_all">All</string>
     <string name="history_filter_weight">Weight</string>
     <string name="history_filter_bp">BP</string>

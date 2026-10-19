@@ -61,6 +61,7 @@
     <string name="history_title">Gezondheidshistorie</string>
     <string name="history_import_button">Importeren</string>
     <string name="history_export_button">Exporteren</string>
+    <string name="history_more_options">Meer opties</string>
     <string name="history_filter_all">Alles</string>
     <string name="history_filter_weight">Gewicht</string>
     <string name="history_filter_bp">Bloeddruk</string>

@@ -7,6 +7,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ### Added
 - **History timeline navigation:** a year row and a month row above the History list, for every filter and entry type. Tap a year or month to jump to its newest entry; scrolling updates the chips, so they always show the period at the top of the list. Months without entries are dimmed, and the rows are hidden when everything is from one month. Each month starts with a header with its name, year and entry count.
 
+### Changed
+- History: the "About these ranges" button is now an (i) icon next to the title, and Import and Export moved into a three-dot menu on the same row, which leaves more room for the entries.
+
 ### Fixed
 - A pillbox that is already open now updates when "Taken all" is used from a reminder notification, instead of showing the old state until it is opened again ([ADR 0022](docs/adr/0022-medication-reminders.md)).
 

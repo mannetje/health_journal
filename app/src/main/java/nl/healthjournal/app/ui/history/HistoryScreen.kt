@@ -11,8 +11,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -70,26 +73,32 @@ fun HistoryScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = stringResource(R.string.history_title),
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedButton(
-                onClick = { showImportDialog = true },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(stringResource(R.string.history_import_button), maxLines = 1)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Unweighted children are measured first, so the title gets its full width before the
+            // spacer shares out what is left: the (i) sits right after the title, the menu at the end.
+            Text(
+                text = stringResource(R.string.history_title),
+                style = MaterialTheme.typography.titleLarge
+            )
+            if (state.selectedFilter != HistoryFilter.ACTIVITY) {
+                RangeSourceNote(compact = true)
             }
-            Button(
-                onClick = { showExportDialog = true },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(stringResource(R.string.history_export_button), maxLines = 1)
+            Spacer(Modifier.weight(1f))
+            var menuOpen by remember { mutableStateOf(false) }
+            Box {
+                IconButton(onClick = { menuOpen = true }) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.history_more_options))
+                }
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.history_import_button)) },
+                        onClick = { menuOpen = false; showImportDialog = true }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.history_export_button)) },
+                        onClick = { menuOpen = false; showExportDialog = true }
+                    )
+                }
             }
         }
 
@@ -148,10 +157,6 @@ fun HistoryScreen(
                 onClick = { viewModel.setFilter(HistoryFilter.WAIST_CIRCUMFERENCE) },
                 label = { Text(stringResource(R.string.history_filter_waist)) }
             )
-        }
-
-        if (state.selectedFilter != HistoryFilter.ACTIVITY) {
-            RangeSourceNote()
         }
 
         // Under a single-metric filter the entries follow the selected date range, like the chart;

@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -37,16 +38,25 @@ private val RANGE_SOURCES = listOf(
     RangeSource(R.string.ranges_link_voedingscentrum, "https://www.voedingscentrum.nl")
 )
 
-/** A small "About these ranges" button that opens the source and not-a-diagnosis note. One per screen. */
+/**
+ * A small "About these ranges" button that opens the source and not-a-diagnosis note. One per screen.
+ * [compact] shows only the (i) icon (48 dp target, the text as its description) for use next to a title.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RangeSourceNote(modifier: Modifier = Modifier) {
+fun RangeSourceNote(modifier: Modifier = Modifier, compact: Boolean = false) {
     var open by rememberSaveable { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
 
-    TextButton(onClick = { open = true }, modifier = modifier) {
-        Icon(Icons.Filled.Info, contentDescription = null, modifier = Modifier.size(18.dp))
-        Text(stringResource(R.string.ranges_about), modifier = Modifier.padding(start = 8.dp))
+    if (compact) {
+        IconButton(onClick = { open = true }, modifier = modifier) {
+            Icon(Icons.Filled.Info, contentDescription = stringResource(R.string.ranges_about))
+        }
+    } else {
+        TextButton(onClick = { open = true }, modifier = modifier) {
+            Icon(Icons.Filled.Info, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(stringResource(R.string.ranges_about), modifier = Modifier.padding(start = 8.dp))
+        }
     }
 
     if (open) {
