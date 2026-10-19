@@ -4,8 +4,16 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.5.7] - 2026-10-19
+
 ### Added
+- **Glucose graphs** in the Glucose graph view: fasting and after-meal readings as two lines with points coloured by NHG category and lines at the NHG limits (low, fasting, after a meal), time in range per NHG category, average and range by time of day, lowest and highest reading, change since a month, three months, six months and a year, spread (average, standard deviation, range), the last 30 days against the 30 before, and the largest rise between two readings less than 3 hours apart. Figures only, no good or bad colour; in English and Dutch.
+- **Dots on the weight chart:** the raw weight line now shows a dot per entry, like the waist chart. Series with more than 60 points are drawn as a plain line, so dense histories do not turn into a thick band.
 - **Waist graphs** in a new Waist graph view (the Waist filter now has the graph icon too): a trend chart with the NHG limits as lines and band-coloured points (needs a sex in the profile), the lowest and highest waist, the change over a month, three months, six months and year in cm and percent, the distance to the NHG limits, the waist-to-height ratio over time with a 50 % rule-of-thumb line (needs a height in the profile), and a scatter chart of waist against weight with a trend line and one neutral sentence (needs 5 pairs within 3 days). Figures only, no good or bad colour; in English and Dutch.
+
+### Documentation
+- New developer page [Graphs](docs/dev/graphs.md): how the waist and glucose graphs were built, the building blocks and a checklist for a new graph.
+- All README screenshots retaken (light and dark) with sample data that includes comments, plus new glucose statistics shots.
 
 ## [1.5.6] - 2026-10-19
 
