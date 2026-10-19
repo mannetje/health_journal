@@ -481,4 +481,21 @@
     <string name="adherence_missed_title">Missed intakes</string>
     <string name="adherence_empty">Nothing was planned in this period.</string>
     <string name="adherence_note">Based on your planned times and what you recorded. This is an overview, not medical advice.</string>
+    <string name="history_show_graph">Show graph</string>
+    <string name="history_show_entries">Show entries</string>
+    <string name="stats_extremes_title">Lowest and highest weight</string>
+    <string name="stats_lowest">Lowest weight</string>
+    <string name="stats_highest">Highest weight</string>
+    <string name="stats_change_title">Weight change</string>
+    <string name="stats_col_period">Period</string>
+    <string name="stats_col_change">Change</string>
+    <string name="stats_per_week">%1$s / week</string>
+    <string name="stats_period_week">Week</string>
+    <string name="stats_period_15_days">15 days</string>
+    <string name="stats_period_month">Month</string>
+    <string name="stats_period_3_months">3 months</string>
+    <string name="stats_period_6_months">6 months</string>
+    <string name="stats_period_year">Year</string>
+    <string name="stats_monthly_title">Change per month</string>
+    <string name="stats_yearly_title">Change per year</string>
 </resources>

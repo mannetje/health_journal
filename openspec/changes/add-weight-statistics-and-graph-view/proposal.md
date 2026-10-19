@@ -5,7 +5,7 @@ Under the Weight, Blood pressure and Glucose filters the trend chart is the firs
 
 ## What Changes
 - **List or graph:** when the selected filter has a trend chart (Weight, Blood pressure, Glucose) a toggle in the History title row switches between the entries and the graph view. The choice is remembered per filter while the app runs. Filters without a chart (All, Waist, Activity) show no toggle and the list as today.
-- **Graph view:** the chart with its range selector and statistics, using the full screen. The entry list is not shown there. The list view no longer starts with the chart.
+- **Graph view:** the chart and its statistics, using the full screen. The range selector stays above both views, because it limits the entries too. The entry list is not shown there. The list view no longer starts with the chart.
 - **Weight statistics** in the weight graph view:
   - **Lowest and highest weight** with their dates.
   - **Change table:** the change and the change per week over the last week, 15 days, month, three months, six months and year, counted back from the newest entry. A kg / % toggle shows the change as a percentage of the starting weight. A period the history does not reach is shown as a dash, not as 0.

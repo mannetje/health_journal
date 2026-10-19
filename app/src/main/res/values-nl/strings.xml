@@ -481,4 +481,21 @@
     <string name="adherence_missed_title">Gemiste innames</string>
     <string name="adherence_empty">In deze periode was niets gepland.</string>
     <string name="adherence_note">Gebaseerd op je geplande tijden en wat je hebt vastgelegd. Dit is een overzicht, geen medisch advies.</string>
+    <string name="history_show_graph">Toon grafiek</string>
+    <string name="history_show_entries">Toon metingen</string>
+    <string name="stats_extremes_title">Laagste en hoogste gewicht</string>
+    <string name="stats_lowest">Laagste gewicht</string>
+    <string name="stats_highest">Hoogste gewicht</string>
+    <string name="stats_change_title">Gewichtsverandering</string>
+    <string name="stats_col_period">Periode</string>
+    <string name="stats_col_change">Verandering</string>
+    <string name="stats_per_week">%1$s / week</string>
+    <string name="stats_period_week">Week</string>
+    <string name="stats_period_15_days">15 dagen</string>
+    <string name="stats_period_month">Maand</string>
+    <string name="stats_period_3_months">3 maanden</string>
+    <string name="stats_period_6_months">6 maanden</string>
+    <string name="stats_period_year">Jaar</string>
+    <string name="stats_monthly_title">Verandering per maand</string>
+    <string name="stats_yearly_title">Verandering per jaar</string>
 </resources>

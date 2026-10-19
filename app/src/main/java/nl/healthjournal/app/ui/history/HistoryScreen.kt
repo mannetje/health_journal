@@ -13,8 +13,10 @@ import java.time.ZoneId
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import nl.healthjournal.app.ui.history.charts.WeightStatisticsSection
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -67,6 +69,25 @@ fun HistoryScreen(
         viewModel.loadHistory()
     }
 
+    // Which chart filters show their graph instead of the entries; kept per filter while the app is open.
+    var weightGraph by rememberSaveable { mutableStateOf(false) }
+    var bpGraph by rememberSaveable { mutableStateOf(false) }
+    var glucoseGraph by rememberSaveable { mutableStateOf(false) }
+    val filterNow = state.selectedFilter
+    val hasChart = filterNow == HistoryFilter.WEIGHT || filterNow == HistoryFilter.BLOOD_PRESSURE || filterNow == HistoryFilter.GLUCOSE
+    val graphViewNow = hasChart && when (filterNow) {
+        HistoryFilter.WEIGHT -> weightGraph
+        HistoryFilter.BLOOD_PRESSURE -> bpGraph
+        else -> glucoseGraph
+    }
+    val setGraphView: (HistoryFilter, Boolean) -> Unit = { f, on ->
+        when (f) {
+            HistoryFilter.WEIGHT -> weightGraph = on
+            HistoryFilter.BLOOD_PRESSURE -> bpGraph = on
+            else -> glucoseGraph = on
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -84,6 +105,14 @@ fun HistoryScreen(
                 RangeSourceNote(compact = true)
             }
             Spacer(Modifier.weight(1f))
+            if (hasChart) {
+                IconButton(onClick = { setGraphView(filterNow, !graphViewNow) }) {
+                    Icon(
+                        imageVector = if (graphViewNow) ListViewIcon else GraphViewIcon,
+                        contentDescription = stringResource(if (graphViewNow) R.string.history_show_entries else R.string.history_show_graph)
+                    )
+                }
+            }
             var menuOpen by remember { mutableStateOf(false) }
             Box {
                 IconButton(onClick = { menuOpen = true }) {
@@ -167,7 +196,6 @@ fun HistoryScreen(
         val glucoses = if (ranged) state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.glucoses
         val waists = if (ranged) state.waistCircumferences.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.waistCircumferences
 
-        val showChart = state.selectedFilter != HistoryFilter.ALL && state.selectedFilter != HistoryFilter.ACTIVITY && state.selectedFilter != HistoryFilter.WAIST_CIRCUMFERENCE
         // One chronological list (newest first) so no metric hides below a long run of another.
         val filter = state.selectedFilter
         val rows = buildList<Pair<java.time.Instant, @Composable () -> Unit>> {
@@ -247,14 +275,19 @@ fun HistoryScreen(
             }
         }.sortedByDescending { it.first }
         val times = rows.map { it.first }
-        val timeline = remember(times, showChart) { HistoryTimeline(times, ZoneId.systemDefault(), leading = if (showChart) 1 else 0) }
+        val timeline = remember(times) { HistoryTimeline(times, ZoneId.systemDefault()) }
         val listState = rememberLazyListState()
         // The selected period is derived from the list position, so scrolling and the chips cannot disagree.
         val selectedMonth by remember(timeline) { derivedStateOf { timeline.monthAt(listState.firstVisibleItemIndex) } }
         val scope = rememberCoroutineScope()
-        LaunchedEffect(state.selectedFilter, state.selectedDateRange) { listState.scrollToItem(0) }
+        LaunchedEffect(state.selectedFilter, state.selectedDateRange, graphViewNow) { listState.scrollToItem(0) }
 
-        if (timeline.navigable && !state.isLoading) {
+        // The range chooses both the chart and the entries, so it stays visible in both views.
+        if (hasChart) {
+            DateRangeSelector(selected = state.selectedDateRange, onSelect = { viewModel.setDateRange(it) })
+        }
+
+        if (!graphViewNow && timeline.navigable && !state.isLoading) {
             selectedMonth?.let { month ->
                 TimelineRows(
                     timeline = timeline,
@@ -273,28 +306,26 @@ fun HistoryScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Trend chart scrolls together with the entries below it, so the entries stay reachable.
-                if (showChart) {
+                if (graphViewNow) {
                     item {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            DateRangeSelector(
-                                selected = state.selectedDateRange,
-                                onSelect = { viewModel.setDateRange(it) }
-                            )
                             when (state.selectedFilter) {
-                                HistoryFilter.WEIGHT -> WeightTrendSection(entries = weights)
+                                HistoryFilter.WEIGHT -> {
+                                    WeightTrendSection(entries = weights)
+                                    WeightStatisticsSection(entries = state.weights)
+                                }
                                 HistoryFilter.BLOOD_PRESSURE -> BloodPressureTrendSection(entries = bloodPressures)
                                 HistoryFilter.GLUCOSE -> GlucoseTrendSection(entries = glucoses)
                                 else -> Unit
                             }
                         }
                     }
-                }
-
-                items(timeline.items) { item ->
-                    when (item) {
-                        is TimelineItem.Header -> MonthHeader(item.month, item.count)
-                        is TimelineItem.Entry -> rows[item.row].second()
+                } else {
+                    items(timeline.items) { item ->
+                        when (item) {
+                            is TimelineItem.Header -> MonthHeader(item.month, item.count)
+                            is TimelineItem.Entry -> rows[item.row].second()
+                        }
                     }
                 }
             }

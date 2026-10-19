@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: List and graph view
-When the selected History filter has a trend chart (Weight, Blood pressure, Glucose), the History screen SHALL offer a control in the title row that switches between the entry list and the graph view. The graph view SHALL show the trend chart with its range selector and statistics and SHALL NOT show the entry list; the list view SHALL show the entries and SHALL NOT show the chart. The list SHALL be the default view. The chosen view SHALL be kept per filter while the app is open. Filters without a trend chart (All, Waist, Activity) SHALL show no control and the list. The control SHALL be at least 48 dp and its description SHALL name the view it switches to, in the app language.
+When the selected History filter has a trend chart (Weight, Blood pressure, Glucose), the History screen SHALL offer a control in the title row that switches between the entry list and the graph view. The graph view SHALL show the trend chart and its statistics and SHALL NOT show the entry list; the list view SHALL show the entries and SHALL NOT show the chart. The range selector SHALL be shown in both views, because the range limits the chart and the entries alike. The list SHALL be the default view. The chosen view SHALL be kept per filter while the app is open. Filters without a trend chart (All, Waist, Activity) SHALL show no control and the list. The control SHALL be at least 48 dp and its description SHALL name the view it switches to, in the app language.
 
 #### Scenario: Switch to the graph
 - **WHEN** the Weight filter is selected and the user taps the graph control
