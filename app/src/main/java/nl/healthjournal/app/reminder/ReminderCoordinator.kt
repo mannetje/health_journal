@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 
 /**
  * Connects the domain use cases to the alarm and the notification. Used by the receivers (outside the Activity)
- * and by the pillbox (through [ReminderHooks]). A failure here is logged and never breaks the caller.
+ * and by the pillbox (through [ReminderHooks]). A failure here is swallowed (nothing is logged) and never breaks the caller.
  */
 class ReminderCoordinator(
     private val context: Context,
