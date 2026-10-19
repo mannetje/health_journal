@@ -2,11 +2,14 @@ package nl.healthjournal.app.ui
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import nl.healthjournal.app.R
+import nl.healthjournal.app.reminder.ReminderHooks
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.medication.DayStatus
 import nl.healthjournal.app.ui.medication.MedicationDraft
@@ -95,7 +98,11 @@ class MedicationViewModelTest {
         override suspend fun setActiveProfile(id: ProfileId) {}
     }
 
-    private fun viewModel(repo: FakeMedicationRepo, profile: Profile? = Profile.create("Test", LocalDate.of(1990, 1, 1), HeightCm(180))): MedicationViewModel {
+    private fun viewModel(
+        repo: FakeMedicationRepo,
+        profile: Profile? = Profile.create("Test", LocalDate.of(1990, 1, 1), HeightCm(180)),
+        reminders: ReminderHooks = ReminderHooks.None
+    ): MedicationViewModel {
         val recordIntake = RecordIntakeUseCase(repo)
         val useCases = MedicationUseCases(
             getDay = GetPillboxDayUseCase(repo, clock),
@@ -107,7 +114,7 @@ class MedicationViewModelTest {
             delete = DeleteMedicationUseCase(repo),
             getAdherence = GetAdherenceUseCase(repo, clock)
         )
-        return MedicationViewModel(FakeProfileRepo(profile), repo, useCases, clock)
+        return MedicationViewModel(FakeProfileRepo(profile), repo, useCases, clock, reminders)
     }
 
     private fun draft(name: String = "Medication A") = MedicationDraft(name = name)
@@ -383,5 +390,28 @@ class MedicationViewModelTest {
         val vm = viewModel(FakeMedicationRepo(), profile = null)
         idle()
         assertNull(vm.uiState.value.adherence)
+    }
+
+    @Test
+    fun `an open pillbox reloads when outcomes are recorded outside it`() = runTest {
+        val repo = FakeMedicationRepo()
+        val signal = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val hooks = object : ReminderHooks {
+            override suspend fun changed() = Unit
+            override val outcomesRecorded: Flow<Unit> = signal
+        }
+        val vm = viewModel(repo, reminders = hooks)
+        idle()
+        vm.saveMedication(draft())
+        idle()
+        val medication = vm.uiState.value.medications.single()
+        assertEquals(0, vm.uiState.value.adherence!!.overall!!.taken)
+
+        // Taken all from a notification writes through the repository, not through this view model.
+        RecordIntakeUseCase(repo)(medication.id, today.atTime(8, 0), IntakeStatus.TAKEN)
+        signal.tryEmit(Unit)
+        idle()
+
+        assertEquals(1, vm.uiState.value.adherence!!.overall!!.taken)
     }
 }

@@ -4,6 +4,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Fixed
+- A pillbox that is already open now updates when "Taken all" is used from a reminder notification, instead of showing the old state until it is opened again ([ADR 0022](docs/adr/0022-medication-reminders.md)).
+
 ### Documentation
 - Adherence screenshots (light and dark, sample data) in the README and the pillbox page.
 - New developer pages: [C4 diagrams](docs/dev/c4.md) (system context, containers, components of each module, reminder, adherence and entry sequences, deployment) and [Design](docs/dev/design.md) (principles, quality goals, screen map, state flow, layout rules, medication state diagram).

@@ -35,4 +35,4 @@ The screenshots use synthetic data ("Medication A").
 - Positive: few notifications, one alarm at a time, behaviour that follows the data, and a pure domain rule that is unit tested.
 - Negative: reliability differs per manufacturer because of battery management. Mitigation: re-arm on boot, update and clock change, and a battery hint in Profile.
 - Negative: Taken all can record a dose that was not taken. The pillbox can correct any outcome.
-- Follow-up: tapping the notification opens the pillbox on Today and does not yet scroll to the slot. A pillbox that is already open does not refresh when Taken all is used from the notification; it shows the new state after it is opened again. With the app lock (`add-database-encryption-and-lock`) the lock text is owned by that change.
+- Follow-up: tapping the notification opens the pillbox on Today and does not yet scroll to the slot. A pillbox that is already open reloads when Taken all is used from the notification: `ReminderCoordinator` emits `ReminderHooks.outcomesRecorded` and `MedicationViewModel` collects it. With the app lock (`add-database-encryption-and-lock`) the lock text is owned by that change.

@@ -171,6 +171,7 @@ class MedicationViewModel(
 
     init {
         refresh()
+        viewModelScope.launch { reminders.outcomesRecorded.collect { load() } }
     }
 
     /** Reloads the profile, the medication list, the selected day and the week strip. */

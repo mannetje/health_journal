@@ -25,7 +25,7 @@ The pill button in the top bar opens the pillbox. The first time, a notice expla
 
 ## Reminders
 
-One notification per time slot, posted at the planned time. Taken all records the open items of the slot, Snooze posts it again after the length chosen in Profile. Neither button opens the app. The Profile tab holds the snooze length and the lock-screen setting. See [ADR 0022](../adr/0022-medication-reminders.md).
+One notification per time slot, posted at the planned time. Taken all records the open items of the slot, Snooze posts it again after the length chosen in Profile. Neither button opens the app, and a pillbox that is already open reloads after Taken all. The Profile tab holds the snooze length and the lock-screen setting. See [ADR 0022](../adr/0022-medication-reminders.md).
 
 | Notification | Profile settings |
 |--------------|------------------|

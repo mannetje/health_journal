@@ -2,6 +2,8 @@ package nl.healthjournal.app.reminder
 
 import android.content.Context
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import nl.healthjournal.app.settings.LanguagePreference
 import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.settings.withAppLocale
@@ -25,6 +27,9 @@ class ReminderCoordinator(
     private val preference: ReminderPreference
 ) : ReminderHooks {
 
+    private val recorded = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val outcomesRecorded: Flow<Unit> = recorded
+
     fun canScheduleExact(): Boolean = scheduler.canScheduleExact()
 
     override suspend fun changed() = guarded {
@@ -46,6 +51,7 @@ class ReminderCoordinator(
     suspend fun takeAll(slot: LocalDateTime) = guarded {
         activeProfile()?.let { takeAllForSlot(it, slot) }
         notifier.cancel(slot)
+        recorded.tryEmit(Unit)
     }
 
     suspend fun snooze(slot: LocalDateTime) = guarded {
