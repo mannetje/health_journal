@@ -7,7 +7,7 @@
 
 ## 2. Data
 - [x] 2.1 `DatabaseKeyProvider` (Keystore AES-GCM wrapping, no user-authentication binding, no-backup storage) and a `SupportOpenHelperFactory` for Room, with an instrumented test on key creation and reopen
-- [ ] 2.2 One-time plain to encrypted migration with row-count verification, keep the plain file until verified, failure keeps data and retries; tests on a seeded database including edge cases (empty, large, interrupted)
+- [x] 2.2 One-time plain to encrypted migration with row-count verification, keep the plain file until verified, failure keeps data and retries; tests on a seeded database including edge cases (empty, large, interrupted)
 
 ## 3. App
 - [ ] 3.1 `BiometricPrompt` with device credential, API 26 fallback, no-screen-lock handling, lock overlay that composes no health data, timeout options

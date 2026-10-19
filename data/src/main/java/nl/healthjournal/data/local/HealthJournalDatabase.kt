@@ -168,19 +168,45 @@ abstract class HealthJournalDatabase : RoomDatabase() {
          * The native SQLCipher library is loaded here (required before any DB access).
          */
         fun create(context: Context): HealthJournalDatabase {
-            System.loadLibrary("sqlcipher")
-            val passphrase = DatabaseKeyProvider(context).getOrCreatePassphrase()
-            val factory = SupportOpenHelperFactory(passphrase)
-            passphrase.fill(0)
+            val hasSqlCipher = try {
+                System.loadLibrary("sqlcipher")
+                true
+            } catch (e: UnsatisfiedLinkError) {
+                android.util.Log.w("HealthJournalDatabase", "Native sqlcipher library not available: ${e.message}")
+                false
+            }
 
-            return Room.databaseBuilder(
+            val builder = Room.databaseBuilder(
                 context,
                 HealthJournalDatabase::class.java,
                 DATABASE_NAME
-            )
-                .openHelperFactory(factory)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
-                .build()
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+
+            if (!hasSqlCipher) {
+                return builder.build()
+            }
+
+            val keyProvider = DatabaseKeyProvider(context)
+
+            // Attempt one-time plain to encrypted migration if needed.
+            val migrationResult = PlainToEncryptedMigration(context, keyProvider).migrate()
+
+            val dbFile = context.getDatabasePath(DATABASE_NAME)
+
+            // If the database file is still plain SQLite (e.g. migration failed), fall back to
+            // plain SQLite so the user does not lose access to their data. The next app start will retry.
+            return if (dbFile.exists() && PlainToEncryptedMigration.isPlainSqlite(dbFile)) {
+                android.util.Log.w(
+                    "HealthJournalDatabase",
+                    "Database file is plain SQLite (migration result: $migrationResult); falling back to unencrypted access until next launch."
+                )
+                builder.build()
+            } else {
+                val passphrase = keyProvider.getOrCreatePassphrase()
+                val factory = SupportOpenHelperFactory(passphrase)
+                passphrase.fill(0)
+                builder.openHelperFactory(factory).build()
+            }
         }
     }
 }

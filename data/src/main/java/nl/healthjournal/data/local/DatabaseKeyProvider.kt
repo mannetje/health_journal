@@ -23,7 +23,7 @@ import javax.crypto.spec.GCMParameterSpec
  * Thread-safety: all calls are expected from a single background thread (Room's open-helper
  * initialization). No additional synchronisation is provided here.
  */
-class DatabaseKeyProvider(context: Context) {
+open class DatabaseKeyProvider(context: Context) {
 
     // No-backup directory: excluded from cloud backup and device-transfer by the extraction rules
     // added in task 3.3. getNoBackupFilesDir() is available from API 21.
@@ -37,7 +37,7 @@ class DatabaseKeyProvider(context: Context) {
      * writes the ciphertext + IV to no-backup storage.
      * On subsequent calls, reads and unwraps the stored ciphertext.
      */
-    fun getOrCreatePassphrase(): ByteArray {
+    open fun getOrCreatePassphrase(): ByteArray {
         return if (ivFile.exists() && keyFile.exists()) {
             unwrap()
         } else {
