@@ -64,6 +64,12 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 |-------|------|
 | <img src="docs/screenshots/light-pillbox-adherence.png" width="250" alt="Adherence view with overall and per-medication taken, skipped and missed counts, light theme"> | <img src="docs/screenshots/dark-pillbox-adherence.png" width="250" alt="Adherence view with overall and per-medication taken, skipped and missed counts, dark theme"> |
 
+**History timeline navigation** (year and month rows follow the scrolling, sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="docs/screenshots/light-history-timeline.png" width="250" alt="History with year and month chips above the list and a month header, light theme"> | <img src="docs/screenshots/dark-history-timeline.png" width="250" alt="History with year and month chips above the list and a month header, dark theme"> |
+
 **App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](docs/adr/0011-app-icon-and-adaptive-layers.md)):
 
 <img src="docs/screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">

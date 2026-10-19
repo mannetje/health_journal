@@ -15,6 +15,6 @@
 
 ## 3. Docs
 - [x] 3.1 README (History), CHANGELOG (Unreleased), `docs/dev/design.md` (screen map, layout rules), `docs/dev/testing.md`, the specs index and `scripts/check-docs.sh`
-- [ ] 3.2 Screenshots of the History tab with the rows (light and dark, sample data)
+- [x] 3.2 Screenshots of the History tab with the rows (light and dark, sample data)
 - [ ] 3.3 Archive the change and merge the delta into `openspec/specs/entry-management`
 - [x] 3.4 Commits carry no attribution trailer
