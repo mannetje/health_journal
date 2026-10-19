@@ -4,6 +4,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Added
+- **Waist graphs** in a new Waist graph view (the Waist filter now has the graph icon too): a trend chart with the NHG limits as lines and band-coloured points (needs a sex in the profile), the lowest and highest waist, the change over a month, three months, six months and year in cm and percent, the distance to the NHG limits, the waist-to-height ratio over time with a 50 % rule-of-thumb line (needs a height in the profile), and a scatter chart of waist against weight with a trend line and one neutral sentence (needs 5 pairs within 3 days). Figures only, no good or bad colour; in English and Dutch.
+
 ## [1.5.6] - 2026-10-19
 
 ### Added

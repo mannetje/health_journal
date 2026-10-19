@@ -514,4 +514,22 @@
     <string name="stats_period_year">Jaar</string>
     <string name="stats_monthly_title">Verandering per maand</string>
     <string name="stats_yearly_title">Verandering per jaar</string>
+    <string name="trend_waist_title">Verloop middelomtrek</string>
+    <string name="waist_limits_legend">De lijnen tonen de NHG-grenzen voor jouw geslacht: %1$s cm en %2$s cm.</string>
+    <string name="waist_needs_sex">Stel je geslacht in op het Profielscherm om de NHG-grenzen te zien.</string>
+    <string name="waist_needs_height">Stel je lengte in op het Profielscherm om de verhouding tussen middelomtrek en lengte te zien.</string>
+    <string name="waist_extremes_title">Laagste en hoogste middelomtrek</string>
+    <string name="waist_lowest">Laagste middelomtrek</string>
+    <string name="waist_highest">Hoogste middelomtrek</string>
+    <string name="waist_change_title">Verandering middelomtrek</string>
+    <string name="waist_distance_title">Afstand tot de NHG-grenzen</string>
+    <string name="waist_distance_subtitle">Nieuwste middelomtrek min de grens; plus betekent erboven.</string>
+    <string name="waist_distance_to">Tot %1$s cm</string>
+    <string name="waist_ratio_title">Verhouding middelomtrek en lengte</string>
+    <string name="waist_ratio_subtitle">Middelomtrek gedeeld door lengte. De lijn bij 50 % is een vuistregel (middel op de helft van de lengte), geen NHG-grens.</string>
+    <string name="waist_scatter_title">Middelomtrek tegen gewicht</string>
+    <string name="waist_scatter_subtitle">Elke middelomtrek is gekoppeld aan het dichtstbijzijnde gewicht binnen %1$d dagen.</string>
+    <string name="waist_scatter_needs_more">Registreer minstens %1$d metingen van de middelomtrek met een gewicht binnen een paar dagen om een trendlijn te zien.</string>
+    <string name="waist_scatter_content_description">Spreidingsdiagram van %1$d paren gewicht en middelomtrek</string>
+    <string name="waist_scatter_slope">Ongeveer %1$s cm middelomtrek per %2$s</string>
 </resources>

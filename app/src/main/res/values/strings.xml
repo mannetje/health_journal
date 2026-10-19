@@ -514,4 +514,22 @@
     <string name="stats_period_year">Year</string>
     <string name="stats_monthly_title">Change per month</string>
     <string name="stats_yearly_title">Change per year</string>
+    <string name="trend_waist_title">Waist Trend</string>
+    <string name="waist_limits_legend">The lines mark the NHG limits for your sex: %1$s cm and %2$s cm.</string>
+    <string name="waist_needs_sex">Set your sex on the Profile screen to see the NHG limits.</string>
+    <string name="waist_needs_height">Set your height on the Profile screen to see the waist-to-height ratio.</string>
+    <string name="waist_extremes_title">Lowest and highest waist</string>
+    <string name="waist_lowest">Lowest waist</string>
+    <string name="waist_highest">Highest waist</string>
+    <string name="waist_change_title">Waist change</string>
+    <string name="waist_distance_title">Distance to the NHG limits</string>
+    <string name="waist_distance_subtitle">Newest waist minus the limit; plus means above it.</string>
+    <string name="waist_distance_to">To %1$s cm</string>
+    <string name="waist_ratio_title">Waist-to-height ratio</string>
+    <string name="waist_ratio_subtitle">Waist divided by height. The line at 50 % is a rule of thumb (waist at half the height), not an NHG limit.</string>
+    <string name="waist_scatter_title">Waist against weight</string>
+    <string name="waist_scatter_subtitle">Each waist is paired with the nearest weight within %1$d days.</string>
+    <string name="waist_scatter_needs_more">Log at least %1$d waist entries with a weight within a few days to see a trend line.</string>
+    <string name="waist_scatter_content_description">Scatter chart of %1$d pairs of weight and waist</string>
+    <string name="waist_scatter_slope">About %1$s cm of waist per %2$s</string>
 </resources>

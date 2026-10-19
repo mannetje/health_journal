@@ -13,6 +13,8 @@ import java.time.ZoneId
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import nl.healthjournal.app.ui.history.charts.WaistStatisticsSection
+import nl.healthjournal.app.ui.history.charts.WaistTrendSection
 import nl.healthjournal.app.ui.history.charts.WeightStatisticsSection
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -74,17 +76,21 @@ fun HistoryScreen(
     var weightGraph by rememberSaveable { mutableStateOf(false) }
     var bpGraph by rememberSaveable { mutableStateOf(false) }
     var glucoseGraph by rememberSaveable { mutableStateOf(false) }
+    var waistGraph by rememberSaveable { mutableStateOf(false) }
     val filterNow = state.selectedFilter
-    val hasChart = filterNow == HistoryFilter.WEIGHT || filterNow == HistoryFilter.BLOOD_PRESSURE || filterNow == HistoryFilter.GLUCOSE
+    val hasChart = filterNow == HistoryFilter.WEIGHT || filterNow == HistoryFilter.BLOOD_PRESSURE || filterNow == HistoryFilter.GLUCOSE ||
+        filterNow == HistoryFilter.WAIST_CIRCUMFERENCE
     val graphViewNow = hasChart && when (filterNow) {
         HistoryFilter.WEIGHT -> weightGraph
         HistoryFilter.BLOOD_PRESSURE -> bpGraph
+        HistoryFilter.WAIST_CIRCUMFERENCE -> waistGraph
         else -> glucoseGraph
     }
     val setGraphView: (HistoryFilter, Boolean) -> Unit = { f, on ->
         when (f) {
             HistoryFilter.WEIGHT -> weightGraph = on
             HistoryFilter.BLOOD_PRESSURE -> bpGraph = on
+            HistoryFilter.WAIST_CIRCUMFERENCE -> waistGraph = on
             else -> glucoseGraph = on
         }
     }
@@ -320,6 +326,15 @@ fun HistoryScreen(
                                     BloodPressureStatisticsSection(entries = state.bloodPressures, range = state.selectedDateRange)
                                 }
                                 HistoryFilter.GLUCOSE -> GlucoseTrendSection(entries = glucoses)
+                                HistoryFilter.WAIST_CIRCUMFERENCE -> {
+                                    WaistTrendSection(entries = waists, profile = state.activeProfile)
+                                    WaistStatisticsSection(
+                                        waists = waists,
+                                        allWaists = state.waistCircumferences,
+                                        weights = state.weights,
+                                        profile = state.activeProfile
+                                    )
+                                }
                                 else -> Unit
                             }
                         }
