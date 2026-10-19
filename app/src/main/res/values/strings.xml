@@ -571,4 +571,25 @@
         <item quantity="one">%d hour</item>
         <item quantity="other">%d hours</item>
     </plurals>
+
+    <!-- Security and App Lock (ADR 0023) -->
+    <string name="security_section_title">Security and privacy</string>
+    <string name="security_app_lock_title">Lock the app</string>
+    <string name="security_app_lock_desc">Require biometric or device credential to view health data.</string>
+    <string name="security_app_lock_unavailable">Device has no screen lock set up. Set a PIN, pattern or password in Android Settings to enable.</string>
+    <string name="security_timeout_label">Lock timeout</string>
+    <string name="security_timeout_immediately">Immediately</string>
+    <string name="security_timeout_one_minute">1 minute</string>
+    <string name="security_timeout_five_minutes">5 minutes</string>
+    <string name="security_secure_screen_title">Secure screen</string>
+    <string name="security_secure_screen_desc">Hide app content in recent apps and block screenshots.</string>
+
+    <string name="lock_overlay_title">Health Journal is locked</string>
+    <string name="lock_overlay_desc">Unlock with your fingerprint, face, or device PIN to continue.</string>
+    <string name="lock_overlay_unlock_button">Unlock</string>
+    <string name="lock_prompt_title">Unlock Health Journal</string>
+    <string name="lock_prompt_subtitle">Confirm your device credential</string>
+
+    <string name="privacy_backup_notice_title">Data storage &amp; backups</string>
+    <string name="privacy_backup_notice_body">Your health data is encrypted on this device. Because encryption keys are tied to this device and never leave it, data cannot be restored from a cloud backup or moved automatically to a new phone. Use CSV export in History to create backups or move your data.</string>
 </resources>

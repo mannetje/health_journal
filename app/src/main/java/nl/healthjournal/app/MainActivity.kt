@@ -8,8 +8,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
 import androidx.activity.viewModels
@@ -31,9 +32,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import nl.healthjournal.app.reminder.ReminderIntents
+import nl.healthjournal.app.lock.AppLockManager
+import nl.healthjournal.app.lock.BiometricAuthHelper
+import nl.healthjournal.app.settings.AppLockPreference
 import nl.healthjournal.app.settings.GlucoseUnitChoice
 import nl.healthjournal.app.settings.LanguagePreference
 import nl.healthjournal.app.settings.MedicationNoticePreference
+import nl.healthjournal.app.settings.SecureScreenPreference
 import nl.healthjournal.app.settings.ThemePreference
 import nl.healthjournal.app.settings.UnitPreference
 import nl.healthjournal.app.settings.UnitSystemChoice
@@ -41,15 +46,18 @@ import nl.healthjournal.app.settings.withAppLocale
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.history.HistoryScreen
 import nl.healthjournal.app.ui.history.HistoryViewModel
+import nl.healthjournal.app.ui.lock.LockOverlay
 import nl.healthjournal.app.ui.logging.LogMetricScreen
 import nl.healthjournal.app.ui.logging.LoggingViewModel
 import nl.healthjournal.app.ui.medication.MedicationNoticeDialog
 import nl.healthjournal.app.ui.medication.MedicationViewModel
 import nl.healthjournal.app.ui.medication.PillboxScreen
 import nl.healthjournal.app.ui.profile.ProfileScreen
+import nl.healthjournal.app.ui.profile.ProfileViewModel
 import nl.healthjournal.app.ui.profile.ReminderSettingsSection
 import nl.healthjournal.app.ui.profile.ReminderSettingsState
-import nl.healthjournal.app.ui.profile.ProfileViewModel
+import nl.healthjournal.app.ui.profile.SecuritySettingsSection
+import nl.healthjournal.app.ui.profile.SecuritySettingsState
 import nl.healthjournal.app.ui.theme.BrandNavy
 import nl.healthjournal.app.ui.theme.HealthJournalTheme
 
@@ -59,13 +67,36 @@ enum class AppNavDestination {
     PROFILE
 }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     private val app by lazy { application as HealthJournalApp }
 
     private val unitPreference by lazy { UnitPreference(this) }
     private val themePreference by lazy { ThemePreference(this) }
     private val noticePreference by lazy { MedicationNoticePreference(this) }
+    private val secureScreenPreference by lazy { SecureScreenPreference(this) }
+    private val appLockPreference by lazy { AppLockPreference(this) }
+    val appLockManager by lazy { AppLockManager(this, appLockPreference) }
+    private val biometricAuthHelper by lazy {
+        BiometricAuthHelper(this) {
+            appLockManager.onAuthenticated()
+        }
+    }
+
+    private val confirmDeviceCredentialLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                appLockManager.onAuthenticated()
+            }
+        }
+
+    fun applySecureScreen(enabled: Boolean) {
+        if (enabled) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
 
     private val profileViewModel: ProfileViewModel by viewModels {
         ProfileViewModel.Factory(
@@ -149,8 +180,14 @@ class MainActivity : ComponentActivity() {
     /** Notifications may be stale after time spent outside the app (a dose taken elsewhere, a changed schedule). */
     override fun onResume() {
         super.onResume()
+        appLockManager.onForegrounded()
         refreshReminderState()
         lifecycleScope.launch { app.reminders.changed() }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        appLockManager.onBackgrounded()
     }
 
     /** Applies the chosen app language and region to the whole Activity, including dialogs and pickers. */
@@ -162,6 +199,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applySecureScreen(secureScreenPreference.enabled)
         if (savedInstanceState == null && intent.getBooleanExtra(ReminderIntents.EXTRA_OPEN_PILLBOX, false)) {
             pillboxRequested = true
         }
@@ -177,8 +215,20 @@ class MainActivity : ComponentActivity() {
             // Resolved against the app locale (Locale.getDefault), so the Regional formats setting drives the default.
             val displayUnits = remember(unitSystemChoice, glucoseUnitChoice) { unitPreference.resolve() }
 
+            val lockState by appLockManager.lockState.collectAsState()
+            var appLockEnabled by remember { mutableStateOf(appLockManager.isEnabled) }
+            var lockTimeout by remember { mutableStateOf(appLockManager.timeout) }
+            var secureScreenEnabled by remember { mutableStateOf(secureScreenPreference.enabled) }
+
             CompositionLocalProvider(LocalDisplayUnits provides displayUnits) {
             HealthJournalTheme(choice = themeChoice) {
+                if (lockState.requiresAuthentication) {
+                    LockOverlay(
+                        onUnlock = {
+                            biometricAuthHelper.authenticate(confirmDeviceCredentialLauncher)
+                        }
+                    )
+                } else {
                 var currentTab by rememberSaveable { mutableStateOf(AppNavDestination.LOG) }
                 // The pillbox is a separate screen over the tabs, so Back returns to the tab it was opened from.
                 var showPillbox by rememberSaveable { mutableStateOf(false) }
@@ -358,6 +408,29 @@ class MainActivity : ComponentActivity() {
                                         onOpenNotificationSettings = ::openNotificationSettings,
                                         onOpenExactAlarmSettings = ::openExactAlarmSettings
                                     )
+                                },
+                                securitySettings = {
+                                    SecuritySettingsSection(
+                                        state = SecuritySettingsState(
+                                            appLockEnabled = appLockEnabled,
+                                            appLockAvailable = appLockManager.isAvailable,
+                                            timeout = lockTimeout,
+                                            secureScreenEnabled = secureScreenEnabled
+                                        ),
+                                        onAppLockChange = {
+                                            appLockEnabled = it
+                                            appLockManager.isEnabled = it
+                                        },
+                                        onTimeoutChange = {
+                                            lockTimeout = it
+                                            appLockManager.timeout = it
+                                        },
+                                        onSecureScreenChange = {
+                                            secureScreenEnabled = it
+                                            secureScreenPreference.enabled = it
+                                            applySecureScreen(it)
+                                        }
+                                    )
                                 }
                             )
                         }
@@ -391,6 +464,7 @@ class MainActivity : ComponentActivity() {
                             }) { Text(stringResource(R.string.reminder_permission_later)) }
                         }
                     )
+                }
                 }
             }
             }

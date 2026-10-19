@@ -10,15 +10,15 @@
 - [x] 2.2 One-time plain to encrypted migration with row-count verification, keep the plain file until verified, failure keeps data and retries; tests on a seeded database including edge cases (empty, large, interrupted)
 
 ## 3. App
-- [ ] 3.1 `BiometricPrompt` with device credential, API 26 fallback, no-screen-lock handling, lock overlay that composes no health data, timeout options
-- [ ] 3.2 Secure-screen setting (`FLAG_SECURE`)
-- [ ] 3.3 Data extraction rules per decision 0.2, and a check that the encrypted files and the wrapped key are excluded
-- [ ] 3.4 Privacy notice and README: data cannot be restored from backup or moved between devices, CSV export is the way (English and Dutch)
-- [ ] 3.5 English and Dutch strings for the lock, prompt text, migration messages; layout check at 1.3x and 2.0x
+- [x] 3.1 `BiometricPrompt` with device credential, API 26 fallback, no-screen-lock handling, lock overlay that composes no health data, timeout options
+- [x] 3.2 Secure-screen setting (`FLAG_SECURE`)
+- [x] 3.3 Data extraction rules per decision 0.2, and a check that the encrypted files and the wrapped key are excluded
+- [x] 3.4 Privacy notice and README: data cannot be restored from backup or moved between devices, CSV export is the way (English and Dutch)
+- [x] 3.5 English and Dutch strings for the lock, prompt text, migration messages; layout check at 1.3x and 2.0x
 - [ ] 3.6 Emulator and real-device check, including biometric enrolment change, reboot, an interrupted migration and a restore on another device
 
 ## 4. Docs
-- [ ] 4.1 ADR 0023: threat model, why device credential and not an own PIN, why SQLCipher, licence, size and 16 KB page check, fallbacks, honest limits, ADR 0003 exception
+- [x] 4.1 ADR 0023: threat model, why device credential and not an own PIN, why SQLCipher, licence, size and 16 KB page check, fallbacks, honest limits, ADR 0003 exception
 - [ ] 4.2 README, CHANGELOG (Unreleased), affected specs, the ADR index and `scripts/check-docs.sh`
 - [ ] 4.3 Archive the change and merge the deltas into `openspec/specs`
 - [ ] 4.4 Commits carry no attribution trailer

@@ -30,4 +30,28 @@ class PrivacyChecksTest {
         }
         assertTrue("Logging can leak names and doses: ${offenders.map { it.path }}", offenders.isEmpty())
     }
+
+    @Test
+    fun backupRulesExcludeEncryptedDatabaseAndKeyMaterial() {
+        val manifest = File("src/main/AndroidManifest.xml").readText()
+        assertTrue("Manifest must configure dataExtractionRules", manifest.contains("android:dataExtractionRules=\"@xml/data_extraction_rules\""))
+        assertTrue("Manifest must configure fullBackupContent", manifest.contains("android:fullBackupContent=\"@xml/backup_rules\""))
+        assertTrue("Manifest must keep allowBackup=true", manifest.contains("android:allowBackup=\"true\""))
+
+        val dataExtractionRules = File("src/main/res/xml/data_extraction_rules.xml").readText()
+        assertTrue("data_extraction_rules must exclude database from cloud-backup",
+            dataExtractionRules.contains("<exclude domain=\"database\" path=\"health_journal.db\""))
+        assertTrue("data_extraction_rules must exclude no_backup key material from cloud-backup",
+            dataExtractionRules.contains("<exclude domain=\"root\" path=\"no_backup\""))
+        assertTrue("data_extraction_rules must exclude database from device-transfer",
+            dataExtractionRules.contains("<exclude domain=\"database\" path=\"health_journal.db\""))
+        assertTrue("data_extraction_rules must exclude no_backup key material from device-transfer",
+            dataExtractionRules.contains("<exclude domain=\"root\" path=\"no_backup\""))
+
+        val backupRules = File("src/main/res/xml/backup_rules.xml").readText()
+        assertTrue("backup_rules must exclude database",
+            backupRules.contains("<exclude domain=\"database\" path=\"health_journal.db\""))
+        assertTrue("backup_rules must exclude no_backup",
+            backupRules.contains("<exclude domain=\"root\" path=\"no_backup\""))
+    }
 }

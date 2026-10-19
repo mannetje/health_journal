@@ -571,4 +571,25 @@
         <item quantity="one">%d uur</item>
         <item quantity="other">%d uur</item>
     </plurals>
+
+    <!-- Security and App Lock (ADR 0023) -->
+    <string name="security_section_title">Beveiliging en privacy</string>
+    <string name="security_app_lock_title">Vergrendel de app</string>
+    <string name="security_app_lock_desc">Vraag om biometrie of apparaatvergrendeling om gezondheidsgegevens te bekijken.</string>
+    <string name="security_app_lock_unavailable">Geen schermvergrendeling ingesteld. Stel een pincode, patroon of wachtwoord in via Android-instellingen om dit in te schakelen.</string>
+    <string name="security_timeout_label">Vergrendel na</string>
+    <string name="security_timeout_immediately">Direct</string>
+    <string name="security_timeout_one_minute">1 minuut</string>
+    <string name="security_timeout_five_minutes">5 minuten</string>
+    <string name="security_secure_screen_title">Beveiligd scherm</string>
+    <string name="security_secure_screen_desc">Verberg app-inhoud in het overzicht van recente apps en blokkeer schermafbeeldingen.</string>
+
+    <string name="lock_overlay_title">Health Journal is vergrendeld</string>
+    <string name="lock_overlay_desc">Ontgrendel met je vingerafdruk, gezichtsherkenning of apparaatpincode om verder te gaan.</string>
+    <string name="lock_overlay_unlock_button">Ontgrendelen</string>
+    <string name="lock_prompt_title">Health Journal ontgrendelen</string>
+    <string name="lock_prompt_subtitle">Bevestig je identiteit</string>
+
+    <string name="privacy_backup_notice_title">Gegevensopslag en back-up</string>
+    <string name="privacy_backup_notice_body">Je gezondheidsgegevens zijn versleuteld op dit apparaat. Omdat sleutels aan dit apparaat gekoppeld zijn en het nooit verlaten, kunnen gegevens niet worden hersteld vanuit een cloudback-up of automatisch naar een nieuw toestel worden overgezet. Gebruik CSV-export in Geschiedenis om een back-up te bewaren of gegevens over te zetten.</string>
 </resources>

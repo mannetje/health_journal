@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <exclude domain="database" path="health_journal.db" />
+    <exclude domain="database" path="health_journal.db-journal" />
+    <exclude domain="database" path="health_journal.db-wal" />
+    <exclude domain="database" path="health_journal.db-shm" />
+    <exclude domain="root" path="no_backup" />
+</full-backup-content>

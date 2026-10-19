@@ -4,6 +4,12 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Added
+- **Database encryption at rest:** The Room SQLite database is encrypted with SQLCipher (AES-256) using a 256-bit passphrase wrapped by a hardware-backed Android Keystore key (TEE/StrongBox) without user-authentication binding ([ADR 0023](docs/adr/0023-database-encryption-and-app-lock.md)). A one-time migration safely converts existing plain databases to encrypted files with row-count verification.
+- **Opt-in App Lock:** Protect app data behind the device's own credential (strong biometrics or screen lock PIN/pattern/password) via BiometricPrompt, with configurable background timeout (immediately, 1 minute, 5 minutes). While locked, no health data is rendered.
+- **Secure Screen:** An opt-in setting in Profile that enables `FLAG_SECURE` to block screenshots and hide app previews in the recent apps switcher.
+- **Data extraction rules:** Excludes the encrypted database and key material from cloud backups and device transfer, preventing silent data loss upon restore on new devices.
+
 ## [1.5.9] - 2026-10-19
 
 ### Added

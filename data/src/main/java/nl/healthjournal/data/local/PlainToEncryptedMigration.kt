@@ -2,7 +2,6 @@ package nl.healthjournal.data.local
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import android.util.Log
 import nl.healthjournal.data.local.HealthJournalDatabase.Companion.DATABASE_NAME
 import java.io.File
 import java.io.FileInputStream
@@ -44,8 +43,6 @@ class PlainToEncryptedMigration(
             return MigrationResult.AlreadyEncrypted
         }
 
-        Log.i(TAG, "Starting one-time migration from plain SQLite to SQLCipher encrypted database.")
-
         val tempEncFile = File(plainFile.parentFile, TEMP_ENC_NAME)
         // Clean up any stale temp file from earlier crashed runs
         cleanupFiles(tempEncFile)
@@ -60,7 +57,6 @@ class PlainToEncryptedMigration(
             }
         } catch (e: Exception) {
             val msg = "Failed to inspect plain database: ${e.message}"
-            Log.e(TAG, msg, e)
             return MigrationResult.Failed(msg)
         }
 
@@ -69,7 +65,6 @@ class PlainToEncryptedMigration(
             passphrase = keyProvider.getOrCreatePassphrase()
         } catch (e: Exception) {
             val msg = "Failed to obtain passphrase from DatabaseKeyProvider: ${e.message}"
-            Log.e(TAG, msg, e)
             return MigrationResult.Failed(msg)
         }
 
@@ -90,11 +85,9 @@ class PlainToEncryptedMigration(
                 cleanupFiles(tempEncFile)
             }
 
-            Log.i(TAG, "Plain to encrypted migration completed successfully.")
             return MigrationResult.Success
         } catch (e: Exception) {
             val msg = "Migration failed: ${e.message}"
-            Log.e(TAG, msg, e)
             cleanupFiles(tempEncFile)
             return MigrationResult.Failed(msg)
         } finally {
@@ -135,7 +128,6 @@ class PlainToEncryptedMigration(
     }
 
     companion object {
-        private const val TAG = "PlainToEncryptedMigrate"
         const val TEMP_ENC_NAME = "health_journal_enc.db"
 
         private val SQLITE_HEADER = "SQLite format 3\u0000".toByteArray(Charsets.US_ASCII)

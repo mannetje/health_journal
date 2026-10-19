@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="database" path="health_journal.db" />
+        <exclude domain="database" path="health_journal.db-journal" />
+        <exclude domain="database" path="health_journal.db-wal" />
+        <exclude domain="database" path="health_journal.db-shm" />
+        <exclude domain="root" path="no_backup" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="database" path="health_journal.db" />
+        <exclude domain="database" path="health_journal.db-journal" />
+        <exclude domain="database" path="health_journal.db-wal" />
+        <exclude domain="database" path="health_journal.db-shm" />
+        <exclude domain="root" path="no_backup" />
+    </device-transfer>
+</data-extraction-rules>

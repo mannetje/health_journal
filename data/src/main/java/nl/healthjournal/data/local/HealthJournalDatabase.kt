@@ -171,8 +171,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
             val hasSqlCipher = try {
                 System.loadLibrary("sqlcipher")
                 true
-            } catch (e: UnsatisfiedLinkError) {
-                android.util.Log.w("HealthJournalDatabase", "Native sqlcipher library not available: ${e.message}")
+            } catch (_: UnsatisfiedLinkError) {
                 false
             }
 
@@ -189,17 +188,13 @@ abstract class HealthJournalDatabase : RoomDatabase() {
             val keyProvider = DatabaseKeyProvider(context)
 
             // Attempt one-time plain to encrypted migration if needed.
-            val migrationResult = PlainToEncryptedMigration(context, keyProvider).migrate()
+            PlainToEncryptedMigration(context, keyProvider).migrate()
 
             val dbFile = context.getDatabasePath(DATABASE_NAME)
 
             // If the database file is still plain SQLite (e.g. migration failed), fall back to
             // plain SQLite so the user does not lose access to their data. The next app start will retry.
             return if (dbFile.exists() && PlainToEncryptedMigration.isPlainSqlite(dbFile)) {
-                android.util.Log.w(
-                    "HealthJournalDatabase",
-                    "Database file is plain SQLite (migration result: $migrationResult); falling back to unencrypted access until next launch."
-                )
                 builder.build()
             } else {
                 val passphrase = keyProvider.getOrCreatePassphrase()
