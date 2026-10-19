@@ -37,14 +37,25 @@ import java.time.Instant
 import java.time.ZoneId
 import kotlin.math.max
 
-/** Beyond this many points a series is drawn as a plain line: markers would merge into a thick band. */
-private const val MAX_MARKED_POINTS = 60
+private const val FULL_SIZE_POINTS = 30
+private const val SMALLEST_SIZE_POINTS = 300
+private const val FULL_MARKER_DP = 9f
+private const val SMALLEST_MARKER_DP = 3f
+
+/**
+ * Marker diameter in dp for a series of [pointCount] points: full size up to 30 points, shrinking linearly to
+ * 3 dp at 300 points and more, so dots on a long history never merge into a thick band.
+ */
+internal fun markerSizeDp(pointCount: Int): Float {
+    val t = ((pointCount - FULL_SIZE_POINTS).toFloat() / (SMALLEST_SIZE_POINTS - FULL_SIZE_POINTS)).coerceIn(0f, 1f)
+    return FULL_MARKER_DP + (SMALLEST_MARKER_DP - FULL_MARKER_DP) * t
+}
 
 data class ChartPoint(val timestamp: Instant, val value: Float)
 
 /**
  * One line. [pointColors], when given, is parallel to [points] and draws a marker per point in that colour
- * (used to tint readings by band); without it, or with more than 60 points, the line has no markers.
+ * (used to tint readings by band); the markers shrink as the series grows, see [markerSizeDp].
  */
 data class ChartSeries(
     val points: List<ChartPoint>,
@@ -117,9 +128,7 @@ fun LineTrendChart(
             LineCartesianLayer.Line(
                 fill = LineCartesianLayer.LineFill.single(Fill(s.color)),
                 stroke = LineCartesianLayer.LineStroke.Continuous(thickness = s.strokeWidthDp.dp),
-                pointProvider = s.pointColors
-                    ?.takeIf { s.points.size <= MAX_MARKED_POINTS }
-                    ?.let { colors -> tintedPoints(s, colors, referenceEpochSecond) }
+                pointProvider = s.pointColors?.let { colors -> tintedPoints(s, colors, referenceEpochSecond) }
             )
         }
     )
@@ -150,7 +159,6 @@ fun LineTrendChart(
 }
 
 private const val SECONDS_PER_HOUR = 3600L
-private val MarkerSize = 9.dp
 
 /** Markers keyed by the x-value ([hoursSince]) of their point, so each reading keeps its own colour. */
 private class TintedPointProvider(
@@ -163,14 +171,15 @@ private class TintedPointProvider(
 }
 
 private fun tintedPoints(series: ChartSeries, colors: List<Color>, referenceEpochSecond: Long): LineCartesianLayer.PointProvider {
+    val sizeDp = markerSizeDp(series.points.size)
     fun marker(color: Color) = LineCartesianLayer.Point(
         component = ShapeComponent(
             fill = Fill(color),
             shape = CircleShape,
             strokeFill = Fill(series.color),
-            strokeThickness = 1.5.dp
+            strokeThickness = (sizeDp / 6f).dp
         ),
-        size = MarkerSize
+        size = sizeDp.dp
     )
     val points = series.points.indices.associate { i ->
         hoursSince(referenceEpochSecond, series.points[i].timestamp).toDouble() to marker(colors[i])

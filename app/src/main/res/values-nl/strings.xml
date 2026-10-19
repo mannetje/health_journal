@@ -155,7 +155,7 @@
     <string name="trend_stat_min">Min</string>
     <string name="trend_stat_max">Max</string>
     <string name="trend_stat_average">Gemiddelde</string>
-    <string name="trend_stat_tir">Tijd in Bereik</string>
+    <string name="trend_stat_tir">Tijd in bereik</string>
     <string name="trend_stat_count">Metingen</string>
     <string name="trend_moving_average_n">%1$d-metingen gem.</string>
     <string name="trend_weight_title">Gewichtstrend</string>

@@ -4,6 +4,14 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.5.8] - 2026-10-19
+
+### Changed
+- **Dots on long histories:** the dots on the weight, waist and glucose charts now shrink as the history grows (9 dp up to 30 points, 3 dp from 300 points) instead of disappearing beyond 60 points, so the "All" range shows dots too without merging into a thick band.
+
+### Fixed
+- Dutch: "Tijd in Bereik" is now "Tijd in bereik", like the other texts.
+
 ## [1.5.7] - 2026-10-19
 
 ### Added

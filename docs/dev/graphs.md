@@ -69,5 +69,5 @@ Change: `openspec/changes/archive/` (`add-glucose-graphs`). Files: `GlucoseStati
 
 - `@Composable` functions (`MaterialTheme.colorScheme`, `getGlucoseColor`, `stringResource`) cannot be called from a plain local `fun` or non-inline lambda. Inline lambdas (`map`, `buildList`, `forEach`) are fine; otherwise compute colours first and pass them in.
 - `LineTrendChart` shows the empty message with fewer than two points in total. Guard series construction the way `WaistTrendSection` does.
-- `LineTrendChart` draws point markers only for series of at most 60 points (`MAX_MARKED_POINTS` in `ChartPrimitives.kt`); longer series are a plain line, otherwise the dots merge into a thick band.
+- Point markers shrink with the length of the series (`markerSizeDp` in `ChartPrimitives.kt`: 9 dp up to 30 points, 3 dp from 300). Do not give long series a fixed marker size, otherwise the dots merge into a thick band.
 - Do not trust the clock: use the newest entry as "now", and test with fixed dates.

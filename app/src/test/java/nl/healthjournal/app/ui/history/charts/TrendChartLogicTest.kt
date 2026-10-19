@@ -65,4 +65,13 @@ class TrendChartLogicTest {
         assertEquals("1 Jan 2026", formatTick(TickStep(TickUnit.DAY, 1, 1.0), jan, true, utc))
         assertEquals("1 Jan", formatTick(TickStep(TickUnit.DAY, 1, 1.0), jan, false, utc))
     }
+
+    @Test
+    fun `markers keep full size on short series and shrink on long ones`() {
+        assertEquals(9f, markerSizeDp(1), 1e-6f)
+        assertEquals(9f, markerSizeDp(30), 1e-6f)
+        assertEquals(6f, markerSizeDp(165), 1e-6f)
+        assertEquals(3f, markerSizeDp(300), 1e-6f)
+        assertEquals(3f, markerSizeDp(5000), 1e-6f)
+    }
 }
