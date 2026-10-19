@@ -136,5 +136,5 @@ The database file `health_journal.db` is encrypted at rest using SQLCipher (AES-
 - The 256-bit passphrase is generated randomly on-device, wrapped (AES-GCM) by a hardware-backed non-exportable Android Keystore key (TEE/StrongBox), and stored in no-backup storage (`no_backup/db_key.iv` and `no_backup/db_key.enc`).
 - The key does not require user authentication, so changing screen locks or biometric enrollment does not invalidate the key.
 - Existing plain databases are automatically migrated to encrypted databases upon first launch via `PlainToEncryptedMigration` with table row-count verification.
-- See [ADR 0023](../adr/0023-database-encryption-and-app-lock.md).
+- See [Privacy and security](privacy-and-security.md) for sequence diagrams and key wrapping details, and [ADR 0023](../adr/0023-database-encryption-and-app-lock.md).
 
