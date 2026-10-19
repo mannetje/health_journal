@@ -15,10 +15,10 @@
 - [x] 3.3 Data extraction rules per decision 0.2, and a check that the encrypted files and the wrapped key are excluded
 - [x] 3.4 Privacy notice and README: data cannot be restored from backup or moved between devices, CSV export is the way (English and Dutch)
 - [x] 3.5 English and Dutch strings for the lock, prompt text, migration messages; layout check at 1.3x and 2.0x
-- [ ] 3.6 Emulator and real-device check, including biometric enrolment change, reboot, an interrupted migration and a restore on another device
+- [x] 3.6 Emulator and real-device check, including biometric enrolment change, reboot, an interrupted migration and a restore on another device
 
 ## 4. Docs
 - [x] 4.1 ADR 0023: threat model, why device credential and not an own PIN, why SQLCipher, licence, size and 16 KB page check, fallbacks, honest limits, ADR 0003 exception
-- [ ] 4.2 README, CHANGELOG (Unreleased), affected specs, the ADR index and `scripts/check-docs.sh`
-- [ ] 4.3 Archive the change and merge the deltas into `openspec/specs`
-- [ ] 4.4 Commits carry no attribution trailer
+- [x] 4.2 README, CHANGELOG (Unreleased), affected specs, the ADR index and `scripts/check-docs.sh`
+- [x] 4.3 Archive the change and merge the deltas into `openspec/specs`
+- [x] 4.4 Commits carry no attribution trailer
