@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -27,7 +28,6 @@ import nl.healthjournal.app.R
 import java.time.Month
 import java.time.YearMonth
 import java.time.format.TextStyle
-import java.util.Locale
 
 /**
  * The year row and the month row above the History list. Which chips are selected is decided by the caller
@@ -49,6 +49,7 @@ fun TimelineRows(
     LaunchedEffect(selected) { monthState.animateScrollToItem(selected.monthValue - 1) }
     val withEntries = timeline.monthsWithEntries(selected.year)
     val noEntries = stringResource(R.string.history_nav_no_entries)
+    val locale = LocalConfiguration.current.locales[0]
 
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         LazyRow(state = yearState, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -71,7 +72,7 @@ fun TimelineRows(
                     selected = isSelected,
                     enabled = hasEntries,
                     onClick = { onMonth(target) },
-                    label = { Text(month.getDisplayName(TextStyle.SHORT, Locale.getDefault()), maxLines = 1) },
+                    label = { Text(month.getDisplayName(TextStyle.SHORT, locale), maxLines = 1) },
                     leadingIcon = if (isSelected) ({ Icon(Icons.Filled.Check, contentDescription = null) }) else null,
                     modifier = if (hasEntries) Modifier else Modifier.semantics { stateDescription = noEntries }
                 )
@@ -83,8 +84,9 @@ fun TimelineRows(
 /** The header before the first entry of a month: "August 2025" and how many entries it holds. */
 @Composable
 fun MonthHeader(month: YearMonth, count: Int, modifier: Modifier = Modifier) {
-    val name = month.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
-        .replaceFirstChar { it.titlecase(Locale.getDefault()) }
+    val locale = LocalConfiguration.current.locales[0]
+    val name = month.month.getDisplayName(TextStyle.FULL_STANDALONE, locale)
+        .replaceFirstChar { it.titlecase(locale) }
     Row(
         modifier = modifier
             .fillMaxWidth()
