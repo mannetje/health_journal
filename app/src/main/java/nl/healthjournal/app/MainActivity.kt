@@ -345,6 +345,7 @@ class MainActivity : FragmentActivity() {
                         profileViewModel.clearMessages()
                         historyViewModel.clearMessages()
                         medicationViewModel.clearMessages()
+                        backupViewModel.clearMessages()
                     }
                 }
                 LaunchedEffect(showPillbox) {
