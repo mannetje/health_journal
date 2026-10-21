@@ -58,6 +58,7 @@ import nl.healthjournal.app.ui.logging.LoggingViewModel
 import nl.healthjournal.app.ui.medication.MedicationNoticeDialog
 import nl.healthjournal.app.ui.medication.MedicationViewModel
 import nl.healthjournal.app.ui.medication.PillboxScreen
+import nl.healthjournal.app.ui.mindfulness.MindfulnessArea
 import nl.healthjournal.app.ui.profile.ProfileScreen
 import nl.healthjournal.domain.usecase.RestoreBackupUseCase
 import nl.healthjournal.app.ui.profile.ProfileViewModel
@@ -313,7 +314,10 @@ class MainActivity : FragmentActivity() {
                 var showPillbox by rememberSaveable { mutableStateOf(false) }
                 // Set by a tap on a reminder notification; the pillbox then shows Today whatever it showed before.
                 var openPillboxOnToday by remember { mutableStateOf(false) }
+                // Mindfulness is also a screen over the tabs; it and the pillbox are never open together.
+                var showMindfulness by rememberSaveable { mutableStateOf(false) }
                 BackHandler(enabled = showPillbox) { showPillbox = false }
+                BackHandler(enabled = showMindfulness) { showMindfulness = false }
 
                 var snoozeMinutes by remember { mutableStateOf(app.reminderPreference.snoozeMinutes) }
                 var showDetails by remember { mutableStateOf(app.reminderPreference.showDetailsOnLockScreen) }
@@ -329,6 +333,7 @@ class MainActivity : FragmentActivity() {
                 }
                 LaunchedEffect(pillboxRequested) {
                     if (pillboxRequested) {
+                        showMindfulness = false
                         showPillbox = true
                         openPillboxOnToday = true
                         pillboxRequested = false
@@ -353,12 +358,13 @@ class MainActivity : FragmentActivity() {
                 }
 
                 val pillboxDescription = stringResource(R.string.nav_pillbox_desc)
+                val mindfulnessDescription = stringResource(R.string.nav_mindfulness_desc)
                 Scaffold(
                     topBar = {
                         TopAppBar(
                             title = {
                                 Text(
-                                    if (showPillbox) stringResource(R.string.nav_title_pillbox) else when (currentTab) {
+                                    if (showPillbox) stringResource(R.string.nav_title_pillbox) else if (showMindfulness) stringResource(R.string.nav_title_mindfulness) else when (currentTab) {
                                         AppNavDestination.LOG -> stringResource(R.string.nav_title_log)
                                         AppNavDestination.HISTORY -> stringResource(R.string.nav_title_history)
                                         AppNavDestination.PROFILE -> stringResource(R.string.nav_title_profile)
@@ -367,12 +373,21 @@ class MainActivity : FragmentActivity() {
                             },
                             actions = {
                                 IconButton(
-                                    onClick = { showPillbox = true },
+                                    onClick = { showMindfulness = false; showPillbox = true },
                                     modifier = Modifier.size(48.dp)
                                 ) {
                                     Text(
                                         "💊",
                                         modifier = Modifier.semantics { contentDescription = pillboxDescription }
+                                    )
+                                }
+                                IconButton(
+                                    onClick = { showPillbox = false; showMindfulness = true },
+                                    modifier = Modifier.size(48.dp)
+                                ) {
+                                    Text(
+                                        "🪷",
+                                        modifier = Modifier.semantics { contentDescription = mindfulnessDescription }
                                     )
                                 }
                                 Image(
@@ -392,20 +407,20 @@ class MainActivity : FragmentActivity() {
                     bottomBar = {
                         NavigationBar {
                             NavigationBarItem(
-                                selected = !showPillbox && currentTab == AppNavDestination.LOG,
-                                onClick = { showPillbox = false; currentTab = AppNavDestination.LOG },
+                                selected = !showPillbox && !showMindfulness && currentTab == AppNavDestination.LOG,
+                                onClick = { showPillbox = false; showMindfulness = false; currentTab = AppNavDestination.LOG },
                                 label = { Text(stringResource(R.string.nav_tab_log)) },
                                 icon = { Text("📝") }
                             )
                             NavigationBarItem(
-                                selected = !showPillbox && currentTab == AppNavDestination.HISTORY,
-                                onClick = { showPillbox = false; currentTab = AppNavDestination.HISTORY },
+                                selected = !showPillbox && !showMindfulness && currentTab == AppNavDestination.HISTORY,
+                                onClick = { showPillbox = false; showMindfulness = false; currentTab = AppNavDestination.HISTORY },
                                 label = { Text(stringResource(R.string.nav_tab_history)) },
                                 icon = { Text("📊") }
                             )
                             NavigationBarItem(
-                                selected = !showPillbox && currentTab == AppNavDestination.PROFILE,
-                                onClick = { showPillbox = false; currentTab = AppNavDestination.PROFILE },
+                                selected = !showPillbox && !showMindfulness && currentTab == AppNavDestination.PROFILE,
+                                onClick = { showPillbox = false; showMindfulness = false; currentTab = AppNavDestination.PROFILE },
                                 label = { Text(stringResource(R.string.nav_tab_profile)) },
                                 icon = { Text("👤") }
                             )
@@ -428,6 +443,8 @@ class MainActivity : FragmentActivity() {
                                     noticeAccepted = true
                                 }
                             )
+                        } else if (showMindfulness) {
+                            MindfulnessArea()
                         } else when (currentTab) {
                             AppNavDestination.LOG -> LogMetricScreen(
                                 viewModel = loggingViewModel,
