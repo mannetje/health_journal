@@ -21,7 +21,7 @@ The Migraine log follows the structure of a metric (`docs/dev/how-to/add-a-metri
 
 ### 2. Data (`:data`)
 - `MigraineEntity` and `MigraineDao`, table `migraine_entries` indexed by profile and start. Mapper to and from the domain entry; code sets are stored as comma-separated names and unknown names are ignored on read.
-- **Database version 6 → 7, `MIGRATION_6_7`**, added to the `addMigrations` list: it only runs `CREATE TABLE IF NOT EXISTS` and the index. Read-mapping alternative considered: columns on an existing table or a JSON blob, rejected in [ADR 0025](../../../docs/adr/0025-migraine-log-data-model.md). A migration test opens a version 6 database with data and checks that it opens as version 7 with the old rows and an empty table.
+- **Database version 7 → 8, `MIGRATION_7_8`**, added to the `addMigrations` list: it only runs `CREATE TABLE IF NOT EXISTS` and the index. Read-mapping alternative considered: columns on an existing table or a JSON blob, rejected in [ADR 0025](../../../docs/adr/0025-migraine-log-data-model.md). A migration test opens a version 7 database with data and checks that it opens as version 8 with the old rows and an empty table.
 - `RoomHealthLogRepository` implements the new port methods; `DataModule` needs no new wiring beyond the DAO.
 - CSV adapters write and read the migraine file with `CsvQuoting.cell`; the backup snapshot and restore include the `migraines` list.
 
@@ -42,7 +42,7 @@ Entry, rules and statistics are in `:domain` with no Android imports; the table,
 - Wording is the main compliance risk, so the wording rules are enforced by a test and by the spec.
 
 ## Migration Plan
-1. Add the table and `MIGRATION_6_7`, with the migration test.
+1. Add the table and `MIGRATION_7_8`, with the migration test.
 2. Domain model, statistics and tests, then the repository and CSV.
 3. Backup list and the `docs/backup-format/` changes with the shared test vectors.
 4. Screens: card, logging steps, History, Migraine view, calendar.

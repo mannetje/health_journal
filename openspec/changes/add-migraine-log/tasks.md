@@ -11,7 +11,7 @@
 - [ ] 1.1 `MigraineEntry` and enums with validation and derived values; JVM tests
 - [ ] 1.2 `MigraineStatistics` pure functions; JVM tests for empty range, single entry, ongoing entry, midnight, time-of-day and bucket boundaries, week start
 - [ ] 1.3 Port methods and use cases (record, update, delete, end)
-- [ ] 1.4 `MigraineEntity`, DAO, mapper, `MIGRATION_6_7`, version 7, repository methods; migration test from version 6
+- [ ] 1.4 `MigraineEntity`, DAO, mapper, `MIGRATION_7_8`, version 8, repository methods; migration test from version 7
 - [ ] 1.5 CSV export and import with codes and row rejection; tests including round trip and ongoing
 - [ ] 1.6 Backup snapshot and restore of `migraines`; older file and newer file tests
 

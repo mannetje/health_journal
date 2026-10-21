@@ -33,7 +33,7 @@ People who get migraines want to note when one starts and ends, how strong it wa
 - **Modified Capability:** `localization` (migraine text in English and Dutch)
 
 ## Impact
-- **Database:** Room version 6 → 7 with `MIGRATION_6_7` creating one new table `migraine_entries` (profile id, start, nullable end, intensity, areas, type, symptoms, triggers, took-something, medication text, second dose, comment). Existing tables are untouched, so old data stays readable and an upgrade only adds an empty table. The migration is covered by a migration test.
+- **Database:** Room version 7 → 8 with `MIGRATION_7_8` creating one new table `migraine_entries` (profile id, start, nullable end, intensity, areas, type, symptoms, triggers, took-something, medication text, second dose, comment). Existing tables are untouched, so old data stays readable and an upgrade only adds an empty table. The migration is covered by a migration test.
 - **Stored data shape:** the backup document gains a `migraines` list per profile and `schemaVersion` stays 1 (readers ignore unknown properties; an older reader restoring a newer file loses only the migraines, and the docs say so). `docs/backup-format/` (README, JSON schema, `hjbackup.py`, test vectors, recovery page) is updated. The CSV gains a migraine section in the same conventions.
 - **Affected code:** value object, entry, statistics functions and use cases in `:domain` (pure Kotlin, JVM tests including empty range, single entry and ongoing entry); entity, DAO, mapper, repository methods, migration and CSV adapters in `:data`; Log card, step screen, History row and edit, graph view and calendar in `:app`.
 - **Dependencies and permissions:** none.
