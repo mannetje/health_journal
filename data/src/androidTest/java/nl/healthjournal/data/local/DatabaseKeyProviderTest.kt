@@ -7,6 +7,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.security.KeyStore
 
 /**
  * Instrumented tests for [DatabaseKeyProvider].
@@ -73,6 +74,68 @@ class DatabaseKeyProviderTest {
             "Passphrase must not be all zeroes",
             passphrase.all { it == 0.toByte() }
         )
+    }
+
+    @Test
+    fun key_creation_leaves_no_temporary_files() {
+        provider.getOrCreatePassphrase()
+        val names = context.noBackupFilesDir.listFiles().orEmpty().map { it.name }.toSet()
+        assertEquals(
+            "Only the two key files may exist (no leftover .tmp from the atomic write)",
+            setOf(DatabaseKeyProvider.WRAPPED_IV_FILE, DatabaseKeyProvider.WRAPPED_KEY_FILE),
+            names
+        )
+    }
+
+    @Test
+    fun hasStoredKey_is_false_until_a_key_is_created() {
+        assertFalse(provider.hasStoredKey())
+        provider.getOrCreatePassphrase()
+        assertTrue(provider.hasStoredKey())
+    }
+
+    @Test
+    fun a_single_leftover_key_file_does_not_count_as_a_stored_key() {
+        provider.getOrCreatePassphrase()
+        context.noBackupFilesDir.resolve(DatabaseKeyProvider.WRAPPED_KEY_FILE).delete()
+        assertFalse(provider.hasStoredKey())
+        // A new key is created instead of failing on the half-present state.
+        assertEquals(32, provider.getOrCreatePassphrase().size)
+        assertTrue(provider.hasStoredKey())
+    }
+
+    @Test
+    fun discardKey_removes_the_files_and_the_next_key_is_different() {
+        val first = provider.getOrCreatePassphrase()
+        provider.discardKey()
+        assertFalse(provider.hasStoredKey())
+        val second = provider.getOrCreatePassphrase()
+        assertFalse("A discarded key must not come back", first.contentEquals(second))
+    }
+
+    @Test
+    fun missing_keystore_key_is_reported_as_lost() {
+        provider.getOrCreatePassphrase()
+        KeyStore.getInstance("AndroidKeyStore").also { it.load(null) }.deleteEntry("health_journal_db_key")
+        try {
+            provider.getOrCreatePassphrase()
+            fail("Expected DatabaseKeyLostException")
+        } catch (_: DatabaseKeyLostException) {
+            // expected: files exist but the Keystore key is gone
+        }
+    }
+
+    @Test
+    fun corrupted_wrapped_key_is_reported_as_lost() {
+        provider.getOrCreatePassphrase()
+        val keyFile = context.noBackupFilesDir.resolve(DatabaseKeyProvider.WRAPPED_KEY_FILE)
+        keyFile.writeBytes(keyFile.readBytes().also { it[0] = (it[0].toInt() xor 0xFF).toByte() })
+        try {
+            provider.getOrCreatePassphrase()
+            fail("Expected DatabaseKeyLostException")
+        } catch (_: DatabaseKeyLostException) {
+            // expected: GCM authentication fails
+        }
     }
 
     @Test

@@ -107,7 +107,7 @@ open class DatabaseKeyProvider(context: Context) {
     }
 
     private fun createAndStore(): ByteArray {
-        val passphrase = java.security.SecureRandom().generateSeed(32)
+        val passphrase = ByteArray(PASSPHRASE_BYTES).also { java.security.SecureRandom().nextBytes(it) }
 
         val key = getOrCreateKeystoreKey()
         val cipher = Cipher.getInstance(AES_GCM_NO_PADDING)
@@ -165,6 +165,7 @@ open class DatabaseKeyProvider(context: Context) {
         private const val KEY_ALIAS = "health_journal_db_key"
         private const val AES_GCM_NO_PADDING = "AES/GCM/NoPadding"
         private const val GCM_TAG_LENGTH_BITS = 128
+        private const val PASSPHRASE_BYTES = 32
 
         /** IV for the wrapped passphrase. Stored in no-backup storage. */
         const val WRAPPED_IV_FILE = "db_key.iv"
