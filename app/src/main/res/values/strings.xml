@@ -680,6 +680,12 @@
     <string name="cues_voice_heading">Voice</string>
     <string name="cues_voice_item">Voice %1$d</string>
     <string name="cues_voice_preview">Preview</string>
+    <string name="safety_title">Before you start</string>
+    <string name="safety_text">These are simple breathing and attention exercises. They are not medical advice or treatment. Go at your own pace and stop whenever you like. If you feel dizzy, short of breath or unwell, stop and breathe normally. Some exercises hold the breath. These may not suit everyone, for example with heart or lung conditions or during pregnancy. If you are unsure, ask your doctor first.</string>
+    <string name="safety_acknowledge">I understand</string>
+    <string name="safety_read_more">Read more</string>
+    <string name="safety_hold_reminder">This exercise holds your breath briefly. Stop if you feel dizzy or unwell.</string>
+    <string name="safety_about_text">The breathing patterns are common, widely shared techniques. The app times them and shows the counts. It does not measure or judge your breathing or your health. Nothing about your practice is stored: no history, no streaks, no totals. The recorded exercises are by their teachers and shared under an open licence. See Credits. Pregnant, or with a heart or lung condition? Skip the breath-hold patterns, or check with your doctor first.</string>
     <string name="breathing_start">Start</string>
     <string name="breathing_stop">Stop</string>
     <string name="breathing_back">Back</string>

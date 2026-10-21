@@ -16,7 +16,7 @@ import nl.healthjournal.domain.model.mindfulness.CueChoices
 import nl.healthjournal.domain.model.mindfulness.GuidedExerciseCatalogue
 import nl.healthjournal.domain.model.mindfulness.MeditationTimer
 
-private enum class MindfulnessRoute { HOME, BREATHE_SETUP, BREATHE_RUN, MEDITATE_SETUP, MEDITATE_RUN, GUIDED_LIST, GUIDED_PLAY }
+private enum class MindfulnessRoute { SAFETY_NOTE, ABOUT, HOME, BREATHE_SETUP, BREATHE_RUN, MEDITATE_SETUP, MEDITATE_RUN, GUIDED_LIST, GUIDED_PLAY }
 
 /**
  * The Mindfulness area: home, the breathing and meditation setups and the running exercise. Back goes one step up;
@@ -25,9 +25,12 @@ private enum class MindfulnessRoute { HOME, BREATHE_SETUP, BREATHE_RUN, MEDITATE
  */
 @Composable
 fun MindfulnessArea() {
-    var route by rememberSaveable { mutableStateOf(MindfulnessRoute.HOME) }
     val context = LocalContext.current
     val saved = remember { MindfulnessPreferences(context.applicationContext) }
+    var route by rememberSaveable {
+        mutableStateOf(if (saved.safetyAcknowledged) MindfulnessRoute.HOME else MindfulnessRoute.SAFETY_NOTE)
+    }
+    var aboutBackTo by rememberSaveable { mutableStateOf(MindfulnessRoute.HOME) }
     var patternId by rememberSaveable { mutableStateOf(saved.pattern) }
     var duration by rememberSaveable { mutableStateOf(saved.duration) }
     var visual by rememberSaveable { mutableStateOf(saved.visual) }
@@ -37,13 +40,29 @@ fun MindfulnessArea() {
     var meditateCues by rememberSaveable(stateSaver = CueSaver) { mutableStateOf(saved.meditateCues) }
     var guidedId by rememberSaveable { mutableStateOf<String?>(null) }
 
+    BackHandler(enabled = route == MindfulnessRoute.ABOUT) { route = aboutBackTo }
     BackHandler(enabled = route == MindfulnessRoute.BREATHE_SETUP || route == MindfulnessRoute.MEDITATE_SETUP || route == MindfulnessRoute.GUIDED_LIST) { route = MindfulnessRoute.HOME }
 
     when (route) {
+        MindfulnessRoute.SAFETY_NOTE -> SafetyNoteScreen(
+            onAcknowledge = {
+                saved.safetyAcknowledged = true
+                route = MindfulnessRoute.HOME
+            },
+            onReadMore = {
+                aboutBackTo = MindfulnessRoute.SAFETY_NOTE
+                route = MindfulnessRoute.ABOUT
+            },
+        )
+        MindfulnessRoute.ABOUT -> AboutExercisesScreen()
         MindfulnessRoute.HOME -> MindfulnessHomeScreen(
             onBreathe = { route = MindfulnessRoute.BREATHE_SETUP },
             onMeditate = { route = MindfulnessRoute.MEDITATE_SETUP },
             onGuided = { route = MindfulnessRoute.GUIDED_LIST },
+            onAbout = {
+                aboutBackTo = MindfulnessRoute.HOME
+                route = MindfulnessRoute.ABOUT
+            },
         )
         MindfulnessRoute.MEDITATE_SETUP -> MeditateSetupScreen(
             minutes = meditateMinutes,

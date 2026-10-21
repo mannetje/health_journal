@@ -26,7 +26,7 @@
 - [x] 2.3c Exercise session object: acquire and release screen-on, audio focus, player, tones, speech and vibration in one place; stop on background, back or a call; hold back the app's own dialogs and the app lock during a session; JVM test with a fake session
 - [x] 2.4 Meditation timer screen
 - [x] 2.5 Tone generation, haptics, offline text-to-speech with the no-voice message
-- [ ] 2.6 Safety note (first open with a quiet Read more link, breath hold reminder, full text) with acknowledgement kept in preferences
+- [x] 2.6 Safety note (first open with a quiet Read more link, breath hold reminder, full text) with acknowledgement kept in preferences. Done: `SafetyNoteScreen`, `AboutExercisesScreen`, hold reminder on the breathing setup; checked on the emulator (note, Read more, Back, acknowledgement kept, About link, reminder shown for Box and gone for Belly)
 - [x] 2.7 Display choices in preferences; nothing else stored or logged. Done: `MindfulnessPreferences`; checked on the emulator across a force-stop
 - [ ] 2.8 Own texts written for the app, strings in English and Dutch for every label, phase, cue, note and message
 - [x] 2.9 `VIBRATE` in the manifest; `PrivacyChecksTest` still green (no INTERNET, no logging)

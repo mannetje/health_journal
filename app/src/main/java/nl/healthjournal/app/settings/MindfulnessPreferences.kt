@@ -39,6 +39,11 @@ class MindfulnessPreferences(context: Context) {
         get() = prefs.getInt(KEY_MEDITATE_INTERVAL, 0).takeIf { it in MeditationTimer.INTERVAL_PRESET_MINUTES }
         set(value) = prefs.edit().putInt(KEY_MEDITATE_INTERVAL, value ?: 0).apply()
 
+    /** Whether the first-open safety note has been acknowledged. */
+    var safetyAcknowledged: Boolean
+        get() = prefs.getBoolean(KEY_SAFETY, false)
+        set(value) = prefs.edit().putBoolean(KEY_SAFETY, value).apply()
+
     var breatheCues: CueChoices
         get() = readCues("breathe", CueChoices())
         set(value) = writeCues("breathe", value)
@@ -68,6 +73,7 @@ class MindfulnessPreferences(context: Context) {
         private const val KEY_PATTERN = "pattern"
         private const val KEY_DURATION = "duration"
         private const val KEY_VISUAL = "visual"
+        private const val KEY_SAFETY = "safety_acknowledged"
         private const val KEY_MEDITATE_MINUTES = "meditate_minutes"
         private const val KEY_MEDITATE_INTERVAL = "meditate_interval"
         private val DEFAULT_MEDITATE_MINUTES = MeditationTimer.PRESET_MINUTES.first()

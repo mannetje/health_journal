@@ -14,6 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
@@ -48,6 +51,13 @@ fun BreatheSetupScreen(
                 onClick = { onPattern(pattern.id) },
                 label = { Text(patternName(pattern)) },
                 modifier = Modifier.fillMaxWidth()
+            )
+        }
+        if (BreathingPatterns.byId(patternId)?.holdsBreath == true) {
+            Text(
+                stringResource(R.string.safety_hold_reminder),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
             )
         }
         Text(stringResource(R.string.breathing_length_heading), style = MaterialTheme.typography.titleMedium)

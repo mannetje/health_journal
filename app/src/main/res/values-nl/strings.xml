@@ -680,6 +680,12 @@
     <string name="cues_voice_heading">Stem</string>
     <string name="cues_voice_item">Stem %1$d</string>
     <string name="cues_voice_preview">Beluister</string>
+    <string name="safety_title">Voordat je begint</string>
+    <string name="safety_text">Dit zijn eenvoudige adem- en aandachtsoefeningen. Het is geen medisch advies en geen behandeling. Ga in je eigen tempo en stop wanneer je wilt. Voel je je duizelig, benauwd of onwel, stop dan en adem rustig normaal door. Bij sommige oefeningen houd je je adem even vast. Dat past niet bij iedereen, bijvoorbeeld bij hart- of longaandoeningen of tijdens een zwangerschap. Twijfel je, vraag het dan eerst aan je huisarts.</string>
+    <string name="safety_acknowledge">Begrepen</string>
+    <string name="safety_read_more">Meer lezen</string>
+    <string name="safety_hold_reminder">Bij deze oefening houd je even je adem vast. Stop als je je duizelig of onwel voelt.</string>
+    <string name="safety_about_text">De ademhalingspatronen zijn gangbare, breed gedeelde technieken. De app telt de tijd en toont de aantallen. Hij meet of beoordeelt je ademhaling of gezondheid niet. Er wordt niets over je oefenen bewaard: geen geschiedenis, geen reeksen, geen totalen. De opgenomen oefeningen zijn van hun docenten en gedeeld onder een open licentie. Zie Bronnen. Ben je zwanger, of heb je een hart- of longaandoening? Sla de patronen met adem vasthouden dan over of overleg eerst met je huisarts.</string>
     <string name="breathing_start">Start</string>
     <string name="breathing_stop">Stop</string>
     <string name="breathing_back">Terug</string>
