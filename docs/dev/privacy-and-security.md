@@ -22,6 +22,8 @@ For architectural decisions and regulatory context, see [ADR 0023](../adr/0023-d
 - Authentication leverages the system's native **Device Credential** (PIN, pattern, password) or **Biometrics** (fingerprint, face unlock) via AndroidX `BiometricPrompt`.
 - The app stores no password or PIN of its own; device lock configuration is handled entirely by the Android OS.
 - Configurable auto-lock timeout options: **Immediately**, **1 minute**, or **5 minutes** after the app is backgrounded.
+- Weakening the lock needs the device credential first: turning the lock off or choosing a longer timeout opens a `BiometricPrompt` (`BiometricAuthHelper.confirm`), so someone holding an unlocked phone cannot simply disable it. Turning it on or choosing a shorter timeout needs no confirmation.
+- **What the lock is, and is not:** the lock is a UI gate. It hides and blocks the app, but the database key is not bound to the lock, because binding it to biometrics would make the data unreadable after a fingerprint change (ADR 0023). Someone with root access or a debugger on an unlocked device could bypass the gate; the at-rest protection against other threats (a copied database file, a backup) comes from the encryption, not from the lock.
 
 ### Secure Screen (`FLAG_SECURE`)
 - An optional *Secure Screen* toggle applies `WindowManager.LayoutParams.FLAG_SECURE` to the application window.
@@ -74,7 +76,8 @@ flowchart TD
 3. The passphrase is encrypted (AES-GCM-NoPadding) using a non-exportable hardware-backed key created in the **Android Keystore** (TEE / StrongBox).
 4. The encrypted passphrase and IV are saved in no-backup storage (`no_backup/db_key.enc` and `no_backup/db_key.iv`).
 5. Key generation requires no user authentication binding, ensuring key availability survives biometric enrollment changes or credential resets.
-6. StrongBox is tried first (API 28+); a device without it throws `StrongBoxUnavailableException` from `generateKey()` and the key is created in the TEE instead.
+6. Both files are written atomically (temporary file, then rename; key file last), so an interrupted write never leaves a half-written key that would be mistaken for a lost one.
+7. StrongBox is tried first (API 28+); a device without it throws `StrongBoxUnavailableException` from `generateKey()` and the key is created in the TEE instead.
 
 ### Failure handling
 `HealthJournalDatabase.create()` publishes the outcome in `DatabaseEncryptionStatus` and logs it (tag `HealthJournalDb`, reasons only, no health data).

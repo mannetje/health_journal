@@ -90,7 +90,7 @@ class MainActivity : FragmentActivity() {
     private val confirmDeviceCredentialLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                appLockManager.onAuthenticated()
+                if (!biometricAuthHelper.runPendingAction()) appLockManager.onAuthenticated()
             }
         }
 
@@ -443,14 +443,26 @@ class MainActivity : FragmentActivity() {
                                             secureScreenEnabled = secureScreenEnabled,
                                             encryptionActive = DatabaseEncryptionStatus.state == EncryptionState.Active
                                         ),
-                                        onAppLockChange = {
-                                            appLockEnabled = it
-                                            appLockManager.isEnabled = it
-                                            applySecureScreen(secureScreenEnabled || appLockManager.isEnabled)
+                                        onAppLockChange = { enable ->
+                                            val apply = {
+                                                appLockEnabled = enable
+                                                appLockManager.isEnabled = enable
+                                                applySecureScreen(secureScreenEnabled || appLockManager.isEnabled)
+                                            }
+                                            // Weakening the lock needs the device credential, so a borrowed unlocked phone cannot switch it off.
+                                            if (enable) apply()
+                                            else biometricAuthHelper.confirm(apply, confirmDeviceCredentialLauncher)
                                         },
-                                        onTimeoutChange = {
-                                            lockTimeout = it
-                                            appLockManager.timeout = it
+                                        onTimeoutChange = { newTimeout ->
+                                            val apply = {
+                                                lockTimeout = newTimeout
+                                                appLockManager.timeout = newTimeout
+                                            }
+                                            if (newTimeout.seconds > lockTimeout.seconds) {
+                                                biometricAuthHelper.confirm(apply, confirmDeviceCredentialLauncher)
+                                            } else {
+                                                apply()
+                                            }
                                         },
                                         onSecureScreenChange = {
                                             secureScreenEnabled = it

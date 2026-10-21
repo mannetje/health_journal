@@ -16,6 +16,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **App lock timeout and the clock:** the timeout now uses the monotonic clock, so setting the phone's clock back no longer keeps the app unlocked.
 - **Recent apps preview:** the app lock now always keeps the window secure, so the recent-apps thumbnail never shows health data.
 - **Lost encryption key:** if the key is gone, the app shows an explanation with a confirmed "delete data and start fresh" option instead of crashing at every launch.
+- **Turning the lock off needs authentication:** switching the app lock off or choosing a longer timeout now asks for the device credential first.
+- **Interrupted key write:** the wrapped database key is written atomically, so an interrupted write can no longer look like a lost key.
 - **Visible encryption status:** a database that could not be encrypted is logged and the Profile "Data storage & backups" card says so.
 
 ## [1.5.9] - 2026-10-19

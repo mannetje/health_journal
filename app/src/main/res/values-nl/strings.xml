@@ -589,6 +589,8 @@
     <string name="lock_overlay_unlock_button">Ontgrendelen</string>
     <string name="lock_prompt_title">Health Journal ontgrendelen</string>
     <string name="lock_prompt_subtitle">Bevestig je identiteit</string>
+    <string name="lock_confirm_title">Bevestig dat jij het bent</string>
+    <string name="lock_confirm_subtitle">Bevestig je apparaatinlog om het slot te wijzigen</string>
 
     <string name="privacy_backup_notice_title">Gegevensopslag en back-up</string>
     <string name="privacy_backup_notice_body">Je gezondheidsgegevens zijn versleuteld op dit apparaat. Omdat sleutels aan dit apparaat gekoppeld zijn en het nooit verlaten, kunnen gegevens niet worden hersteld vanuit een cloudback-up of automatisch naar een nieuw toestel worden overgezet. Gebruik CSV-export in Geschiedenis om een back-up te bewaren of gegevens over te zetten.</string>

@@ -116,10 +116,21 @@ open class DatabaseKeyProvider(context: Context) {
         val ciphertext = cipher.doFinal(passphrase)
         val iv = cipher.iv // GCM always produces a 12-byte IV
 
-        ivFile.writeBytes(iv)
-        keyFile.writeBytes(ciphertext)
+        // Atomic writes, key file last: an interrupted write never leaves a half-written key behind,
+        // and hasStoredKey() only turns true once both files are complete.
+        writeAtomically(ivFile, iv)
+        writeAtomically(keyFile, ciphertext)
 
         return passphrase
+    }
+
+    private fun writeAtomically(target: java.io.File, bytes: ByteArray) {
+        val temp = target.resolveSibling(target.name + ".tmp")
+        temp.writeBytes(bytes)
+        if (!temp.renameTo(target)) {
+            temp.delete()
+            throw java.io.IOException("Could not write ${target.name}")
+        }
     }
 
     /**

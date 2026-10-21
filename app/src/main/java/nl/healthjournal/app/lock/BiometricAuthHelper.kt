@@ -24,21 +24,52 @@ class BiometricAuthHelper(
     private val authenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
             super.onAuthenticationSucceeded(result)
-            onAuthenticated()
+            val action = pendingAction
+            pendingAction = null
+            if (action != null) action() else onAuthenticated()
         }
 
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             super.onAuthenticationError(errorCode, errString)
-            // Stays locked on error or user cancel
+            // Stays locked on error or user cancel; a pending security change is dropped
+            pendingAction = null
         }
     }
 
     private val biometricPrompt = BiometricPrompt(activity, executor, authenticationCallback)
 
-    fun authenticate(fallbackLauncher: ActivityResultLauncher<Intent>? = null) {
+    /** Set while a confirmation for a security change is pending; replaces the normal unlock callback. */
+    private var pendingAction: (() -> Unit)? = null
+
+    /** Asks for the device credential and runs [action] only when it succeeds (e.g. before turning the lock off). */
+    fun confirm(
+        action: () -> Unit,
+        fallbackLauncher: ActivityResultLauncher<Intent>? = null
+    ) {
+        pendingAction = action
+        authenticate(
+            fallbackLauncher,
+            title = activity.getString(R.string.lock_confirm_title),
+            subtitle = activity.getString(R.string.lock_confirm_subtitle)
+        )
+    }
+
+    /** Runs and clears the pending confirmation (used by the keyguard fallback); false when none is pending. */
+    fun runPendingAction(): Boolean {
+        val action = pendingAction ?: return false
+        pendingAction = null
+        action()
+        return true
+    }
+
+    fun authenticate(
+        fallbackLauncher: ActivityResultLauncher<Intent>? = null,
+        title: String = activity.getString(R.string.lock_prompt_title),
+        subtitle: String = activity.getString(R.string.lock_prompt_subtitle)
+    ) {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(activity.getString(R.string.lock_prompt_title))
-            .setSubtitle(activity.getString(R.string.lock_prompt_subtitle))
+            .setTitle(title)
+            .setSubtitle(subtitle)
             .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
             .build()
 
@@ -47,10 +78,7 @@ class BiometricAuthHelper(
         } catch (_: Exception) {
             val keyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
             @Suppress("DEPRECATION")
-            val intent = keyguardManager?.createConfirmDeviceCredentialIntent(
-                activity.getString(R.string.lock_prompt_title),
-                activity.getString(R.string.lock_prompt_subtitle)
-            )
+            val intent = keyguardManager?.createConfirmDeviceCredentialIntent(title, subtitle)
             if (intent != null && fallbackLauncher != null) {
                 fallbackLauncher.launch(intent)
             }

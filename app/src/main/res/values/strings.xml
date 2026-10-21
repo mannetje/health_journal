@@ -589,6 +589,8 @@
     <string name="lock_overlay_unlock_button">Unlock</string>
     <string name="lock_prompt_title">Unlock Health Journal</string>
     <string name="lock_prompt_subtitle">Confirm your device credential</string>
+    <string name="lock_confirm_title">Confirm it is you</string>
+    <string name="lock_confirm_subtitle">Confirm your device credential to change the lock</string>
 
     <string name="privacy_backup_notice_title">Data storage &amp; backups</string>
     <string name="privacy_backup_notice_body">Your health data is encrypted on this device. Because encryption keys are tied to this device and never leave it, data cannot be restored from a cloud backup or moved automatically to a new phone. Use CSV export in History to create backups or move your data.</string>
