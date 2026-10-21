@@ -3,9 +3,12 @@ package nl.healthjournal.data.local
 import android.content.Context
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import android.security.keystore.StrongBoxUnavailableException
 import java.security.KeyStore
+import java.security.UnrecoverableKeyException
+import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -40,10 +43,27 @@ open class DatabaseKeyProvider(context: Context) {
      * On subsequent calls, reads and unwraps the stored ciphertext.
      */
     open fun getOrCreatePassphrase(): ByteArray {
-        return if (ivFile.exists() && keyFile.exists()) {
+        return if (hasStoredKey()) {
             unwrap()
         } else {
             createAndStore()
+        }
+    }
+
+    /** True when both wrapped-key files are present (they may still be unreadable, see [unwrap]). */
+    open fun hasStoredKey(): Boolean = ivFile.exists() && keyFile.exists()
+
+    /**
+     * Deletes the wrapped passphrase files and the Keystore key. Only for recovery: any database
+     * encrypted with the old passphrase becomes permanently unreadable.
+     */
+    open fun discardKey() {
+        ivFile.delete()
+        keyFile.delete()
+        try {
+            KeyStore.getInstance(ANDROID_KEYSTORE).also { it.load(null) }.deleteEntry(KEY_ALIAS)
+        } catch (_: Exception) {
+            // Nothing to delete, or the Keystore is unavailable; a new key replaces it on demand.
         }
     }
 
@@ -102,17 +122,31 @@ open class DatabaseKeyProvider(context: Context) {
         return passphrase
     }
 
+    /**
+     * Throws [DatabaseKeyLostException] only when the key is permanently gone (missing, invalidated
+     * or failing authentication). Transient Keystore errors propagate unchanged, so a temporary
+     * failure is never mistaken for lost data.
+     */
     private fun unwrap(): ByteArray {
         val iv = ivFile.readBytes()
         val ciphertext = keyFile.readBytes()
 
-        val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).also { it.load(null) }
-        val key = keyStore.getKey(KEY_ALIAS, null) as SecretKey
+        try {
+            val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).also { it.load(null) }
+            val key = keyStore.getKey(KEY_ALIAS, null) as? SecretKey
+                ?: throw DatabaseKeyLostException("Keystore key $KEY_ALIAS is missing")
 
-        val cipher = Cipher.getInstance(AES_GCM_NO_PADDING)
-        cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(GCM_TAG_LENGTH_BITS, iv))
+            val cipher = Cipher.getInstance(AES_GCM_NO_PADDING)
+            cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(GCM_TAG_LENGTH_BITS, iv))
 
-        return cipher.doFinal(ciphertext)
+            return cipher.doFinal(ciphertext)
+        } catch (e: KeyPermanentlyInvalidatedException) {
+            throw DatabaseKeyLostException("Keystore key was invalidated", e)
+        } catch (e: UnrecoverableKeyException) {
+            throw DatabaseKeyLostException("Keystore key cannot be recovered", e)
+        } catch (e: BadPaddingException) {
+            throw DatabaseKeyLostException("Wrapped passphrase failed authentication", e)
+        }
     }
 
     companion object {

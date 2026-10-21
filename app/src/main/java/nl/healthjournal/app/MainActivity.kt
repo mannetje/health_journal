@@ -46,6 +46,7 @@ import nl.healthjournal.app.settings.withAppLocale
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.history.HistoryScreen
 import nl.healthjournal.app.ui.history.HistoryViewModel
+import nl.healthjournal.app.ui.lock.DatabaseKeyLostScreen
 import nl.healthjournal.app.ui.lock.LockOverlay
 import nl.healthjournal.app.ui.logging.LogMetricScreen
 import nl.healthjournal.app.ui.logging.LoggingViewModel
@@ -60,6 +61,9 @@ import nl.healthjournal.app.ui.profile.SecuritySettingsSection
 import nl.healthjournal.app.ui.profile.SecuritySettingsState
 import nl.healthjournal.app.ui.theme.BrandNavy
 import nl.healthjournal.app.ui.theme.HealthJournalTheme
+import nl.healthjournal.data.local.DatabaseEncryptionStatus
+import nl.healthjournal.data.local.DatabaseRecovery
+import nl.healthjournal.data.local.EncryptionState
 
 enum class AppNavDestination {
     LOG,
@@ -89,6 +93,16 @@ class MainActivity : FragmentActivity() {
                 appLockManager.onAuthenticated()
             }
         }
+
+    /** Recovery for a lost database key: removes the unreadable data and restarts with a fresh, empty database. */
+    private fun deleteUnreadableDataAndRestart() {
+        DatabaseRecovery.deleteUnreadableData(this)
+        val launch = packageManager.getLaunchIntentForPackage(packageName)
+        if (launch != null) {
+            startActivity(Intent.makeRestartActivityTask(launch.component))
+        }
+        Runtime.getRuntime().exit(0)
+    }
 
     fun applySecureScreen(enabled: Boolean) {
         if (enabled) {
@@ -199,7 +213,18 @@ class MainActivity : FragmentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        applySecureScreen(secureScreenPreference.enabled)
+        if (DatabaseEncryptionStatus.state == EncryptionState.KeyLost) {
+            // The database key is gone: show the recovery screen only, nothing else touches the data.
+            applySecureScreen(true)
+            setContent {
+                HealthJournalTheme(choice = themePreference.choice) {
+                    DatabaseKeyLostScreen(onDeleteData = ::deleteUnreadableDataAndRestart)
+                }
+            }
+            return
+        }
+        // The app lock implies a secure window: without it the recent-apps thumbnail would show health data.
+        applySecureScreen(secureScreenPreference.enabled || appLockManager.isEnabled)
         if (savedInstanceState == null && intent.getBooleanExtra(ReminderIntents.EXTRA_OPEN_PILLBOX, false)) {
             pillboxRequested = true
         }
@@ -415,11 +440,13 @@ class MainActivity : FragmentActivity() {
                                             appLockEnabled = appLockEnabled,
                                             appLockAvailable = appLockManager.isAvailable,
                                             timeout = lockTimeout,
-                                            secureScreenEnabled = secureScreenEnabled
+                                            secureScreenEnabled = secureScreenEnabled,
+                                            encryptionActive = DatabaseEncryptionStatus.state == EncryptionState.Active
                                         ),
                                         onAppLockChange = {
                                             appLockEnabled = it
                                             appLockManager.isEnabled = it
+                                            applySecureScreen(secureScreenEnabled || appLockManager.isEnabled)
                                         },
                                         onTimeoutChange = {
                                             lockTimeout = it
@@ -428,7 +455,7 @@ class MainActivity : FragmentActivity() {
                                         onSecureScreenChange = {
                                             secureScreenEnabled = it
                                             secureScreenPreference.enabled = it
-                                            applySecureScreen(it)
+                                            applySecureScreen(it || appLockManager.isEnabled)
                                         }
                                     )
                                 }

@@ -2,6 +2,7 @@ package nl.healthjournal.app.lock
 
 import android.app.KeyguardManager
 import android.content.Context
+import android.os.SystemClock
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
@@ -21,7 +22,9 @@ import nl.healthjournal.domain.port.secondary.AppLockPort
  */
 class AppLockManager(
     private val context: Context,
-    private val preference: AppLockPreference = AppLockPreference(context)
+    private val preference: AppLockPreference = AppLockPreference(context),
+    // Monotonic: changing the wall clock must not stretch the timeout.
+    private val elapsedRealtime: () -> Long = SystemClock::elapsedRealtime
 ) : AppLockPort {
 
     private val _lockState = MutableStateFlow<LockState>(
@@ -65,7 +68,7 @@ class AppLockManager(
 
     override fun onBackgrounded() {
         if (isEnabled) {
-            backgroundTimestamp = System.currentTimeMillis()
+            backgroundTimestamp = elapsedRealtime()
         }
     }
 
@@ -77,8 +80,7 @@ class AppLockManager(
 
         val lastBackground = backgroundTimestamp
         if (lastBackground != null) {
-            val elapsedSeconds = (System.currentTimeMillis() - lastBackground) / 1000
-            if (elapsedSeconds >= timeout.seconds) {
+            if (timeout.hasElapsed(elapsedRealtime() - lastBackground)) {
                 _lockState.value = LockState.TimedOut
             }
         }

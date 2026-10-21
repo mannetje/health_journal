@@ -21,6 +21,9 @@ class PrivacyChecksTest {
         val offenders = moduleRoots.flatMap { root ->
             File(root).walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
         }.filter { file ->
+            // The only allowed logger: it writes technical encryption-failure reasons, never health data.
+            file.name != "HealthJournalDatabase.kt"
+        }.filter { file ->
             file.readLines().any { line ->
                 val code = line.trim()
                 !code.startsWith("//") && !code.startsWith("*") &&

@@ -68,6 +68,20 @@ class LockStateTest {
 class LockTimeoutTest {
 
     @Test
+    fun `hasElapsed compares the background time with the timeout`() {
+        assertTrue(LockTimeout.IMMEDIATELY.hasElapsed(0))
+        assertFalse(LockTimeout.ONE_MINUTE.hasElapsed(59_999))
+        assertTrue(LockTimeout.ONE_MINUTE.hasElapsed(60_000))
+        assertFalse(LockTimeout.FIVE_MINUTES.hasElapsed(299_999))
+        assertTrue(LockTimeout.FIVE_MINUTES.hasElapsed(300_000))
+    }
+
+    @Test
+    fun `hasElapsed treats a negative duration as elapsed`() {
+        assertTrue(LockTimeout.FIVE_MINUTES.hasElapsed(-1))
+    }
+
+    @Test
     fun `fromSeconds returns correct enum for known values`() {
         assertEquals(LockTimeout.IMMEDIATELY, LockTimeout.fromSeconds(0))
         assertEquals(LockTimeout.ONE_MINUTE, LockTimeout.fromSeconds(60))

@@ -14,7 +14,8 @@ data class SecuritySettingsState(
     val appLockEnabled: Boolean,
     val appLockAvailable: Boolean,
     val timeout: LockTimeout,
-    val secureScreenEnabled: Boolean
+    val secureScreenEnabled: Boolean,
+    val encryptionActive: Boolean = true
 )
 
 @Composable
@@ -25,6 +26,8 @@ fun SecuritySettingsSection(
     onSecureScreenChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // The app lock keeps the window secure, otherwise the recent-apps thumbnail would show health data.
+    val lockForcesSecureScreen = state.appLockEnabled && state.appLockAvailable
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         HorizontalDivider()
         Text(stringResource(R.string.security_section_title), style = MaterialTheme.typography.titleMedium)
@@ -87,14 +90,18 @@ fun SecuritySettingsSection(
             Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
                 Text(stringResource(R.string.security_secure_screen_title), style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    stringResource(R.string.security_secure_screen_desc),
+                    stringResource(
+                        if (lockForcesSecureScreen) R.string.security_secure_screen_lock_desc
+                        else R.string.security_secure_screen_desc
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Switch(
-                checked = state.secureScreenEnabled,
-                onCheckedChange = onSecureScreenChange
+                checked = state.secureScreenEnabled || lockForcesSecureScreen,
+                onCheckedChange = onSecureScreenChange,
+                enabled = !lockForcesSecureScreen
             )
         }
 
@@ -110,9 +117,13 @@ fun SecuritySettingsSection(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = stringResource(R.string.privacy_backup_notice_body),
+                    text = stringResource(
+                        if (state.encryptionActive) R.string.privacy_backup_notice_body
+                        else R.string.privacy_backup_notice_body_unencrypted
+                    ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (state.encryptionActive) MaterialTheme.colorScheme.onSurfaceVariant
+                    else MaterialTheme.colorScheme.error
                 )
             }
         }

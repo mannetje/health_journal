@@ -26,6 +26,7 @@ For architectural decisions and regulatory context, see [ADR 0023](../adr/0023-d
 ### Secure Screen (`FLAG_SECURE`)
 - An optional *Secure Screen* toggle applies `WindowManager.LayoutParams.FLAG_SECURE` to the application window.
 - This prevents screenshots/screen recordings and obscures the app's contents in the Android recent apps switcher.
+- While the app lock is on the window is always secure (the toggle shows as on and cannot be switched off), so the recent-apps thumbnail never shows health data.
 
 ### Selective Backup Exclusion
 - `allowBackup="true"` is maintained so user preferences (language, theme, units) can be preserved by system backups.
@@ -73,6 +74,20 @@ flowchart TD
 3. The passphrase is encrypted (AES-GCM-NoPadding) using a non-exportable hardware-backed key created in the **Android Keystore** (TEE / StrongBox).
 4. The encrypted passphrase and IV are saved in no-backup storage (`no_backup/db_key.enc` and `no_backup/db_key.iv`).
 5. Key generation requires no user authentication binding, ensuring key availability survives biometric enrollment changes or credential resets.
+6. StrongBox is tried first (API 28+); a device without it throws `StrongBoxUnavailableException` from `generateKey()` and the key is created in the TEE instead.
+
+### Failure handling
+`HealthJournalDatabase.create()` publishes the outcome in `DatabaseEncryptionStatus` and logs it (tag `HealthJournalDb`, reasons only, no health data).
+
+| State | When | What the user sees |
+|-------|------|--------------------|
+| `Active` | The database is encrypted and its key unwraps. | Normal app. |
+| `NotActive(reason)` | The migration failed or SQLCipher could not load, so the plain database stays in use. The next start retries. | The Profile "Data storage & backups" card says the data is currently not encrypted. |
+| `KeyLost` | The database is encrypted but the key files are missing or the Keystore key is gone or invalidated (`DatabaseKeyLostException`). | `DatabaseKeyLostScreen` replaces the app. After a confirmation, `DatabaseRecovery` deletes the unreadable data and key material and the app restarts empty. |
+
+- Only permanent failures (missing or invalidated key, failed GCM authentication) count as `KeyLost`. Transient Keystore errors propagate, so a temporary glitch never offers to delete data.
+- While `KeyLost`, the app runs on an empty in-memory database so receivers and reminders do not crash.
+- A stale, unreadable key next to a still-plain database is discarded and replaced during the migration, because no data depends on it.
 
 ### Database Encryption Flow Sequence
 
@@ -132,8 +147,8 @@ stateDiagram-v2
 ```
 
 ### Timeout Management
-- When the app is sent to the background (`onBackgrounded()`), `AppLockManager` records a timestamp (`System.currentTimeMillis()`).
-- Upon returning to the foreground (`onForegrounded()`), the elapsed time is evaluated against `LockTimeout` (`IMMEDIATELY`, `ONE_MINUTE`, `FIVE_MINUTES`).
+- When the app is sent to the background (`onBackgrounded()`), `AppLockManager` records a timestamp from the monotonic clock (`SystemClock.elapsedRealtime()`), so changing the phone's date or time does not stretch the timeout.
+- Upon returning to the foreground (`onForegrounded()`), the elapsed time is evaluated with `LockTimeout.hasElapsed` (`IMMEDIATELY`, `ONE_MINUTE`, `FIVE_MINUTES`).
 - If the elapsed duration exceeds the configured timeout, `LockState` transitions to `Locked` / `TimedOut`, causing `LockOverlay` to obscure the UI and prompt for authentication.
 
 ---

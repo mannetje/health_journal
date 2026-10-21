@@ -592,4 +592,15 @@
 
     <string name="privacy_backup_notice_title">Data storage &amp; backups</string>
     <string name="privacy_backup_notice_body">Your health data is encrypted on this device. Because encryption keys are tied to this device and never leave it, data cannot be restored from a cloud backup or moved automatically to a new phone. Use CSV export in History to create backups or move your data.</string>
+
+    <string name="security_secure_screen_lock_desc">Always on while the app lock is on, so recent apps and screenshots never show your data.</string>
+    <string name="privacy_backup_notice_body_unencrypted">Your health data is currently stored on this device without encryption: encryption could not be set up, and the app tries again at the next start. It stays on this device and cannot be restored from a cloud backup or moved automatically to a new phone. Use CSV export in History to create backups or move your data.</string>
+
+    <string name="key_lost_title">Your data cannot be opened</string>
+    <string name="key_lost_body">The encryption key for the data on this device is no longer available, so the data cannot be read. This can happen after a device restore or a system update. The data was never stored anywhere else, so it cannot be recovered. If you have a CSV export, you can import it after starting fresh.</string>
+    <string name="key_lost_delete_button">Delete data and start fresh</string>
+    <string name="key_lost_confirm_title">Delete the unreadable data?</string>
+    <string name="key_lost_confirm_body">This permanently removes the unreadable data from this device and starts the app empty. This cannot be undone.</string>
+    <string name="key_lost_confirm_delete">Delete</string>
+    <string name="key_lost_confirm_cancel">Cancel</string>
 </resources>

@@ -62,7 +62,7 @@ class PlainToEncryptedMigration(
 
         val passphrase: ByteArray
         try {
-            passphrase = keyProvider.getOrCreatePassphrase()
+            passphrase = obtainPassphrase()
         } catch (e: Exception) {
             val msg = "Failed to obtain passphrase from DatabaseKeyProvider: ${e.message}"
             return MigrationResult.Failed(msg)
@@ -93,6 +93,17 @@ class PlainToEncryptedMigration(
         } finally {
             passphrase.fill(0)
         }
+    }
+
+    /**
+     * The database is still plain here, so stale key material from an earlier install carries no
+     * data: when it cannot be unwrapped it is discarded and a fresh key is created.
+     */
+    private fun obtainPassphrase(): ByteArray = try {
+        keyProvider.getOrCreatePassphrase()
+    } catch (_: DatabaseKeyLostException) {
+        keyProvider.discardKey()
+        keyProvider.getOrCreatePassphrase()
     }
 
     private fun collectRowCounts(db: SQLiteDatabase): Map<String, Long> {

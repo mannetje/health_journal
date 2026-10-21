@@ -10,6 +10,14 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **Secure Screen:** An opt-in setting in Profile that enables `FLAG_SECURE` to block screenshots and hide app previews in the recent apps switcher.
 - **Data extraction rules:** Excludes the encrypted database and key material from cloud backups and device transfer, preventing silent data loss upon restore on new devices.
 
+### Fixed
+- **Encryption on devices without StrongBox:** creating the database key failed there, so the migration silently kept the data unencrypted. The key now falls back to the Trusted Execution Environment.
+- **Database key zeroed too early:** on devices where the migration succeeded the database was opened with an all-zero key, which could crash the app at launch.
+- **App lock timeout and the clock:** the timeout now uses the monotonic clock, so setting the phone's clock back no longer keeps the app unlocked.
+- **Recent apps preview:** the app lock now always keeps the window secure, so the recent-apps thumbnail never shows health data.
+- **Lost encryption key:** if the key is gone, the app shows an explanation with a confirmed "delete data and start fresh" option instead of crashing at every launch.
+- **Visible encryption status:** a database that could not be encrypted is logged and the Profile "Data storage & backups" card says so.
+
 ## [1.5.9] - 2026-10-19
 
 ### Added

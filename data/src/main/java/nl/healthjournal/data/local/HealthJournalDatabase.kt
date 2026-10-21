@@ -1,6 +1,7 @@
 package nl.healthjournal.data.local
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -163,9 +164,11 @@ abstract class HealthJournalDatabase : RoomDatabase() {
         /**
          * Opens or creates the on-disk encrypted database.
          * The passphrase is obtained from [DatabaseKeyProvider] (Keystore-wrapped, no-backup
-         * storage) and converted to the char-array form SQLCipher expects, then zeroed.
+         * storage). The native SQLCipher library is loaded here (required before any DB access).
          *
-         * The native SQLCipher library is loaded here (required before any DB access).
+         * The outcome is published in [DatabaseEncryptionStatus]: when the key is gone
+         * ([EncryptionState.KeyLost]) an empty in-memory database is returned so the app can start
+         * and show the recovery screen instead of crashing.
          */
         fun create(context: Context): HealthJournalDatabase {
             val hasSqlCipher = try {
@@ -182,26 +185,54 @@ abstract class HealthJournalDatabase : RoomDatabase() {
             ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
 
             if (!hasSqlCipher) {
-                return builder.build()
+                return notEncrypted(builder, "the SQLCipher library could not be loaded")
             }
 
             val keyProvider = DatabaseKeyProvider(context)
-
-            // Attempt one-time plain to encrypted migration if needed.
-            PlainToEncryptedMigration(context, keyProvider).migrate()
-
             val dbFile = context.getDatabasePath(DATABASE_NAME)
 
-            // If the database file is still plain SQLite (e.g. migration failed), fall back to
-            // plain SQLite so the user does not lose access to their data. The next app start will retry.
-            return if (dbFile.exists() && PlainToEncryptedMigration.isPlainSqlite(dbFile)) {
-                builder.build()
-            } else {
-                val passphrase = keyProvider.getOrCreatePassphrase()
-                // The factory keeps this array until Room opens the database lazily and then
-                // clears it itself. Zeroing it here would open the database with an all-zero key.
-                builder.openHelperFactory(SupportOpenHelperFactory(passphrase)).build()
+            // An encrypted database without its key files cannot be opened (and a new key would not help).
+            if (dbFile.exists() && !PlainToEncryptedMigration.isPlainSqlite(dbFile) && !keyProvider.hasStoredKey()) {
+                return keyLost(context, "the database is encrypted but its key files are missing")
             }
+
+            // Attempt one-time plain to encrypted migration if needed.
+            val migration = PlainToEncryptedMigration(context, keyProvider).migrate()
+
+            // If the database file is still plain SQLite (migration failed), fall back to plain SQLite so
+            // the user does not lose access to their data. The next app start retries.
+            if (dbFile.exists() && PlainToEncryptedMigration.isPlainSqlite(dbFile)) {
+                val reason = (migration as? PlainToEncryptedMigration.MigrationResult.Failed)?.reason
+                    ?: "the migration did not complete"
+                return notEncrypted(builder, reason)
+            }
+
+            val passphrase = try {
+                keyProvider.getOrCreatePassphrase()
+            } catch (e: DatabaseKeyLostException) {
+                return keyLost(context, e.message ?: "the key cannot be unwrapped")
+            }
+            DatabaseEncryptionStatus.state = EncryptionState.Active
+            // The factory keeps this array and Room opens the database lazily; SQLCipher clears it
+            // itself after opening. Zeroing it here would open the database with an all-zero key.
+            return builder.openHelperFactory(SupportOpenHelperFactory(passphrase)).build()
         }
+
+        private fun notEncrypted(
+            builder: RoomDatabase.Builder<HealthJournalDatabase>,
+            reason: String
+        ): HealthJournalDatabase {
+            Log.w(TAG, "Database is NOT encrypted: $reason. Retrying at the next start.")
+            DatabaseEncryptionStatus.state = EncryptionState.NotActive(reason)
+            return builder.build()
+        }
+
+        private fun keyLost(context: Context, reason: String): HealthJournalDatabase {
+            Log.e(TAG, "Database key lost: $reason. Starting with an empty in-memory database.")
+            DatabaseEncryptionStatus.state = EncryptionState.KeyLost
+            return createInMemory(context)
+        }
+
+        private const val TAG = "HealthJournalDb"
     }
 }

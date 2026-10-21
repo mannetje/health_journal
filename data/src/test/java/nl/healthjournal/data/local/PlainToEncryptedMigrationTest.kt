@@ -236,4 +236,31 @@ class PlainToEncryptedMigrationTest {
         val tempEnc = File(dbFile.parentFile, PlainToEncryptedMigration.TEMP_ENC_NAME)
         assertFalse(tempEnc.exists())
     }
+
+    @Test
+    fun stale_unreadable_key_on_a_plain_database_is_discarded_and_replaced() {
+        createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }
+
+        val provider = object : DatabaseKeyProvider(context) {
+            var discarded = false
+            override fun getOrCreatePassphrase(): ByteArray {
+                if (!discarded) throw DatabaseKeyLostException("stale key")
+                return "test-passphrase-32-bytes-long-12".toByteArray()
+            }
+
+            override fun discardKey() {
+                discarded = true
+            }
+        }
+
+        val result = PlainToEncryptedMigration(
+            context = context,
+            keyProvider = provider,
+            exportStep = fakeExportStep,
+            verifyStep = fakeVerifyStep
+        ).migrate()
+
+        assertEquals(PlainToEncryptedMigration.MigrationResult.Success, result)
+        assertTrue(provider.discarded)
+    }
 }

@@ -592,4 +592,15 @@
 
     <string name="privacy_backup_notice_title">Gegevensopslag en back-up</string>
     <string name="privacy_backup_notice_body">Je gezondheidsgegevens zijn versleuteld op dit apparaat. Omdat sleutels aan dit apparaat gekoppeld zijn en het nooit verlaten, kunnen gegevens niet worden hersteld vanuit een cloudback-up of automatisch naar een nieuw toestel worden overgezet. Gebruik CSV-export in Geschiedenis om een back-up te bewaren of gegevens over te zetten.</string>
+
+    <string name="security_secure_screen_lock_desc">Altijd aan zolang de app-vergrendeling aan staat, zodat recente apps en schermafbeeldingen je gegevens nooit tonen.</string>
+    <string name="privacy_backup_notice_body_unencrypted">Je gezondheidsgegevens staan op dit apparaat nu zonder versleuteling: versleuteling kon niet worden ingesteld en de app probeert het bij de volgende start opnieuw. De gegevens blijven op dit apparaat en kunnen niet worden hersteld vanuit een cloudback-up of automatisch naar een nieuw toestel worden overgezet. Gebruik CSV-export in Geschiedenis om een back-up te bewaren of gegevens over te zetten.</string>
+
+    <string name="key_lost_title">Je gegevens kunnen niet worden geopend</string>
+    <string name="key_lost_body">De versleutelingssleutel voor de gegevens op dit apparaat is niet meer beschikbaar, waardoor de gegevens niet gelezen kunnen worden. Dit kan gebeuren na het herstellen van het toestel of na een systeemupdate. De gegevens zijn nergens anders opgeslagen en kunnen dus niet worden hersteld. Heb je een CSV-export, dan kun je die importeren nadat je opnieuw bent begonnen.</string>
+    <string name="key_lost_delete_button">Gegevens verwijderen en opnieuw beginnen</string>
+    <string name="key_lost_confirm_title">Onleesbare gegevens verwijderen?</string>
+    <string name="key_lost_confirm_body">Hiermee worden de onleesbare gegevens definitief van dit apparaat verwijderd en start de app leeg. Dit kan niet ongedaan worden gemaakt.</string>
+    <string name="key_lost_confirm_delete">Verwijderen</string>
+    <string name="key_lost_confirm_cancel">Annuleren</string>
 </resources>
