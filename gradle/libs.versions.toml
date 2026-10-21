@@ -11,6 +11,8 @@ coroutines = "1.11.0"
 # ADR 0023 dependencies (exceptions to ADR 0003): SQLCipher and BiometricPrompt
 sqlcipher = "4.9.0"
 biometric = "1.2.0-alpha05"
+# ADR 0024 dependency (exception to ADR 0003): Argon2id for the portable backup
+bouncycastle = "1.86"
 coreKtx = "1.15.0"
 fragment = "1.8.6"
 lifecycle = "2.8.7"
@@ -58,6 +60,9 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 # ADR 0023 exceptions to ADR 0003: SQLCipher (BSD-style, no network) and BiometricPrompt
 sqlcipher-android = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
+
+# ADR 0024 exception to ADR 0003: Bouncy Castle provider, used only for Argon2BytesGenerator (MIT, pure Java, no network code)
+bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 
 # Charting (Vico — see ADR 0003)
 vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }

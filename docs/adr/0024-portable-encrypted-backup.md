@@ -1,7 +1,7 @@
 # 24. Portable Encrypted Backup
 
 - **Date:** 2026-10-21
-- **Status:** Proposed
+- **Status:** Accepted
 - **Deciders:** Architecture Team, AI Coding Assistant
 
 ## Context
@@ -60,7 +60,7 @@ The Android SDK has no Argon2, and writing one ourselves is not acceptable. The 
 | Bouncy Castle `Argon2BytesGenerator` (pure Java, MIT-style) | No native code. Large artifact and known class-name clashes with Android's own stripped Bouncy Castle; needs R8 care. Slower. |
 | Own implementation | Rejected (no home-made cryptography). |
 
-The preferred candidate is `argon2kt`, to be confirmed in the first implementation step by checking licence, current release, 16 KB alignment and, most importantly, by decoding the published test vectors with it. If it fails any of these, Bouncy Castle is the fallback. The decision is final only when that step is done; this ADR will then change from Proposed to Accepted and name the library and version.
+**Decision: Bouncy Castle `org.bouncycastle:bcprov-jdk18on` 1.86, used only for `Argon2BytesGenerator`.** `argon2kt` was the preferred candidate but was not chosen: its last release is about two years old, 16 KB page alignment of its `.so` files could not be confirmed, and native code cannot be exercised by JVM unit tests, so the published test vectors could not be decoded in CI. Bouncy Castle is pure Java (no alignment risk), and `Argon2BytesGenerator` is not part of Android's own stripped provider, so there is no class clash for this class. The same library is used on the JVM, so the unit tests decode the published vectors. The price is a larger APK (release minification is off). This is an exception to [ADR 0003](0003-dependency-minimization.md), like SQLCipher in ADR 0023.
 
 ## Consequences
 
@@ -72,7 +72,7 @@ The preferred candidate is `argon2kt`, to be confirmed in the first implementati
 
 ### Negative / Trade-offs
 - A forgotten passphrase cannot be recovered by anyone.
-- One new dependency (Argon2id) and, with the preferred library, one more native library.
+- One new dependency (Bouncy Castle, for Argon2id only) that makes the APK larger; pure Java, no native library.
 - The backup is only as safe as its passphrase; Argon2id slows guessing but does not rescue a weak one.
 - A restored file is plaintext inside the app's database again; where the backup file lives is the user's responsibility.
 - Format changes need discipline: specification, schema, vectors and reference decoder change together (enforced by the shared test vectors).

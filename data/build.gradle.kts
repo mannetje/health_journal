@@ -57,6 +57,9 @@ dependencies {
     // ADR 0023: encrypted database (BSD-style licence, no network code, see ADR 0023)
     implementation(libs.sqlcipher.android)
 
+    // ADR 0024: Argon2id for the portable encrypted backup (MIT, pure Java, no network code)
+    implementation(libs.bouncycastle.bcprov)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric) // real SQLite for the migration test, see ADR 0003

@@ -4,7 +4,8 @@
 - [x] 0.3 Manual first; scheduled backup possible later (design decision 10)
 - [x] 0.4 Argon2id (suggestion approved)
 - [x] 0.5 Specification, JSON Schema, ADR, developer docs and a "recover without the app" guide come before the code
-- [ ] 0.6 Spec review by the user before implementation starts
+- [x] 0.6 Spec review by the user before implementation starts (approved 2026-10-21)
+- [x] 0.7 Argon2 library: Bouncy Castle 1.86 behind `BackupKeyDerivationPort` (ADR 0024 Accepted; `argon2kt` not chosen)
 
 ## 1. Specification and published format (done in the proposal step)
 - [x] 1.1 `docs/backup-format/README.md`: container, key derivation, payload, versioning
@@ -14,9 +15,9 @@
 - [x] 1.5 ADR 0024, `docs/dev/backup.md`, architecture and C4 additions, privacy page
 
 ## 2. Domain (`:domain`)
-- [ ] 2.1 `BackupDocument` model (profiles, entries, medication, schedule versions, intakes) with no Android types
+- [ ] 2.1 `BackupDocument` model (profiles, entries, medication, schedule versions, intakes, optional display preferences) with no Android types
 - [ ] 2.2 Ports: `BackupSnapshotPort` (read everything, merge), `BackupCodecPort` (document to bytes and back), `BackupKeyDerivationPort`
-- [ ] 2.3 Use cases `CreateBackup` and `RestoreBackup` (merge counts), passphrase rules (min 10, NFKC)
+- [ ] 2.3 Use cases `CreateBackup` and `RestoreBackup` (merge counts), passphrase rules (min 8, NFKC)
 - [ ] 2.4 JVM tests: passphrase rules, merge counts, restore twice
 
 ## 3. Data (`:data`)
@@ -28,7 +29,9 @@
 
 ## 4. App (`:app`)
 - [ ] 4.1 Profile card: "Create backup" and "Restore backup", passphrase dialogs (twice, min length, warning)
+- [ ] 4.1a Passphrase hint ("three or four random words are stronger and easier to remember than eight random characters"), no scoring or colouring
 - [ ] 4.2 Document picker contracts (create and open), read-back verification, result banner with counts
+- [ ] 4.2a Restore dialog: "Also restore settings" (display preferences only, default on when the file has them; never lock, secure screen, lock-screen details)
 - [ ] 4.3 Lost-key screen: "Restore from a backup" (decrypt first, then delete, then import)
 - [ ] 4.4 CSV export warning before the destination is chosen
 - [ ] 4.5 Strings in English and Dutch for every label, warning and message
