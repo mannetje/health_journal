@@ -3,6 +3,7 @@ package nl.healthjournal.app.ui.mindfulness
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -54,6 +56,7 @@ fun BreathingExerciseScreen(
     val reduceMotion = rememberReduceMotion()
 
     var elapsed by remember(timer) { mutableLongStateOf(0L) }
+    val controls = rememberFadingControls(keepVisible = elapsed >= timer.totalMillis)
     var session by remember(timer) { mutableStateOf<ExerciseSession?>(null) }
     var player by remember(timer) { mutableStateOf<CuePlayer?>(null) }
     DisposableEffect(timer) {
@@ -88,6 +91,7 @@ fun BreathingExerciseScreen(
         if (running != null && phaseWord != null) player?.phase(running.phase.kind, phaseWord)
     }
 
+    Box(modifier = with(controls) { Modifier.fillMaxSize().revealOnTouch() }) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -121,9 +125,10 @@ fun BreathingExerciseScreen(
             BreathingState.Done -> ""
         }
         Text(count, style = MaterialTheme.typography.displayMedium)
-        OutlinedButton(onClick = ::stop) {
+        OutlinedButton(onClick = { if (controls.canPress) stop() }, modifier = Modifier.alpha(controls.alpha)) {
             Text(stringResource(if (state == BreathingState.Done) R.string.breathing_back else R.string.breathing_stop))
         }
+    }
     }
 }
 
@@ -152,7 +157,7 @@ internal fun phaseLabel(kind: BreathingPhaseKind): Int = when (kind) {
 
 /** True when the user has turned system animations off; the visual then jumps between full and empty. */
 @Composable
-private fun rememberReduceMotion(): Boolean {
+internal fun rememberReduceMotion(): Boolean {
     val context = LocalContext.current
     return remember {
         Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f

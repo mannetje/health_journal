@@ -3,6 +3,7 @@ package nl.healthjournal.app.ui.mindfulness
 import android.os.SystemClock
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -90,7 +92,9 @@ fun MeditationRunScreen(
         session?.end(SessionEnd.FINISHED)
     }
 
+    val controls = rememberFadingControls(keepVisible = finished)
     val remainingSeconds = ((timer.remainingMillis(elapsed) + 999) / 1000).toInt()
+    Box(modifier = with(controls) { Modifier.fillMaxSize().revealOnTouch() }) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -102,8 +106,9 @@ fun MeditationRunScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
         )
-        OutlinedButton(onClick = ::stop) {
+        OutlinedButton(onClick = { if (controls.canPress) stop() }, modifier = Modifier.alpha(controls.alpha)) {
             Text(stringResource(if (finished) R.string.breathing_back else R.string.breathing_stop))
         }
+    }
     }
 }
