@@ -21,6 +21,7 @@ import nl.healthjournal.domain.model.mindfulness.BreathingDuration
 import nl.healthjournal.domain.model.mindfulness.BreathingPattern
 import nl.healthjournal.domain.model.mindfulness.BreathingPatternId
 import nl.healthjournal.domain.model.mindfulness.BreathingPatterns
+import nl.healthjournal.domain.model.mindfulness.CueChoices
 
 /** Choices for a breathing exercise: pattern, length and how it is drawn. */
 @OptIn(ExperimentalLayoutApi::class)
@@ -32,6 +33,8 @@ fun BreatheSetupScreen(
     onPattern: (BreathingPatternId) -> Unit,
     onDuration: (BreathingDuration) -> Unit,
     onVisual: (BreathingVisual) -> Unit,
+    cues: CueChoices,
+    onCues: (CueChoices) -> Unit,
     onStart: () -> Unit,
 ) {
     Column(
@@ -67,6 +70,7 @@ fun BreatheSetupScreen(
                 )
             }
         }
+        CueToggles(cues, onCues, R.string.cues_tones_breathing, R.string.cues_haptics_breathing, showSpeech = true)
         Button(onClick = onStart, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.breathing_start))
         }

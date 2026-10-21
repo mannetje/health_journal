@@ -1,6 +1,6 @@
 # Mindfulness (the feature)
 
-> **Status: in progress.** The pure logic in `:domain` is done and tested. In `:app` the 🪷 button, the home screen and the breathing flow exist; the guided player works; the meditation timer, spoken cues, tones, safety note and saved choices are not built yet. The [status table](#7-status) says exactly what is where. The requirements are in the open change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md); the ideas, the agreed safety wording and the content licences are in [Mindfulness (ideas and wording)](mindfulness.md).
+> **Status: in progress.** The pure logic in `:domain` is done and tested. In `:app` the 🪷 button, the home screen and the breathing flow exist; the guided player works; the meditation timer and the cues (tones, vibration, spoken words) work; the safety note and saved choices are not built yet. The [status table](#7-status) says exactly what is where. The requirements are in the open change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md); the ideas, the agreed safety wording and the content licences are in [Mindfulness (ideas and wording)](mindfulness.md).
 
 The 🪷 button in the top bar, next to 💊, opens a quiet area with a few ways to slow down: paced **breathing**, a **meditation timer**, short **guided recordings** and a **Start here** ladder for a first time. The app gives no advice and keeps no record of what the user practised.
 
@@ -232,7 +232,7 @@ The app side has two screens. `GuidedListScreen` shows `orderedFor(appLanguage)`
 
 ### One session object
 
-Task 2.3c (done for the screen-on flag, audio focus and player; tones, speech and vibration join in 2.5) puts everything an exercise holds in one place, so nothing can leak after the screen is gone.
+Task 2.3c (done: screen-on flag, audio focus, player, tones, speech and vibration) puts everything an exercise holds in one place, so nothing can leak after the screen is gone.
 
 ```mermaid
 flowchart LR
@@ -299,9 +299,9 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | 🪷 button, back handling, home screen | 2.1, 2.2 | done |
 | Breathing setup and exercise screen with lotus, circle, rounded square | 2.3 | built, partly: no saved picture choice, no custom pattern input, no fading controls |
 | Guided list and player | 2.3a | done (`GuidedListScreen`, `GuidedPlayerScreen`); no seek, no background playback by design |
-| Session object | 2.3c | done (screen-on, focus, player; tones, speech, vibration follow in 2.5) |
-| Meditation timer screen | 2.4 | built (setup, countdown, session); bells are dispatched but silent until 2.5 |
-| Tones, vibration, spoken cues | 2.5 | not started |
+| Session object | 2.3c | done (screen-on, focus, player, cue player) |
+| Meditation timer screen | 2.4 | built (setup, countdown, session, bells) |
+| Tones, vibration, spoken cues | 2.5 | built: generated tones, vibration, offline-voice speech with a voice picker and a "not available" message; choices are kept only while the app is open until 2.7 |
 | Safety note and acknowledgement | 2.6 | not started |
 | Saved display choices | 2.7 | not started |
 | Strings in English and Dutch | 2.8 | done for the built screens |

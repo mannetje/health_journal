@@ -669,6 +669,17 @@
     <string name="breathing_visual_lotus">Lotus</string>
     <string name="breathing_visual_circle">Circle</string>
     <string name="breathing_visual_square">Square</string>
+    <string name="cues_heading">Cues</string>
+    <string name="cues_tones_breathing">Soft tone at each change</string>
+    <string name="cues_haptics_breathing">Vibrate at each change</string>
+    <string name="cues_bells">Sound the bells</string>
+    <string name="cues_haptics_bells">Vibrate with the bells</string>
+    <string name="cues_speech">Spoken cues</string>
+    <string name="cues_speech_unavailable">Spoken cues are not available: this device has no offline voice for your language. The exercise works with text.</string>
+    <string name="meditate_silent_hint">Silent: the timer shows the time left and ends with a message on screen.</string>
+    <string name="cues_voice_heading">Voice</string>
+    <string name="cues_voice_item">Voice %1$d</string>
+    <string name="cues_voice_preview">Preview</string>
     <string name="breathing_start">Start</string>
     <string name="breathing_stop">Stop</string>
     <string name="breathing_back">Back</string>

@@ -24,12 +24,12 @@
 - [x] 2.3a Guided exercises list and player (play, pause, stop, offline, screen on, no log), language label, credit shown. Done: `GuidedListScreen`, `GuidedPlayerScreen` (MediaPlayer, audio focus, pauses when the app goes to the background); emulator check pending
 - [x] 2.3b Three MP3 files added unchanged to `app/src/main/res/raw/` on 2026-10-21 (downloaded with the user's permission after checking the licence on the download page, which still states Attribution-NonCommercial-ShareAlike 3.0 Unported): `fmp_three_step_breathing_space.mp3` (3:34, 0.98 MB), `fmp_mindfulness_of_sounds.mp3` (3:02, 1.5 MB), `fmp_mountain_meditation.mp3` (8:12, 7.9 MB); about 10.4 MB in total, SHA-256 equal to the downloads. The player and catalogue (1.3a, 2.3a) still use them; the APK size is checked at the next build
 - [x] 2.3c Exercise session object: acquire and release screen-on, audio focus, player, tones, speech and vibration in one place; stop on background, back or a call; hold back the app's own dialogs and the app lock during a session; JVM test with a fake session
-- [x] 2.4 Meditation timer screen (bells sound once 2.5 lands)
-- [ ] 2.5 Tone generation, haptics, offline text-to-speech with the no-voice message
+- [x] 2.4 Meditation timer screen
+- [x] 2.5 Tone generation, haptics, offline text-to-speech with the no-voice message
 - [ ] 2.6 Safety note (first open with a quiet Read more link, breath hold reminder, full text) with acknowledgement kept in preferences
 - [ ] 2.7 Display choices in preferences; nothing else stored or logged
 - [ ] 2.8 Own texts written for the app, strings in English and Dutch for every label, phase, cue, note and message
-- [ ] 2.9 `VIBRATE` in the manifest; `PrivacyChecksTest` still green (no INTERNET, no logging)
+- [x] 2.9 `VIBRATE` in the manifest; `PrivacyChecksTest` still green (no INTERNET, no logging)
 - [ ] 2.10 Check on the emulator: each pattern, timer, both languages, light and dark, animations off, narrow phone
 
 ## 3. Docs

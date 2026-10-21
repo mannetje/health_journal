@@ -5,12 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import nl.healthjournal.domain.model.mindfulness.BreathingDuration
 import nl.healthjournal.domain.model.mindfulness.BreathingPatternId
 import nl.healthjournal.domain.model.mindfulness.BreathingPatterns
 import nl.healthjournal.domain.model.mindfulness.BreathingTimer
+import nl.healthjournal.domain.model.mindfulness.CueChoices
 import nl.healthjournal.domain.model.mindfulness.GuidedExerciseCatalogue
 import nl.healthjournal.domain.model.mindfulness.MeditationTimer
 
@@ -28,6 +30,8 @@ fun MindfulnessArea() {
     var visual by rememberSaveable { mutableStateOf(BreathingVisual.LOTUS) }
     var meditateMinutes by rememberSaveable { mutableStateOf(MeditationTimer.PRESET_MINUTES.first()) }
     var meditateInterval by rememberSaveable { mutableStateOf<Int?>(null) }
+    var breatheCues by rememberSaveable(stateSaver = CueSaver) { mutableStateOf(CueChoices()) }
+    var meditateCues by rememberSaveable(stateSaver = CueSaver) { mutableStateOf(CueChoices(tones = true)) }
     var guidedId by rememberSaveable { mutableStateOf<String?>(null) }
 
     BackHandler(enabled = route == MindfulnessRoute.BREATHE_SETUP || route == MindfulnessRoute.MEDITATE_SETUP || route == MindfulnessRoute.GUIDED_LIST) { route = MindfulnessRoute.HOME }
@@ -46,11 +50,13 @@ fun MindfulnessArea() {
                 if (meditateInterval?.let { it >= minutes } == true) meditateInterval = null
             },
             onInterval = { meditateInterval = it },
+            cues = meditateCues,
+            onCues = { meditateCues = it },
             onStart = { route = MindfulnessRoute.MEDITATE_RUN },
         )
         MindfulnessRoute.MEDITATE_RUN -> {
             val timer = remember(meditateMinutes, meditateInterval) { MeditationTimer(meditateMinutes, meditateInterval) }
-            MeditationRunScreen(timer = timer, onClose = { route = MindfulnessRoute.MEDITATE_SETUP })
+            MeditationRunScreen(timer = timer, cues = meditateCues, onClose = { route = MindfulnessRoute.MEDITATE_SETUP })
         }
         MindfulnessRoute.GUIDED_LIST -> GuidedListScreen(onOpen = { guidedId = it.id; route = MindfulnessRoute.GUIDED_PLAY })
         MindfulnessRoute.GUIDED_PLAY -> {
@@ -65,6 +71,8 @@ fun MindfulnessArea() {
             onPattern = { patternId = it },
             onDuration = { duration = it },
             onVisual = { visual = it },
+            cues = breatheCues,
+            onCues = { breatheCues = it },
             onStart = { route = MindfulnessRoute.BREATHE_RUN },
         )
         MindfulnessRoute.BREATHE_RUN -> {
@@ -73,8 +81,14 @@ fun MindfulnessArea() {
             BreathingExerciseScreen(
                 timer = timer,
                 visual = visual,
+                cues = breatheCues,
                 onClose = { route = MindfulnessRoute.BREATHE_SETUP },
             )
         }
     }
 }
+
+private val CueSaver = listSaver<CueChoices, Any?>(
+    save = { listOf(it.tones, it.haptics, it.speech, it.voiceName) },
+    restore = { CueChoices(tones = it[0] as Boolean, haptics = it[1] as Boolean, speech = it[2] as Boolean, voiceName = it[3] as String?) },
+)

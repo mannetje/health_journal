@@ -669,6 +669,17 @@
     <string name="breathing_visual_lotus">Lotus</string>
     <string name="breathing_visual_circle">Cirkel</string>
     <string name="breathing_visual_square">Vierkant</string>
+    <string name="cues_heading">Aanwijzingen</string>
+    <string name="cues_tones_breathing">Zachte toon bij elke wisseling</string>
+    <string name="cues_haptics_breathing">Trillen bij elke wisseling</string>
+    <string name="cues_bells">Bellen laten klinken</string>
+    <string name="cues_haptics_bells">Trillen bij de bellen</string>
+    <string name="cues_speech">Gesproken aanwijzingen</string>
+    <string name="cues_speech_unavailable">Gesproken aanwijzingen zijn niet beschikbaar: dit toestel heeft geen offline stem voor jouw taal. De oefening werkt met tekst.</string>
+    <string name="meditate_silent_hint">Stil: de timer toont de resterende tijd en eindigt met een bericht op het scherm.</string>
+    <string name="cues_voice_heading">Stem</string>
+    <string name="cues_voice_item">Stem %1$d</string>
+    <string name="cues_voice_preview">Beluister</string>
     <string name="breathing_start">Start</string>
     <string name="breathing_stop">Stop</string>
     <string name="breathing_back">Terug</string>

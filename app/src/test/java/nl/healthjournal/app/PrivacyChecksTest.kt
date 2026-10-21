@@ -17,6 +17,14 @@ class PrivacyChecksTest {
     }
 
     @Test
+    fun manifestAsksOnlyForVibrationAmongTheMindfulnessPermissions() {
+        val manifest = File("src/main/AndroidManifest.xml").readText()
+        assertTrue("VIBRATE is used for the optional haptic cues", manifest.contains("android.permission.VIBRATE"))
+        assertFalse("Spoken cues use the device voice; no audio recording is needed", manifest.contains("RECORD_AUDIO"))
+        assertFalse("Cues never change do-not-disturb", manifest.contains("ACCESS_NOTIFICATION_POLICY"))
+    }
+
+    @Test
     fun noLoggingInProductionSources() {
         val offenders = moduleRoots.flatMap { root ->
             File(root).walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()

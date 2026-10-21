@@ -32,6 +32,7 @@ import nl.healthjournal.domain.model.mindfulness.BreathingPattern
 import nl.healthjournal.domain.model.mindfulness.BreathingPhaseKind
 import nl.healthjournal.domain.model.mindfulness.BreathingState
 import nl.healthjournal.domain.model.mindfulness.BreathingTimer
+import nl.healthjournal.domain.model.mindfulness.CueChoices
 import nl.healthjournal.domain.model.mindfulness.ExerciseSession
 import nl.healthjournal.domain.model.mindfulness.SessionEnd
 
@@ -43,19 +44,24 @@ import nl.healthjournal.domain.model.mindfulness.SessionEnd
 fun BreathingExerciseScreen(
     timer: BreathingTimer,
     visual: BreathingVisual,
+    cues: CueChoices,
     onClose: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val language = appContentLanguage()
     val view = LocalView.current
     val launcher = rememberSessionLauncher()
     val reduceMotion = rememberReduceMotion()
 
     var elapsed by remember(timer) { mutableLongStateOf(0L) }
     var session by remember(timer) { mutableStateOf<ExerciseSession?>(null) }
+    var player by remember(timer) { mutableStateOf<CuePlayer?>(null) }
     DisposableEffect(timer) {
         // Leaving for the background or losing the audio drops the exercise; finishing keeps the Done screen.
         var leaving = false
         val started = launcher.start { reason -> if (!leaving && reason != SessionEnd.FINISHED) onClose() }
         started.keepScreenOn(view)
+        player = started.cues(context, cues, language)
         session = started
         onDispose {
             leaving = true
@@ -75,6 +81,12 @@ fun BreathingExerciseScreen(
         session?.end(SessionEnd.FINISHED)
     }
     val state = timer.stateAt(elapsed)
+    val phaseKey = (state as? BreathingState.Running)?.let { it.cycleIndex * 1000 + it.phaseIndex } ?: -1
+    val phaseWord = (state as? BreathingState.Running)?.let { stringResource(phaseLabel(it.phase.kind)) }
+    LaunchedEffect(phaseKey) {
+        val running = timer.stateAt(elapsed) as? BreathingState.Running
+        if (running != null && phaseWord != null) player?.phase(running.phase.kind, phaseWord)
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),

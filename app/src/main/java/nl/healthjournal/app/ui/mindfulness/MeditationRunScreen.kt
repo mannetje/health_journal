@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -28,27 +29,31 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.Bell
+import nl.healthjournal.domain.model.mindfulness.CueChoices
 import nl.healthjournal.domain.model.mindfulness.ExerciseSession
 import nl.healthjournal.domain.model.mindfulness.MeditationTimer
 import nl.healthjournal.domain.model.mindfulness.SessionEnd
+import nl.healthjournal.domain.model.mindfulness.ToneSynth
 
 /**
- * Runs one silent sitting. The remaining time counts down; bells that come due are handed to [onBell]
- * once each. The session keeps the screen on and nothing is recorded: Stop, Back, the background or
+ * Runs one silent sitting. The remaining time counts down; bells that come due sound once each
+ * (tone and vibration, as chosen). The session keeps the screen on and nothing is recorded: Stop, Back, the background or
  * finishing ends it and the state is dropped.
  */
 @Composable
 fun MeditationRunScreen(
     timer: MeditationTimer,
+    cues: CueChoices,
     onClose: () -> Unit,
-    onBell: (Bell) -> Unit = {},
 ) {
+    val context = LocalContext.current
+    val language = appContentLanguage()
     val view = LocalView.current
     val launcher = rememberSessionLauncher()
     var elapsed by remember(timer) { mutableLongStateOf(0L) }
     var session by remember(timer) { mutableStateOf<ExerciseSession?>(null) }
     var finished by remember(timer) { mutableStateOf(false) }
+    var player by remember(timer) { mutableStateOf<CuePlayer?>(null) }
 
     DisposableEffect(timer) {
         var leaving = false
@@ -56,6 +61,7 @@ fun MeditationRunScreen(
             if (reason == SessionEnd.FINISHED) finished = true else if (!leaving) onClose()
         }
         started.keepScreenOn(view)
+        player = started.cues(context, cues, language)
         session = started
         onDispose {
             leaving = true
@@ -74,10 +80,13 @@ fun MeditationRunScreen(
         while (!timer.isFinished(elapsed)) {
             elapsed = SystemClock.elapsedRealtime() - start
             val due = timer.bellsDue(nextBell, elapsed)
-            due.forEach(onBell)
+            due.forEach { player?.bell(it.kind) }
             nextBell += due.size
             delay(200)
         }
+        finished = true
+        // Let the end bell ring out before the audio is released.
+        if (cues.tones) delay(ToneSynth.END_BELL_MILLIS)
         session?.end(SessionEnd.FINISHED)
     }
 

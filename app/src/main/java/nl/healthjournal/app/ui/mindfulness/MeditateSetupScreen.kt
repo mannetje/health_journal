@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
+import nl.healthjournal.domain.model.mindfulness.CueChoices
 import nl.healthjournal.domain.model.mindfulness.MeditationTimer
 
 /** Choices for a silent sitting: how long, and whether a soft bell sounds on the way. */
@@ -27,6 +28,8 @@ fun MeditateSetupScreen(
     intervalMinutes: Int?,
     onMinutes: (Int) -> Unit,
     onInterval: (Int?) -> Unit,
+    cues: CueChoices,
+    onCues: (CueChoices) -> Unit,
     onStart: () -> Unit,
 ) {
     Column(
@@ -57,6 +60,10 @@ fun MeditateSetupScreen(
                     label = { Text(stringResource(R.string.meditate_interval_every, m)) }
                 )
             }
+        }
+        CueToggles(cues, onCues, R.string.cues_bells, R.string.cues_haptics_bells, showSpeech = false)
+        if (!cues.tones && !cues.haptics) {
+            Text(stringResource(R.string.meditate_silent_hint), style = MaterialTheme.typography.bodySmall)
         }
         Button(onClick = onStart, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.breathing_start))
