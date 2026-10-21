@@ -29,7 +29,33 @@ While an exercise runs the app shows nothing of its own (dialogs wait until it e
 
 ## 2. Safety note
 
-Shown as a short "Before you start" note the first time 🪷 is opened, as a one-line reminder on patterns with a breath hold (box, 4-7-8), and in full under "About these exercises" (the same place the app puts "About these ranges"). Neutral wording, English and Dutch, for example: *Stop if you feel dizzy or unwell. These exercises are not medical advice. Breath holds may not suit everyone, for example with heart or lung conditions or during pregnancy.*
+Agreed wording (2026-10-21). Neutral, no benefit claims, no age, diagnosis or medicine names. The Dutch follows the tone of the medication notice ("je").
+
+**1. First-open note** (shown once, acknowledged with one button, with a quiet "Read more" text link to text 3 and nothing else on the screen)
+
+| | English | Dutch |
+|---|---|---|
+| Title | Before you start | Voordat je begint |
+| Text | These are simple breathing and attention exercises. They are not medical advice or treatment. Go at your own pace and stop whenever you like. If you feel dizzy, short of breath or unwell, stop and breathe normally. Some exercises hold the breath. These may not suit everyone, for example with heart or lung conditions or during pregnancy. If you are unsure, ask your doctor first. | Dit zijn eenvoudige adem- en aandachtsoefeningen. Het is geen medisch advies en geen behandeling. Ga in je eigen tempo en stop wanneer je wilt. Voel je je duizelig, benauwd of onwel, stop dan en adem rustig normaal door. Bij sommige oefeningen houd je je adem even vast. Dat past niet bij iedereen, bijvoorbeeld bij hart- of longaandoeningen of tijdens een zwangerschap. Twijfel je, vraag het dan eerst aan je huisarts. |
+| Button | I understand | Begrepen |
+| Link | Read more | Meer lezen |
+
+**2. One-line reminder** (before box breathing and 4-7-8; announced to a screen reader)
+
+- EN: This exercise holds your breath briefly. Stop if you feel dizzy or unwell.
+- NL: Bij deze oefening houd je even je adem vast. Stop als je je duizelig of onwel voelt.
+
+**3. About these exercises** (full text, same menu as "About these ranges")
+
+- EN: The breathing patterns are common, widely shared techniques. The app times them and shows the counts. It does not measure or judge your breathing or your health. Nothing about your practice is stored: no history, no streaks, no totals. The recorded exercises are by their teachers and shared under an open licence. See Credits. Pregnant, or with a heart or lung condition? Skip the breath-hold patterns, or check with your doctor first.
+- NL: De ademhalingspatronen zijn gangbare, breed gedeelde technieken. De app telt de tijd en toont de aantallen. Hij meet of beoordeelt je ademhaling of gezondheid niet. Er wordt niets over je oefenen bewaard: geen geschiedenis, geen reeksen, geen totalen. De opgenomen oefeningen zijn van hun docenten en gedeeld onder een open licentie. Zie Bronnen. Ben je zwanger, of heb je een hart- of longaandoening? Sla de patronen met adem vasthouden dan over of overleg eerst met je huisarts.
+
+**4. Recorded exercises** (one line on the player, because the audio is English)
+
+- EN: Recording by [teacher]. Stop at any time. Not medical advice.
+- NL: Opname van [docent]. Je kunt altijd stoppen. Geen medisch advies.
+
+The credits screen is called "Credits" in English and "Bronnen" in Dutch.
 
 For the "Strong feelings" exercises the note is stronger and neutral, for example: *If this makes things worse, stop. If you are in distress, contact your doctor or a local helpline.* It makes no promise of benefit. The wording is agreed before that section is built.
 
@@ -48,7 +74,7 @@ Texts in the app stay descriptive ("what it is for") and do not make medical cla
 
 | Source | Language | What | Licence status |
 |--------|----------|------|----------------|
-| [Free Mindfulness Project](https://www.freemindfulness.org/) (original project; also listed on an [NHS trust page](https://www.elft.nhs.uk/sites/default/files/import-news/download)) | English | Guided meditations in the MBSR and MBCT tradition, among them body scans and breathing exercises | The project's [download page](https://www.freemindfulness.org/download) states that all audio files are licensed **Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported**, free to download and distribute non-commercially, and asks to credit the original sources. The recordings are audio only (no scripts), English only, 32 exercises from 3 to 47 minutes, each credited on the page to a teacher or centre. Conditions that follow: credit the teacher and the project and link back; no commercial use (the app stays free and without advertising); an adaptation such as a translation would have to use the same licence, so the recordings are used unchanged. Items attributed to university centres are skipped because their own sites publish the same recordings under stricter terms. The about page does not repeat the licence, so the use in an app is confirmed with the project before release (draft below). |
+| [Free Mindfulness Project](https://www.freemindfulness.org/) (original project; also listed on an [NHS trust page](https://www.elft.nhs.uk/sites/default/files/import-news/download)) | English | Guided meditations in the MBSR and MBCT tradition, among them body scans and breathing exercises | The project's [download page](https://www.freemindfulness.org/download) states that all audio files are licensed **Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported**, free to download and distribute non-commercially, and asks to credit the original sources. The recordings are audio only (no scripts), English only, 32 exercises from 3 to 47 minutes, each credited on the page to a teacher or centre. Conditions that follow: credit the teacher and the project and link back; no commercial use (the app stays free and without advertising); an adaptation such as a translation would have to use the same licence, so the recordings are used unchanged. Items attributed to university centres are skipped because their own sites publish the same recordings under stricter terms. The about page does not repeat the licence, so the use in an app is checked on the download page before each release; writing to the project is optional while the app is free and ad-free, and needed if that ever changes (draft below). |
 
 The first selection is by the project creator: Three Step Breathing Space (3:34), Three minute mindfulness of sounds (3:02) and Mountain meditation (8:12). Each MP3 adds a few MB to the app.
 
@@ -66,7 +92,7 @@ Other free ACT pages exist, but none states an open licence, so none is used or 
 
 Sites that claim "CC BY" for body scan scripts on unrelated mirror domains were found and are not trusted.
 
-### Draft message to the project (not sent)
+### Draft message to the project (not sent, optional)
 
 > Hello Peter, I am building a free, open-source, offline health journal app for Android with a small mindfulness area. I would like to include three of your recordings from the Free Mindfulness Project download page unchanged (Three Step Breathing Space, Three minute mindfulness of sounds, Mountain meditation), credited to you and the project with a link and the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 licence shown in the app. The app has no advertising, no payment and no network access. Is that use fine with you, and is there anything you would like the credit to say? Do you know of Dutch recordings under an open licence? Kind regards
 
