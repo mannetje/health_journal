@@ -19,7 +19,7 @@
 
 ## 2. App (`:app`)
 - [ ] 2.1 Lotus button in the top bar and navigation to the area, back handling
-- [ ] 2.2 Area home with Breathe, Meditate, Start here, "About these exercises"
+- [x] 2.2 Area home with Breathe, Meditate, Start here, "About these exercises". Done: home, About link, `StartHereScreen` opening the setups with the step settings; Start here checked on the emulator
 - [ ] 2.3 Exercise screen: lotus, circle and square drawing, visual choice kept in preferences, phase text, countdown, ready and done, fading controls, keep screen on, reduced-animation mode, TalkBack announcements
 - [x] 2.3a Guided exercises list and player (play, pause, stop, offline, screen on, no log), language label, credit shown. Done: `GuidedListScreen`, `GuidedPlayerScreen` (MediaPlayer, audio focus, pauses when the app goes to the background); emulator check pending
 - [x] 2.3b Three MP3 files added unchanged to `app/src/main/res/raw/` on 2026-10-21 (downloaded with the user's permission after checking the licence on the download page, which still states Attribution-NonCommercial-ShareAlike 3.0 Unported): `fmp_three_step_breathing_space.mp3` (3:34, 0.98 MB), `fmp_mindfulness_of_sounds.mp3` (3:02, 1.5 MB), `fmp_mountain_meditation.mp3` (8:12, 7.9 MB); about 10.4 MB in total, SHA-256 equal to the downloads. The player and catalogue (1.3a, 2.3a) still use them; the APK size is checked at the next build

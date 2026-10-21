@@ -88,7 +88,7 @@ fun BreatheSetupScreen(
 }
 
 @Composable
-private fun patternName(pattern: BreathingPattern): String {
+internal fun patternName(pattern: BreathingPattern): String {
     val name = stringResource(
         when (pattern.id) {
             BreathingPatternId.BOX -> R.string.breathing_pattern_box

@@ -297,6 +297,7 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 |------|------|-------|
 | Patterns, custom counts, timer, meditation timer, Start here, catalogue, tests | 1.1 to 1.4 | done |
 | 🪷 button, back handling, home screen | 2.1, 2.2 | done |
+| Start here screen | 2.2 | built: `StartHereScreen` lists the three steps; a step opens the breathing or meditation setup with its settings filled in (not saved), and Back returns to the list (checked on the emulator in light and dark) |
 | Breathing setup and exercise screen with lotus, circle, rounded square | 2.3 | built, partly: no saved picture choice, no custom pattern input, no fading controls |
 | Guided list and player | 2.3a | done (`GuidedListScreen`, `GuidedPlayerScreen`); no seek, no background playback by design |
 | Session object | 2.3c | done (screen-on, focus, player, cue player) |

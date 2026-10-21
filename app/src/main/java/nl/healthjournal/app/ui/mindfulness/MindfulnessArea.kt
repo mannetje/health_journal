@@ -15,8 +15,9 @@ import nl.healthjournal.domain.model.mindfulness.BreathingTimer
 import nl.healthjournal.domain.model.mindfulness.CueChoices
 import nl.healthjournal.domain.model.mindfulness.GuidedExerciseCatalogue
 import nl.healthjournal.domain.model.mindfulness.MeditationTimer
+import nl.healthjournal.domain.model.mindfulness.StartHereStep
 
-private enum class MindfulnessRoute { SAFETY_NOTE, ABOUT, HOME, BREATHE_SETUP, BREATHE_RUN, MEDITATE_SETUP, MEDITATE_RUN, GUIDED_LIST, GUIDED_PLAY }
+private enum class MindfulnessRoute { SAFETY_NOTE, ABOUT, HOME, START_HERE, BREATHE_SETUP, BREATHE_RUN, MEDITATE_SETUP, MEDITATE_RUN, GUIDED_LIST, GUIDED_PLAY }
 
 /**
  * The Mindfulness area: home, the breathing and meditation setups and the running exercise. Back goes one step up;
@@ -31,6 +32,7 @@ fun MindfulnessArea() {
         mutableStateOf(if (saved.safetyAcknowledged) MindfulnessRoute.HOME else MindfulnessRoute.SAFETY_NOTE)
     }
     var aboutBackTo by rememberSaveable { mutableStateOf(MindfulnessRoute.HOME) }
+    var setupBackTo by rememberSaveable { mutableStateOf(MindfulnessRoute.HOME) }
     var patternId by rememberSaveable { mutableStateOf(saved.pattern) }
     var duration by rememberSaveable { mutableStateOf(saved.duration) }
     var visual by rememberSaveable { mutableStateOf(saved.visual) }
@@ -41,7 +43,8 @@ fun MindfulnessArea() {
     var guidedId by rememberSaveable { mutableStateOf<String?>(null) }
 
     BackHandler(enabled = route == MindfulnessRoute.ABOUT) { route = aboutBackTo }
-    BackHandler(enabled = route == MindfulnessRoute.BREATHE_SETUP || route == MindfulnessRoute.MEDITATE_SETUP || route == MindfulnessRoute.GUIDED_LIST) { route = MindfulnessRoute.HOME }
+    BackHandler(enabled = route == MindfulnessRoute.BREATHE_SETUP || route == MindfulnessRoute.MEDITATE_SETUP) { route = setupBackTo }
+    BackHandler(enabled = route == MindfulnessRoute.GUIDED_LIST || route == MindfulnessRoute.START_HERE) { route = MindfulnessRoute.HOME }
 
     when (route) {
         MindfulnessRoute.SAFETY_NOTE -> SafetyNoteScreen(
@@ -56,12 +59,36 @@ fun MindfulnessArea() {
         )
         MindfulnessRoute.ABOUT -> AboutExercisesScreen()
         MindfulnessRoute.HOME -> MindfulnessHomeScreen(
-            onBreathe = { route = MindfulnessRoute.BREATHE_SETUP },
-            onMeditate = { route = MindfulnessRoute.MEDITATE_SETUP },
+            onBreathe = {
+                setupBackTo = MindfulnessRoute.HOME
+                route = MindfulnessRoute.BREATHE_SETUP
+            },
+            onMeditate = {
+                setupBackTo = MindfulnessRoute.HOME
+                route = MindfulnessRoute.MEDITATE_SETUP
+            },
+            onStartHere = { route = MindfulnessRoute.START_HERE },
             onGuided = { route = MindfulnessRoute.GUIDED_LIST },
             onAbout = {
                 aboutBackTo = MindfulnessRoute.HOME
                 route = MindfulnessRoute.ABOUT
+            },
+        )
+        MindfulnessRoute.START_HERE -> StartHereScreen(
+            onStep = { step ->
+                setupBackTo = MindfulnessRoute.START_HERE
+                when (step) {
+                    is StartHereStep.Breathing -> {
+                        patternId = step.patternId
+                        duration = step.duration
+                        route = MindfulnessRoute.BREATHE_SETUP
+                    }
+                    is StartHereStep.Timer -> {
+                        meditateMinutes = step.durationMinutes
+                        meditateInterval = null
+                        route = MindfulnessRoute.MEDITATE_SETUP
+                    }
+                }
             },
         )
         MindfulnessRoute.MEDITATE_SETUP -> MeditateSetupScreen(

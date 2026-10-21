@@ -686,6 +686,9 @@
     <string name="safety_read_more">Meer lezen</string>
     <string name="safety_hold_reminder">Bij deze oefening houd je even je adem vast. Stop als je je duizelig of onwel voelt.</string>
     <string name="safety_about_text">De ademhalingspatronen zijn gangbare, breed gedeelde technieken. De app telt de tijd en toont de aantallen. Hij meet of beoordeelt je ademhaling of gezondheid niet. Er wordt niets over je oefenen bewaard: geen geschiedenis, geen reeksen, geen totalen. De opgenomen oefeningen zijn van hun docenten en gedeeld onder een open licentie. Zie Bronnen. Ben je zwanger, of heb je een hart- of longaandoening? Sla de patronen met adem vasthouden dan over of overleg eerst met je huisarts.</string>
+    <string name="start_here_intro">Drie korte stappen voor de eerste keer. Begin bij de eerste en ga verder wanneer je wilt.</string>
+    <string name="start_here_step">%1$d. %2$s, %3$d min</string>
+    <string name="start_here_timer_name">Stille timer</string>
     <string name="breathing_start">Start</string>
     <string name="breathing_stop">Stop</string>
     <string name="breathing_back">Terug</string>
