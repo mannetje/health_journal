@@ -4,6 +4,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-21
+
 ### Added
 - **Encrypted backup:** Profile → Encrypted backup creates one `.hjbackup` file protected by a passphrase of your own (at least 8 characters, typed twice, no recovery) with Argon2id and AES-256-GCM. The app reads the saved file back to check it. Restore merges: entries that already exist are never overwritten, restoring twice adds nothing. "Also restore settings" brings back language, region, units, theme and snooze length; lock and privacy settings are never in the file. The lost-key screen offers "Restore from a backup" next to deleting the data. The file format is published with a JSON Schema, test vectors, a reference decoder and a [recovery guide](docs/backup-format/recover-your-data.md), so the data stays reachable without the app ([ADR 0024](docs/adr/0024-portable-encrypted-backup.md)). English and Dutch.
 - **Database encryption at rest:** The Room SQLite database is encrypted with SQLCipher (AES-256) using a 256-bit passphrase wrapped by a hardware-backed Android Keystore key (TEE/StrongBox) without user-authentication binding ([ADR 0023](docs/adr/0023-database-encryption-and-app-lock.md)). A one-time migration safely converts existing plain databases to encrypted files with row-count verification.
