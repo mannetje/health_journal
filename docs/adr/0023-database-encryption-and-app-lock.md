@@ -77,6 +77,8 @@ Both are recorded here as exceptions to ADR 0003 with the required checks:
 | Malware with user's access | — | Not protected (app runs unlocked) |
 | Biometric/screen lock change | Keystore key has no auth binding | None — key remains usable |
 
+**CodeQL alert `java/android/insecure-local-authentication`:** the scanner reports that the `BiometricPrompt` success callback in `BiometricAuthHelper` does not use a `CryptoObject`. This is the decision above, not an oversight: binding the key to the prompt would make the data unreadable after a fingerprint change. The alert was dismissed as "won't fix" with a link to this ADR.
+
 **Not claimed:** Protection while app is unlocked and running, protection against malware with user's access, cloud key escrow, key export, own PIN/password or recovery flow.
 
 ## Consequences
