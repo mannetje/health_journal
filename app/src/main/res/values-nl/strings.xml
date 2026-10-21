@@ -430,7 +430,7 @@
     <!-- Medication: notice and sources -->
     <string name="medication_notice_title">Voordat je begint</string>
     <string name="medication_notice_text">De pillendoos is een persoonlijk logboek. Het is geen medisch hulpmiddel en geeft geen medisch advies. Het controleert geen doseringen of interacties en zegt niet wat je moet doen na een gemiste inname. Vraag je arts of apotheker naar je medicatie.</string>
-    <string name="medication_privacy_text">Je medicatie blijft op dit apparaat. De app heeft geen internettoegang. Android kan de appgegevens opnemen in een back-up van het apparaat; daar heeft de app geen invloed op. Exporteer een CSV via Historie voor een kopie die je zelf beheert.</string>
+    <string name="medication_privacy_text">Je medicatie blijft op dit apparaat. De app heeft geen internettoegang. Android kan de appgegevens opnemen in een back-up van het apparaat; daar heeft de app geen invloed op. Maak een versleutelde back-up op het tabblad Profiel voor een kopie die je zelf beheert.</string>
     <string name="medication_notice_accept">Begrepen</string>
     <string name="medication_sources_title">Bronnen</string>
     <string name="medication_source_apotheek">apotheek.nl</string>
@@ -593,10 +593,10 @@
     <string name="lock_confirm_subtitle">Bevestig je apparaatinlog om het slot te wijzigen</string>
 
     <string name="privacy_backup_notice_title">Gegevensopslag en back-up</string>
-    <string name="privacy_backup_notice_body">Je gezondheidsgegevens zijn versleuteld op dit apparaat. Omdat sleutels aan dit apparaat gekoppeld zijn en het nooit verlaten, kunnen gegevens niet worden hersteld vanuit een cloudback-up of automatisch naar een nieuw toestel worden overgezet. Gebruik CSV-export in Geschiedenis om een back-up te bewaren of gegevens over te zetten.</string>
+    <string name="privacy_backup_notice_body">Je gezondheidsgegevens zijn versleuteld op dit apparaat. Omdat sleutels aan dit apparaat gekoppeld zijn en het nooit verlaten, kunnen gegevens niet worden hersteld vanuit een cloudback-up of automatisch naar een nieuw toestel worden overgezet. Maak een versleutelde back-up op het tabblad Profiel om gegevens te bewaren of over te zetten; CSV-export in Geschiedenis is een leesbare kopie zonder versleuteling.</string>
 
     <string name="security_secure_screen_lock_desc">Altijd aan zolang de app-vergrendeling aan staat, zodat recente apps en schermafbeeldingen je gegevens nooit tonen.</string>
-    <string name="privacy_backup_notice_body_unencrypted">Je gezondheidsgegevens staan op dit apparaat nu zonder versleuteling: versleuteling kon niet worden ingesteld en de app probeert het bij de volgende start opnieuw. De gegevens blijven op dit apparaat en kunnen niet worden hersteld vanuit een cloudback-up of automatisch naar een nieuw toestel worden overgezet. Gebruik CSV-export in Geschiedenis om een back-up te bewaren of gegevens over te zetten.</string>
+    <string name="privacy_backup_notice_body_unencrypted">Je gezondheidsgegevens staan op dit apparaat nu zonder versleuteling: versleuteling kon niet worden ingesteld en de app probeert het bij de volgende start opnieuw. De gegevens blijven op dit apparaat en kunnen niet worden hersteld vanuit een cloudback-up of automatisch naar een nieuw toestel worden overgezet. Maak een versleutelde back-up op het tabblad Profiel voor een beschermde kopie; CSV-export in Geschiedenis is niet versleuteld.</string>
 
     <string name="key_lost_title">Je gegevens kunnen niet worden geopend</string>
     <string name="key_lost_body">De versleutelingssleutel voor de gegevens op dit apparaat is niet meer beschikbaar, waardoor de gegevens niet gelezen kunnen worden. Dit kan gebeuren na het herstellen van het toestel of na een systeemupdate. De gegevens zijn nergens anders opgeslagen en kunnen dus niet worden hersteld. Heb je een CSV-export, dan kun je die importeren nadat je opnieuw bent begonnen.</string>
@@ -605,4 +605,41 @@
     <string name="key_lost_confirm_body">Hiermee worden de onleesbare gegevens definitief van dit apparaat verwijderd en start de app leeg. Dit kan niet ongedaan worden gemaakt.</string>
     <string name="key_lost_confirm_delete">Verwijderen</string>
     <string name="key_lost_confirm_cancel">Annuleren</string>
+    <!-- Encrypted backup -->
+    <string name="backup_section_title">Versleutelde back-up</string>
+    <string name="backup_section_desc">Bewaar al je gegevens in één bestand dat met een wachtwoordzin is beveiligd en herstel het op dit of een ander apparaat. De app kan de wachtwoordzin niet terughalen: zonder wachtwoordzin is het bestand niet te openen.</string>
+    <string name="backup_create_button">Back-up maken</string>
+    <string name="backup_restore_button">Back-up herstellen</string>
+    <string name="backup_create_title">Back-up maken</string>
+    <string name="backup_create_confirm">Maken</string>
+    <string name="backup_passphrase_label">Wachtwoordzin</string>
+    <string name="backup_passphrase_confirm_label">Herhaal wachtwoordzin</string>
+    <string name="backup_passphrase_hint">Drie of vier willekeurige woorden zijn sterker en makkelijker te onthouden dan acht willekeurige tekens.</string>
+    <string name="backup_passphrase_warning">De back-up wordt met deze wachtwoordzin versleuteld. Als je hem vergeet, kan niemand de back-up openen, ook wij niet.</string>
+    <string name="backup_working">Bezig…</string>
+    <string name="backup_restore_title">Back-up openen</string>
+    <string name="backup_restore_prompt">Voer de wachtwoordzin in waarmee deze back-up is gemaakt.</string>
+    <string name="backup_open_button">Openen</string>
+    <string name="backup_restore_confirm_title">Deze back-up herstellen?</string>
+    <string name="backup_restore_summary">De back-up bevat %1$d profiel(en), %2$d meting(en), %3$d medicijn(en) en %4$d inname(s).</string>
+    <string name="backup_restore_merge_note">Gegevens die nog niet op dit apparaat staan worden toegevoegd. Bestaande gegevens blijven zoals ze zijn.</string>
+    <string name="backup_restore_lostkey_note">De onleesbare gegevens op dit apparaat worden verwijderd en vervangen door de inhoud van deze back-up.</string>
+    <string name="backup_restore_settings">Ook instellingen herstellen</string>
+    <string name="backup_restore_settings_desc">Taal, regio, eenheden, thema en sluimertijd van herinneringen. Beveiligingsinstellingen worden nooit hersteld.</string>
+    <string name="backup_restore_confirm">Herstellen</string>
+    <string name="backup_err_too_short">Gebruik minstens %1$d tekens.</string>
+    <string name="backup_err_mismatch">De twee wachtwoordzinnen zijn niet gelijk.</string>
+    <string name="backup_err_wrong_passphrase">Verkeerde wachtwoordzin, of het bestand is beschadigd.</string>
+    <string name="backup_err_not_backup">Dit bestand is geen Health Journal-back-up.</string>
+    <string name="backup_err_unsupported">Deze back-up is gemaakt met een nieuwere versie van de app. Werk de app bij en probeer het opnieuw.</string>
+    <string name="backup_err_malformed">De back-up kon niet worden gelezen omdat de inhoud niet geldig is.</string>
+    <string name="backup_err_read">Het bestand kon niet worden gelezen.</string>
+    <string name="backup_err_create">De back-up kon niet worden gemaakt.</string>
+    <string name="backup_err_write">De back-up kon niet volledig worden opgeslagen. Kies een andere locatie en probeer het opnieuw.</string>
+    <string name="backup_err_restore">De back-up kon niet worden hersteld. Er is niets gewijzigd.</string>
+    <string name="backup_msg_saved">Back-up opgeslagen en gecontroleerd.</string>
+    <string name="backup_msg_nothing_new">Alles uit deze back-up staat al op dit apparaat.</string>
+    <string name="backup_msg_restored">Hersteld: %1$d profiel(en), %2$d meting(en), %3$d medicijn(en), %4$d inname(s). %5$d item(s) waren er al.</string>
+    <string name="key_lost_restore_button">Herstellen vanuit een back-up</string>
+    <string name="history_export_plaintext_warning">CSV-bestanden zijn niet versleuteld. Gebruik voor een beschermde kopie Versleutelde back-up op het tabblad Profiel.</string>
 </resources>

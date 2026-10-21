@@ -430,7 +430,7 @@
     <!-- Medication: notice and sources -->
     <string name="medication_notice_title">Before you start</string>
     <string name="medication_notice_text">The pillbox is a personal log. It is not a medical device and it gives no medical advice. It does not check doses or interactions, and it does not say what to do after a missed dose. Ask your doctor or pharmacist about your medication.</string>
-    <string name="medication_privacy_text">Your medication stays on this device. The app has no internet access. Android may include the app data in a device backup, which the app cannot control. Export a CSV from History for a copy that you control.</string>
+    <string name="medication_privacy_text">Your medication stays on this device. The app has no internet access. Android may include the app data in a device backup, which the app cannot control. Create an encrypted backup on the Profile tab for a copy that you control.</string>
     <string name="medication_notice_accept">Understood</string>
     <string name="medication_sources_title">Sources</string>
     <string name="medication_source_apotheek">apotheek.nl</string>
@@ -593,10 +593,10 @@
     <string name="lock_confirm_subtitle">Confirm your device credential to change the lock</string>
 
     <string name="privacy_backup_notice_title">Data storage &amp; backups</string>
-    <string name="privacy_backup_notice_body">Your health data is encrypted on this device. Because encryption keys are tied to this device and never leave it, data cannot be restored from a cloud backup or moved automatically to a new phone. Use CSV export in History to create backups or move your data.</string>
+    <string name="privacy_backup_notice_body">Your health data is encrypted on this device. Because encryption keys are tied to this device and never leave it, data cannot be restored from a cloud backup or moved automatically to a new phone. To move or keep a copy, create an encrypted backup on the Profile tab; CSV export in History is a readable copy that is not encrypted.</string>
 
     <string name="security_secure_screen_lock_desc">Always on while the app lock is on, so recent apps and screenshots never show your data.</string>
-    <string name="privacy_backup_notice_body_unencrypted">Your health data is currently stored on this device without encryption: encryption could not be set up, and the app tries again at the next start. It stays on this device and cannot be restored from a cloud backup or moved automatically to a new phone. Use CSV export in History to create backups or move your data.</string>
+    <string name="privacy_backup_notice_body_unencrypted">Your health data is currently stored on this device without encryption: encryption could not be set up, and the app tries again at the next start. It stays on this device and cannot be restored from a cloud backup or moved automatically to a new phone. To keep a protected copy, create an encrypted backup on the Profile tab; CSV export in History is not encrypted.</string>
 
     <string name="key_lost_title">Your data cannot be opened</string>
     <string name="key_lost_body">The encryption key for the data on this device is no longer available, so the data cannot be read. This can happen after a device restore or a system update. The data was never stored anywhere else, so it cannot be recovered. If you have a CSV export, you can import it after starting fresh.</string>
@@ -605,4 +605,41 @@
     <string name="key_lost_confirm_body">This permanently removes the unreadable data from this device and starts the app empty. This cannot be undone.</string>
     <string name="key_lost_confirm_delete">Delete</string>
     <string name="key_lost_confirm_cancel">Cancel</string>
+    <!-- Encrypted backup -->
+    <string name="backup_section_title">Encrypted backup</string>
+    <string name="backup_section_desc">Save all your data in one file protected by a passphrase, and restore it on this or another device. The app cannot recover the passphrase: without it the file cannot be opened.</string>
+    <string name="backup_create_button">Create backup</string>
+    <string name="backup_restore_button">Restore backup</string>
+    <string name="backup_create_title">Create backup</string>
+    <string name="backup_create_confirm">Create</string>
+    <string name="backup_passphrase_label">Passphrase</string>
+    <string name="backup_passphrase_confirm_label">Repeat passphrase</string>
+    <string name="backup_passphrase_hint">Three or four random words are stronger and easier to remember than eight random characters.</string>
+    <string name="backup_passphrase_warning">The backup is encrypted with this passphrase. If you forget it, the backup cannot be opened by anyone, including us.</string>
+    <string name="backup_working">Working…</string>
+    <string name="backup_restore_title">Open backup</string>
+    <string name="backup_restore_prompt">Enter the passphrase that was used to create this backup.</string>
+    <string name="backup_open_button">Open</string>
+    <string name="backup_restore_confirm_title">Restore this backup?</string>
+    <string name="backup_restore_summary">The backup contains %1$d profile(s), %2$d measurement(s), %3$d medication(s) and %4$d intake(s).</string>
+    <string name="backup_restore_merge_note">Entries that are not on this device yet are added. Entries that already exist are left as they are.</string>
+    <string name="backup_restore_lostkey_note">The unreadable data on this device is deleted and replaced by the contents of this backup.</string>
+    <string name="backup_restore_settings">Also restore settings</string>
+    <string name="backup_restore_settings_desc">Language, region, units, theme and reminder snooze. Security settings are never restored.</string>
+    <string name="backup_restore_confirm">Restore</string>
+    <string name="backup_err_too_short">Use at least %1$d characters.</string>
+    <string name="backup_err_mismatch">The two passphrases are not the same.</string>
+    <string name="backup_err_wrong_passphrase">Wrong passphrase, or the file is damaged.</string>
+    <string name="backup_err_not_backup">This file is not a Health Journal backup.</string>
+    <string name="backup_err_unsupported">This backup was made by a newer version of the app. Update the app and try again.</string>
+    <string name="backup_err_malformed">The backup could not be read because its contents are not valid.</string>
+    <string name="backup_err_read">The file could not be read.</string>
+    <string name="backup_err_create">The backup could not be created.</string>
+    <string name="backup_err_write">The backup could not be saved completely. Choose another location and try again.</string>
+    <string name="backup_err_restore">The backup could not be restored. Nothing was changed.</string>
+    <string name="backup_msg_saved">Backup saved and checked.</string>
+    <string name="backup_msg_nothing_new">Everything in this backup is already on this device.</string>
+    <string name="backup_msg_restored">Restored: %1$d profile(s), %2$d measurement(s), %3$d medication(s), %4$d intake(s). %5$d item(s) were already present.</string>
+    <string name="key_lost_restore_button">Restore from a backup</string>
+    <string name="history_export_plaintext_warning">CSV files are not encrypted. For a protected copy, use Encrypted backup on the Profile tab.</string>
 </resources>

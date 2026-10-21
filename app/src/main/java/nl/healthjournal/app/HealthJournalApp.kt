@@ -8,6 +8,8 @@ import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.ui.history.EntryUseCases
 import nl.healthjournal.app.ui.medication.MedicationUseCases
 import nl.healthjournal.data.DataModule
+import nl.healthjournal.domain.port.secondary.BackupCodecPort
+import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
@@ -34,6 +36,12 @@ class HealthJournalApp : Application() {
     val dataImportAdapter: DataImportPort
         get() = dataModule.dataImportPort
 
+    val backupCodec: BackupCodecPort
+        get() = dataModule.backupCodec
+
+    val backupSnapshot: BackupSnapshotPort
+        get() = dataModule.backupSnapshotPort
+
     // Use cases
     lateinit var createProfileUseCase: CreateProfileUseCase
         private set
@@ -52,6 +60,10 @@ class HealthJournalApp : Application() {
     lateinit var getHealthHistoryUseCase: GetHealthHistoryUseCase
         private set
     lateinit var medicationUseCases: MedicationUseCases
+        private set
+    lateinit var createBackupUseCase: CreateBackupUseCase
+        private set
+    lateinit var restoreBackupUseCase: RestoreBackupUseCase
         private set
 
     val reminderPreference: ReminderPreference by lazy { ReminderPreference(this) }
@@ -95,6 +107,9 @@ class HealthJournalApp : Application() {
             delete = DeleteMedicationUseCase(medicationRepository),
             getAdherence = GetAdherenceUseCase(medicationRepository)
         )
+
+        createBackupUseCase = CreateBackupUseCase(backupSnapshot, backupCodec)
+        restoreBackupUseCase = RestoreBackupUseCase(backupSnapshot, backupCodec)
 
         reminders = ReminderCoordinator(
             context = this,

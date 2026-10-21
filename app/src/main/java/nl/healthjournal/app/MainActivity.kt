@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
 import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -35,6 +36,7 @@ import nl.healthjournal.app.reminder.ReminderIntents
 import nl.healthjournal.app.lock.AppLockManager
 import nl.healthjournal.app.lock.BiometricAuthHelper
 import nl.healthjournal.app.settings.AppLockPreference
+import nl.healthjournal.app.settings.BackupPreferenceBridge
 import nl.healthjournal.app.settings.GlucoseUnitChoice
 import nl.healthjournal.app.settings.LanguagePreference
 import nl.healthjournal.app.settings.MedicationNoticePreference
@@ -44,6 +46,9 @@ import nl.healthjournal.app.settings.UnitPreference
 import nl.healthjournal.app.settings.UnitSystemChoice
 import nl.healthjournal.app.settings.withAppLocale
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
+import nl.healthjournal.app.ui.backup.BackupSection
+import nl.healthjournal.app.ui.backup.BackupViewModel
+import nl.healthjournal.app.ui.backup.ContentResolverBackupFileIo
 import nl.healthjournal.app.ui.history.HistoryScreen
 import nl.healthjournal.app.ui.history.HistoryViewModel
 import nl.healthjournal.app.ui.lock.DatabaseKeyLostScreen
@@ -54,6 +59,7 @@ import nl.healthjournal.app.ui.medication.MedicationNoticeDialog
 import nl.healthjournal.app.ui.medication.MedicationViewModel
 import nl.healthjournal.app.ui.medication.PillboxScreen
 import nl.healthjournal.app.ui.profile.ProfileScreen
+import nl.healthjournal.domain.usecase.RestoreBackupUseCase
 import nl.healthjournal.app.ui.profile.ProfileViewModel
 import nl.healthjournal.app.ui.profile.ReminderSettingsSection
 import nl.healthjournal.app.ui.profile.ReminderSettingsState
@@ -61,6 +67,7 @@ import nl.healthjournal.app.ui.profile.SecuritySettingsSection
 import nl.healthjournal.app.ui.profile.SecuritySettingsState
 import nl.healthjournal.app.ui.theme.BrandNavy
 import nl.healthjournal.app.ui.theme.HealthJournalTheme
+import nl.healthjournal.data.backup.FreshDatabaseBackupSnapshot
 import nl.healthjournal.data.local.DatabaseEncryptionStatus
 import nl.healthjournal.data.local.DatabaseRecovery
 import nl.healthjournal.data.local.EncryptionState
@@ -94,14 +101,57 @@ class MainActivity : FragmentActivity() {
             }
         }
 
+    private val backupPreferences by lazy { BackupPreferenceBridge(this) }
+
+    private val backupViewModel: BackupViewModel by viewModels {
+        BackupViewModel.Factory(
+            create = app.createBackupUseCase,
+            restore = app.restoreBackupUseCase,
+            io = ContentResolverBackupFileIo(contentResolver),
+            preferences = { backupPreferences.collect() },
+            applyPreferences = {
+                backupPreferences.apply(it)
+                // Language, region, theme and units are read when the screen is built.
+                recreate()
+            },
+            appVersion = versionName,
+            onRestored = {
+                profileViewModel.loadProfile()
+                loggingViewModel.loadProfile()
+                historyViewModel.loadHistory()
+                medicationViewModel.refresh()
+                lifecycleScope.launch { app.reminders.changed() }
+            }
+        )
+    }
+
+    /** Restore on the lost-key screen: the merge deletes the unreadable data first, into a fresh database. */
+    private val recoveryBackupViewModel: BackupViewModel by lazy {
+        // A separate key: viewModels() would hand back the same instance as backupViewModel.
+        ViewModelProvider(this, BackupViewModel.Factory(
+            create = null,
+            restore = RestoreBackupUseCase(FreshDatabaseBackupSnapshot(applicationContext), app.backupCodec),
+            io = ContentResolverBackupFileIo(contentResolver),
+            preferences = { null },
+            applyPreferences = { backupPreferences.apply(it) },
+            appVersion = versionName,
+            onRestored = {}
+        ))["recovery", BackupViewModel::class.java]
+    }
+
+    private val versionName: String
+        get() = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
+
+    private fun restartApp() {
+        val launch = packageManager.getLaunchIntentForPackage(packageName)
+        if (launch != null) startActivity(Intent.makeRestartActivityTask(launch.component))
+        Runtime.getRuntime().exit(0)
+    }
+
     /** Recovery for a lost database key: removes the unreadable data and restarts with a fresh, empty database. */
     private fun deleteUnreadableDataAndRestart() {
         DatabaseRecovery.deleteUnreadableData(this)
-        val launch = packageManager.getLaunchIntentForPackage(packageName)
-        if (launch != null) {
-            startActivity(Intent.makeRestartActivityTask(launch.component))
-        }
-        Runtime.getRuntime().exit(0)
+        restartApp()
     }
 
     fun applySecureScreen(enabled: Boolean) {
@@ -218,7 +268,11 @@ class MainActivity : FragmentActivity() {
             applySecureScreen(true)
             setContent {
                 HealthJournalTheme(choice = themePreference.choice) {
-                    DatabaseKeyLostScreen(onDeleteData = ::deleteUnreadableDataAndRestart)
+                    DatabaseKeyLostScreen(
+                        onDeleteData = ::deleteUnreadableDataAndRestart,
+                        backupViewModel = recoveryBackupViewModel,
+                        onRestart = ::restartApp
+                    )
                 }
             }
             return
@@ -434,6 +488,7 @@ class MainActivity : FragmentActivity() {
                                         onOpenExactAlarmSettings = ::openExactAlarmSettings
                                     )
                                 },
+                                backupSettings = { BackupSection(viewModel = backupViewModel) },
                                 securitySettings = {
                                     SecuritySettingsSection(
                                         state = SecuritySettingsState(

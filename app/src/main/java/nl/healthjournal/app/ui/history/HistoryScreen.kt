@@ -369,6 +369,11 @@ fun HistoryScreen(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    Text(
+                        stringResource(R.string.history_export_plaintext_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
                     Button(onClick = { viewModel.exportCsv("weight") }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.history_export_weight))
                     }

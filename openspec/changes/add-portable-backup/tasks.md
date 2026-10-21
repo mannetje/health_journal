@@ -28,13 +28,13 @@
 - [x] 3.5 Tests with the published vectors (`docs/backup-format/test-vectors`) decoded to the expected document; tamper, truncation, wrong passphrase, hostile header; round trip through an in-memory database
 
 ## 4. App (`:app`)
-- [ ] 4.1 Profile card: "Create backup" and "Restore backup", passphrase dialogs (twice, min length, warning)
-- [ ] 4.1a Passphrase hint ("three or four random words are stronger and easier to remember than eight random characters"), no scoring or colouring
-- [ ] 4.2 Document picker contracts (create and open), read-back verification, result banner with counts
-- [ ] 4.2a Restore dialog: "Also restore settings" (display preferences only, default on when the file has them; never lock, secure screen, lock-screen details)
-- [ ] 4.3 Lost-key screen: "Restore from a backup" (decrypt first, then delete, then import)
-- [ ] 4.4 CSV export warning before the destination is chosen
-- [ ] 4.5 Strings in English and Dutch for every label, warning and message
+- [x] 4.1 Profile card: "Create backup" and "Restore backup", passphrase dialogs (twice, min length, warning)
+- [x] 4.1a Passphrase hint ("three or four random words are stronger and easier to remember than eight random characters"), no scoring or colouring
+- [x] 4.2 Document picker contracts (create and open), read-back verification, result banner with counts
+- [x] 4.2a Restore dialog: "Also restore settings" (display preferences only, default on when the file has them; never lock, secure screen, lock-screen details)
+- [x] 4.3 Lost-key screen: "Restore from a backup" (decrypt first, then delete, then import)
+- [x] 4.4 CSV export warning before the destination is chosen
+- [x] 4.5 Strings in English and Dutch for every label, warning and message
 - [ ] 4.6 Privacy notice text updated (EN, NL); `PrivacyChecksTest` still green (no INTERNET, no logging)
 - [ ] 4.7 Check on the emulator: create, restore into a cleared app, wrong passphrase, cancelled picker, lost-key restore, light and dark, English and Dutch
 

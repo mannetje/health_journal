@@ -52,7 +52,8 @@ fun ProfileScreen(
     onThemeChange: (ThemeChoice) -> Unit = {},
     onShowMedicationNotice: () -> Unit = {},
     reminderSettings: @Composable () -> Unit = {},
-    securitySettings: @Composable () -> Unit = {}
+    securitySettings: @Composable () -> Unit = {},
+    backupSettings: @Composable () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val units = LocalDisplayUnits.current
@@ -302,6 +303,8 @@ fun ProfileScreen(
         reminderSettings()
 
         securitySettings()
+
+        backupSettings()
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(stringResource(R.string.profile_units_label), style = MaterialTheme.typography.labelLarge)
