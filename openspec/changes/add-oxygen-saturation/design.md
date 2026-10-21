@@ -10,17 +10,17 @@ Oxygen saturation is a plain metric and follows `docs/dev/how-to/add-a-metric.md
 ## Decisions
 
 ### 1. Domain (`:domain`)
-- `OxygenSaturation(id, profileId, timestamp, percent, pulse?, context?, comment?)` with validation (whole percent 50 to 100, pulse 30 to 250) and `OxygenContext` with stable codes.
+- `OxygenSaturation(id, profileId, timestamp, percent, pulse?, context?, site?, oxygenGiven, comment?)` with validation (whole percent 50 to 100, pulse 30 to 250) and `OxygenContext` and `OxygenSite` (FINGER, TOE, EARLOBE) with stable codes.
 - Port methods on `HealthLogRepositoryPort` (record, update, delete, list) and use cases `RecordOxygenSaturation`, `UpdateOxygenSaturation`, `DeleteOxygenSaturation`.
 - `OxygenStatistics`: lowest, highest, average (one decimal), count and counts per context for a range. No thresholds, no clock.
 
 ### 2. Data (`:data`)
 - `OxygenSaturationEntity`, DAO, mapper, repository methods; table `oxygen_saturations` indexed by profile and timestamp.
-- **Database version 6 → 7, `MIGRATION_6_7`**, added to the `addMigrations` list: `CREATE TABLE IF NOT EXISTS` plus the index. Read-mapping alternative (columns on an existing table) rejected in ADR 0026. A migration test opens a version 6 database with rows and checks version 7, old rows and an empty new table. Unknown context codes read from the database map to none.
+- **Database version 6 → 7, `MIGRATION_6_7`**, added to the `addMigrations` list: `CREATE TABLE IF NOT EXISTS` plus the index. Read-mapping alternative (columns on an existing table) rejected in ADR 0026. A migration test opens a version 6 database with rows and checks version 7, old rows and an empty new table. Unknown context or site codes read from the database map to none; `oxygen_given` is an integer, default 0.
 - CSV adapter with `CsvQuoting.cell`; backup snapshot and restore include `oxygenSaturations`.
 
 ### 3. App (`:app`)
-- Log tab: an `OxygenCard` with the value, pulse and context fields, the comment counter and the dismissible tip (dismissal in preferences). The value picker follows the smart input pickers of the other metrics ([ADR 0018](../../../docs/adr/0018-smart-input-pickers.md)).
+- Log tab: an `OxygenCard` with the value, pulse, context, site and "oxygen given" fields, the comment counter and the dismissible tip (dismissal in preferences). The value picker follows the smart input pickers of the other metrics ([ADR 0018](../../../docs/adr/0018-smart-input-pickers.md)).
 - History: rows, filter chip, edit dialog and delete through the existing code; timeline navigation unchanged.
 - Graph: dot chart in one hue with the shared range, axis, zoom and minimum-data code; a figures block; text descriptions for screen readers.
 - Profile notice: one added sentence. Strings in `values/` and `values-nl/`, ViewModel text via `UiText` ([ADR 0015](../../../docs/adr/0015-localized-viewmodel-messages.md)); a test scans the oxygen strings for assessment words.
@@ -37,4 +37,4 @@ Rules and figures in `:domain` (no Android), persistence and CSV in `:data`, scr
 Rollback: the table is additive; Room refuses a downgrade of the version, as for every migration.
 
 ## Open Questions
-- Whether to add the zib's measurement site and "oxygen given" later.
+- None.

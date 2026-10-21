@@ -1,14 +1,15 @@
 ## 0. Decisions
 - [x] 0.1 Own small release, before Migraine (requested 2026-10-21)
-- [x] 0.2 Fields: percent 50 to 100, optional pulse, optional context, date and time, comment
+- [x] 0.2 Fields: percent 50 to 100, optional pulse, optional context, optional site, optional oxygen-given tick, date and time, comment
 - [x] 0.3 No assessment of any kind; zibs as a naming guide only
+- [x] 0.3a Dismissible factual form tip kept (confirmed 2026-10-21)
 - [ ] 0.4 Spec review by the user before implementation starts
 - [ ] 0.5 Read zib O2Saturatie in full and complete `docs/dev/zib-mapping.md`
 - [ ] 0.6 Final English and Dutch wording agreed (card, contexts, tip, notice)
-- [ ] 0.7 Decide on measurement site and "oxygen given" (open question in the proposal)
+- [x] 0.7 Measurement site and "oxygen given" added as optional notes (requested 2026-10-21)
 
 ## 1. Domain (`:domain`) and data (`:data`)
-- [ ] 1.1 `OxygenSaturation`, `OxygenContext`, validation; JVM tests
+- [ ] 1.1 `OxygenSaturation`, `OxygenContext`, `OxygenSite`, validation; JVM tests
 - [ ] 1.2 `OxygenStatistics`; JVM tests for empty range, one reading, ties, rounding
 - [ ] 1.3 Port methods and use cases
 - [ ] 1.4 Entity, DAO, mapper, `MIGRATION_6_7`, version 7, repository; migration test from version 6

@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Record oxygen saturation
-The system SHALL allow recording an oxygen saturation reading for a Profile at a given timestamp, as a whole percent from 50 to 100, with an optional pulse from 30 to 250 beats per minute, an optional context and the optional comment. This metric is optional: a Profile with no readings SHALL function identically to today.
+The system SHALL allow recording an oxygen saturation reading for a Profile at a given timestamp, as a whole percent from 50 to 100, with an optional pulse from 30 to 250 beats per minute, an optional context, an optional measurement site, an optional "oxygen given" tick and the optional comment. This metric is optional: a Profile with no readings SHALL function identically to today.
 
 #### Scenario: Valid reading
 - **WHEN** a reading of 97 percent with a pulse of 68 is recorded
@@ -26,6 +26,21 @@ The context SHALL be an optional choice from: at rest, after activity, asleep or
 - **WHEN** the form opens
 - **THEN** no context is selected
 
+### Requirement: Measurement site and oxygen given
+The measurement site SHALL be an optional choice from: finger, toe, earlobe. The "oxygen given" tick SHALL be optional, off by default and mean only that the person ticked it. Both are notes by the person: the system SHALL NOT pre-select the site, derive either from other data, interpret them, or change any figure or presentation because of them.
+
+#### Scenario: Neither used
+- **WHEN** a reading is saved without a site and without the tick
+- **THEN** it is stored and shown without them
+
+#### Scenario: Both used
+- **WHEN** a reading is saved with site "finger" and the tick on
+- **THEN** both are stored, shown on the History row as plain text and restored in the edit dialog
+
+#### Scenario: Nothing pre-selected
+- **WHEN** the form opens
+- **THEN** no site is selected and the tick is off
+
 ### Requirement: No assessment of readings
 The system SHALL NOT label, classify, colour, rank or comment on a reading or a set of readings: there SHALL be no reference range, band, limit line, threshold, alert, trend verdict or advice, and no words such as low, normal, good or bad in either language. Figures SHALL be plain numbers.
 
@@ -38,7 +53,7 @@ The system SHALL NOT label, classify, colour, rank or comment on a reading or a 
 - **THEN** none contains an assessment word or a number presented as a limit
 
 ### Requirement: Oxygen saturation card and form
-The Log tab SHALL show an Oxygen saturation card in the same style as the other metric cards, with the date and time (default now), the value, the optional pulse, the optional context and the comment field with the counter from `entry-comments`. The form SHALL show once a plain tip "Many people sit still for about 10 minutes first" with a dismiss action that hides it for good; the tip SHALL NOT be styled as a warning or tied to a value.
+The Log tab SHALL show an Oxygen saturation card in the same style as the other metric cards, with the date and time (default now), the value, the optional pulse, the optional context, the optional measurement site, the optional "oxygen given" tick and the comment field with the counter from `entry-comments`. The form SHALL show once a plain tip "Many people sit still for about 10 minutes first" with a dismiss action that hides it for good; the tip SHALL NOT be styled as a warning or tied to a value.
 
 #### Scenario: Save with comment
 - **WHEN** a reading of 96 with the comment "after the stairs" is saved
@@ -56,8 +71,8 @@ The system SHALL allow retrieving all readings of a Profile in reverse chronolog
 - **THEN** they are returned newest first
 
 ### Requirement: Oxygen saturation text in English and Dutch
-Every string of this metric SHALL exist in English and Dutch. Dutch SHALL use "Zuurstofsaturatie" for the metric and "Rust", "Na inspanning", "Slapend of net wakker" and "Anders" for the contexts.
+Every string of this metric SHALL exist in English and Dutch. Dutch SHALL use "Zuurstofsaturatie" for the metric and "Rust", "Na inspanning", "Slapend of net wakker" and "Anders" for the contexts, "Vinger", "Teen" and "Oorlel" for the sites and "Zuurstof toegediend" for the tick.
 
 #### Scenario: Dutch card
 - **WHEN** the app language is Dutch
-- **THEN** the card is titled "Zuurstofsaturatie" and the contexts read as above
+- **THEN** the card is titled "Zuurstofsaturatie" and the contexts, sites and tick read as above

@@ -11,7 +11,7 @@ When a new metric or field is designed, look up its zib on [zibs.nl](https://zib
 
 | App metric | zib | Concepts we keep | Where we differ | Status |
 |---|---|---|---|---|
-| Oxygen saturation | [O2Saturatie](https://zibs.nl/images/2/2b/Nl.zorg.O2Saturatie-v4.0%282024NL%29.pdf) | saturation as a percentage; the time of the measurement; a comment | measurement site and "oxygen given" left out of version 1; optional context is our own note; no interpretation | to verify |
+| Oxygen saturation | [O2Saturatie](https://zibs.nl/images/2/2b/Nl.zorg.O2Saturatie-v4.0%282024NL%29.pdf) | saturation as a percentage; the time of the measurement; measurement site; oxygen given; a comment | both kept as optional notes with no interpretation; optional context is our own note | to verify |
 | Pulse (in blood pressure and oxygen) | Polsfrequentie | beats per minute | stored as an optional field of the entry | to verify |
 | Blood pressure | Bloeddruk | systolic and diastolic in mmHg | NHG band names in our own enum; no position or cuff site | to verify |
 | Weight | Lichaamsgewicht | kg | BMI derived in the app | to verify |

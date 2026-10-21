@@ -11,8 +11,8 @@ Weight, blood pressure, glucose and waist carry labels or lines from NHG and Voe
 ## Decision
 
 - **No assessment.** Readings are stored and shown as plain numbers: no band, limit line, colour threshold, alert or wording such as low or normal. The Profile notice says the app records what is entered and does not assess it. The `compliance` capability states this.
-- **A small table `oxygen_saturations`** (profile, timestamp, whole percent 50 to 100, optional pulse, optional context code, optional comment) added by `MIGRATION_6_7`, Room version 6 → 7. Read-mapping alternative considered: a column set on an existing table, rejected because a metric of its own keeps the DAO and the backup list simple. Old data is untouched.
-- **Context is a note**, a stable code (AT_REST, AFTER_ACTIVITY, ASLEEP_OR_JUST_WOKE, OTHER) never derived or interpreted.
+- **A small table `oxygen_saturations`** (profile, timestamp, whole percent 50 to 100, optional pulse, optional context code, optional site code, oxygen-given flag, optional comment) added by `MIGRATION_6_7`, Room version 6 → 7. Read-mapping alternative considered: a column set on an existing table, rejected because a metric of its own keeps the DAO and the backup list simple. Old data is untouched.
+- **Context is a note**, a stable code (AT_REST, AFTER_ACTIVITY, ASLEEP_OR_JUST_WOKE, OTHER) never derived or interpreted. The same holds for the optional measurement site (FINGER, TOE, EARLOBE) and the optional "oxygen given" tick, both taken from the zib as plain notes that change no figure.
 - **zibs are a naming and value-set guide**, recorded in [docs/dev/zib-mapping.md](../dev/zib-mapping.md). Fields and codes may follow a zib where it adds no function. The app makes no claim of conformance and does not exchange data with care systems; that would be a separate change with its own compliance review ([ADR 0021](0021-medication-compliance-and-privacy.md)).
 - **Backup keeps `schemaVersion` 1** with an added `oxygenSaturations` list ([ADR 0024](0024-portable-encrypted-backup.md)).
 - **Comment** reuses `EntryComment` ([ADR 0019](0019-entry-comments.md)).

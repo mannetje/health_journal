@@ -12,7 +12,7 @@ Under the Oxygen filter the History tab SHALL offer the same entries/graph switc
 - **THEN** the usual "not enough data" text appears
 
 ### Requirement: Oxygen saturation figures
-The graph view SHALL show, for the selected range, the lowest, highest and average reading (average with one decimal), the number of readings, and the number of readings per context (readings without a context counted as "no context"). The figures SHALL be plain numbers with no label, colour or caption interpreting them. Every chart and figure group SHALL have a text description for screen readers with the same numbers.
+The graph view SHALL show, for the selected range, the lowest, highest and average reading (average with one decimal), the number of readings, and the number of readings per context (readings without a context counted as "no context"). Site and the tick SHALL NOT change any figure or chart. The figures SHALL be plain numbers with no label, colour or caption interpreting them. Every chart and figure group SHALL have a text description for screen readers with the same numbers.
 
 #### Scenario: Figures
 - **WHEN** the range holds 98, 96 and 94
