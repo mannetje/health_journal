@@ -38,6 +38,12 @@ class RoomMedicationRepositoryTest {
         val times = mutableListOf<MedicationTimeEntity>()
         val intakes = mutableListOf<IntakeEntity>()
 
+        // The restore merge is covered by RoomBackupSnapshotTest against a real database.
+        override suspend fun insertMedicationIgnore(medication: MedicationEntity): Long = -1L
+        override suspend fun insertScheduleIgnore(schedule: MedicationScheduleEntity): Long = -1L
+        override suspend fun insertTimeIgnore(time: MedicationTimeEntity): Long = -1L
+        override suspend fun insertIntakeIgnore(intake: IntakeEntity): Long = -1L
+
         override suspend fun upsertMedication(medication: MedicationEntity) {
             medications[medication.id] = medication
         }

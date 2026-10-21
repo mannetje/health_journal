@@ -24,6 +24,10 @@ import java.time.LocalDate
 class RoomRepositoriesTest {
 
     private class FakeProfileDao : ProfileDao {
+        override suspend fun insertIgnore(profile: ProfileEntity): Long {
+            insert(profile)
+            return 1L
+        }
         private val profiles = mutableMapOf<String, ProfileEntity>()
         override suspend fun insert(profile: ProfileEntity) {
             profiles[profile.id] = profile
@@ -40,6 +44,10 @@ class RoomRepositoriesTest {
     }
 
     private class FakeWeightDao : WeightDao {
+        override suspend fun insertIgnore(entry: WeightEntity): Long {
+            insert(entry)
+            return 1L
+        }
         private val list = mutableListOf<WeightEntity>()
         private val flow = MutableStateFlow<List<WeightEntity>>(emptyList())
 
@@ -67,6 +75,10 @@ class RoomRepositoriesTest {
     }
 
     private class FakeBloodPressureDao : BloodPressureDao {
+        override suspend fun insertIgnore(entry: BloodPressureEntity): Long {
+            insert(entry)
+            return 1L
+        }
         private val list = mutableListOf<BloodPressureEntity>()
         private val flow = MutableStateFlow<List<BloodPressureEntity>>(emptyList())
 
@@ -94,6 +106,10 @@ class RoomRepositoriesTest {
     }
 
     private class FakeGlucoseDao : GlucoseDao {
+        override suspend fun insertIgnore(entry: GlucoseEntity): Long {
+            insert(entry)
+            return 1L
+        }
         private val list = mutableListOf<GlucoseEntity>()
         private val flow = MutableStateFlow<List<GlucoseEntity>>(emptyList())
 
@@ -121,6 +137,10 @@ class RoomRepositoriesTest {
     }
 
     private class FakeActivityDao : ActivityDao {
+        override suspend fun insertIgnore(entry: ActivityEntity): Long {
+            insert(entry)
+            return 1L
+        }
         private val list = mutableListOf<ActivityEntity>()
         private val flow = MutableStateFlow<List<ActivityEntity>>(emptyList())
 
@@ -148,6 +168,10 @@ class RoomRepositoriesTest {
     }
 
     private class FakeWaistCircumferenceDao : WaistCircumferenceDao {
+        override suspend fun insertIgnore(entry: WaistCircumferenceEntity): Long {
+            insert(entry)
+            return 1L
+        }
         private val list = mutableListOf<WaistCircumferenceEntity>()
         private val flow = MutableStateFlow<List<WaistCircumferenceEntity>>(emptyList())
 

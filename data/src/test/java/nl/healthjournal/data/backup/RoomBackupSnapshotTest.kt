@@ -6,9 +6,9 @@ import nl.healthjournal.data.local.mapper.HealthLogMapper
 import nl.healthjournal.data.local.mapper.ProfileMapper
 import nl.healthjournal.domain.model.backup.BackupDocument
 import nl.healthjournal.domain.model.backup.BackupProfile
-import nl.healthjournal.domain.model.common.MeasurementId
+import nl.healthjournal.domain.model.medication.IntakeId
+import nl.healthjournal.domain.model.medication.MedicationId
 import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.model.profile.ProfileId
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -98,8 +98,12 @@ class RoomBackupSnapshotTest {
 
     @Test
     fun `a failure part-way leaves the database unchanged`() = runTest {
-        val broken: BackupProfile = sample.profiles.single().let {
-            it.copy(weights = it.weights + it.weights.first().copy(id = MeasurementId.generate(), profileId = ProfileId.generate()))
+        // Only the medication tables have foreign keys: an intake for a medication that is not there fails
+        // after the profile and its entries have already been inserted.
+        val broken: BackupProfile = sample.profiles.single().let { p ->
+            val first = p.medications.first()
+            val orphan = first.intakes.first().copy(id = IntakeId.generate(), medicationId = MedicationId.generate())
+            p.copy(medications = listOf(first.copy(intakes = first.intakes + orphan)) + p.medications.drop(1))
         }
 
         val failure = runCatching { port.merge(listOf(broken)) }.exceptionOrNull()
