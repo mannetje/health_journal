@@ -19,6 +19,12 @@ When a new metric or field is designed, look up its zib on [zibs.nl](https://zib
 | Glucose | Laboratoriumuitslag (glucose) | mmol/L | context FASTING / POSTPRANDIAL is ours | to verify |
 | Migraine log | Hoofdpijn (to look up) | start, end, intensity | see [`add-migraine-log`](../../openspec/changes/add-migraine-log/proposal.md) | to verify |
 | Mindfulness | none | | stores nothing | own |
+| Sleep log | none matching (Slaapfunctie v3.0 is a clinical model; seen by title only) | none adopted | bed and wake times with computed duration, never judged; see [`add-sleep-log`](../../openspec/changes/add-sleep-log/proposal.md) | to verify (zibs.nl unreadable) |
+| Mood log | none found (check Functionele of Mentale Status) | nothing adopted | own five-step scale and fixed feeling words, no score; see [`add-mood-log`](../../openspec/changes/add-mood-log/proposal.md) | own / to verify |
+| Body temperature | [BodyTemperature / Lichaamstemperatuur](https://zibs.nl/wiki/BodyTemperature-v3.1(2018EN)) v3.1 | value in °C; date and time; measurement location as optional site; comment | ear and forehead are our own sites; mouth and armpit match oral and axillary; value kept as tenths; no assessment; see [`add-body-temperature`](../../openspec/changes/add-body-temperature/proposal.md) | to verify (value set not read in full) |
+| Fluid intake | [Vochtbalans (FluidBalance)](https://zibs.nl/wiki/FluidBalance-v1.0.1(2024EN)) | total fluid intake in ml over a period | clinical intake and output reduced to entries by mouth; totals per day derived; see [`add-fluid-intake`](../../openspec/changes/add-fluid-intake/proposal.md) | to verify (page 503) |
+| Daily activity | none found (closest: [Mobiliteit](https://zibs.nl/wiki/Mobiliteit-v3.3.1(2024NL)), ability to walk, not a count) | none | own steps, active minutes, type list, one entry per day, no goal; see [`add-daily-activity`](../../openspec/changes/add-daily-activity/proposal.md) | own (zibs.nl index unreadable, to re-check) |
+| Energy level | none found (nearest: Symptoom) | timestamp, patient-reported complaint with a comment | own 0 to 10 rating, no severity or assessment; see [`add-energy-level`](../../openspec/changes/add-energy-level/proposal.md) | to verify |
 
 ## Not planned
 - A FHIR or zib export for care providers. It moves towards a care context and would be its own change with a compliance review.
