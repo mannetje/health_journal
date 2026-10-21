@@ -305,7 +305,7 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | Tones, vibration, spoken cues | 2.5 | built: generated tones, vibration, offline-voice speech with a voice picker and a "not available" message; choices are saved by 2.7 |
 | Safety note and acknowledgement | 2.6 | built: first-open note with a Read more link and one button, the acknowledgement kept in preferences, a breath-hold reminder on the breathing setup, and the full text under About these exercises (checked on the emulator in light and dark) |
 | Saved display choices | 2.7 | built: pattern, length, picture, meditation length and interval, and the cue choices and voice per exercise are kept in app preferences; nothing else is stored (checked on the emulator across a force-stop) |
-| Strings in English and Dutch | 2.8 | done for the built screens |
+| Strings in English and Dutch | 2.8 | reviewed for the built screens |
 | `VIBRATE` permission, privacy checks | 2.9 | not started |
 | Emulator check | 2.10 | not started |
 | Credits screen (Credits / Bronnen) and credits record | 3.3, 3.3a | built: `CreditsScreen` from a link on the home screen lists each recording with teacher, source, licence and links to the original and the licence text; [`docs/credits.md`](../credits.md) holds the same record (checked on the emulator in light and dark; the Original link opens the browser) |

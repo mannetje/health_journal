@@ -648,7 +648,7 @@
     <string name="mindfulness_home_breathe">Breathe</string>
     <string name="mindfulness_home_breathe_desc">Paced breathing with a lotus, a circle or a square.</string>
     <string name="mindfulness_home_meditate">Meditate</string>
-    <string name="mindfulness_home_meditate_desc">A quiet timer with a bell at the start and the end.</string>
+    <string name="mindfulness_home_meditate_desc">A quiet timer with a bell at the start and the end, and one on the way if you like.</string>
     <string name="mindfulness_home_guided">Guided</string>
     <string name="mindfulness_home_guided_desc">Recorded exercises, played on this device.</string>
     <string name="mindfulness_home_start_here">Start here</string>
