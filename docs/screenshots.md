@@ -89,6 +89,17 @@ All screenshots of the Health Journal app, in the light and dark theme. Back to 
 | <img src="screenshots/light-mindfulness-guided-player.png" width="250" alt="Guided recording playing, with progress, time, Pause and Back and the credit line, light theme"> | <img src="screenshots/dark-mindfulness-guided-player.png" width="250" alt="Guided recording ready to play, with progress, time, Play and Back and the credit line, dark theme"> |
 | <img src="screenshots/light-mindfulness-circle.png" width="250" alt="Breathing exercise with the circle picture, light theme"> | <img src="screenshots/light-mindfulness-square.png" width="250" alt="Breathing exercise with the rounded square picture and a dot moving along it, light theme"> |
 
+Mindfulness in Dutch (light theme, except the last one). The last picture is the dark theme on a 320 dp wide phone with system animations turned off: the dot jumps between the corners and the Stop button has already hidden.
+
+| | |
+|-------|------|
+| <img src="screenshots/nl-mindfulness-safety-note.png" width="250" alt="Safety note in Dutch"> | <img src="screenshots/nl-mindfulness-about.png" width="250" alt="About these exercises in Dutch"> |
+| <img src="screenshots/nl-mindfulness-home.png" width="250" alt="Mindfulness home in Dutch"> | <img src="screenshots/nl-mindfulness-start-here.png" width="250" alt="Start here in Dutch"> |
+| <img src="screenshots/nl-mindfulness-credits.png" width="250" alt="Credits in Dutch"> | <img src="screenshots/nl-mindfulness-breathe-setup.png" width="250" alt="Breathing setup in Dutch"> |
+| <img src="screenshots/nl-mindfulness-breathing.png" width="250" alt="Breathing exercise in Dutch"> | <img src="screenshots/nl-mindfulness-meditate-setup.png" width="250" alt="Meditation setup in Dutch"> |
+| <img src="screenshots/nl-mindfulness-meditate.png" width="250" alt="Meditation timer in Dutch"> | <img src="screenshots/nl-mindfulness-guided.png" width="250" alt="Guided recordings in Dutch"> |
+| <img src="screenshots/nl-mindfulness-guided-player.png" width="250" alt="Guided player in Dutch"> | <img src="screenshots/dark-mindfulness-square-narrow-nl.png" width="250" alt="Square breathing picture in Dutch, dark theme, on a narrow 320 dp phone with system animations off"> |
+
 **App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](adr/0011-app-icon-and-adaptive-layers.md)):
 
 <img src="screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">

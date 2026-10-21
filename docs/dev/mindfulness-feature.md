@@ -1,6 +1,6 @@
 # Mindfulness (the feature)
 
-> **Status: built (version 1).** The pure logic in `:domain` and every screen in `:app` exist: the 🪷 button, home, Breathe, Meditate, Guided recordings, Start here, the safety note, saved display choices and Credits. Open: a screen to enter a custom breathing pattern (the domain supports it), and the full emulator pass (task 2.10). The [status table](#7-status) says exactly what is where. The requirements are in the change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md); the decisions, the agreed safety wording and the content licences are in [Mindfulness: decisions, wording and licences](mindfulness.md).
+> **Status: built (version 1).** The pure logic in `:domain` and every screen in `:app` exist: the 🪷 button, home, Breathe, Meditate, Guided recordings, Start here, the safety note, saved display choices and Credits. Open: a screen to enter a custom breathing pattern (the domain supports it), and a TalkBack and on-device audio check. The [status table](#7-status) says exactly what is where. The requirements are in the change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md); the decisions, the agreed safety wording and the content licences are in [Mindfulness: decisions, wording and licences](mindfulness.md).
 
 The 🪷 button in the top bar, next to 💊, opens a quiet area with a few ways to slow down: paced **breathing**, a **meditation timer**, short **guided recordings** and a **Start here** ladder for a first time. The app gives no advice and keeps no record of what the user practised.
 
@@ -274,7 +274,7 @@ While a session runs, an `ExerciseGate` tells `MainActivity` so the notification
 | Saved choices | [`MindfulnessPreferencesTest.kt`](../../app/src/test/java/nl/healthjournal/app/settings/MindfulnessPreferencesTest.kt) |
 | The first-time ladder | [`StartHereTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/StartHereTest.kt) |
 
-Run them with `./gradlew :domain:test`. The screens are checked by hand on the emulator (task 2.10): each pattern, both languages, light and dark, animations off, a narrow phone.
+Run them with `./gradlew :domain:test`. The screens were checked by hand on the emulator (task 2.10): every screen in English and Dutch, light and dark, system animations off and a 320 dp wide phone. Audible tones, speech, vibration and TalkBack need a real device.
 
 ## 6. How to extend it
 
@@ -310,7 +310,7 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | Saved display choices | 2.7 | built: pattern, length, picture, meditation length and interval, and the cue choices and voice per exercise are kept in app preferences; nothing else is stored (checked on the emulator across a force-stop) |
 | Strings in English and Dutch | 2.8 | reviewed |
 | `VIBRATE` permission, privacy checks | 2.9 | done (`VIBRATE` only; no `INTERNET`, no logging) |
-| Emulator check | 2.10 | partly: each screen checked in light and dark while built; the full pass (Dutch, animations off, narrow phone, TalkBack) is still to do |
+| Emulator check | 2.10 | done: all screens in English and Dutch, light and dark, animations off, narrow phone (320 dp), no clipping. Not checkable on the emulator: audible tones, speech, vibration, TalkBack |
 | Credits screen (Credits / Bronnen) and credits record | 3.3, 3.3a | built: `CreditsScreen` from a link on the home screen lists each recording with teacher, source, licence and links to the original and the licence text; [`docs/credits.md`](../credits.md) holds the same record (checked on the emulator in light and dark; the Original link opens the browser) |
 
 The living list is [`tasks.md`](../../openspec/changes/add-mindfulness/tasks.md).

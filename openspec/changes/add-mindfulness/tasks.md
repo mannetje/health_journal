@@ -30,7 +30,7 @@
 - [x] 2.7 Display choices in preferences; nothing else stored or logged. Done: `MindfulnessPreferences`; checked on the emulator across a force-stop
 - [x] 2.8 Own texts written for the app, strings in English and Dutch for every label, phase, cue, note and message (strings reviewed: keys match in both languages, no hard-coded texts)
 - [x] 2.9 `VIBRATE` in the manifest; `PrivacyChecksTest` still green (no INTERNET, no logging)
-- [ ] 2.10 Check on the emulator: each pattern, timer, both languages, light and dark, animations off, narrow phone
+- [x] 2.10 Check on the emulator: each pattern, timer, both languages, light and dark, animations off, narrow phone
 
 ## 3. Docs
 - [x] 3.1 Rewrite `docs/dev/mindfulness.md` for the real feature; update `docs/dev/README.md`, `architecture.md`, `design.md`
