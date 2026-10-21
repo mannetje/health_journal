@@ -1,12 +1,8 @@
 package nl.healthjournal.app.ui.mindfulness
 
 import android.content.Context
-import android.content.ContextWrapper
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -38,51 +33,65 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.delay
 import nl.healthjournal.app.R
+import nl.healthjournal.domain.model.mindfulness.ExerciseSession
 import nl.healthjournal.domain.model.mindfulness.GuidedExercise
+import nl.healthjournal.domain.model.mindfulness.SessionEnd
 
 /**
- * Plays one bundled recording. Nothing is stored about the listening. The recording pauses when the
- * app goes to the background or another app takes the audio, and everything is released on leaving.
+ * Plays one bundled recording. Each press on Play starts a session that holds the screen-on flag, the audio
+ * focus and the player; Pause, Back, the app going to the background or another app taking the audio ends it
+ * and gives everything back. Only the position is kept in memory so Play can continue; nothing is stored.
  */
 @Composable
 fun GuidedPlayerScreen(exercise: GuidedExercise, onClose: () -> Unit) {
-    BackHandler(onBack = onClose)
     val context = LocalContext.current
     val view = LocalView.current
+    val launcher = rememberSessionLauncher()
     val appLanguage = appContentLanguage()
 
     var playing by remember { mutableStateOf(false) }
-    var finished by remember { mutableStateOf(false) }
+    var playback by remember { mutableStateOf<GuidedPlayback?>(null) }
+    var resumeMs by remember { mutableIntStateOf(0) }
     var positionMs by remember { mutableIntStateOf(0) }
-    val session = remember(exercise) { GuidedAudioSession(context, exercise) { playing = false; finished = true } }
-    val durationMs = session.durationMs.takeIf { it > 0 } ?: (exercise.durationSeconds * 1000)
+    val durationMs = playback?.durationMs?.takeIf { it > 0 } ?: (exercise.durationSeconds * 1000)
 
-    DisposableEffect(session) {
-        val lifecycle = context.findActivity()?.lifecycle
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                session.pause()
-                playing = false
-            }
+    var current by remember { mutableStateOf<ExerciseSession?>(null) }
+
+    fun startPlayback() {
+        val session = launcher.start { reason ->
+            val last = playback?.lastPositionMs ?: resumeMs
+            playing = false
+            playback = null
+            resumeMs = if (reason == SessionEnd.FINISHED) 0 else last
+            positionMs = resumeMs
         }
-        lifecycle?.addObserver(observer)
-        session.onFocusLost = { playing = false }
-        onDispose {
-            lifecycle?.removeObserver(observer)
-            session.release()
+        current = session
+        session.keepScreenOn(view)
+        if (!session.requestAudioFocus(context)) {
+            session.end(SessionEnd.STOPPED)
+            return
+        }
+        val started = session.playRecording(context, exercise, resumeMs)
+        if (started == null) {
+            session.end(SessionEnd.STOPPED)
+        } else {
+            playback = started
+            playing = true
         }
     }
-    DisposableEffect(playing) {
-        view.keepScreenOn = playing
-        onDispose { view.keepScreenOn = false }
+
+    fun leave() {
+        current?.end(SessionEnd.STOPPED)
+        onClose()
     }
+
+    BackHandler(onBack = ::leave)
+
     LaunchedEffect(playing) {
         while (playing) {
-            positionMs = session.positionMs
+            positionMs = playback?.positionMs ?: positionMs
             delay(250)
         }
     }
@@ -113,21 +122,10 @@ fun GuidedPlayerScreen(exercise: GuidedExercise, onClose: () -> Unit) {
             style = MaterialTheme.typography.titleMedium
         )
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = {
-                if (playing) {
-                    session.pause()
-                    playing = false
-                } else {
-                    if (finished) {
-                        positionMs = 0
-                        finished = false
-                    }
-                    playing = session.play()
-                }
-            }) {
+            Button(onClick = { if (playing) current?.end(SessionEnd.STOPPED) else startPlayback() }) {
                 Text(stringResource(if (playing) R.string.guided_pause else R.string.guided_play))
             }
-            OutlinedButton(onClick = onClose) { Text(stringResource(R.string.breathing_back)) }
+            OutlinedButton(onClick = ::leave) { Text(stringResource(R.string.breathing_back)) }
         }
         val credit = exercise.credit
         Text(
@@ -138,72 +136,30 @@ fun GuidedPlayerScreen(exercise: GuidedExercise, onClose: () -> Unit) {
     }
 }
 
-private tailrec fun Context.findActivity(): ComponentActivity? = when (this) {
-    is ComponentActivity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
-}
+/** The player of one session; remembers where it stopped so Play can continue from there. */
+private class GuidedPlayback(private val player: MediaPlayer) {
+    var lastPositionMs = 0
+        private set
 
-/** One recording, its player and its audio focus; all of it is dropped by [release]. */
-private class GuidedAudioSession(
-    context: Context,
-    exercise: GuidedExercise,
-    onCompleted: () -> Unit,
-) {
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    private val attributes = AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_MEDIA)
-        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-        .build()
-    private var focusRequest: AudioFocusRequest? = null
-    private var player: MediaPlayer? = null
-
-    var onFocusLost: () -> Unit = {}
-
-    init {
-        val resId = context.resources.getIdentifier(exercise.rawResourceName, "raw", context.packageName)
-        player = if (resId == 0) null else MediaPlayer.create(context, resId, attributes, audioManager.generateAudioSessionId())
-            ?.also { it.setOnCompletionListener { _ -> abandonFocus(); onCompleted() } }
-    }
-
-    val durationMs: Int get() = player?.duration ?: 0
-    val positionMs: Int get() = player?.currentPosition ?: 0
-
-    /** Starts or resumes; false when there is no audio or another app keeps the audio focus. */
-    fun play(): Boolean {
-        val p = player ?: return false
-        if (!requestFocus()) return false
-        p.start()
-        return true
-    }
-
-    fun pause() {
-        player?.takeIf { it.isPlaying }?.pause()
-        abandonFocus()
-    }
+    val durationMs: Int get() = player.duration
+    val positionMs: Int get() = player.currentPosition
 
     fun release() {
-        abandonFocus()
-        player?.release()
-        player = null
+        lastPositionMs = runCatching { player.currentPosition }.getOrDefault(lastPositionMs)
+        player.release()
     }
+}
 
-    private fun requestFocus(): Boolean {
-        val request = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-            .setAudioAttributes(attributes)
-            .setOnAudioFocusChangeListener { change ->
-                if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-                    player?.takeIf { it.isPlaying }?.pause()
-                    onFocusLost()
-                }
-            }
-            .build()
-        focusRequest = request
-        return audioManager.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-    }
-
-    private fun abandonFocus() {
-        focusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
-        focusRequest = null
-    }
+/** Starts the recording at [startAtMs]; the player is released when the session ends, and finishing ends it. */
+private fun ExerciseSession.playRecording(context: Context, exercise: GuidedExercise, startAtMs: Int): GuidedPlayback? {
+    val resId = context.resources.getIdentifier(exercise.rawResourceName, "raw", context.packageName)
+    if (resId == 0) return null
+    val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    val player = MediaPlayer.create(context, resId, speechAttributes, audioManager.generateAudioSessionId()) ?: return null
+    val playback = GuidedPlayback(player)
+    hold { playback.release() }
+    player.setOnCompletionListener { end(SessionEnd.FINISHED) }
+    if (startAtMs > 0) player.seekTo(startAtMs)
+    player.start()
+    return playback
 }

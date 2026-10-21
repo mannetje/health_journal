@@ -60,6 +60,8 @@ import nl.healthjournal.app.ui.logging.LoggingViewModel
 import nl.healthjournal.app.ui.medication.MedicationNoticeDialog
 import nl.healthjournal.app.ui.medication.MedicationViewModel
 import nl.healthjournal.app.ui.medication.PillboxScreen
+import nl.healthjournal.app.ui.mindfulness.ExerciseGate
+import nl.healthjournal.app.ui.mindfulness.LocalExerciseGate
 import nl.healthjournal.app.ui.mindfulness.MindfulnessArea
 import nl.healthjournal.app.ui.profile.ProfileScreen
 import nl.healthjournal.domain.usecase.RestoreBackupUseCase
@@ -324,6 +326,7 @@ class MainActivity : FragmentActivity() {
                 var snoozeMinutes by remember { mutableStateOf(app.reminderPreference.snoozeMinutes) }
                 var showDetails by remember { mutableStateOf(app.reminderPreference.showDetailsOnLockScreen) }
                 var showPermissionDialog by remember { mutableStateOf(false) }
+                val exerciseGate = remember { ExerciseGate() }
                 // Ask once, with an explanation, when the first schedule exists and the pillbox is in view.
                 val hasMedication = medicationViewModel.uiState.collectAsState().value.medications.isNotEmpty()
                 LaunchedEffect(hasMedication, showPillbox) {
@@ -452,7 +455,7 @@ class MainActivity : FragmentActivity() {
                                 }
                             )
                         } else if (showMindfulness) {
-                            MindfulnessArea()
+                            CompositionLocalProvider(LocalExerciseGate provides exerciseGate) { MindfulnessArea() }
                         } else when (currentTab) {
                             AppNavDestination.LOG -> LogMetricScreen(
                                 viewModel = loggingViewModel,
@@ -562,7 +565,7 @@ class MainActivity : FragmentActivity() {
                         onConfirm = { showNoticeFromProfile = false }
                     )
                 }
-                if (showPermissionDialog) {
+                if (showPermissionDialog && !exerciseGate.active) {
                     AlertDialog(
                         onDismissRequest = {
                             showPermissionDialog = false

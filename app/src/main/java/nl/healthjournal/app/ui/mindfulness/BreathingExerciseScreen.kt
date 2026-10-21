@@ -14,6 +14,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,10 +32,12 @@ import nl.healthjournal.domain.model.mindfulness.BreathingPattern
 import nl.healthjournal.domain.model.mindfulness.BreathingPhaseKind
 import nl.healthjournal.domain.model.mindfulness.BreathingState
 import nl.healthjournal.domain.model.mindfulness.BreathingTimer
+import nl.healthjournal.domain.model.mindfulness.ExerciseSession
+import nl.healthjournal.domain.model.mindfulness.SessionEnd
 
 /**
- * Runs one breathing exercise. The screen keeps the display on while it is shown and records nothing:
- * when the exercise ends or the user leaves, the state is simply dropped.
+ * Runs one breathing exercise. Its session keeps the display on and records nothing:
+ * Stop, Back, the background or finishing ends the session and the state is simply dropped.
  */
 @Composable
 fun BreathingExerciseScreen(
@@ -42,16 +45,34 @@ fun BreathingExerciseScreen(
     visual: BreathingVisual,
     onClose: () -> Unit,
 ) {
-    BackHandler(onBack = onClose)
-    KeepScreenOn()
+    val view = LocalView.current
+    val launcher = rememberSessionLauncher()
     val reduceMotion = rememberReduceMotion()
 
     var elapsed by remember(timer) { mutableLongStateOf(0L) }
+    var session by remember(timer) { mutableStateOf<ExerciseSession?>(null) }
+    DisposableEffect(timer) {
+        // Leaving for the background or losing the audio drops the exercise; finishing keeps the Done screen.
+        var leaving = false
+        val started = launcher.start { reason -> if (!leaving && reason != SessionEnd.FINISHED) onClose() }
+        started.keepScreenOn(view)
+        session = started
+        onDispose {
+            leaving = true
+            started.end(SessionEnd.STOPPED)
+        }
+    }
+    fun stop() {
+        // Ending a running session closes the screen through its callback; after Done there is nothing to end.
+        if (session?.end(SessionEnd.STOPPED) != true) onClose()
+    }
+    BackHandler(onBack = ::stop)
     LaunchedEffect(timer) {
         val start = withFrameMillisCompat()
         while (elapsed < timer.totalMillis) {
             elapsed = withFrameMillisCompat() - start
         }
+        session?.end(SessionEnd.FINISHED)
     }
     val state = timer.stateAt(elapsed)
 
@@ -88,7 +109,7 @@ fun BreathingExerciseScreen(
             BreathingState.Done -> ""
         }
         Text(count, style = MaterialTheme.typography.displayMedium)
-        OutlinedButton(onClick = onClose) {
+        OutlinedButton(onClick = ::stop) {
             Text(stringResource(if (state == BreathingState.Done) R.string.breathing_back else R.string.breathing_stop))
         }
     }
@@ -115,15 +136,6 @@ internal fun phaseLabel(kind: BreathingPhaseKind): Int = when (kind) {
     BreathingPhaseKind.HOLD -> R.string.breathing_phase_hold
     BreathingPhaseKind.EXHALE -> R.string.breathing_phase_exhale
     BreathingPhaseKind.HOLD_EMPTY -> R.string.breathing_phase_pause
-}
-
-@Composable
-private fun KeepScreenOn() {
-    val view = LocalView.current
-    DisposableEffect(view) {
-        view.keepScreenOn = true
-        onDispose { view.keepScreenOn = false }
-    }
 }
 
 /** True when the user has turned system animations off; the visual then jumps between full and empty. */

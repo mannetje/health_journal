@@ -230,9 +230,9 @@ The catalogue is data. Each entry has an audio language, a duration, English and
 
 The app side has two screens. `GuidedListScreen` shows `orderedFor(appLanguage)`, with an "Audio: <language>" label on entries whose audio is not in the app language; the app language comes from `LocalConfiguration`, which lint requires so the list follows a language change. `GuidedPlayerScreen` plays the raw resource with `MediaPlayer` (speech attributes), asks for audio focus on Play and pauses when focus is lost or the activity stops, keeps the screen on only while playing, and releases the player when the screen leaves. It shows the credit (author, source, licence) under the controls. Nothing about what was played is stored. A configuration change such as a theme switch recreates the screen at 0:00, paused.
 
-### Planned: one session object
+### One session object
 
-Task 2.3c puts everything an exercise holds in one place, so nothing can leak after the screen is gone.
+Task 2.3c (done for the screen-on flag, audio focus and player; tones, speech and vibration join in 2.5) puts everything an exercise holds in one place, so nothing can leak after the screen is gone.
 
 ```mermaid
 flowchart LR
@@ -246,7 +246,9 @@ flowchart LR
     SES -->|release all| END((nothing kept))
 ```
 
-The session starts on the exercise screen and releases everything on stop, on going to the background, on Back and on an incoming call. While it runs, the app's own dialogs and the app lock are held back. Medication reminders stay unchanged, by decision.
+`ExerciseSession` (domain, pure Kotlin, tested on the JVM) is a registry of releasable resources. It ends once (the first reason wins: finished, stopped, background or interrupted), releases in reverse order, survives a failing release and releases a late resource at once. The Android side lives in `ExerciseSessions.kt`: `rememberSessionLauncher()` starts sessions, ends the running one on activity stop and when the screen leaves; `keepScreenOn(view)` and `requestAudioFocus(context)` register their release; losing the audio focus (a call, an alarm) ends the session as interrupted, so no phone-state permission is needed. The guided player starts one session per Play press and keeps only the position in memory; the breathing screen has one session for its whole run and closes on Stop, Back, background or interruption.
+
+While a session runs, an `ExerciseGate` tells `MainActivity` so the notification-permission dialog waits. The app lock needs no gate: it only fires after the app was in the background, which ends the session first. Medication reminders stay unchanged, by decision.
 
 ## 4. Privacy and safety in the code
 
@@ -297,7 +299,7 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | 🪷 button, back handling, home screen | 2.1, 2.2 | done |
 | Breathing setup and exercise screen with lotus, circle, rounded square | 2.3 | built, partly: no saved picture choice, no custom pattern input, no fading controls |
 | Guided list and player | 2.3a | done (`GuidedListScreen`, `GuidedPlayerScreen`); no seek, no background playback by design |
-| Session object | 2.3c | not started |
+| Session object | 2.3c | done (screen-on, focus, player; tones, speech, vibration follow in 2.5) |
 | Meditation timer screen | 2.4 | not started |
 | Tones, vibration, spoken cues | 2.5 | not started |
 | Safety note and acknowledgement | 2.6 | not started |
