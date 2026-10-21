@@ -689,6 +689,13 @@
     <string name="start_here_intro">Three short steps for a first time. Begin with the first and go on whenever you like.</string>
     <string name="start_here_step">%1$d. %2$s, %3$d min</string>
     <string name="start_here_timer_name">Quiet timer</string>
+    <string name="mindfulness_home_credits">Credits</string>
+    <string name="credits_intro">The recorded exercises are by their teachers and are used unchanged. They stay under their own licence.</string>
+    <string name="credits_item">By %1$s, %2$s</string>
+    <string name="credits_licence">Licence: %1$s</string>
+    <string name="credits_open_original">Original</string>
+    <string name="credits_open_licence">Licence text</string>
+    <string name="credits_own">The texts, pictures, tones and bells are made for this app. The app itself is open source under the Apache License 2.0.</string>
     <string name="breathing_start">Start</string>
     <string name="breathing_stop">Stop</string>
     <string name="breathing_back">Back</string>

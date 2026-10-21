@@ -308,6 +308,6 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | Strings in English and Dutch | 2.8 | done for the built screens |
 | `VIBRATE` permission, privacy checks | 2.9 | not started |
 | Emulator check | 2.10 | not started |
-| Credits screen (Credits / Bronnen) and credits record | 3.3, 3.3a | not started |
+| Credits screen (Credits / Bronnen) and credits record | 3.3, 3.3a | built: `CreditsScreen` from a link on the home screen lists each recording with teacher, source, licence and links to the original and the licence text; [`docs/credits.md`](../credits.md) holds the same record (checked on the emulator in light and dark; the Original link opens the browser) |
 
 The living list is [`tasks.md`](../../openspec/changes/add-mindfulness/tasks.md).

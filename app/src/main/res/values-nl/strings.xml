@@ -689,6 +689,13 @@
     <string name="start_here_intro">Drie korte stappen voor de eerste keer. Begin bij de eerste en ga verder wanneer je wilt.</string>
     <string name="start_here_step">%1$d. %2$s, %3$d min</string>
     <string name="start_here_timer_name">Stille timer</string>
+    <string name="mindfulness_home_credits">Bronnen</string>
+    <string name="credits_intro">De opgenomen oefeningen zijn van hun docenten en worden ongewijzigd gebruikt. Ze blijven onder hun eigen licentie.</string>
+    <string name="credits_item">Door %1$s, %2$s</string>
+    <string name="credits_licence">Licentie: %1$s</string>
+    <string name="credits_open_original">Origineel</string>
+    <string name="credits_open_licence">Licentietekst</string>
+    <string name="credits_own">De teksten, plaatjes, tonen en bellen zijn voor deze app gemaakt. De app zelf is open source onder de Apache License 2.0.</string>
     <string name="breathing_start">Start</string>
     <string name="breathing_stop">Stop</string>
     <string name="breathing_back">Terug</string>

@@ -35,7 +35,7 @@
 ## 3. Docs
 - [ ] 3.1 Rewrite `docs/dev/mindfulness.md` for the real feature; update `docs/dev/README.md`, `architecture.md`, `design.md`
 - [ ] 3.2 README (key features, roadmap), CHANGELOG, in-app privacy notice
-- [ ] 3.3a `docs/credits.md` with teacher, source URL, licence, version and file name of each recording
-- [ ] 3.3 Credits screen (English "Credits", Dutch "Bronnen") and a credits record in `docs/` with source, author, licence and version of every outside item; review against design decision 9
+- [x] 3.3a `docs/credits.md` with teacher, source URL, licence, version and file name of each recording (plus file hashes)
+- [x] 3.3 (checked on the emulator) Credits screen (English "Credits", Dutch "Bronnen") and a credits record in `docs/` with source, author, licence and version of every outside item; review against design decision 9
 - [ ] 3.4 Merge the deltas into `openspec/specs` (mindfulness, privacy, platform-android, localization) and archive the change
 - [ ] 3.5 `bash scripts/check-docs.sh` and `npx --no-install openspec validate --all --strict` pass

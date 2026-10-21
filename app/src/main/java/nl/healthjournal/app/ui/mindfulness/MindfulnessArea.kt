@@ -17,7 +17,7 @@ import nl.healthjournal.domain.model.mindfulness.GuidedExerciseCatalogue
 import nl.healthjournal.domain.model.mindfulness.MeditationTimer
 import nl.healthjournal.domain.model.mindfulness.StartHereStep
 
-private enum class MindfulnessRoute { SAFETY_NOTE, ABOUT, HOME, START_HERE, BREATHE_SETUP, BREATHE_RUN, MEDITATE_SETUP, MEDITATE_RUN, GUIDED_LIST, GUIDED_PLAY }
+private enum class MindfulnessRoute { SAFETY_NOTE, ABOUT, CREDITS, HOME, START_HERE, BREATHE_SETUP, BREATHE_RUN, MEDITATE_SETUP, MEDITATE_RUN, GUIDED_LIST, GUIDED_PLAY }
 
 /**
  * The Mindfulness area: home, the breathing and meditation setups and the running exercise. Back goes one step up;
@@ -43,6 +43,7 @@ fun MindfulnessArea() {
     var guidedId by rememberSaveable { mutableStateOf<String?>(null) }
 
     BackHandler(enabled = route == MindfulnessRoute.ABOUT) { route = aboutBackTo }
+    BackHandler(enabled = route == MindfulnessRoute.CREDITS) { route = MindfulnessRoute.HOME }
     BackHandler(enabled = route == MindfulnessRoute.BREATHE_SETUP || route == MindfulnessRoute.MEDITATE_SETUP) { route = setupBackTo }
     BackHandler(enabled = route == MindfulnessRoute.GUIDED_LIST || route == MindfulnessRoute.START_HERE) { route = MindfulnessRoute.HOME }
 
@@ -58,6 +59,7 @@ fun MindfulnessArea() {
             },
         )
         MindfulnessRoute.ABOUT -> AboutExercisesScreen()
+        MindfulnessRoute.CREDITS -> CreditsScreen()
         MindfulnessRoute.HOME -> MindfulnessHomeScreen(
             onBreathe = {
                 setupBackTo = MindfulnessRoute.HOME
@@ -68,6 +70,7 @@ fun MindfulnessArea() {
                 route = MindfulnessRoute.MEDITATE_SETUP
             },
             onStartHere = { route = MindfulnessRoute.START_HERE },
+            onCredits = { route = MindfulnessRoute.CREDITS },
             onGuided = { route = MindfulnessRoute.GUIDED_LIST },
             onAbout = {
                 aboutBackTo = MindfulnessRoute.HOME

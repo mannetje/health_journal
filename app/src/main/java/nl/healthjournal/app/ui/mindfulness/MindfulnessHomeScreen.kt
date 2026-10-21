@@ -29,6 +29,7 @@ fun MindfulnessHomeScreen(
     onGuided: () -> Unit = {},
     onStartHere: () -> Unit = {},
     onAbout: () -> Unit = {},
+    onCredits: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -41,7 +42,10 @@ fun MindfulnessHomeScreen(
         HomeCard("🔔", R.string.mindfulness_home_meditate, R.string.mindfulness_home_meditate_desc, onMeditate)
         HomeCard("🎧", R.string.mindfulness_home_guided, R.string.mindfulness_home_guided_desc, onGuided)
         HomeCard("🌱", R.string.mindfulness_home_start_here, R.string.mindfulness_home_start_here_desc, onStartHere)
-        TextButton(onClick = onAbout) { Text(stringResource(R.string.mindfulness_home_about)) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onAbout) { Text(stringResource(R.string.mindfulness_home_about)) }
+            TextButton(onClick = onCredits) { Text(stringResource(R.string.mindfulness_home_credits)) }
+        }
     }
 }
 
