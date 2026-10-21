@@ -23,7 +23,7 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.6.0)](https://github.com/mannetje/health_journal/releases/latest)**  
+👉 **[Download Latest APK (v1.6.1)](https://github.com/mannetje/health_journal/releases/latest)**  
 See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ---
@@ -166,7 +166,7 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.6.0-debug.apk`.
+2. Download `health-journal-v1.6.1-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
@@ -276,7 +276,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 | 5c | Medication adherence | Done | 1.5.4 |
 | 5d | Database encryption and app lock | Done | 1.5.9 |
 | 5e | Portable encrypted backup (manual) | Done | 1.6.0 |
-| 6 | Mindfulness (🪷): breathing, meditation timer, guided recordings, Start here, credits and safety note built and checked on the emulator | Built, not released | — |
+| 6 | Mindfulness (🪷): breathing, meditation timer, guided recordings, Start here, credits and safety note | Done | 1.6.1 |
 
 ```mermaid
 flowchart LR
@@ -310,7 +310,7 @@ flowchart LR
   - [x] [Phase 5c: Adherence](openspec/changes/archive/2026-10-07-add-medication-adherence/proposal.md): percentages for 7, 30 and 90 days, streak and missed list as a view in the pillbox.
   - [x] [Phase 5d: Database encryption and app lock](openspec/changes/archive/2026-10-19-add-database-encryption-and-lock/proposal.md): encrypted database (SQLCipher AES-256), opt-in lock with device credentials/biometrics, secure screen (`FLAG_SECURE`), backup rules (ADR 0023).
   - [x] [Phase 5e: Portable encrypted backup](openspec/changes/archive/2026-10-21-add-portable-backup/proposal.md) (manual backup and restore, 1.6.0; scheduled backup is a later decision): passphrase-protected `.hjbackup` file (Argon2id, AES-256-GCM) that can be restored on any device, with a [published format](docs/backup-format/README.md) and a [recovery guide](docs/backup-format/recover-your-data.md) for use without the app (ADR 0024).
-- [x] **Phase 6: Mindfulness (🪷)** ([change](openspec/changes/archive/2026-10-21-add-mindfulness/proposal.md), [spec](openspec/specs/mindfulness/spec.md), built and checked on the emulator, not released yet): breathing exercise with lotus, circle and square pictures, meditation timer with bells, guided recordings player, Start here, safety note, saved display choices and credits. Tones, vibration and spoken cues. No session log, English and Dutch.
+- [x] **Phase 6: Mindfulness (🪷)** ([change](openspec/changes/archive/2026-10-21-add-mindfulness/proposal.md), [spec](openspec/specs/mindfulness/spec.md), released in 1.6.1): breathing exercise with lotus, circle and square pictures, meditation timer with bells, guided recordings player, Start here, safety note, saved display choices and credits. Tones, vibration and spoken cues. No session log, English and Dutch.
 
 ## License
 
