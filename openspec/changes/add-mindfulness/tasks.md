@@ -1,0 +1,41 @@
+## 0. Decisions
+- [x] 0.1 Lotus 🪷 next to the pill button, own screens (requested 2026-10-21)
+- [x] 0.2 Version 1: Breathe and Meditate timer, "Start here" if it stays small
+- [x] 0.3 Spoken guidance with offline text-to-speech; own recordings later
+- [x] 0.4 No session log; no reminder in this change; ACT-style exercises later
+- [x] 0.5 Own texts, tones generated in code; openly licensed material (such as the Free Mindfulness Project) allowed from version 1 when its licence is confirmed and it is credited
+- [ ] 0.6 Spec review by the user before implementation starts
+- [x] 0.6a Free Mindfulness Project licence found on its download page: Attribution-NonCommercial-ShareAlike 3.0 Unported; first selection: Three Step Breathing Space, Three minute mindfulness of sounds, Mountain meditation (all by the project creator); English audio with a Dutch interface; Dutch exercises later
+- [ ] 0.6b Write to the project to confirm the use in a free app (draft in `docs/dev/mindfulness.md`); wait for the answer before release
+- [x] 0.6c Project licence chosen: Apache-2.0 (`LICENSE`, `NOTICE`, credit to the GitHub accounts marvinstorage and mannetje, no real name); covers the code only, the recordings keep their own licence
+- [ ] 0.7 Final wording of the safety note in English and Dutch agreed
+
+## 1. Domain (`:domain`)
+- [ ] 1.1 `BreathingPattern` and phases; built-in patterns; custom pattern validation
+- [ ] 1.2 `BreathingTimer` (elapsed time to phase, progress, seconds left, end)
+- [ ] 1.3a Guided exercise catalogue (id, audio language, duration, titles and descriptions per language, credit) with ordering by language; JVM tests
+- [ ] 1.3 Meditation timer with start, interval and end bell times
+- [ ] 1.4 JVM tests for all patterns, custom validation, timer boundaries and interval bells
+
+## 2. App (`:app`)
+- [ ] 2.1 Lotus button in the top bar and navigation to the area, back handling
+- [ ] 2.2 Area home with Breathe, Meditate, Start here, "About these exercises"
+- [ ] 2.3 Exercise screen: lotus, circle and square drawing, visual choice kept in preferences, phase text, countdown, ready and done, fading controls, keep screen on, reduced-animation mode, TalkBack announcements
+- [ ] 2.3a Guided exercises list and player (play, pause, stop, offline, screen on, no log), language label, credit shown
+- [ ] 2.3b Add the three MP3 files unchanged as raw resources after the project has confirmed the use (download only with the user's permission); check the APK size
+- [ ] 2.3c Exercise session object: acquire and release screen-on, audio focus, player, tones, speech and vibration in one place; stop on background, back or a call; hold back the app's own dialogs and the app lock during a session; JVM test with a fake session
+- [ ] 2.4 Meditation timer screen
+- [ ] 2.5 Tone generation, haptics, offline text-to-speech with the no-voice message
+- [ ] 2.6 Safety note (first open, breath hold reminder, full text) with acknowledgement kept in preferences
+- [ ] 2.7 Display choices in preferences; nothing else stored or logged
+- [ ] 2.8 Own texts written for the app, strings in English and Dutch for every label, phase, cue, note and message
+- [ ] 2.9 `VIBRATE` in the manifest; `PrivacyChecksTest` still green (no INTERNET, no logging)
+- [ ] 2.10 Check on the emulator: each pattern, timer, both languages, light and dark, animations off, narrow phone
+
+## 3. Docs
+- [ ] 3.1 Rewrite `docs/dev/mindfulness.md` for the real feature; update `docs/dev/README.md`, `architecture.md`, `design.md`
+- [ ] 3.2 README (key features, roadmap), CHANGELOG, in-app privacy notice
+- [ ] 3.3a `docs/credits.md` with teacher, source URL, licence, version and file name of each recording
+- [ ] 3.3 Credits screen (English and Dutch) and a credits record in `docs/` with source, author, licence and version of every outside item; review against design decision 9
+- [ ] 3.4 Merge the deltas into `openspec/specs` (mindfulness, privacy, platform-android, localization) and archive the change
+- [ ] 3.5 `bash scripts/check-docs.sh` and `npx --no-install openspec validate --all --strict` pass

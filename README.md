@@ -306,3 +306,11 @@ flowchart LR
   - [x] [Phase 5c: Adherence](openspec/changes/archive/2026-10-07-add-medication-adherence/proposal.md): percentages for 7, 30 and 90 days, streak and missed list as a view in the pillbox.
   - [x] [Phase 5d: Database encryption and app lock](openspec/changes/archive/2026-10-19-add-database-encryption-and-lock/proposal.md): encrypted database (SQLCipher AES-256), opt-in lock with device credentials/biometrics, secure screen (`FLAG_SECURE`), backup rules (ADR 0023).
   - [x] [Phase 5e: Portable encrypted backup](openspec/changes/archive/2026-10-21-add-portable-backup/proposal.md) (manual backup and restore, 1.6.0; scheduled backup is a later decision): passphrase-protected `.hjbackup` file (Argon2id, AES-256-GCM) that can be restored on any device, with a [published format](docs/backup-format/README.md) and a [recovery guide](docs/backup-format/recover-your-data.md) for use without the app (ADR 0024).
+
+## License
+
+The source code is licensed under the [Apache License 2.0](LICENSE). You may use, copy, modify and fork it, including for commercial use, as long as you keep the copyright notice and the [NOTICE](NOTICE) file, state your changes, and include a copy of the licence.
+
+Copyright 2026 [marvinstorage](https://github.com/marvinstorage) and [mannetje](https://github.com/mannetje).
+
+The licence covers the code only. Third-party material bundled with the app, such as recordings, stays under its own licence, listed with its author and source in the credits.

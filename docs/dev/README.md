@@ -22,6 +22,7 @@ Health Journal is an offline-first Android app for logging weight, blood pressur
 | 10 | [Graphs](graphs.md) | see how the History graph view is built, with the waist and glucose graphs as worked examples, and a checklist for a new graph |
 | 11 | [Privacy and security](privacy-and-security.md) | see offline-first rules, SQLCipher database encryption, key provider, app lock and backup exclusions |
 | 12 | [Backup and restore](backup.md) | read the portable encrypted backup (`.hjbackup`): functional and technical views, create and restore flows, merge rules |
+| 13 | [Mindfulness (idea)](mindfulness.md) | read the brainstorm for the 🪷 area: breathing exercises, safety note, content licences and references (nothing built yet) |
 
 How-to guides for common changes:
 
