@@ -5,9 +5,10 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 ### Added
-- **Mindfulness area (🪷):** a new lotus button next to the pillbox opens a calm area with Breathe, Meditate, Guided and Start here. The breathing exercise is ready: pick box breathing, 4-7-8, the physiological sigh or belly breathing, a length of 1, 3 or 5 minutes, and a picture (a soft lotus, a circle or a rounded square). The screen stays on while you breathe, the phase and the seconds are read out to TalkBack, and with system animations off the picture steps instead of moving. Nothing about your practice is stored. English and Dutch. The Guided card lists three recorded exercises from the Free Mindfulness Project (used unchanged, credited on the player) and plays them on the device; playback pauses when the app goes to the background or another app takes the audio. The Meditate and Start here cards are placeholders for now.
+- **Mindfulness area (🪷):** a new lotus button next to the pillbox opens a calm area with Breathe, Meditate, Guided and Start here. Breathe offers box breathing, 4-7-8, the physiological sigh and belly breathing for 1, 3 or 5 minutes, drawn as a soft lotus, a circle or a rounded square; the screen stays on, the phase and seconds are read out to TalkBack, with system animations off the picture steps instead of moving, and the Stop button fades after a few seconds and returns on touch. Meditate is a quiet timer of 5, 10, 15, 20 or 30 minutes with optional interval bells. Guided lists three recorded exercises from the Free Mindfulness Project (used unchanged, credited on the player and on a Credits screen) and plays them on the device. Start here is a three-step ladder for a first time. Tones, vibration and spoken cues (the phone's offline voice, with a voice choice) can be switched on or off. A short safety note is shown on first open, with the full text under About these exercises. Nothing about your practice is stored, only your display choices. English and Dutch. Adds the `VIBRATE` permission.
 
 ### Changed
+- The data storage notice on the Profile tab now says the Mindfulness area keeps only display choices.
 - Tapping the Health Journal logo in the top bar now goes to the Log screen, also from the pillbox and from Mindfulness.
 
 ## [1.6.0] - 2026-10-21
