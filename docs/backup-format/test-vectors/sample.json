@@ -1,0 +1,62 @@
+{
+  "format": "healthjournal-backup",
+  "schemaVersion": 1,
+  "createdAt": "2026-10-21T09:30:00Z",
+  "app": { "name": "Health Journal", "version": "1.6.0" },
+  "profiles": [
+    {
+      "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0001",
+      "name": "Sample Person",
+      "dateOfBirth": "1980-04-12",
+      "heightCm": 178,
+      "sex": "MALE",
+      "isActive": true,
+      "weights": [
+        { "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0101", "timestamp": "2026-10-01T07:15:00Z", "weightKg": "82.4", "bmi": "26.0", "comment": null },
+        { "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0102", "timestamp": "2026-10-08T07:20:00Z", "weightKg": "82.0", "bmi": "25.9", "comment": "after a walk, \"light\" breakfast" }
+      ],
+      "bloodPressures": [
+        { "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0201", "timestamp": "2026-10-02T08:00:00Z", "systolic": 128, "diastolic": 82, "pulse": 64, "category": "NORMAL", "comment": null }
+      ],
+      "glucoses": [
+        { "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0301", "timestamp": "2026-10-03T06:45:00Z", "glucoseMmolL": "5.4", "context": "FASTING", "category": "NORMAL", "comment": null }
+      ],
+      "waistCircumferences": [
+        { "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0401", "timestamp": "2026-10-04T09:00:00Z", "waistCm": "91.0", "category": "HEALTHY", "comment": "café ☕" }
+      ],
+      "activities": [
+        { "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0501", "startTime": "2026-10-05T16:00:00Z", "endTime": "2026-10-05T16:45:00Z", "distanceMeters": "3200.0", "comment": null }
+      ],
+      "medications": [
+        {
+          "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0601",
+          "name": "Sample medicine",
+          "form": "TABLET",
+          "strengthAmount": "50",
+          "strengthUnit": "MG",
+          "doseAmount": "1",
+          "doseUnit": "TABLETS",
+          "color": "WHITE",
+          "shape": "ROUND",
+          "comment": null,
+          "archivedFrom": null,
+          "schedules": [
+            {
+              "effectiveFrom": "2026-09-01",
+              "asNeeded": false,
+              "daysOfWeek": ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"],
+              "intervalDays": null,
+              "startDate": "2026-09-01",
+              "endDate": null,
+              "times": ["08:00", "20:00"]
+            }
+          ],
+          "intakes": [
+            { "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0701", "planned": "2026-10-01T08:00", "status": "TAKEN", "takenAt": "2026-10-01T06:05:00Z", "actualAmount": null, "comment": null },
+            { "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0702", "planned": "2026-10-01T20:00", "status": "SKIPPED", "takenAt": null, "actualAmount": null, "comment": "felt unwell" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -21,6 +21,7 @@ Health Journal is an offline-first Android app for logging weight, blood pressur
 | 9 | [Continuous integration](ci.md) | see which GitHub Actions run, what they check, how Dependabot is used and how to run the same checks locally |
 | 10 | [Graphs](graphs.md) | see how the History graph view is built, with the waist and glucose graphs as worked examples, and a checklist for a new graph |
 | 11 | [Privacy and security](privacy-and-security.md) | see offline-first rules, SQLCipher database encryption, key provider, app lock and backup exclusions |
+| 12 | [Backup and restore](backup.md) | read the planned portable encrypted backup (`.hjbackup`): functional and technical views, create and restore flows, merge rules (specified, not implemented yet) |
 
 How-to guides for common changes:
 

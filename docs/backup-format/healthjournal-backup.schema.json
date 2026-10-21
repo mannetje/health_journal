@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Health Journal backup document, schema version 1",
+  "description": "The JSON document inside a .hjbackup file after decryption and decompression. Readers MUST ignore unknown properties (additional minor fields can appear without a version bump) and MUST reject a schemaVersion higher than they support only when they cannot read the fields they need.",
+  "type": "object",
+  "required": ["format", "schemaVersion", "createdAt", "profiles"],
+  "properties": {
+    "format": { "const": "healthjournal-backup" },
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "createdAt": { "$ref": "#/$defs/instant" },
+    "app": {
+      "type": "object",
+      "description": "Informational only; never used to decide how to read the file.",
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "profiles": { "type": "array", "items": { "$ref": "#/$defs/profile" } }
+  },
+  "$defs": {
+    "uuid": { "type": "string", "pattern": "^[0-9a-fA-F-]{8,64}$", "description": "Opaque identifier, unique within its collection. Importers keep it so a later import can skip entries it already has." },
+    "instant": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$", "description": "ISO-8601 UTC instant with a trailing Z, as in the CSV contract." },
+    "localDate": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "localDateTime": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$", "description": "Planned dose time on the wall clock of the user, without a zone." },
+    "localTime": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" },
+    "decimal": { "type": "string", "pattern": "^-?\\d+(\\.\\d+)?$", "description": "Plain decimal text, never an exponent, point as separator. A string so no precision is lost." },
+    "comment": { "type": ["string", "null"] },
+    "profile": {
+      "type": "object",
+      "required": ["id", "name", "dateOfBirth"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "name": { "type": "string" },
+        "dateOfBirth": { "$ref": "#/$defs/localDate" },
+        "heightCm": { "type": ["integer", "null"], "minimum": 1 },
+        "sex": { "enum": ["MALE", "FEMALE", null] },
+        "isActive": { "type": "boolean" },
+        "weights": { "type": "array", "items": { "$ref": "#/$defs/weight" } },
+        "bloodPressures": { "type": "array", "items": { "$ref": "#/$defs/bloodPressure" } },
+        "glucoses": { "type": "array", "items": { "$ref": "#/$defs/glucose" } },
+        "waistCircumferences": { "type": "array", "items": { "$ref": "#/$defs/waist" } },
+        "activities": { "type": "array", "items": { "$ref": "#/$defs/activity" } },
+        "medications": { "type": "array", "items": { "$ref": "#/$defs/medication" } }
+      }
+    },
+    "weight": {
+      "type": "object",
+      "required": ["id", "timestamp", "weightKg"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "timestamp": { "$ref": "#/$defs/instant" },
+        "weightKg": { "$ref": "#/$defs/decimal" },
+        "bmi": { "oneOf": [{ "$ref": "#/$defs/decimal" }, { "type": "null" }], "description": "Derived from weight and height when the entry was saved. A reader MAY recompute it." },
+        "comment": { "$ref": "#/$defs/comment" }
+      }
+    },
+    "bloodPressure": {
+      "type": "object",
+      "required": ["id", "timestamp", "systolic", "diastolic"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "timestamp": { "$ref": "#/$defs/instant" },
+        "systolic": { "type": "integer", "description": "mmHg" },
+        "diastolic": { "type": "integer", "description": "mmHg" },
+        "pulse": { "type": ["integer", "null"], "description": "beats per minute" },
+        "category": { "enum": ["NORMAL", "HIGH", "SERIOUSLY_RAISED", null], "description": "Derived classification at save time. A reader MAY recompute it." },
+        "comment": { "$ref": "#/$defs/comment" }
+      }
+    },
+    "glucose": {
+      "type": "object",
+      "required": ["id", "timestamp", "glucoseMmolL", "context"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "timestamp": { "$ref": "#/$defs/instant" },
+        "glucoseMmolL": { "$ref": "#/$defs/decimal" },
+        "context": { "enum": ["FASTING", "POSTPRANDIAL"] },
+        "category": { "enum": ["HYPOGLYCAEMIA", "NORMAL", "IMPAIRED_FASTING", "IMPAIRED_GLUCOSE_TOLERANCE", "DIABETES_RANGE", null], "description": "Derived. A reader MAY recompute it." },
+        "comment": { "$ref": "#/$defs/comment" }
+      }
+    },
+    "waist": {
+      "type": "object",
+      "required": ["id", "timestamp", "waistCm"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "timestamp": { "$ref": "#/$defs/instant" },
+        "waistCm": { "$ref": "#/$defs/decimal" },
+        "category": { "enum": ["HEALTHY", "INCREASED_RISK", "HIGH_RISK", null], "description": "Derived; null when the profile has no sex." },
+        "comment": { "$ref": "#/$defs/comment" }
+      }
+    },
+    "activity": {
+      "type": "object",
+      "required": ["id", "startTime", "endTime", "distanceMeters"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "startTime": { "$ref": "#/$defs/instant" },
+        "endTime": { "$ref": "#/$defs/instant" },
+        "distanceMeters": { "$ref": "#/$defs/decimal" },
+        "comment": { "$ref": "#/$defs/comment" }
+      }
+    },
+    "medication": {
+      "type": "object",
+      "required": ["id", "name", "doseAmount", "doseUnit"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "name": { "type": "string" },
+        "form": { "enum": ["TABLET", "CAPSULE", "LIQUID", "DROPS", "SPRAY", "INHALER", "INJECTION", "PATCH", "CREAM", "OTHER", null] },
+        "strengthAmount": { "oneOf": [{ "$ref": "#/$defs/decimal" }, { "type": "null" }] },
+        "strengthUnit": { "enum": ["MG", "MCG", "G", "IU", "MG_PER_ML", "MCG_PER_ML", "IU_PER_ML", null] },
+        "doseAmount": { "$ref": "#/$defs/decimal" },
+        "doseUnit": { "enum": ["MG", "MCG", "G", "ML", "IU", "UNITS", "DROPS", "PUFFS", "TABLETS", "CAPSULES", "PATCHES", "APPLICATIONS", "OTHER"] },
+        "color": { "enum": ["WHITE", "YELLOW", "ORANGE", "RED", "PINK", "PURPLE", "BLUE", "GREEN", "BROWN", "GREY", null] },
+        "shape": { "enum": ["ROUND", "OVAL", "CAPSULE", "OBLONG", "SQUARE", "OTHER", null] },
+        "comment": { "$ref": "#/$defs/comment" },
+        "archivedFrom": { "oneOf": [{ "$ref": "#/$defs/localDate" }, { "type": "null" }] },
+        "schedules": { "type": "array", "items": { "$ref": "#/$defs/schedule" }, "description": "One entry per schedule version, identified by effectiveFrom." },
+        "intakes": { "type": "array", "items": { "$ref": "#/$defs/intake" } }
+      }
+    },
+    "schedule": {
+      "type": "object",
+      "required": ["effectiveFrom", "asNeeded"],
+      "properties": {
+        "effectiveFrom": { "$ref": "#/$defs/localDate" },
+        "asNeeded": { "type": "boolean" },
+        "daysOfWeek": {
+          "oneOf": [
+            { "type": "array", "items": { "enum": ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] }, "uniqueItems": true },
+            { "type": "null" }
+          ],
+          "description": "Null when an interval is used or the schedule is as needed."
+        },
+        "intervalDays": { "type": ["integer", "null"], "minimum": 1 },
+        "startDate": { "oneOf": [{ "$ref": "#/$defs/localDate" }, { "type": "null" }] },
+        "endDate": { "oneOf": [{ "$ref": "#/$defs/localDate" }, { "type": "null" }] },
+        "times": { "type": "array", "items": { "$ref": "#/$defs/localTime" }, "description": "Daily dose times of this schedule version." }
+      }
+    },
+    "intake": {
+      "type": "object",
+      "required": ["id", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "planned": { "oneOf": [{ "$ref": "#/$defs/localDateTime" }, { "type": "null" }], "description": "Null for an as-needed dose. Unique per medication and planned time." },
+        "status": { "enum": ["TAKEN", "SKIPPED"] },
+        "takenAt": { "oneOf": [{ "$ref": "#/$defs/instant" }, { "type": "null" }], "description": "Null for a skipped intake." },
+        "actualAmount": { "oneOf": [{ "$ref": "#/$defs/decimal" }, { "type": "null" }] },
+        "comment": { "$ref": "#/$defs/comment" }
+      }
+    }
+  }
+}

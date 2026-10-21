@@ -11,7 +11,7 @@ For architectural decisions and regulatory context, see [ADR 0023](../adr/0023-d
 ### Privacy by Design
 - **100% Offline-First:** The `AndroidManifest.xml` contains no `INTERNET` permission. Built-in CI checks enforce that no network capability can be introduced.
 - **Zero Telemetry:** No analytics, crash reporting, tracking SDKs, or cloud sync services exist in the project.
-- **Data Sovereignty:** Data belongs entirely to the user. Backup and migration across devices are performed manually via CSV export and import.
+- **Data Sovereignty:** Data belongs entirely to the user. Backup and migration across devices are performed manually via CSV export and import (plaintext, measurements only). An encrypted, portable backup of everything, protected by a passphrase of the user's own, is specified but not implemented yet: see [Backup and restore](backup.md) and [ADR 0024](../adr/0024-portable-encrypted-backup.md).
 
 ### Database Encryption (SQLCipher)
 - The Room database file (`health_journal.db`) is encrypted on-disk using 256-bit AES encryption via **SQLCipher**.
