@@ -198,9 +198,9 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 builder.build()
             } else {
                 val passphrase = keyProvider.getOrCreatePassphrase()
-                val factory = SupportOpenHelperFactory(passphrase)
-                passphrase.fill(0)
-                builder.openHelperFactory(factory).build()
+                // The factory keeps this array until Room opens the database lazily and then
+                // clears it itself. Zeroing it here would open the database with an all-zero key.
+                builder.openHelperFactory(SupportOpenHelperFactory(passphrase)).build()
             }
         }
     }

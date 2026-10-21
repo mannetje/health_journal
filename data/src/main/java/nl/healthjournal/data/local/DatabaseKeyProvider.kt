@@ -1,8 +1,10 @@
 package nl.healthjournal.data.local
 
 import android.content.Context
+import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.security.keystore.StrongBoxUnavailableException
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -53,9 +55,21 @@ open class DatabaseKeyProvider(context: Context) {
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).also { it.load(null) }
         keyStore.getKey(KEY_ALIAS, null)?.let { return it as SecretKey }
 
-        // Key does not exist yet — create it. StrongBox is tried first (hardware security
-        // module); falls back to TEE automatically when StrongBox is not available.
-        val spec = KeyGenParameterSpec.Builder(
+        // Key does not exist yet — create it. StrongBox (hardware security module) is tried
+        // first on API 28+; when the device has none, generateKey() throws
+        // StrongBoxUnavailableException and the key is created in the TEE instead.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            try {
+                return generateKey(strongBox = true)
+            } catch (_: StrongBoxUnavailableException) {
+                // Fall through to the TEE.
+            }
+        }
+        return generateKey(strongBox = false)
+    }
+
+    private fun generateKey(strongBox: Boolean): SecretKey {
+        val builder = KeyGenParameterSpec.Builder(
             KEY_ALIAS,
             KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
         )
@@ -63,23 +77,13 @@ open class DatabaseKeyProvider(context: Context) {
             .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             .setKeySize(256)
             .setUserAuthenticationRequired(false)
-            .apply {
-                trySetStrongBoxBacked(this)
-            }
-            .build()
+        if (strongBox && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            builder.setIsStrongBoxBacked(true)
+        }
 
         val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
-        keyGenerator.init(spec)
+        keyGenerator.init(builder.build())
         return keyGenerator.generateKey()
-    }
-
-    /** Attempts to enable StrongBox; silently skips if the device does not support it. */
-    private fun trySetStrongBoxBacked(builder: KeyGenParameterSpec.Builder) {
-        try {
-            builder.setIsStrongBoxBacked(true)
-        } catch (_: Exception) {
-            // StrongBox not available on this device — TEE is used instead.
-        }
     }
 
     private fun createAndStore(): ByteArray {
