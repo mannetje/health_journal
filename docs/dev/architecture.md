@@ -11,7 +11,7 @@ The rules of the app (what a valid blood pressure is, which band a reading falls
 ```mermaid
 flowchart LR
     APP["app<br/>Compose screens, ViewModels"] --> DOMAIN
-    DATA["data<br/>Room, CSV"] --> DOMAIN
+    DATA["data<br/>Room, CSV, backup"] --> DOMAIN
     APP --> DATA
     DOMAIN["domain<br/>model, use cases, ports<br/>(pure Kotlin)"]
 ```
@@ -40,6 +40,7 @@ Located at `data/src/main/java/nl/healthjournal/data/`.
 - `local/` has the Room `HealthJournalDatabase`, one `*Entity` and one `*Dao` per table, and `mapper/` which converts between entities and domain objects.
 - `repository/` has `RoomHealthLogRepository`, `RoomProfileRepository` and `RoomMedicationRepository`, the adapters that implement the ports.
 - `csv/` has `CsvDataExportAdapter`, `CsvDataImportAdapter` and the medication pair `CsvMedicationExportAdapter`, `CsvMedicationImportAdapter`.
+- `backup/` has `HjBackupCodec` (container, JSON and AES-GCM), `Argon2KeyDerivation`, `RoomBackupSnapshot` and `FreshDatabaseBackupSnapshot` (restore after a lost key).
 - `DataModule.kt` creates the database and exposes the ports as ready-made objects.
 
 Entities are deliberately separate from domain objects. Storage details (a `Long` timestamp, an enum stored as a `String`) never leak into the core. The price is mapping code; see the trade-off in ADR 0002.
@@ -94,5 +95,5 @@ Because the three share one source, a schedule edit from today changes the plan 
 - [C4 diagrams](c4.md) show the same structure at four zoom levels, with the reminder and adherence scenarios as sequence diagrams.
 - [Design](design.md) holds the principles, the screen map and the layout rules.
 - [Life of an entry](life-of-an-entry.md) walks through all of this with real code.
-- [Backup and restore](backup.md) describes the planned portable backup and how the data is structured in the file; the byte-level format is in [docs/backup-format](../backup-format/README.md).
+- [Backup and restore](backup.md) describes the encrypted portable backup and how the data is structured in the file; the byte-level format is in [docs/backup-format](../backup-format/README.md).
 - All decisions are in `docs/adr/`.

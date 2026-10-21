@@ -1,6 +1,6 @@
 # Backup and restore
 
-> **Status: specified, not implemented yet.** The OpenSpec change [`add-portable-backup`](../../openspec/changes/add-portable-backup/proposal.md) holds the requirements, [ADR 0024](../adr/0024-portable-encrypted-backup.md) the decision, and [`docs/backup-format`](../backup-format/README.md) the published file format with a working reference decoder and test vectors. Class names below are the planned ones; this page is updated to the real code when the change ships.
+> **Status: implemented** (manual backup and restore, since 1.6.0). The requirements are in [`openspec/specs/data-backup`](../../openspec/specs/data-backup/spec.md), the decision in [ADR 0024](../adr/0024-portable-encrypted-backup.md), the published file format with a working reference decoder and test vectors in [`docs/backup-format`](../backup-format/README.md). Scheduled backup is not built (section 3).
 
 The database is encrypted with a key that never leaves the phone ([ADR 0023](../adr/0023-database-encryption-and-app-lock.md)), so a new phone, a reset or a lost key would otherwise lose the data. The backup is the user's own, encrypted, portable copy: one `.hjbackup` file that the user creates, keeps wherever they like, and restores when needed.
 
@@ -48,20 +48,20 @@ Everything a person would want back: every profile, all weights, blood pressures
 ```mermaid
 flowchart LR
     subgraph app[":app"]
-        UI["Profile card, passphrase dialogs,<br/>restore flow, DatabaseKeyLostScreen"]
-        PICK["Document picker contracts<br/>(create, open)"]
+        UI["BackupSection, BackupHost,<br/>BackupViewModel, DatabaseKeyLostScreen"]
+        PICK["OpenDocument / CreateDocument<br/>ContentResolverBackupFileIo"]
     end
     subgraph domain[":domain"]
-        UC["CreateBackup, RestoreBackup<br/>passphrase rules"]
+        UC["CreateBackupUseCase, RestoreBackupUseCase<br/>BackupPassphrase rules"]
         MODEL["BackupDocument (pure model)"]
         P1["BackupSnapshotPort"]
         P2["BackupCodecPort"]
         P3["BackupKeyDerivationPort"]
     end
     subgraph data[":data"]
-        SNAP["Room snapshot and merge<br/>(one transaction)"]
-        CODEC["Container + JSON<br/>(org.json, gzip, AES-GCM)"]
-        KDF["Argon2id adapter"]
+        SNAP["RoomBackupSnapshot<br/>FreshDatabaseBackupSnapshot<br/>(one transaction)"]
+        CODEC["HjBackupCodec, BackupContainer, BackupJson<br/>(org.json, gzip, AES-GCM)"]
+        KDF["Argon2KeyDerivation<br/>(Bouncy Castle)"]
     end
     UI --> UC
     PICK --> UI
@@ -74,9 +74,9 @@ flowchart LR
     KDF -. implements .-> P3
 ```
 
-- `:domain` knows the document as plain Kotlin data, the rules (passphrase length, merge counts) and three ports. It has no crypto library, no JSON library and no Android type.
-- `:data` implements the ports: Room read and merge, the container and JSON codec, and Argon2id. Argon2id comes from the one new library ([ADR 0024](../adr/0024-portable-encrypted-backup.md)); AES-GCM, gzip, `SecureRandom` and `org.json` are platform classes.
-- `:app` shows the dialogs and owns the system picker. The file bytes pass through `ContentResolver` streams; the app never needs a storage permission.
+- `:domain` (`model/backup`, `port/secondary/BackupPorts.kt`, `usecase/BackupUseCases.kt`) knows the document as plain Kotlin data, the rules (passphrase length, merge counts) and three ports. It has no crypto library, no JSON library and no Android type.
+- `:data` implements the ports: Room read and merge, the container and JSON codec, and Argon2id. Argon2id comes from the one new library, Bouncy Castle `bcprov-jdk18on` ([ADR 0024](../adr/0024-portable-encrypted-backup.md)); AES-GCM, gzip, `SecureRandom` and `org.json` are platform classes.
+- `:app` (`ui/backup/`) shows the dialogs and owns the system picker. `BackupHost` holds the pickers and dialogs and is shared by the Profile tab and the lost-key screen; each screen has its own `BackupViewModel` instance (the recovery one is created with the key `recovery`). `settings/BackupPreferenceBridge.kt` maps the display preferences to and from the file. The file bytes pass through `ContentResolver` streams; the app never needs a storage permission.
 
 ### Create
 
@@ -109,7 +109,7 @@ sequenceDiagram
     UC-->>UI: entries written
 ```
 
-The key derivation and the write run off the main thread; the passphrase lives in a `CharArray` that is cleared afterwards.
+The key derivation runs on `Dispatchers.Default` and the file work on the IO dispatcher; the passphrase lives in a `CharArray` that is cleared afterwards. Reading the file back and comparing it byte for byte with what was written is what catches a picker that saved only part of the file.
 
 ### Restore
 
@@ -170,7 +170,7 @@ sequenceDiagram
 | daily times | with their schedule version | follow their schedule version |
 | intake | `id`; also medication + `planned` (unique) | kept as it is |
 
-The active profile of the app is not changed when it has one; otherwise the active profile of the file is used. The whole merge is one Room transaction.
+The active profile of the app is not changed when it has one; otherwise the active profile of the file is used. The whole merge is one Room transaction (`withTransaction`, insert-or-ignore DAO methods), so a failure part-way leaves the database as it was. After a restore the view models reload and reminders are rescheduled; ticking "Also restore settings" recreates the activity so a new language or theme shows at once.
 
 ### Two version numbers, one rule
 
@@ -180,18 +180,19 @@ The container version and the document `schemaVersion` live in the file and are 
 
 | Layer | What |
 |-------|------|
-| JVM, `:domain` | passphrase rules, merge counts, restoring twice adds nothing |
-| JVM, `:data` | the published test vectors decode to `sample.json` (so app and documentation cannot drift); wrong passphrase, one flipped byte in header, salt, nonce and ciphertext, truncated file, hostile header values (memory, iterations, lanes, unknown ids, non-zero reserved bytes); NFKC equivalence; round trip through an in-memory database including medication schedule versions |
-| Android (instrumented) | create and restore through the real Room database; restore after discarding the key |
+| JVM, `:domain` | passphrase rules (`BackupPassphraseTest`), use cases with fake ports (`BackupUseCasesTest`) |
+| JVM, `:data` | `BackupFormatTest`: the published test vectors decode to `sample.json` (so app and documentation cannot drift); wrong passphrase, one flipped byte in header, salt, nonce and ciphertext, truncated file, hostile header values (memory, iterations, lanes, unknown ids, non-zero reserved bytes); NFKC equivalence; round trip through an in-memory database including medication schedule versions (`RoomBackupSnapshotTest`) |
+| JVM, `:app` | `PrivacyChecksTest` (no logging in production sources, no INTERNET permission) covers the backup code too |
+| Android (instrumented) | not added: the Room round trip, including a rollback on a real foreign-key failure, runs in `RoomBackupSnapshotTest` |
 | Reference decoder | `python docs/backup-format/hjbackup.py decode` on each vector, run in CI |
-| Manual | emulator: create, restore into a cleared app, wrong passphrase, cancelled picker, lost-key restore, English and Dutch, light and dark |
+| Manual (done on the emulator for 1.6.0) | create, restore into a cleared app, restore twice, wrong passphrase, cancelled picker, lost-key restore, restore with settings, English and Dutch, light and dark. Screenshots: [Screenshots](../screenshots.md) |
 
 ## 3. Later: scheduled backup
 
-A periodic backup to a folder the user picks (a persisted document-tree permission and `WorkManager`) is possible without changing the file format, but it needs the passphrase at run time. Keeping it on the device (wrapped by the Keystore) means the phone can decrypt its own backups; asking each time is not automatic. That trade-off is a separate decision ([design, decision 10](../../openspec/changes/add-portable-backup/design.md)).
+A periodic backup to a folder the user picks (a persisted document-tree permission and `WorkManager`) is possible without changing the file format, but it needs the passphrase at run time. Keeping it on the device (wrapped by the Keystore) means the phone can decrypt its own backups; asking each time is not automatic. That trade-off is a separate decision ([design, decision 10](../../openspec/changes/archive/2026-10-21-add-portable-backup/design.md)).
 
 ## 4. See also
 
 - [Privacy and security](privacy-and-security.md) for the encryption of the database itself
 - [Database](database.md) for the tables the snapshot reads
-- [OpenSpec change](../../openspec/changes/add-portable-backup/proposal.md), [ADR 0024](../adr/0024-portable-encrypted-backup.md), [Format](../backup-format/README.md), [Recover your data](../backup-format/recover-your-data.md)
+- [OpenSpec change](../../openspec/changes/archive/2026-10-21-add-portable-backup/proposal.md), [ADR 0024](../adr/0024-portable-encrypted-backup.md), [Format](../backup-format/README.md), [Recover your data](../backup-format/recover-your-data.md)

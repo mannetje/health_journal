@@ -5,10 +5,14 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 ### Added
+- **Encrypted backup:** Profile → Encrypted backup creates one `.hjbackup` file protected by a passphrase of your own (at least 8 characters, typed twice, no recovery) with Argon2id and AES-256-GCM. The app reads the saved file back to check it. Restore merges: entries that already exist are never overwritten, restoring twice adds nothing. "Also restore settings" brings back language, region, units, theme and snooze length; lock and privacy settings are never in the file. The lost-key screen offers "Restore from a backup" next to deleting the data. The file format is published with a JSON Schema, test vectors, a reference decoder and a [recovery guide](docs/backup-format/recover-your-data.md), so the data stays reachable without the app ([ADR 0024](docs/adr/0024-portable-encrypted-backup.md)). English and Dutch.
 - **Database encryption at rest:** The Room SQLite database is encrypted with SQLCipher (AES-256) using a 256-bit passphrase wrapped by a hardware-backed Android Keystore key (TEE/StrongBox) without user-authentication binding ([ADR 0023](docs/adr/0023-database-encryption-and-app-lock.md)). A one-time migration safely converts existing plain databases to encrypted files with row-count verification.
 - **Opt-in App Lock:** Protect app data behind the device's own credential (strong biometrics or screen lock PIN/pattern/password) via BiometricPrompt, with configurable background timeout (immediately, 1 minute, 5 minutes). While locked, no health data is rendered.
 - **Secure Screen:** An opt-in setting in Profile that enables `FLAG_SECURE` to block screenshots and hide app previews in the recent apps switcher.
 - **Data extraction rules:** Excludes the encrypted database and key material from cloud backups and device transfer, preventing silent data loss upon restore on new devices.
+
+### Changed
+- The CSV export dialog now says that CSV files are not encrypted and points to the encrypted backup. The privacy texts and the medication privacy notice describe the backup.
 
 ### Fixed
 - **Encryption on devices without StrongBox:** creating the database key failed there, so the migration silently kept the data unencrypted. The key now falls back to the Trusted Execution Environment.

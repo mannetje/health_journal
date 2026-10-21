@@ -64,7 +64,8 @@ More screenshots (dark theme, graphs and statistics, medication reminders, adher
 - **SQLCipher AES-256 Encryption:** Database encrypted at rest using a hardware-backed key generated via Android Keystore (TEE/StrongBox).
 - **Opt-in App Lock:** Secure app access using system Device Credentials (PIN/pattern/password) or Biometrics (fingerprint/face) with configurable auto-lock timeouts.
 - **Secure Screen Protection:** Optional `FLAG_SECURE` mode blocks screenshots and hides app switcher preview cards.
-- **Complete Data Portability:** Standardized UTF-8 CSV import and export for all health metrics, medications, and comments. Supports auto-detecting Libra CSV files.
+- **Encrypted Backup:** One passphrase-protected `.hjbackup` file (Argon2id, AES-256-GCM) with all profiles, entries and medication. Restore on any device, merging without overwriting, or after a lost key. The [file format](docs/backup-format/README.md) is published, so the data can be recovered [without the app](docs/backup-format/recover-your-data.md).
+- **Complete Data Portability:** Standardized UTF-8 CSV import and export for all health metrics, medications, and comments (unencrypted, with a warning). Supports auto-detecting Libra CSV files.
 
 #### 🌍 Customization & Localization
 - **Dutch & English Localization:** Fully localized UI text in English and Dutch, with manual language selection or system default.
@@ -168,7 +169,7 @@ flowchart TD
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
-> **Updating:** builds from v1.4.4 onward share one fixed signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)) and install over the previous version. If your installed copy is v1.4.3 or older, Android will report a signature conflict once: export your data as CSV (History → Export), uninstall, install the new APK, then import the CSV again.
+> **Updating:** builds from v1.4.4 onward share one fixed signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)) and install over the previous version. If your installed copy is v1.4.3 or older, Android will report a signature conflict once: export your data as CSV (History → Export) or make an encrypted backup (Profile), uninstall, install the new APK, then import the CSV again.
 
 ---
 
@@ -259,6 +260,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0021: Medication Compliance and Privacy](docs/adr/0021-medication-compliance-and-privacy.md)
 - [ADR 0022: Medication Reminders](docs/adr/0022-medication-reminders.md)
 - [ADR 0023: Database Encryption and App Lock](docs/adr/0023-database-encryption-and-app-lock.md)
+- [ADR 0024: Portable Encrypted Backup](docs/adr/0024-portable-encrypted-backup.md)
 
 ---
 
@@ -272,6 +274,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 | 5b | Medication reminders | Done | 1.5.4 |
 | 5c | Medication adherence | Done | 1.5.4 |
 | 5d | Database encryption and app lock | Done | 1.5.9 |
+| 5e | Portable encrypted backup (manual) | Done | 1.6.0 |
 
 ```mermaid
 flowchart LR
@@ -280,6 +283,7 @@ flowchart LR
     P5A --> P5B["5b Reminders"]:::done
     P5A --> P5C["5c Adherence"]:::done
     P5A --> P5D["5d Encryption<br/>and app lock"]:::done
+    P5D --> P5E["5e Encrypted<br/>backup"]:::done
     classDef done fill:#dbeafe,stroke:#1e3a8a,color:#0f172a
 ```
 
@@ -301,4 +305,4 @@ flowchart LR
   - [x] [Phase 5b: Reminders](openspec/changes/archive/2026-10-07-add-medication-reminders/proposal.md): one notification per time slot with Taken all and Snooze actions, neutral text, permission flow (ADR 0022).
   - [x] [Phase 5c: Adherence](openspec/changes/archive/2026-10-07-add-medication-adherence/proposal.md): percentages for 7, 30 and 90 days, streak and missed list as a view in the pillbox.
   - [x] [Phase 5d: Database encryption and app lock](openspec/changes/archive/2026-10-19-add-database-encryption-and-lock/proposal.md): encrypted database (SQLCipher AES-256), opt-in lock with device credentials/biometrics, secure screen (`FLAG_SECURE`), backup rules (ADR 0023).
-  - [ ] [Phase 5e: Portable encrypted backup](openspec/changes/add-portable-backup/proposal.md) (specified, not built yet): passphrase-protected `.hjbackup` file (Argon2id, AES-256-GCM) that can be restored on any device, with a [published format](docs/backup-format/README.md) and a [recovery guide](docs/backup-format/recover-your-data.md) for use without the app (ADR 0024).
+  - [x] [Phase 5e: Portable encrypted backup](openspec/changes/archive/2026-10-21-add-portable-backup/proposal.md) (manual backup and restore, 1.6.0; scheduled backup is a later decision): passphrase-protected `.hjbackup` file (Argon2id, AES-256-GCM) that can be restored on any device, with a [published format](docs/backup-format/README.md) and a [recovery guide](docs/backup-format/recover-your-data.md) for use without the app (ADR 0024).

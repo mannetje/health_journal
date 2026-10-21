@@ -1,6 +1,6 @@
 ## Context
 
-Today the only way out of the app is CSV (plaintext, measurements only). The database is SQLCipher-encrypted with a device-bound key (ADR 0023), so Android Auto Backup is excluded on purpose, and a lost key ends in the delete-only recovery screen. The user wants a safe, vendor-free backup, and a format documented well enough that another platform (an iPhone port) or a person without the app can read it. See [ADR 0024](../../../docs/adr/0024-portable-encrypted-backup.md) for the decision record and [docs/backup-format](../../../docs/backup-format/README.md) for the byte-level format.
+Today the only way out of the app is CSV (plaintext, measurements only). The database is SQLCipher-encrypted with a device-bound key (ADR 0023), so Android Auto Backup is excluded on purpose, and a lost key ends in the delete-only recovery screen. The user wants a safe, vendor-free backup, and a format documented well enough that another platform (an iPhone port) or a person without the app can read it. See [ADR 0024](../../../../docs/adr/0024-portable-encrypted-backup.md) for the decision record and [docs/backup-format](../../../../docs/backup-format/README.md) for the byte-level format.
 
 ## Goals / Non-Goals
 

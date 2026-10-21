@@ -39,6 +39,6 @@
 - [x] 4.7 Check on the emulator: create, restore into a cleared app, wrong passphrase, cancelled picker, lost-key restore, light and dark, English and Dutch
 
 ## 5. Docs
-- [ ] 5.1 README (key features, roadmap), CHANGELOG, `docs/dev/privacy-and-security.md`, `docs/dev/testing.md`
-- [ ] 5.2 Merge the deltas into `openspec/specs` (data-backup, privacy, data-export) and archive the change
-- [ ] 5.3 `bash scripts/check-docs.sh` and `npx --no-install openspec validate --all --strict` pass
+- [x] 5.1 README (key features, roadmap), CHANGELOG, `docs/dev/privacy-and-security.md`, `docs/dev/testing.md`
+- [x] 5.2 Merge the deltas into `openspec/specs` (data-backup, privacy, data-export) and archive the change
+- [x] 5.3 `bash scripts/check-docs.sh` and `npx --no-install openspec validate --all --strict` pass

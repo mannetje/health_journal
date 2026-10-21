@@ -11,7 +11,7 @@ For architectural decisions and regulatory context, see [ADR 0023](../adr/0023-d
 ### Privacy by Design
 - **100% Offline-First:** The `AndroidManifest.xml` contains no `INTERNET` permission. Built-in CI checks enforce that no network capability can be introduced.
 - **Zero Telemetry:** No analytics, crash reporting, tracking SDKs, or cloud sync services exist in the project.
-- **Data Sovereignty:** Data belongs entirely to the user. Backup and migration across devices are performed manually via CSV export and import (plaintext, measurements only). An encrypted, portable backup of everything, protected by a passphrase of the user's own, is specified but not implemented yet: see [Backup and restore](backup.md) and [ADR 0024](../adr/0024-portable-encrypted-backup.md).
+- **Data Sovereignty:** Data belongs entirely to the user. Backup and migration across devices use the **encrypted backup** on the Profile tab: one `.hjbackup` file with everything, protected by a passphrase of the user's own (Argon2id and AES-256-GCM, no recovery without the passphrase), see [Backup and restore](backup.md) and [ADR 0024](../adr/0024-portable-encrypted-backup.md). CSV export and import stay available as a readable, **unencrypted** copy of the measurements and medication, with a warning in the export dialog.
 
 ### Database Encryption (SQLCipher)
 - The Room database file (`health_journal.db`) is encrypted on-disk using 256-bit AES encryption via **SQLCipher**.
@@ -29,6 +29,13 @@ For architectural decisions and regulatory context, see [ADR 0023](../adr/0023-d
 - An optional *Secure Screen* toggle applies `WindowManager.LayoutParams.FLAG_SECURE` to the application window.
 - This prevents screenshots/screen recordings and obscures the app's contents in the Android recent apps switcher.
 - While the app lock is on the window is always secure (the toggle shows as on and cannot be switched off), so the recent-apps thumbnail never shows health data.
+
+### Encrypted backup file
+- The passphrase is typed twice (minimum 8 characters, a neutral hint, no scoring), normalised to Unicode NFKC, and turned into a 256-bit key with Argon2id (64 MiB, 3 iterations); the file is AES-256-GCM encrypted with the whole header as associated data. The app does not store the passphrase or the file.
+- The reader refuses hostile headers (huge memory or iteration values, unknown ids) before deriving a key, and a wrong passphrase or a damaged file changes nothing.
+- The file holds display preferences only when the user ticks "Also restore settings"; app lock, secure screen and lock-screen details are never in it, so a backup cannot weaken a device.
+- The file is picked and written through the system file picker (no storage permission). Passphrases live in `CharArray`s that are cleared after use. Restoring after a lost key deletes the unreadable data only after the file has been decrypted and validated.
+- Argon2id comes from Bouncy Castle behind a domain port; no other new dependency and still no network access.
 
 ### Selective Backup Exclusion
 - `allowBackup="true"` is maintained so user preferences (language, theme, units) can be preserved by system backups.
@@ -172,7 +179,8 @@ flowchart LR
         end
 
         subgraph UserControlled["User Export"]
-            CSV["CSV Export Files (User Shared)"]
+            HJ["Encrypted .hjbackup (passphrase)"]
+            CSV["CSV Export Files (User Shared, not encrypted)"]
         end
     end
 
