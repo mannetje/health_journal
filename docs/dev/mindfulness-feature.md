@@ -300,7 +300,7 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | Breathing setup and exercise screen with lotus, circle, rounded square | 2.3 | built, partly: no saved picture choice, no custom pattern input, no fading controls |
 | Guided list and player | 2.3a | done (`GuidedListScreen`, `GuidedPlayerScreen`); no seek, no background playback by design |
 | Session object | 2.3c | done (screen-on, focus, player; tones, speech, vibration follow in 2.5) |
-| Meditation timer screen | 2.4 | not started |
+| Meditation timer screen | 2.4 | built (setup, countdown, session); bells are dispatched but silent until 2.5 |
 | Tones, vibration, spoken cues | 2.5 | not started |
 | Safety note and acknowledgement | 2.6 | not started |
 | Saved display choices | 2.7 | not started |

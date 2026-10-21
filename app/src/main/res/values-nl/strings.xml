@@ -654,6 +654,9 @@
     <string name="mindfulness_home_start_here">Begin hier</string>
     <string name="mindfulness_home_start_here_desc">Drie korte stappen voor de eerste keer.</string>
     <string name="mindfulness_home_about">Over deze oefeningen</string>
+    <string name="meditate_interval_heading">Bel onderweg</string>
+    <string name="meditate_interval_none">Geen</string>
+    <string name="meditate_interval_every">Elke %1$d min</string>
     <string name="breathing_pattern_heading">Patroon</string>
     <string name="breathing_length_heading">Duur</string>
     <string name="breathing_visual_heading">Beeld</string>

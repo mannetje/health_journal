@@ -12,11 +12,12 @@ import nl.healthjournal.domain.model.mindfulness.BreathingPatternId
 import nl.healthjournal.domain.model.mindfulness.BreathingPatterns
 import nl.healthjournal.domain.model.mindfulness.BreathingTimer
 import nl.healthjournal.domain.model.mindfulness.GuidedExerciseCatalogue
+import nl.healthjournal.domain.model.mindfulness.MeditationTimer
 
-private enum class MindfulnessRoute { HOME, BREATHE_SETUP, BREATHE_RUN, GUIDED_LIST, GUIDED_PLAY }
+private enum class MindfulnessRoute { HOME, BREATHE_SETUP, BREATHE_RUN, MEDITATE_SETUP, MEDITATE_RUN, GUIDED_LIST, GUIDED_PLAY }
 
 /**
- * The Mindfulness area: home, the breathing setup and the running exercise. Back goes one step up;
+ * The Mindfulness area: home, the breathing and meditation setups and the running exercise. Back goes one step up;
  * the area's own state is only the current screen and the last choices on the setup screen.
  */
 @Composable
@@ -25,15 +26,32 @@ fun MindfulnessArea() {
     var patternId by rememberSaveable { mutableStateOf(BreathingPatternId.BELLY) }
     var duration by rememberSaveable { mutableStateOf(BreathingDuration.THREE_MINUTES) }
     var visual by rememberSaveable { mutableStateOf(BreathingVisual.LOTUS) }
+    var meditateMinutes by rememberSaveable { mutableStateOf(MeditationTimer.PRESET_MINUTES.first()) }
+    var meditateInterval by rememberSaveable { mutableStateOf<Int?>(null) }
     var guidedId by rememberSaveable { mutableStateOf<String?>(null) }
 
-    BackHandler(enabled = route == MindfulnessRoute.BREATHE_SETUP || route == MindfulnessRoute.GUIDED_LIST) { route = MindfulnessRoute.HOME }
+    BackHandler(enabled = route == MindfulnessRoute.BREATHE_SETUP || route == MindfulnessRoute.MEDITATE_SETUP || route == MindfulnessRoute.GUIDED_LIST) { route = MindfulnessRoute.HOME }
 
     when (route) {
         MindfulnessRoute.HOME -> MindfulnessHomeScreen(
             onBreathe = { route = MindfulnessRoute.BREATHE_SETUP },
+            onMeditate = { route = MindfulnessRoute.MEDITATE_SETUP },
             onGuided = { route = MindfulnessRoute.GUIDED_LIST },
         )
+        MindfulnessRoute.MEDITATE_SETUP -> MeditateSetupScreen(
+            minutes = meditateMinutes,
+            intervalMinutes = meditateInterval,
+            onMinutes = { minutes ->
+                meditateMinutes = minutes
+                if (meditateInterval?.let { it >= minutes } == true) meditateInterval = null
+            },
+            onInterval = { meditateInterval = it },
+            onStart = { route = MindfulnessRoute.MEDITATE_RUN },
+        )
+        MindfulnessRoute.MEDITATE_RUN -> {
+            val timer = remember(meditateMinutes, meditateInterval) { MeditationTimer(meditateMinutes, meditateInterval) }
+            MeditationRunScreen(timer = timer, onClose = { route = MindfulnessRoute.MEDITATE_SETUP })
+        }
         MindfulnessRoute.GUIDED_LIST -> GuidedListScreen(onOpen = { guidedId = it.id; route = MindfulnessRoute.GUIDED_PLAY })
         MindfulnessRoute.GUIDED_PLAY -> {
             val exercise = guidedId?.let { GuidedExerciseCatalogue.byId(it) }

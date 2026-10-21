@@ -654,6 +654,9 @@
     <string name="mindfulness_home_start_here">Start here</string>
     <string name="mindfulness_home_start_here_desc">Three short steps for a first time.</string>
     <string name="mindfulness_home_about">About these exercises</string>
+    <string name="meditate_interval_heading">Bell on the way</string>
+    <string name="meditate_interval_none">None</string>
+    <string name="meditate_interval_every">Every %1$d min</string>
     <string name="breathing_pattern_heading">Pattern</string>
     <string name="breathing_length_heading">Length</string>
     <string name="breathing_visual_heading">Picture</string>
