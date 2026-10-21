@@ -4,6 +4,12 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Added
+- **Mindfulness area (🪷):** a new lotus button next to the pillbox opens a calm area with Breathe, Meditate, Guided and Start here. The breathing exercise is ready: pick box breathing, 4-7-8, the physiological sigh or belly breathing, a length of 1, 3 or 5 minutes, and a picture (a soft lotus, a circle or a rounded square). The screen stays on while you breathe, the phase and the seconds are read out to TalkBack, and with system animations off the picture steps instead of moving. Nothing about your practice is stored. English and Dutch. The other three cards are placeholders for now.
+
+### Changed
+- Tapping the Health Journal logo in the top bar now goes to the Log screen, also from the pillbox and from Mindfulness.
+
 ## [1.6.0] - 2026-10-21
 
 ### Added

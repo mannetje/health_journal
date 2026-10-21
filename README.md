@@ -51,6 +51,7 @@ More screenshots (dark theme, graphs and statistics, medication reminders, adher
 - **Blood Glucose:** Record fasting and postprandial levels in mmol/L or mg/dL; evaluated against NHG context-specific target ranges.
 - **Physical Activity:** Track duration and distance for workout sessions manually or via bulk import.
 - **Medication Pillbox (💊):** Manage medications (tablets, liquids, sprays, injectables) with flexible schedule versions, daily time slots, and intake logs.
+- **Mindfulness (🪷):** A calm corner next to the pillbox. A paced breathing exercise (box, 4-7-8, physiological sigh, belly breathing) of 1, 3 or 5 minutes, drawn as a soft lotus, circle or rounded square. Nothing about your practice is stored. More is on the way: a meditation timer, recorded exercises and a short first-time guide. Tapping the logo in the top bar takes you back to the Log screen.
 - **Entry Comments:** Add an optional single-line note (up to 200 characters) to any measurement or activity entry.
 
 #### 🎛️ Smart Input & User Experience
@@ -275,6 +276,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 | 5c | Medication adherence | Done | 1.5.4 |
 | 5d | Database encryption and app lock | Done | 1.5.9 |
 | 5e | Portable encrypted backup (manual) | Done | 1.6.0 |
+| 6 | Mindfulness (🪷): breathing exercise done; meditation timer, recorded exercises and Start here to follow | In progress | — |
 
 ```mermaid
 flowchart LR
@@ -284,7 +286,9 @@ flowchart LR
     P5A --> P5C["5c Adherence"]:::done
     P5A --> P5D["5d Encryption<br/>and app lock"]:::done
     P5D --> P5E["5e Encrypted<br/>backup"]:::done
+    P5E --> P6["6 Mindfulness"]:::wip
     classDef done fill:#dbeafe,stroke:#1e3a8a,color:#0f172a
+    classDef wip fill:#fef9c3,stroke:#854d0e,color:#0f172a
 ```
 
 - [x] **Phase 0: Specifications & Architecture Governance** — OpenSpec change definition, initial ADR, living README, Hexagonal boundary definition.
@@ -306,6 +310,7 @@ flowchart LR
   - [x] [Phase 5c: Adherence](openspec/changes/archive/2026-10-07-add-medication-adherence/proposal.md): percentages for 7, 30 and 90 days, streak and missed list as a view in the pillbox.
   - [x] [Phase 5d: Database encryption and app lock](openspec/changes/archive/2026-10-19-add-database-encryption-and-lock/proposal.md): encrypted database (SQLCipher AES-256), opt-in lock with device credentials/biometrics, secure screen (`FLAG_SECURE`), backup rules (ADR 0023).
   - [x] [Phase 5e: Portable encrypted backup](openspec/changes/archive/2026-10-21-add-portable-backup/proposal.md) (manual backup and restore, 1.6.0; scheduled backup is a later decision): passphrase-protected `.hjbackup` file (Argon2id, AES-256-GCM) that can be restored on any device, with a [published format](docs/backup-format/README.md) and a [recovery guide](docs/backup-format/recover-your-data.md) for use without the app (ADR 0024).
+- [ ] **Phase 6: Mindfulness (🪷)** ([change](openspec/changes/add-mindfulness/proposal.md), in progress): breathing exercise with lotus, circle and square pictures is built; meditation timer, recorded exercises, spoken cues and the first-time guide are next. No session log, English and Dutch.
 
 ## License
 

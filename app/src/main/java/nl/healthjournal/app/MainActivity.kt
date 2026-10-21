@@ -16,6 +16,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.height
@@ -26,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -359,6 +361,7 @@ class MainActivity : FragmentActivity() {
 
                 val pillboxDescription = stringResource(R.string.nav_pillbox_desc)
                 val mindfulnessDescription = stringResource(R.string.nav_mindfulness_desc)
+                val logoDescription = stringResource(R.string.nav_logo_desc)
                 Scaffold(
                     topBar = {
                         TopAppBar(
@@ -392,10 +395,15 @@ class MainActivity : FragmentActivity() {
                                 }
                                 Image(
                                     painter = painterResource(R.drawable.logo_health_journal_on_navy),
-                                    contentDescription = null,
+                                    contentDescription = logoDescription,
                                     modifier = Modifier
                                         .padding(end = 16.dp)
                                         .height(40.dp)
+                                        .clickable(role = Role.Button) {
+                                            showPillbox = false
+                                            showMindfulness = false
+                                            currentTab = AppNavDestination.LOG
+                                        }
                                 )
                             },
                             colors = TopAppBarDefaults.topAppBarColors(

@@ -70,6 +70,15 @@ All screenshots of the Health Journal app, in the light and dark theme. Back to 
 | <img src="screenshots/light-backup-create.png" width="250" alt="Create backup dialog asking for a passphrase twice with a neutral hint, light theme"> | <img src="screenshots/dark-backup-create.png" width="250" alt="Create backup dialog asking for a passphrase twice with a neutral hint, dark theme"> |
 | <img src="screenshots/light-backup-restore-confirm.png" width="250" alt="Restore this backup dialog with the contents summary and the Also restore settings option, light theme"> | <img src="screenshots/dark-backup-restore-confirm.png" width="250" alt="Restore this backup dialog with the contents summary and the Also restore settings option, dark theme"> |
 
+**Mindfulness** (lotus button next to the pillbox: home, breathing setup and a running breathing exercise)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-mindfulness-home.png" width="250" alt="Mindfulness home with Breathe, Meditate, Guided and Start here, light theme"> | <img src="screenshots/dark-mindfulness-home.png" width="250" alt="Mindfulness home with Breathe, Meditate, Guided and Start here, dark theme"> |
+| <img src="screenshots/light-mindfulness-breathe-setup.png" width="250" alt="Breathing setup with pattern, length and picture, light theme"> | <img src="screenshots/dark-mindfulness-breathe-setup.png" width="250" alt="Breathing setup with pattern, length and picture, dark theme"> |
+| <img src="screenshots/light-mindfulness-breathing.png" width="250" alt="Breathing exercise with the lotus picture, the phase and the seconds left, light theme"> | <img src="screenshots/dark-mindfulness-breathing.png" width="250" alt="Breathing exercise with the lotus picture, the phase and the seconds left, dark theme"> |
+| <img src="screenshots/light-mindfulness-circle.png" width="250" alt="Breathing exercise with the circle picture, light theme"> | <img src="screenshots/light-mindfulness-square.png" width="250" alt="Breathing exercise with the rounded square picture and a dot moving along it, light theme"> |
+
 **App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](adr/0011-app-icon-and-adaptive-layers.md)):
 
 <img src="screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">

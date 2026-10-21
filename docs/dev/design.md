@@ -27,7 +27,7 @@ This page collects the design of Health Journal in one place: the principles, th
 
 ## Screen map
 
-The bottom bar has three tabs. The pill button in the top bar opens the pillbox, which replaces the tab content (it is not a fourth tab).
+The bottom bar has three tabs. The pill button in the top bar opens the pillbox, which replaces the tab content (it is not a fourth tab). The lotus button next to it opens the Mindfulness area the same way, and the logo at the right of the top bar returns to the Log tab. The pillbox and Mindfulness are never open together.
 
 ```mermaid
 flowchart TD
@@ -39,6 +39,10 @@ flowchart TD
     PILL --> TODAY["Today<br/>slots, Taken all, Taken, Skip, as-needed"]
     PILL --> MEDS["Medications<br/>list, add, edit, archive, delete"]
     PILL --> ADH["Adherence<br/>7, 30 or 90 days"]
+    APP -->|"lotus button"| MIND["Mindfulness home"]
+    MIND --> BSET["Breathe setup<br/>pattern, length, picture"]
+    BSET --> BRUN["Breathing exercise<br/>lotus, circle or square"]
+    APP -->|"logo"| LOG
     MEDS --> EDIT["Medication form<br/>dose, unit, schedule from a date"]
     LOG --> PICK["Ruler and scrolling pickers<br/>pre-filled from the last value"]
     HIST --> DLG["Edit dialog / delete confirmation"]

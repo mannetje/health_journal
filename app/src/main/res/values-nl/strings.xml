@@ -644,6 +644,7 @@
     <string name="history_export_plaintext_warning">CSV-bestanden zijn niet versleuteld. Gebruik voor een beschermde kopie Versleutelde back-up op het tabblad Profiel.</string>
     <string name="nav_title_mindfulness">Health Journal - Mindfulness</string>
     <string name="nav_mindfulness_desc">Mindfulness</string>
+    <string name="nav_logo_desc">Naar Loggen</string>
     <string name="mindfulness_home_breathe">Ademen</string>
     <string name="mindfulness_home_breathe_desc">Ritmisch ademen met een lotus, een cirkel of een vierkant.</string>
     <string name="mindfulness_home_meditate">Mediteren</string>

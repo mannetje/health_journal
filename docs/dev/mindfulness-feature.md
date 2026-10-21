@@ -47,6 +47,7 @@ Lengths are 1, 3 or 5 minutes. Every exercise starts with a 3 second "Get ready"
 - **Nothing is recorded.** No history, streaks, counts or results. The only stored values (planned) are display choices: last length, picture, cues on or off, custom counts, and whether the safety note was acknowledged.
 - **Works offline.** No network permission. Spoken cues use the phone's own text-to-speech; recordings are inside the app.
 - **The screen stays on** during an exercise and returns to normal afterwards.
+- **Soft, calm pictures.** No hard edges: the lotus is four rings of rounded petals, the circle is soft gradient layers, and the square has rounded corners with a dot that leaves a fading trail. Shapes ease in and out and turn only a few degrees.
 - **Reduced motion.** When system animations are off, the picture jumps between full and empty instead of moving.
 - **Language.** Everything is in English and Dutch. Recordings are English for now; items whose audio matches the app language are listed first.
 - **Safety first.** A short note on first open, a reminder on pausing the breath, and the full text under "About these exercises". Wording: [mindfulness.md](mindfulness.md#2-safety-note).
@@ -65,6 +66,8 @@ stateDiagram-v2
     BreatheRun --> BreatheSetup: Stop, Back or Done
     BreatheSetup --> Home: Back
     Home --> Tabs: Back or a tab
+    Home --> Tabs: logo (goes to Log)
+    Pillbox --> Tabs: logo (goes to Log)
 ```
 
 The Mindfulness area and the pillbox are screens drawn over the tabs. They are never open at the same time, and Back returns to the tab the user came from. The area keeps only its current screen and the last choices on the setup screen; both survive a configuration change except the running exercise, which starts again.
@@ -186,7 +189,7 @@ stateDiagram-v2
     Done --> [*]
 ```
 
-The screen draws `fill` directly. The square picture ignores `fill` and moves a dot one side per phase (`phaseIndex + phaseProgress` over the number of phases), so it only reads as a true "box" for box breathing.
+The screen draws `fill` directly. The square picture ignores `fill` and moves a dot one side per phase (`phaseIndex + phaseProgress` over the number of phases), so it only reads as a true "box" for box breathing. Every picture eases `fill` with a smoothstep (`soft` in `BreathingCanvas.kt`) before drawing, which is only a drawing choice: the timer's `fill` stays linear and is what the tests check.
 
 ### What happens while an exercise runs
 
@@ -290,7 +293,7 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 |------|------|-------|
 | Patterns, custom counts, timer, meditation timer, Start here, catalogue, tests | 1.1 to 1.4 | done |
 | 🪷 button, back handling, home screen | 2.1, 2.2 | done |
-| Breathing setup and exercise screen with lotus, circle, square | 2.3 | built, partly: no saved picture choice, no custom pattern input, no fading controls |
+| Breathing setup and exercise screen with lotus, circle, rounded square | 2.3 | built, partly: no saved picture choice, no custom pattern input, no fading controls |
 | Guided list and player | 2.3a | not started |
 | Session object | 2.3c | not started |
 | Meditation timer screen | 2.4 | not started |

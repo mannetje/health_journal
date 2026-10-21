@@ -644,6 +644,7 @@
     <string name="history_export_plaintext_warning">CSV files are not encrypted. For a protected copy, use Encrypted backup on the Profile tab.</string>
     <string name="nav_title_mindfulness">Health Journal - Mindfulness</string>
     <string name="nav_mindfulness_desc">Mindfulness</string>
+    <string name="nav_logo_desc">Go to Log</string>
     <string name="mindfulness_home_breathe">Breathe</string>
     <string name="mindfulness_home_breathe_desc">Paced breathing with a lotus, a circle or a square.</string>
     <string name="mindfulness_home_meditate">Meditate</string>
