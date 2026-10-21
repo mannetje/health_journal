@@ -1,16 +1,16 @@
-# Mindfulness (idea)
+# Mindfulness: decisions, wording and licences
 
-> **Status: brainstorm, nothing is built or specified yet.** This page collects the ideas, the open questions and the sources researched so far. When the scope is agreed it becomes an OpenSpec change (`add-mindfulness`) and this page is rewritten to describe the real feature, as [Backup and restore](backup.md) was.
+> **Status: built (version 1).** This page is the reference for the choices behind the 🪷 area: what is in and out, the agreed safety wording, the content licences and the sources. How it works and where it lives in the code is on [Mindfulness (the feature)](mindfulness-feature.md); the requirements are in the change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md).
 
-A new area next to the pillbox, opened from a 🪷 (lotus) icon beside the 💊 icon in the top bar, with its own screens. It stays inside the rules of the app: offline (no `INTERNET` permission), no accounts, no session log, no logging of personal data, neutral figures only, English and Dutch for all text.
+The area sits next to the pillbox, opened from a 🪷 (lotus) icon beside the 💊 icon in the top bar, with its own screens. It stays inside the rules of the app: offline (no `INTERNET` permission), no accounts, no session log, no logging of personal data, neutral figures only, English and Dutch for all text.
 
-## 1. Ideas so far
+## 1. Scope and decisions
 
-| Section | Content |
+| Section | Content (**built** unless marked) |
 |---------|---------|
 | **Breathe** | Patterns with a calm animation, optional haptics and tones, durations of 1, 3 or 5 minutes: box breathing (4-4-4-4), 4-7-8, physiological sigh (two short inhales, one long exhale), belly breathing (about 4 in, 6 out), and a custom pattern with the user's own counts. The visual can be chosen: a lotus whose petals open and close (default) or a soft circle that grows and shrinks. Box breathing can show a dot tracing a square. |
 | **Meditate** | A plain timer with start and end bell and optional interval bells. Short scripts written for the app: arriving, breath awareness, a short body scan, a three-minute breathing space. |
-| **Strong feelings** (later version) | A small section of short, light exercises inspired by acceptance and commitment therapy (ACT) for moments of strong stress or emotion: 5-4-3-2-1 grounding, naming what you notice, leaves on a stream, a "feet on the floor, three slow breaths" anchor. Not in version 1; it needs stronger safety wording first (section 2). |
+| **Strong feelings** (not built, later version) | A small section of short, light exercises inspired by acceptance and commitment therapy (ACT) for moments of strong stress or emotion: 5-4-3-2-1 grounding, naming what you notice, leaves on a stream, a "feet on the floor, three slow breaths" anchor. Not in version 1; it needs stronger safety wording first (section 2). |
 | **Guided exercises** | Recorded exercises from the Free Mindfulness Project, played offline: Three Step Breathing Space, Three minute mindfulness of sounds, Mountain meditation (all by the project creator). English audio with Dutch titles, descriptions and controls; Dutch exercises can be added later as more catalogue entries. |
 | **Start here** | A small ladder for beginners (1 minute, then 3 minutes, then a short body scan). No courses, no accounts. |
 
@@ -18,7 +18,7 @@ Not planned: a session log (nothing about a user's practice is stored), sleep st
 
 ### Decisions
 
-1. **Version 1** is Breathe and the Meditate timer, with the "Start here" ladder if it stays small. Own voice recordings come later.
+1. **Version 1** is Breathe, the Meditate timer, Guided recordings and the Start here ladder, with a Credits screen for the recordings. Own voice recordings come later. The custom breathing pattern exists in the domain but has no input screen yet.
 2. **Spoken guidance** uses the phone's offline text-to-speech (English and Dutch) for now: no audio files and no licence question. Recordings made by the maintainer can replace it later.
 3. **Daily reminder** comes later. It is easy to add once the medication reminder code is reused, and it is not needed to judge whether the feature works.
 4. **ACT-style "Strong feelings" exercises** come in a later version, after the safety wording is agreed.

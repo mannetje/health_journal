@@ -11,6 +11,7 @@ This page collects the design of Health Journal in one place: the principles, th
 | Pure core | rules live in `domain`, testable on the JVM in milliseconds | [ADR 0002](../adr/0002-hexagonal-architecture.md) |
 | Store metric, show what the user prefers | conversion happens at the edge only | [ADR 0014](../adr/0014-units-presentation.md) |
 | Derive, do not store | planned and missed doses and adherence are computed from schedule versions and recorded outcomes | [ADR 0020](../adr/0020-medication-model-and-pillbox.md) |
+| Nothing recorded, no advice | Mindfulness stores display choices only, shows counts and lengths as plain numbers and carries a safety note | [change `add-mindfulness`](../../openspec/changes/add-mindfulness/design.md), [Mindfulness decisions](mindfulness.md) |
 | Few dependencies | first-party Android, Jetpack and Kotlin libraries only | [ADR 0003](../adr/0003-dependency-minimization.md) |
 | Dutch first, English too | layouts are checked in Dutch, with large fonts | [ADR 0010](../adr/0010-responsive-dutch-ui-layout.md) |
 
@@ -40,8 +41,16 @@ flowchart TD
     PILL --> MEDS["Medications<br/>list, add, edit, archive, delete"]
     PILL --> ADH["Adherence<br/>7, 30 or 90 days"]
     APP -->|"lotus button"| MIND["Mindfulness home"]
-    MIND --> BSET["Breathe setup<br/>pattern, length, picture"]
+    MIND -->|"first open"| SAFE["Safety note<br/>one button, Read more"]
+    MIND --> BSET["Breathe setup<br/>pattern, length, picture, cues"]
     BSET --> BRUN["Breathing exercise<br/>lotus, circle or square"]
+    MIND --> MSET["Meditate setup<br/>minutes, interval bell, cues"]
+    MSET --> MRUN["Quiet timer"]
+    MIND --> GLIST["Guided recordings"]
+    GLIST --> GPLAY["Player"]
+    MIND --> START["Start here<br/>three steps open the setups"]
+    MIND --> ABOUTX["About these exercises"]
+    MIND --> CRED["Credits"]
     APP -->|"logo"| LOG
     MEDS --> EDIT["Medication form<br/>dose, unit, schedule from a date"]
     LOG --> PICK["Ruler and scrolling pickers<br/>pre-filled from the last value"]
@@ -105,6 +114,20 @@ Missed is never stored: it is Pending plus the clock. Correcting a past outcome 
 | Adherence | taken / due, half up, with skipped and missed shown apart. No percentage for as-needed |
 | Wording | "Medication A" in docs and tests, no medicine names built in |
 
+## Mindfulness design in one view
+
+| Concern | Rule |
+|---|---|
+| Looks | soft shapes only: rounded petals, gradient circle, rounded square with a fading dot. Slow easing. With system animations off the picture jumps between full and empty |
+| During a run | the screen stays on, nothing else appears, and the Stop button fades after 4 seconds and returns on touch (always visible with a screen reader and when done) |
+| What ends a run | Stop, Back, the app going to the background, a call or an alarm taking the audio focus, or the end. Everything is released in one place (`ExerciseSession`) |
+| System settings | never changed: no volume, ringer mode, Do Not Disturb or brightness |
+| Cues | generated tones, vibration and offline speech, each switched on or off, with a voice choice for speech |
+| Language | text in English and Dutch; recordings are English and listed after matching ones |
+| Credit | each recording shows author, source and licence on the player and on the Credits screen ([credits](../credits.md)) |
+
+Details and the screens are on [Mindfulness (the feature)](mindfulness-feature.md).
+
 ## Data design
 
 Entities are separate from domain objects. All tables and relations are in the [database page](database.md). Rules that matter for design:
@@ -112,6 +135,7 @@ Entities are separate from domain objects. All tables and relations are in the [
 - every stored value is metric,
 - only recorded outcomes are stored for medication,
 - foreign keys exist inside the medication tables (cascade delete), the profile link is logical,
+- Mindfulness choices are SharedPreferences, not tables, and are not in the CSV or the backup file.
 - CSV is the portability contract: UTF-8, metric, a trailing `comment` column, medication in its own sections.
 
 ## Where to record a new design decision

@@ -33,7 +33,7 @@
 - [ ] 2.10 Check on the emulator: each pattern, timer, both languages, light and dark, animations off, narrow phone
 
 ## 3. Docs
-- [ ] 3.1 Rewrite `docs/dev/mindfulness.md` for the real feature; update `docs/dev/README.md`, `architecture.md`, `design.md`
+- [x] 3.1 Rewrite `docs/dev/mindfulness.md` for the real feature; update `docs/dev/README.md`, `architecture.md`, `design.md`
 - [ ] 3.2 README (key features, roadmap), CHANGELOG, in-app privacy notice
 - [x] 3.3a `docs/credits.md` with teacher, source URL, licence, version and file name of each recording (plus file hashes)
 - [x] 3.3 (checked on the emulator) Credits screen (English "Credits", Dutch "Bronnen") and a credits record in `docs/` with source, author, licence and version of every outside item; review against design decision 9

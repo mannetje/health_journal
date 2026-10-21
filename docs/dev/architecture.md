@@ -27,6 +27,7 @@ Located at `domain/src/main/kotlin/nl/healthjournal/domain/`.
 - `model/metrics/` holds value objects and entries: `BloodPressureReading` (validates ranges in its `init` block), `GlucoseLevel`, `WeightKg`, `WaistCircumferenceCm`, and entries such as `BloodPressureEntry`.
 - `model/nhg/` holds the classifiers that map a value to a range, for example `NhgBloodPressureCategory.classify`.
 - `model/medication/` holds the pillbox model: `Medication`, `Dosage`, `ScheduleVersion`, `Intake`, the pure derivation of the day (slots, Pending and Missed), `NextSlot` (the next reminder) and `Adherence` (taken against planned over 7, 30 or 90 days). See [ADR 0020](../adr/0020-medication-model-and-pillbox.md) and the [pillbox page](pillbox.md).
+- `model/mindfulness/` holds the pure Mindfulness logic: breathing patterns and `BreathingTimer`, `MeditationTimer`, `StartHere`, the `GuidedExerciseCatalogue` with its credits, and `ExerciseSession` with `CueChoices` and `ToneSynth` (tones as samples). It has no clock and stores nothing: callers pass elapsed milliseconds. See [Mindfulness (the feature)](mindfulness-feature.md).
 - `model/profile/` holds `Profile`, the aggregate root (height, birth date, optional sex, BMI calculation).
 - `usecase/` holds one class per action: `RecordBloodPressureUseCase`, `UpdateBloodPressureUseCase`, `DeleteBloodPressureUseCase`, and so on.
 - `port/secondary/` holds the interfaces the core needs: `HealthLogRepositoryPort`, `ProfileRepositoryPort`, `MedicationRepositoryPort`, `ReminderSchedulerPort`, `DataExportPort`, `DataImportPort` and the medication export and import ports (`MedicationDataPorts.kt`).
@@ -50,9 +51,10 @@ Entities are deliberately separate from domain objects. Storage details (a `Long
 Located at `app/src/main/java/nl/healthjournal/app/`.
 
 - `HealthJournalApp.kt` is the **composition root**: it creates `DataModule` and every use case once. There is no dependency injection framework on purpose ([ADR 0003](../adr/0003-dependency-minimization.md)).
-- `ui/` has one package per screen area (`logging`, `history`, `profile`, `medication`), each with a `*Screen` (Compose) and a `*ViewModel`. The History list is grouped by month in `ui/history/HistoryTimeline`; the year and month chips are derived from the scroll position and a tap is only a jump to a list index, so the two cannot disagree ([spec](../../openspec/specs/entry-management/spec.md)). The graph view is in `ui/history/charts` (statistics, trend sections and the Vico chart primitives; see [Graphs](graphs.md)). Shared pieces are in `ui/common`, `ui/theme` and `ui/nhg` (range labels and colours).
+- `ui/` has one package per screen area (`logging`, `history`, `profile`, `medication`, `mindfulness`), each with a `*Screen` (Compose) and a `*ViewModel`. The History list is grouped by month in `ui/history/HistoryTimeline`; the year and month chips are derived from the scroll position and a tap is only a jump to a list index, so the two cannot disagree ([spec](../../openspec/specs/entry-management/spec.md)). The graph view is in `ui/history/charts` (statistics, trend sections and the Vico chart primitives; see [Graphs](graphs.md)). Shared pieces are in `ui/common`, `ui/theme` and `ui/nhg` (range labels and colours).
 - `reminder/` is the second driving adapter next to the screens: `AlarmReminderScheduler` implements `ReminderSchedulerPort` with `AlarmManager`, `ReminderNotifier` posts the notification, and the receivers handle the alarm, Taken all, Snooze and a restart or clock change by calling the same use cases as the UI ([ADR 0022](../adr/0022-medication-reminders.md)).
-- `settings/` holds display preferences: language and region, and display units. See [ADR 0014](../adr/0014-units-presentation.md).
+- `ui/mindfulness/` is the 🪷 area (`MindfulnessArea` routes between the screens). `ExerciseSessions` and `CuePlayer` are the Android side of an exercise: screen-on flag, audio focus, tones, offline text-to-speech, vibration. It is a driving adapter with no port, because nothing in it leaves the device or is stored.
+- `settings/` holds display preferences: language and region, display units, and `MindfulnessPreferences` (pattern, length, picture, cues; never anything about sessions). See [ADR 0014](../adr/0014-units-presentation.md).
 - `res/values/strings.xml` and `res/values-nl/strings.xml` hold all user-facing text.
 
 A ViewModel exposes a `StateFlow` of a UI state class. The screen renders that state and sends events back as function calls. ViewModels never hold Android `Context` or resolved strings; they hold a `UiText` that the screen resolves ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)).
@@ -86,6 +88,7 @@ Because the three share one source, a schedule edit from today changes the plan 
 ## Ideas that shape the code
 
 - **Metric-only storage.** Everything is stored in metric units (kg, cm, mmol/L, metres). The unit a user sees is a display choice, converted at the edge ([ADR 0014](../adr/0014-units-presentation.md)).
+- **Nothing recorded for Mindfulness.** The area keeps display choices only; there is no table, no history and no session log.
 - **Offline first.** There is no network code. Data lives in a local Room database and can be exported as CSV.
 - **Ranges, not verdicts.** Labels read "name · range" and never name a condition. Details in [ADR 0005](../adr/0005-dutch-nhg-guidelines.md) and the [range-labels spec](../../openspec/specs/health-metrics/range-labels/spec.md).
 - **Few dependencies.** Only first-party Android, Jetpack and Kotlin libraries ([ADR 0003](../adr/0003-dependency-minimization.md)).

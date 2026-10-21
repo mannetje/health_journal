@@ -1,6 +1,6 @@
 # Mindfulness (the feature)
 
-> **Status: in progress.** The pure logic in `:domain` is done and tested. In `:app` the 🪷 button, the home screen and the breathing flow exist; the guided player works; the meditation timer and the cues (tones, vibration, spoken words) work; the safety note and saved choices are not built yet. The [status table](#7-status) says exactly what is where. The requirements are in the open change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md); the ideas, the agreed safety wording and the content licences are in [Mindfulness (ideas and wording)](mindfulness.md).
+> **Status: built (version 1).** The pure logic in `:domain` and every screen in `:app` exist: the 🪷 button, home, Breathe, Meditate, Guided recordings, Start here, the safety note, saved display choices and Credits. Open: a screen to enter a custom breathing pattern (the domain supports it), and the full emulator pass (task 2.10). The [status table](#7-status) says exactly what is where. The requirements are in the change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md); the decisions, the agreed safety wording and the content licences are in [Mindfulness: decisions, wording and licences](mindfulness.md).
 
 The 🪷 button in the top bar, next to 💊, opens a quiet area with a few ways to slow down: paced **breathing**, a **meditation timer**, short **guided recordings** and a **Start here** ladder for a first time. The app gives no advice and keeps no record of what the user practised.
 
@@ -28,7 +28,7 @@ flowchart TD
     S2 --> S3[5 minute timer]
 ```
 
-Not every branch is built yet; see the [status table](#7-status).
+Every branch is built except entering a custom pattern; see the [status table](#7-status). Home also links to Credits, and a Back from any screen goes one step up.
 
 ### Breathing patterns
 
@@ -44,7 +44,7 @@ Lengths are 1, 3 or 5 minutes. Every exercise starts with a 3 second "Get ready"
 
 ### The rules the user can rely on
 
-- **Nothing is recorded.** No history, streaks, counts or results. The only stored values (planned) are display choices: last length, picture, cues on or off, custom counts, and whether the safety note was acknowledged.
+- **Nothing is recorded.** No history, streaks, counts or results. The only stored values are display choices: pattern, length, picture, meditation minutes and interval, cues on or off with the voice name, and whether the safety note was acknowledged.
 - **Works offline.** No network permission. Spoken cues use the phone's own text-to-speech; recordings are inside the app.
 - **The screen stays on** during an exercise and returns to normal afterwards.
 - **Soft, calm pictures.** No hard edges: the lotus is four rings of rounded petals, the circle is soft gradient layers, and the square has rounded corners with a dot that leaves a fading trail. Shapes ease in and out and turn only a few degrees.
@@ -70,7 +70,7 @@ stateDiagram-v2
     Pillbox --> Tabs: logo (goes to Log)
 ```
 
-The Mindfulness area and the pillbox are screens drawn over the tabs. They are never open at the same time, and Back returns to the tab the user came from. The area keeps only its current screen and the last choices on the setup screen; both survive a configuration change except the running exercise, which starts again.
+The Mindfulness area and the pillbox are screens drawn over the tabs. They are never open at the same time, and Back returns to the tab the user came from. The area keeps its current screen and the last choices on the setup screens; the choices are also saved in `MindfulnessPreferences`. Both survive a configuration change except the running exercise, which starts again. The full route list is in [`MindfulnessArea.kt`](../../app/src/main/java/nl/healthjournal/app/ui/mindfulness/MindfulnessArea.kt): safety note, About, Credits, home, Start here, the two setups and runs, and the guided list and player.
 
 ## 3. Technical view
 
@@ -103,7 +103,7 @@ flowchart LR
     AREA -.-> SH
 ```
 
-Solid arrows are built, dotted arrows are planned. Nothing in `:data` changes: there is no table, no migration, and Room stays at version 6. `:domain` has no clock, no Android type and no session record; the caller passes elapsed milliseconds.
+The diagram shows the breathing path; the meditation, guided, Start here, Credits and safety screens follow the same pattern (`MeditateSetupScreen`, `MeditationRunScreen`, `GuidedListScreen`, `GuidedPlayerScreen`, `StartHereScreen`, `CreditsScreen`, `SafetyScreens`). Choices are kept in `MindfulnessPreferences` (`settings/`, SharedPreferences `mindfulness_prefs`, display choices only). Nothing in `:data` changes: there is no table, no migration, and Room stays at version 6. `:domain` has no clock, no Android type and no session record; the caller passes elapsed milliseconds.
 
 ### Domain model
 
@@ -232,7 +232,7 @@ The app side has two screens. `GuidedListScreen` shows `orderedFor(appLanguage)`
 
 ### One session object
 
-Task 2.3c (done: screen-on flag, audio focus, player, tones, speech and vibration) puts everything an exercise holds in one place, so nothing can leak after the screen is gone.
+Every exercise puts everything an exercise holds in one place, so nothing can leak after the screen is gone.
 
 ```mermaid
 flowchart LR
@@ -256,7 +256,8 @@ While a session runs, an `ExerciseGate` tells `MainActivity` so the notification
 |------|---------------------|
 | No network | no `INTERNET` permission; `PrivacyChecksTest` |
 | No logging | `PrivacyChecksTest` forbids log calls outside the database class |
-| Nothing recorded | the timer and screens hold no history; the area keeps only the route and the last choices in memory |
+| Nothing recorded | the timer and screens hold no history; the area keeps the route in memory and saves only display choices in `MindfulnessPreferences` |
+| Settings only | `MindfulnessPreferencesTest` checks what is stored and the defaults for unknown values |
 | Neutral figures | counts and lengths are shown as numbers, never as a target or a benefit |
 | Credit and licence | every catalogue entry must have a complete credit with https links (checked in the constructor and in tests) |
 | Safety wording | texts agreed once, in English and Dutch, in [mindfulness.md](mindfulness.md#2-safety-note) |
@@ -269,6 +270,8 @@ While a session runs, an `ExerciseGate` tells `MainActivity` so the notification
 | Phase boundaries, fill, sigh, end of exercise | [`BreathingTimerTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/BreathingTimerTest.kt) |
 | Bell times, late ticks, limits | [`MeditationTimerTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/MeditationTimerTest.kt) |
 | Catalogue entries, credits, ordering by language | [`GuidedExerciseCatalogueTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/GuidedExerciseCatalogueTest.kt) |
+| Session registry, tones | [`ExerciseSessionTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/ExerciseSessionTest.kt), [`ToneSynthTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/ToneSynthTest.kt) |
+| Saved choices | [`MindfulnessPreferencesTest.kt`](../../app/src/test/java/nl/healthjournal/app/settings/MindfulnessPreferencesTest.kt) |
 | The first-time ladder | [`StartHereTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/StartHereTest.kt) |
 
 Run them with `./gradlew :domain:test`. The screens are checked by hand on the emulator (task 2.10): each pattern, both languages, light and dark, animations off, a narrow phone.
@@ -305,9 +308,9 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | Tones, vibration, spoken cues | 2.5 | built: generated tones, vibration, offline-voice speech with a voice picker and a "not available" message; choices are saved by 2.7 |
 | Safety note and acknowledgement | 2.6 | built: first-open note with a Read more link and one button, the acknowledgement kept in preferences, a breath-hold reminder on the breathing setup, and the full text under About these exercises (checked on the emulator in light and dark) |
 | Saved display choices | 2.7 | built: pattern, length, picture, meditation length and interval, and the cue choices and voice per exercise are kept in app preferences; nothing else is stored (checked on the emulator across a force-stop) |
-| Strings in English and Dutch | 2.8 | reviewed for the built screens |
-| `VIBRATE` permission, privacy checks | 2.9 | not started |
-| Emulator check | 2.10 | not started |
+| Strings in English and Dutch | 2.8 | reviewed |
+| `VIBRATE` permission, privacy checks | 2.9 | done (`VIBRATE` only; no `INTERNET`, no logging) |
+| Emulator check | 2.10 | partly: each screen checked in light and dark while built; the full pass (Dutch, animations off, narrow phone, TalkBack) is still to do |
 | Credits screen (Credits / Bronnen) and credits record | 3.3, 3.3a | built: `CreditsScreen` from a link on the home screen lists each recording with teacher, source, licence and links to the original and the licence text; [`docs/credits.md`](../credits.md) holds the same record (checked on the emulator in light and dark; the Original link opens the browser) |
 
 The living list is [`tasks.md`](../../openspec/changes/add-mindfulness/tasks.md).

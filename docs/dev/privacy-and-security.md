@@ -13,6 +13,11 @@ For architectural decisions and regulatory context, see [ADR 0023](../adr/0023-d
 - **Zero Telemetry:** No analytics, crash reporting, tracking SDKs, or cloud sync services exist in the project.
 - **Data Sovereignty:** Data belongs entirely to the user. Backup and migration across devices use the **encrypted backup** on the Profile tab: one `.hjbackup` file with everything, protected by a passphrase of the user's own (Argon2id and AES-256-GCM, no recovery without the passphrase), see [Backup and restore](backup.md) and [ADR 0024](../adr/0024-portable-encrypted-backup.md). CSV export and import stay available as a readable, **unencrypted** copy of the measurements and medication, with a warning in the export dialog.
 
+### Mindfulness
+- The 🪷 area records nothing about its use: no history, no streaks, no counts. Only display choices are kept in `mindfulness_prefs` (pattern, length, picture, meditation minutes and interval, cues and voice name, and that the safety note was acknowledged).
+- Sound and speech are made on the device: generated tones, the phone's offline text-to-speech and recordings bundled in the app. The only added permission is `VIBRATE`. A link on the Credits screen opens the user's browser; the app makes no request itself.
+- An exercise never changes volume, ringer mode, Do Not Disturb or brightness, and it ends when the app goes to the background, so the app lock still works. See [Mindfulness (the feature)](mindfulness-feature.md#4-privacy-and-safety-in-the-code).
+
 ### Database Encryption (SQLCipher)
 - The Room database file (`health_journal.db`) is encrypted on-disk using 256-bit AES encryption via **SQLCipher**.
 - Unencrypted database files from earlier versions are automatically and transparently migrated to the encrypted format on first launch with row-count verification.
@@ -175,7 +180,7 @@ flowchart LR
         end
 
         subgraph GeneralFiles["Backup Allowed (Cloud / Device Transfer)"]
-            PREFS["SharedPreferences (Language, Theme, Display Units)"]
+            PREFS["SharedPreferences (Language, Theme, Display Units, Mindfulness choices)"]
         end
 
         subgraph UserControlled["User Export"]
