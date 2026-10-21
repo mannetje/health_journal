@@ -642,7 +642,7 @@
     <string name="backup_msg_restored">Hersteld: %1$d profiel(en), %2$d meting(en), %3$d medicijn(en), %4$d inname(s). %5$d item(s) waren er al.</string>
     <string name="key_lost_restore_button">Herstellen vanuit een back-up</string>
     <string name="history_export_plaintext_warning">CSV-bestanden zijn niet versleuteld. Gebruik voor een beschermde kopie Versleutelde back-up op het tabblad Profiel.</string>
-    <string name="nav_title_mindfulness">Health Journal - Mindfulness</string>
+    <string name="nav_title_mindfulness">Mindfulness</string>
     <string name="nav_mindfulness_desc">Mindfulness</string>
     <string name="nav_logo_desc">Naar Loggen</string>
     <string name="mindfulness_home_breathe">Ademen</string>
@@ -676,4 +676,12 @@
     <string name="breathing_phase_hold">Vasthouden</string>
     <string name="breathing_phase_exhale">Adem uit</string>
     <string name="breathing_phase_pause">Pauze</string>
+    <string name="guided_play">Afspelen</string>
+    <string name="guided_pause">Pauzeren</string>
+    <string name="guided_time">%1$d:%2$02d</string>
+    <string name="guided_audio_language">Audio: %1$s</string>
+    <string name="guided_language_en">Engels</string>
+    <string name="guided_language_nl">Nederlands</string>
+    <string name="guided_credit">Opname van %1$s, %2$s. Licentie: %3$s. Ongewijzigd gebruikt.</string>
+    <string name="guided_progress_desc">Positie in de opname</string>
 </resources>

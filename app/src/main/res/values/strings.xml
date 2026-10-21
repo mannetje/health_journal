@@ -642,7 +642,7 @@
     <string name="backup_msg_restored">Restored: %1$d profile(s), %2$d measurement(s), %3$d medication(s), %4$d intake(s). %5$d item(s) were already present.</string>
     <string name="key_lost_restore_button">Restore from a backup</string>
     <string name="history_export_plaintext_warning">CSV files are not encrypted. For a protected copy, use Encrypted backup on the Profile tab.</string>
-    <string name="nav_title_mindfulness">Health Journal - Mindfulness</string>
+    <string name="nav_title_mindfulness">Mindfulness</string>
     <string name="nav_mindfulness_desc">Mindfulness</string>
     <string name="nav_logo_desc">Go to Log</string>
     <string name="mindfulness_home_breathe">Breathe</string>
@@ -676,4 +676,12 @@
     <string name="breathing_phase_hold">Hold</string>
     <string name="breathing_phase_exhale">Breathe out</string>
     <string name="breathing_phase_pause">Pause</string>
+    <string name="guided_play">Play</string>
+    <string name="guided_pause">Pause</string>
+    <string name="guided_time">%1$d:%2$02d</string>
+    <string name="guided_audio_language">Audio: %1$s</string>
+    <string name="guided_language_en">English</string>
+    <string name="guided_language_nl">Dutch</string>
+    <string name="guided_credit">Recording by %1$s, %2$s. Licence: %3$s. Used unchanged.</string>
+    <string name="guided_progress_desc">Position in the recording</string>
 </resources>

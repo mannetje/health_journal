@@ -26,7 +26,7 @@ The user wants a calm place in the app for slowing down: guided breathing exerci
 - **Database:** none. Room stays at version 6.
 - **Stored data shape:** unchanged. The only persisted values are display choices for the area (last used duration, cues on or off, custom counts, the acknowledged safety note) in the existing preferences, which are not exercise history. They are not added to the backup file in this change.
 - **Affected code:** pattern model and timer in `:domain` (pure Kotlin); screens, the lotus and square drawing (Compose Canvas), tone generation, haptics and text-to-speech in `:app`; nothing in `:data`.
-- **App size:** each bundled MP3 adds roughly 3 to 8 MB; the first selection is about 15 MB in total (check on the real files).
+- **App size:** each bundled MP3 adds roughly 3 to 8 MB; the first selection is about 10.4 MB in total (measured on the real files; check the APK at the next build).
 - **Dependencies:** none. Tones are generated in code, text-to-speech and vibration come from the platform.
 - **Permissions:** `VIBRATE` (a normal permission, no prompt). No network permission.
 - **Docs:** `docs/credits.md` and a credits page in the app and in `docs/` for any outside material; `docs/dev/mindfulness.md` (rewritten from the brainstorm to the real feature), `docs/dev/README.md`, `docs/dev/architecture.md`, `docs/dev/design.md` (screen map), README, CHANGELOG, in-app privacy notice, `openspec/specs/README.md`.

@@ -1,6 +1,6 @@
 # Mindfulness (the feature)
 
-> **Status: in progress.** The pure logic in `:domain` is done and tested. In `:app` the 🪷 button, the home screen and the breathing flow exist; the meditation timer, guided player, spoken cues, tones, safety note and saved choices are not built yet. The [status table](#7-status) says exactly what is where. The requirements are in the open change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md); the ideas, the agreed safety wording and the content licences are in [Mindfulness (ideas and wording)](mindfulness.md).
+> **Status: in progress.** The pure logic in `:domain` is done and tested. In `:app` the 🪷 button, the home screen and the breathing flow exist; the guided player works; the meditation timer, spoken cues, tones, safety note and saved choices are not built yet. The [status table](#7-status) says exactly what is where. The requirements are in the open change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md); the ideas, the agreed safety wording and the content licences are in [Mindfulness (ideas and wording)](mindfulness.md).
 
 The 🪷 button in the top bar, next to 💊, opens a quiet area with a few ways to slow down: paced **breathing**, a **meditation timer**, short **guided recordings** and a **Start here** ladder for a first time. The app gives no advice and keeps no record of what the user practised.
 
@@ -228,6 +228,8 @@ There is no place in this flow that stores anything. Leaving the screen simply d
 
 The catalogue is data. Each entry has an audio language, a duration, English and Dutch title and description, the resource name of the bundled file, and a credit (original title, author, source, licence with version and links). `GuidedExerciseCatalogue.orderedFor(appLanguage)` sorts entries whose audio matches the app language first and keeps the catalogue order inside each group; nothing is left out. Dutch text falls back to English when missing. The three first recordings come from the Free Mindfulness Project under Attribution-NonCommercial-ShareAlike 3.0 Unported, so the app must stay free and ad-free while they are included, and the files are used unchanged. Details and the licence check before each release: [mindfulness.md](mindfulness.md#3-content-and-licences).
 
+The app side has two screens. `GuidedListScreen` shows `orderedFor(appLanguage)`, with an "Audio: <language>" label on entries whose audio is not in the app language; the app language comes from `LocalConfiguration`, which lint requires so the list follows a language change. `GuidedPlayerScreen` plays the raw resource with `MediaPlayer` (speech attributes), asks for audio focus on Play and pauses when focus is lost or the activity stops, keeps the screen on only while playing, and releases the player when the screen leaves. It shows the credit (author, source, licence) under the controls. Nothing about what was played is stored. A configuration change such as a theme switch recreates the screen at 0:00, paused.
+
 ### Planned: one session object
 
 Task 2.3c puts everything an exercise holds in one place, so nothing can leak after the screen is gone.
@@ -294,7 +296,7 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | Patterns, custom counts, timer, meditation timer, Start here, catalogue, tests | 1.1 to 1.4 | done |
 | 🪷 button, back handling, home screen | 2.1, 2.2 | done |
 | Breathing setup and exercise screen with lotus, circle, rounded square | 2.3 | built, partly: no saved picture choice, no custom pattern input, no fading controls |
-| Guided list and player | 2.3a | not started |
+| Guided list and player | 2.3a | done (`GuidedListScreen`, `GuidedPlayerScreen`); no seek, no background playback by design |
 | Session object | 2.3c | not started |
 | Meditation timer screen | 2.4 | not started |
 | Tones, vibration, spoken cues | 2.5 | not started |
