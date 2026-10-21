@@ -81,6 +81,7 @@ The decrypted text is one JSON object. [healthjournal-backup.schema.json](health
 
 ```mermaid
 erDiagram
+    DOCUMENT ||--o| PREFERENCES : preferences
     DOCUMENT ||--o{ PROFILE : profiles
     PROFILE ||--o{ WEIGHT : weights
     PROFILE ||--o{ BLOOD_PRESSURE : bloodPressures
@@ -95,6 +96,14 @@ erDiagram
         int schemaVersion "1"
         instant createdAt
         object app "informational"
+    }
+    PREFERENCES {
+        enum language "system en nl"
+        enum region "system NL US"
+        enum unitSystem "system metric imperial"
+        enum glucoseUnit "system mmol mgdl"
+        enum theme "system light dark"
+        int reminderSnoozeMinutes "10 30 60"
     }
     PROFILE {
         uuid id
@@ -187,7 +196,8 @@ erDiagram
 | Derived fields | `bmi` and every `category` are values that were derived when the entry was saved. A reader MAY recompute them from the raw values and its own rules. The raw values are the truth. |
 | Nulls | A missing optional value is `null` or absent; both mean "not set". |
 | Order | Lists are written oldest first. Readers MUST NOT depend on order. |
-| Not included | Language, region, units, theme, lock and secure-screen settings. They belong to the device, not to the journal. |
+| Preferences | The optional `preferences` object holds display settings as tags (`system` means follow the device): `language` (`en`, `nl`), `region` (`NL`, `US`), `unitSystem` (`metric`, `imperial`), `glucoseUnit` (`mmol`, `mgdl`), `theme` (`light`, `dark`), `reminderSnoozeMinutes` (10, 30, 60). A reader applies only what it knows and may skip them. |
+| Not included | App lock and its timeout, the secure-screen switch, lock-screen details of reminders, accepted notices and permission prompts. They protect the device and are never taken from a file. |
 
 ### Medication
 

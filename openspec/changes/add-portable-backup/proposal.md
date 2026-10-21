@@ -18,7 +18,7 @@ The database is encrypted with a key that never leaves the phone (ADR 0023), so 
 
 ## Impact
 - **Database:** none. The Room schema stays at version 6. The backup format has its own `schemaVersion` and is independent of Room migrations, so old backups stay readable.
-- **Stored data shape:** unchanged. Preferences (language, theme, units, lock) are not part of the backup.
+- **Stored data shape:** unchanged. Display preferences (language, region, units, theme, snooze) are written to the backup and restored on request; security settings never are.
 - **Affected code:** a pure backup model, JSON writer and reader, container encoder and decoder and a `BackupPort` in `:domain`; the Argon2id and AES-GCM adapter and the repository snapshot and merge in `:data`; the Profile card, passphrase dialogs, restore flow and the lost-key screen in `:app`; strings in English and Dutch.
 - **Dependencies:** one, for Argon2id (the platform has no implementation). Candidates and the choice are in the design and ADR 0024; AES-GCM, SecureRandom, gzip and JSON come from the platform.
 - **Docs:** `docs/backup-format/` (new), `docs/dev/backup.md` (new), `docs/dev/README.md`, `docs/dev/architecture.md`, `docs/dev/c4.md`, `docs/dev/privacy-and-security.md`, README, CHANGELOG, in-app privacy notice, ADR 0024, `openspec/specs/README.md`.
@@ -26,6 +26,6 @@ The database is encrypted with a key that never leaves the phone (ADR 0023), so 
 ## Non-goals
 - No scheduled or automatic backup in this change (possible later, see the design).
 - No cloud, no sync, no sharing target other than what the system file picker offers.
-- No backup of app preferences or the lock setting.
+- No backup of security or privacy settings (app lock, timeout, secure screen, lock-screen details): a restore must never weaken a device.
 - No recovery of a forgotten passphrase: there is no escrow and no backdoor.
 - No importer for other apps' formats beyond the existing CSV import.

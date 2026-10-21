@@ -13,7 +13,7 @@ Today the only way out of the app is CSV (plaintext, measurements only). The dat
 
 **Non-Goals:**
 - Scheduled backups, cloud storage, sync.
-- Backing up preferences.
+- Backing up security and privacy settings.
 - Passphrase recovery.
 
 ## Decisions
@@ -43,15 +43,18 @@ Every entity already has a stable identifier. A restore inserts what is missing 
 After writing the file the app reads it back through the same decoder and only then reports success, so a full disk or a broken storage provider is noticed at once, not at restore time.
 
 ### 9. Passphrase handling
-Minimum 10 characters, typed twice, never stored, never logged, held in a `CharArray` and cleared after use. There is no hint, no escrow and no recovery. The dialog says so in plain words (English and Dutch). A passphrase manager works; the field does not block pasting.
+Minimum 8 characters, typed twice, never stored, never logged, held in a `CharArray` and cleared after use. While typing, a neutral hint (not a verdict, no colours that judge) suggests that a phrase of three or four random words is both stronger and easier to remember than eight random characters, and that length matters more than symbols. There is no stored passphrase hint, no escrow and no recovery. The dialog says so in plain words (English and Dutch). A passphrase manager works; the field does not block pasting.
 
 ### 10. Scheduled backup, later
 A later change can add a periodic backup to a folder the user picks (a persisted document tree URI and `WorkManager`). It needs the passphrase at run time, so it has to keep a secret on the device: the options are a key wrapped by the Android Keystore (weaker, because the phone can then decrypt its own backups) or asking the user each time (not automatic). That trade-off needs its own decision, so it is out of scope here. The container does not change for it.
 
+### 11. Display preferences in, security settings out
+The file carries language, region, unit system, glucose unit, theme and snooze length, so a new phone feels the same. They are applied only when the user ticks "Also restore settings" (default on), because they are overwriting values, not merged ones. App lock, its timeout, the secure screen and the lock-screen detail switch are excluded on purpose: a backup file from anywhere must never be able to turn protection off, and these belong to the device and its credentials. Per-device state (accepted medication notice, permission prompts) is excluded too. Values are tags with `system` meaning follow the device; unknown values are ignored, so older apps still read newer files.
+
 ## Risks / Trade-offs
 
 - **Forgotten passphrase means lost backup.** Accepted and stated at creation; the alternative is an unencrypted health file.
-- **A weak passphrase weakens the file.** Argon2id slows guessing but cannot save "password123"; the minimum length helps, a strength meter is not added (no judgement text).
+- **A weak passphrase weakens the file.** Argon2id slows guessing but cannot save "password123"; the minimum length and the hint help; a scored strength meter is not added (no judgement text).
 - **Native library for Argon2.** One more `.so` to align for 16 KB pages and to keep updated. Mitigated by the port and the test vectors.
 - **The backup is a decrypted copy once restored elsewhere.** The user chooses where it goes; the app cannot control the destination.
 - **Format drift between app and docs.** Mitigated by the shared test vectors (app unit tests and the reference decoder run the same files) and by the spec rule that a format change updates all of them together.

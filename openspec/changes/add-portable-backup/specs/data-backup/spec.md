@@ -27,7 +27,7 @@ The encryption key SHALL be 32 bytes derived with Argon2id (RFC 9106, version 0x
 - **THEN** the restore stops with a message that the passphrase is wrong or the file is damaged, nothing is imported, and the user may try again
 
 ### Requirement: Backup document
-The decrypted document SHALL be a JSON object that validates against `docs/backup-format/healthjournal-backup.schema.json`, with `format` equal to `healthjournal-backup`, an integer `schemaVersion` (1), `createdAt`, and `profiles`. Each profile SHALL carry its identifier, name, date of birth, height, sex and active flag, and the lists of weights, blood pressures, glucoses, waist circumferences, activities and medications. Each medication SHALL carry its schedule versions (with the daily times of each version) and its intake log. All values SHALL use the canonical conventions of the CSV contract: metric units, ISO-8601 UTC instants with a trailing Z, a decimal point, enumerations by their unlocalised names. Decimal numbers SHALL be written as plain decimal strings so no precision is lost. Planned dose times are local date-times without a zone, as in the medication data. Comments are included. Preferences (language, region, units, theme, lock and secure-screen settings) SHALL NOT be included. Readers SHALL ignore properties they do not know, and a change that removes or reinterprets a property SHALL raise `schemaVersion`.
+The decrypted document SHALL be a JSON object that validates against `docs/backup-format/healthjournal-backup.schema.json`, with `format` equal to `healthjournal-backup`, an integer `schemaVersion` (1), `createdAt`, and `profiles`. Each profile SHALL carry its identifier, name, date of birth, height, sex and active flag, and the lists of weights, blood pressures, glucoses, waist circumferences, activities and medications. Each medication SHALL carry its schedule versions (with the daily times of each version) and its intake log. All values SHALL use the canonical conventions of the CSV contract: metric units, ISO-8601 UTC instants with a trailing Z, a decimal point, enumerations by their unlocalised names. Decimal numbers SHALL be written as plain decimal strings so no precision is lost. Planned dose times are local date-times without a zone, as in the medication data. Comments are included. The document SHALL also carry an optional `preferences` object with the display preferences language, region, unit system, glucose unit, theme and reminder snooze length, each by its unlocalised tag (`system` meaning follow the device). Security and privacy settings (app lock and its timeout, secure screen, lock-screen details of reminders) and per-device state (accepted notices, permission prompts) SHALL NOT be included, so that restoring a backup can never weaken the protection of a device. Readers SHALL ignore properties they do not know, and a change that removes or reinterprets a property SHALL raise `schemaVersion`.
 
 #### Scenario: Everything a profile holds is in the file
 - **WHEN** a profile with weights, blood pressures, glucose, waist, activity, a medication with two schedule versions and an intake log is backed up
@@ -37,9 +37,13 @@ The decrypted document SHALL be a JSON object that validates against `docs/backu
 - **WHEN** a weight of 82.4 kg and a dose amount of 2.5 are backed up
 - **THEN** the document holds the strings "82.4" and "2.5"
 
-#### Scenario: Preferences stay on the device
-- **WHEN** a backup is restored on a device with a different language setting
-- **THEN** the language, theme, units and lock setting of that device are unchanged
+#### Scenario: Display preferences are in the file
+- **WHEN** a backup is created while the language is Dutch, the theme is dark and the units are metric
+- **THEN** the document's `preferences` hold those values and nothing about the lock
+
+#### Scenario: Security settings are never in the file
+- **WHEN** a backup is created with the app lock on and the secure screen enabled
+- **THEN** the document contains neither setting, and restoring it never changes the lock or the secure screen
 
 #### Scenario: Newer file, same container
 - **WHEN** a reader supporting schemaVersion 1 opens a file with extra properties
@@ -50,11 +54,15 @@ The decrypted document SHALL be a JSON object that validates against `docs/backu
 - **THEN** it refuses with a message that a newer app version is needed and imports nothing
 
 ### Requirement: Create a backup
-The Profile screen SHALL offer "Create backup". The user SHALL choose a passphrase of at least 10 characters and type it twice, SHALL be told that the passphrase cannot be recovered and that without it the backup cannot be opened, and SHALL choose the destination through the system document picker. The file name SHALL be proposed as `health-journal-<yyyy-mm-dd>.hjbackup` and SHALL NOT contain a profile name. The backup SHALL be written only after the user's explicit action and only to the chosen destination. The app SHALL NOT store the passphrase. The app SHALL show the number of entries written and SHALL read the file back and verify it decrypts before reporting success.
+The Profile screen SHALL offer "Create backup". The user SHALL choose a passphrase of at least 8 characters and type it twice, SHALL see a hint, in plain words, that a phrase of three or four random words is stronger and easier to remember than eight random characters, SHALL be told that the passphrase cannot be recovered and that without it the backup cannot be opened, and SHALL choose the destination through the system document picker. The file name SHALL be proposed as `health-journal-<yyyy-mm-dd>.hjbackup` and SHALL NOT contain a profile name. The backup SHALL be written only after the user's explicit action and only to the chosen destination. The app SHALL NOT store the passphrase. The app SHALL show the number of entries written and SHALL read the file back and verify it decrypts before reporting success.
 
 #### Scenario: Passphrase too short
-- **WHEN** the user enters 6 characters
+- **WHEN** the user enters 7 characters
 - **THEN** the backup is not created and the dialog says the minimum
+
+#### Scenario: Hint while typing
+- **WHEN** the passphrase dialog is shown
+- **THEN** it suggests a phrase of three or four random words and does not score or colour the entry as weak or strong
 
 #### Scenario: Passphrases differ
 - **WHEN** the two entries differ
@@ -73,11 +81,19 @@ The Profile screen SHALL offer "Create backup". The user SHALL choose a passphra
 - **THEN** every label, warning and message of the backup flow is shown in that language
 
 ### Requirement: Restore a backup
-The Profile screen SHALL offer "Restore backup", and the lost-key screen SHALL offer "Restore from a backup" next to the delete action. The user picks the file through the system document picker and enters the passphrase. A restore SHALL merge: profiles, entries, medications, schedule versions and intakes whose identifier already exists are kept as they are and are not overwritten, everything else is added. A restore SHALL run in one database transaction, so a failure leaves the data unchanged. After a restore the app SHALL report how many entries were added and how many were skipped because they existed. When restoring from the lost-key screen the app SHALL first create the new empty encrypted database, then import into it. A restore SHALL NOT change which profile is active when the app already has an active profile, and SHALL activate the active profile of the file when the app has none.
+The Profile screen SHALL offer "Restore backup", and the lost-key screen SHALL offer "Restore from a backup" next to the delete action. The user picks the file through the system document picker and enters the passphrase. A restore SHALL merge: profiles, entries, medications, schedule versions and intakes whose identifier already exists are kept as they are and are not overwritten, everything else is added. A restore SHALL run in one database transaction, so a failure leaves the data unchanged. After a restore the app SHALL report how many entries were added and how many were skipped because they existed. When restoring from the lost-key screen the app SHALL first create the new empty encrypted database, then import into it. The restore dialog SHALL offer "Also restore settings" (language, region, units, theme, snooze), on by default when the file contains preferences; when ticked the stored values replace the current ones, when not ticked the preferences of the device are unchanged. Unknown or invalid preference values SHALL be ignored. A restore SHALL NOT change which profile is active when the app already has an active profile, and SHALL activate the active profile of the file when the app has none.
 
 #### Scenario: Restore into an empty app
 - **WHEN** a backup is restored into a freshly installed app
 - **THEN** all profiles, entries and medication from the file are present and the active profile is the one that was active in the file
+
+#### Scenario: Settings restored on request
+- **WHEN** a backup with Dutch language and dark theme is restored with "Also restore settings" ticked
+- **THEN** the app switches to Dutch and the dark theme, and the lock settings are unchanged
+
+#### Scenario: Settings left alone
+- **WHEN** the same backup is restored with the option unticked
+- **THEN** the language and theme of the device are unchanged
 
 #### Scenario: Restore twice
 - **WHEN** the same backup is restored twice

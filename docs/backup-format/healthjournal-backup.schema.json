@@ -16,6 +16,18 @@
         "version": { "type": "string" }
       }
     },
+    "preferences": {
+      "type": "object",
+      "description": "Display preferences, optional. 'system' means follow the device. Security and privacy settings are never included.",
+      "properties": {
+        "language": { "enum": ["system", "en", "nl"] },
+        "region": { "enum": ["system", "NL", "US"] },
+        "unitSystem": { "enum": ["system", "metric", "imperial"] },
+        "glucoseUnit": { "enum": ["system", "mmol", "mgdl"] },
+        "theme": { "enum": ["system", "light", "dark"] },
+        "reminderSnoozeMinutes": { "enum": [10, 30, 60] }
+      }
+    },
     "profiles": { "type": "array", "items": { "$ref": "#/$defs/profile" } }
   },
   "$defs": {

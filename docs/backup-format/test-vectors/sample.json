@@ -3,6 +3,14 @@
   "schemaVersion": 1,
   "createdAt": "2026-10-21T09:30:00Z",
   "app": { "name": "Health Journal", "version": "1.6.0" },
+  "preferences": {
+    "language": "nl",
+    "region": "NL",
+    "unitSystem": "metric",
+    "glucoseUnit": "mmol",
+    "theme": "dark",
+    "reminderSnoozeMinutes": 30
+  },
   "profiles": [
     {
       "id": "7d1c1f0e-3b5a-4e0a-9a53-1f6f0c6a0001",

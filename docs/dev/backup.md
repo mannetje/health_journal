@@ -24,12 +24,12 @@ flowchart TD
 
 | Action | What happens |
 |--------|--------------|
-| Create backup | Choose a passphrase (at least 10 characters, typed twice, with a warning that it cannot be recovered), choose a destination in the system file picker. The app writes the file, reads it back to check it, and reports how many entries it holds. |
-| Restore backup | Choose the file, enter the passphrase. The content is **merged**: what already exists (same identifier) is kept, the rest is added. The result says how many entries were added and how many already existed. |
+| Create backup | Choose a passphrase (at least 8 characters, typed twice, with a hint to prefer three or four random words and a warning that it cannot be recovered), choose a destination in the system file picker. The app writes the file, reads it back to check it, and reports how many entries it holds. |
+| Restore backup | Choose the file, enter the passphrase, optionally tick "Also restore settings". The content is **merged**: what already exists (same identifier) is kept, the rest is added. The result says how many entries were added and how many already existed. |
 | Restore on the lost-key screen | Same, but the unreadable data is deleted only after the file has been decrypted and validated, then the new database is filled from the backup. A wrong passphrase destroys nothing. |
 | Export CSV | Unchanged plaintext export, now with a clear "not encrypted" warning. Meant for spreadsheets, not as a backup. |
 
-Not in the backup: language, region, units, theme, lock and secure-screen settings. They belong to the device.
+Display preferences (language, region, units, theme, snooze length) are in the file and applied only when the user ticks "Also restore settings". **Never** in the file: app lock and its timeout, secure screen, lock-screen details and other per-device state, so a backup can never weaken a device's protection.
 
 ### What is in the file
 
