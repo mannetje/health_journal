@@ -45,34 +45,34 @@ More screenshots (dark theme, graphs and statistics, medication reminders, adher
 ### Key Features
 
 #### 📊 Tracked Health Metrics
-- **Body Weight & BMI:** Record weight in kg or lb; automatically calculates Body Mass Index (BMI) categorized against NHG/WHO standards.
-- **Waist Circumference (optional):** Record waist measurement in cm; evaluated against Voedingscentrum's sex-specific healthy-range thresholds when profile sex is set.
-- **Blood Pressure & Pulse:** Record systolic, diastolic (mmHg), and pulse (30–250 bpm); evaluated against NHG 3-band categories (Normal, High, Seriously raised).
-- **Blood Glucose:** Record fasting and postprandial levels in mmol/L or mg/dL; evaluated against NHG context-specific target ranges.
-- **Physical Activity:** Track duration and distance for workout sessions manually or via bulk import.
-- **Medication Pillbox (💊):** Manage medications (tablets, liquids, sprays, injectables) with flexible schedule versions, daily time slots, and intake logs.
-- **Mindfulness (🪷):** A calm corner next to the pillbox, with no advice and no record of your practice. Breathe: box, 4-7-8, physiological sigh or belly breathing for 1, 3 or 5 minutes, drawn as a soft lotus, circle or rounded square. Meditate: a quiet timer of 5, 10, 15, 20 or 30 minutes with optional interval bells. Guided: three recorded exercises from the Free Mindfulness Project, played on the device and credited in the app. Start here: a three-step first-time ladder. Tones, vibration and spoken cues (the phone's offline voice) can each be switched on or off, and a short safety note is shown on first open. Only your display choices are saved. Tapping the logo in the top bar takes you back to the Log screen.
-- **Entry Comments:** Add an optional single-line note (up to 200 characters) to any measurement or activity entry.
+- **Body Weight & BMI:** Record weight in kg or lb; automatically calculates Body Mass Index (BMI) categorized against NHG/WHO standards. *([spec](openspec/specs/health-metrics/weight/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
+- **Waist Circumference (optional):** Record waist measurement in cm; evaluated against Voedingscentrum's sex-specific healthy-range thresholds when profile sex is set. *([spec](openspec/specs/health-metrics/weight/spec.md))*
+- **Blood Pressure & Pulse:** Record systolic, diastolic (mmHg), and pulse (30–250 bpm); evaluated against NHG 3-band categories (Normal, High, Seriously raised). *([spec](openspec/specs/health-metrics/blood-pressure/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
+- **Blood Glucose:** Record fasting and postprandial levels in mmol/L or mg/dL; evaluated against NHG context-specific target ranges. *([spec](openspec/specs/health-metrics/glucose/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
+- **Physical Activity:** Track duration and distance for workout sessions manually or via bulk import. *([spec](openspec/specs/health-metrics/activity/spec.md))*
+- **Medication Pillbox (💊):** Manage medications (tablets, liquids, sprays, injectables) with flexible schedule versions, daily time slots, and intake logs. *([spec](openspec/specs/medication/spec.md), [ADR 0020](docs/adr/0020-medication-model-and-pillbox.md), [dev doc](docs/dev/pillbox.md))*
+- **Mindfulness (🪷):** A calm corner next to the pillbox, with no advice and no record of your practice. Breathe: box, 4-7-8, physiological sigh or belly breathing for 1, 3 or 5 minutes, drawn as a soft lotus, circle or rounded square. Meditate: a quiet timer of 5, 10, 15, 20 or 30 minutes with optional interval bells. Guided: three recorded exercises from the Free Mindfulness Project, played on the device and credited in the app. Start here: a three-step first-time ladder. Tones, vibration and spoken cues (the phone's offline voice) can each be switched on or off, and a short safety note is shown on first open. Only your display choices are saved. Tapping the logo in the top bar takes you back to the Log screen. *([spec](openspec/specs/mindfulness/spec.md), [decisions and wording](docs/dev/mindfulness.md), [how it works](docs/dev/mindfulness-feature.md), [credits](docs/credits.md))*
+- **Entry Comments:** Add an optional single-line note (up to 200 characters) to any measurement or activity entry. *([spec](openspec/specs/entry-comments/spec.md), [ADR 0019](docs/adr/0019-entry-comments.md))*
 
 #### 🎛️ Smart Input & User Experience
-- **Interactive Number Pickers:** Tactile horizontal measuring tape ruler pickers for Weight and Waist (0.1 step precision) and stacked color-coded rows for Blood Pressure & Pulse.
-- **Smart 3-Tier Pre-fill:** Automatically pre-fills log forms using a fallback chain: latest measurement → profile-derived target → standard sane default.
-- **Medication Reminders & Adherence:** Scheduled time slot notifications with Taken/Snooze actions, plus 7/30/90-day adherence statistics and streak tracking.
-- **Timeline & Trend Visualizations:** Interactive pinch-zoom trend charts, moving averages, range gauges, and interleaved chronological history timeline with month/year quick navigation.
+- **Interactive Number Pickers:** Tactile horizontal measuring tape ruler pickers for Weight and Waist (0.1 step precision) and stacked color-coded rows for Blood Pressure & Pulse. *([ADR 0018](docs/adr/0018-smart-input-pickers.md))*
+- **Smart 3-Tier Pre-fill:** Automatically pre-fills log forms using a fallback chain: latest measurement → profile-derived target → standard sane default. *([ADR 0018](docs/adr/0018-smart-input-pickers.md))*
+- **Medication Reminders & Adherence:** Scheduled time slot notifications with Taken/Snooze actions, plus 7/30/90-day adherence statistics and streak tracking. *([ADR 0022](docs/adr/0022-medication-reminders.md), [ADR 0021](docs/adr/0021-medication-compliance-and-privacy.md))*
+- **Timeline & Trend Visualizations:** Interactive pinch-zoom trend charts, moving averages, range gauges, and interleaved chronological history timeline with month/year quick navigation. *([spec](openspec/specs/health-trends/spec.md), [ADR 0006](docs/adr/0006-health-trend-visualizations.md), [dev doc](docs/dev/graphs.md))*
 
 #### 🔒 Privacy, Security & Data Sovereignty
-- **100% Offline-First:** No network permissions required (`INTERNET` permission absent). Zero telemetry, tracking, or cloud sync.
-- **SQLCipher AES-256 Encryption:** Database encrypted at rest using a hardware-backed key generated via Android Keystore (TEE/StrongBox).
-- **Opt-in App Lock:** Secure app access using system Device Credentials (PIN/pattern/password) or Biometrics (fingerprint/face) with configurable auto-lock timeouts.
-- **Secure Screen Protection:** Optional `FLAG_SECURE` mode blocks screenshots and hides app switcher preview cards.
+- **100% Offline-First:** No network permissions required (`INTERNET` permission absent). Zero telemetry, tracking, or cloud sync. *([spec](openspec/specs/privacy/spec.md), [privacy and security](docs/dev/privacy-and-security.md))*
+- **SQLCipher AES-256 Encryption:** Database encrypted at rest using a hardware-backed key generated via Android Keystore (TEE/StrongBox). *([ADR 0023](docs/adr/0023-database-encryption-and-app-lock.md), [database](docs/dev/database.md))*
+- **Opt-in App Lock:** Secure app access using system Device Credentials (PIN/pattern/password) or Biometrics (fingerprint/face) with configurable auto-lock timeouts. *([ADR 0023](docs/adr/0023-database-encryption-and-app-lock.md))*
+- **Secure Screen Protection:** Optional `FLAG_SECURE` mode blocks screenshots and hides app switcher preview cards. *([privacy and security](docs/dev/privacy-and-security.md))*
 - **Encrypted Backup:** One passphrase-protected `.hjbackup` file (Argon2id, AES-256-GCM) with all profiles, entries and medication. Restore on any device, merging without overwriting, or after a lost key. The [file format](docs/backup-format/README.md) is published, so the data can be recovered [without the app](docs/backup-format/recover-your-data.md).
-- **Complete Data Portability:** Standardized UTF-8 CSV import and export for all health metrics, medications, and comments (unencrypted, with a warning). Supports auto-detecting Libra CSV files.
+- **Complete Data Portability:** Standardized UTF-8 CSV import and export for all health metrics, medications, and comments (unencrypted, with a warning). Supports auto-detecting Libra CSV files. *([spec](openspec/specs/data-export/spec.md))*
 
 #### 🌍 Customization & Localization
-- **Dutch & English Localization:** Fully localized UI text in English and Dutch, with manual language selection or system default.
-- **Independent Regional Formats:** Custom date and number formatting styles (Netherlands / US / System) independent of language choice.
-- **Presentation Units:** Toggle between Metric (kg, cm, m) and Imperial (lb, mi, ft/in) as well as mmol/L or mg/dL glucose units.
-- **Light & Dark Themes:** Automatic system theme matching or manual System/Light/Dark selection.
+- **Dutch & English Localization:** Fully localized UI text in English and Dutch, with manual language selection or system default. *([spec](openspec/specs/localization/spec.md), [add a translation](docs/dev/how-to/add-a-translation.md))*
+- **Independent Regional Formats:** Custom date and number formatting styles (Netherlands / US / System) independent of language choice. *([spec](openspec/specs/localization/spec.md))*
+- **Presentation Units:** Toggle between Metric (kg, cm, m) and Imperial (lb, mi, ft/in) as well as mmol/L or mg/dL glucose units. *([spec](openspec/specs/units-presentation/spec.md), [ADR 0014](docs/adr/0014-units-presentation.md))*
+- **Light & Dark Themes:** Automatic system theme matching or manual System/Light/Dark selection. *([spec](openspec/specs/theming/spec.md), [ADR 0017](docs/adr/0017-in-app-theme-choice.md))*
 
 ---
 
@@ -276,7 +276,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 | 5c | Medication adherence | Done | 1.5.4 |
 | 5d | Database encryption and app lock | Done | 1.5.9 |
 | 5e | Portable encrypted backup (manual) | Done | 1.6.0 |
-| 6 | Mindfulness (🪷): breathing, meditation timer, guided recordings, Start here, credits and safety note built; final emulator pass to do | In progress | — |
+| 6 | Mindfulness (🪷): breathing, meditation timer, guided recordings, Start here, credits and safety note built and checked on the emulator | Built, not released | — |
 
 ```mermaid
 flowchart LR
@@ -310,7 +310,7 @@ flowchart LR
   - [x] [Phase 5c: Adherence](openspec/changes/archive/2026-10-07-add-medication-adherence/proposal.md): percentages for 7, 30 and 90 days, streak and missed list as a view in the pillbox.
   - [x] [Phase 5d: Database encryption and app lock](openspec/changes/archive/2026-10-19-add-database-encryption-and-lock/proposal.md): encrypted database (SQLCipher AES-256), opt-in lock with device credentials/biometrics, secure screen (`FLAG_SECURE`), backup rules (ADR 0023).
   - [x] [Phase 5e: Portable encrypted backup](openspec/changes/archive/2026-10-21-add-portable-backup/proposal.md) (manual backup and restore, 1.6.0; scheduled backup is a later decision): passphrase-protected `.hjbackup` file (Argon2id, AES-256-GCM) that can be restored on any device, with a [published format](docs/backup-format/README.md) and a [recovery guide](docs/backup-format/recover-your-data.md) for use without the app (ADR 0024).
-- [ ] **Phase 6: Mindfulness (🪷)** ([change](openspec/changes/add-mindfulness/proposal.md), built, final emulator pass to do): breathing exercise with lotus, circle and square pictures, meditation timer with bells, guided recordings player, Start here, safety note, saved display choices and credits. Tones, vibration and spoken cues. No session log, English and Dutch.
+- [x] **Phase 6: Mindfulness (🪷)** ([change](openspec/changes/archive/2026-10-21-add-mindfulness/proposal.md), [spec](openspec/specs/mindfulness/spec.md), built and checked on the emulator, not released yet): breathing exercise with lotus, circle and square pictures, meditation timer with bells, guided recordings player, Start here, safety note, saved display choices and credits. Tones, vibration and spoken cues. No session log, English and Dutch.
 
 ## License
 

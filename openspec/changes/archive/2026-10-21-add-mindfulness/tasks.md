@@ -18,7 +18,7 @@
 - [x] 1.4 JVM tests for all patterns, custom validation, timer boundaries and interval bells
 
 ## 2. App (`:app`)
-- [ ] 2.1 Lotus button in the top bar and navigation to the area, back handling
+- [x] 2.1 Lotus button in the top bar and navigation to the area, back handling
 - [x] 2.2 Area home with Breathe, Meditate, Start here, "About these exercises". Done: home, About link, `StartHereScreen` opening the setups with the step settings; Start here checked on the emulator
 - [x] 2.3 Exercise screen: lotus, circle and square drawing, visual choice kept in preferences, phase text, countdown, ready and done, fading controls, keep screen on, reduced-animation mode, TalkBack announcements. Done: the Stop button fades after 4 seconds without a touch and returns on touch, the touch that brings it back does not press it, it stays visible with a screen reader on, and with animations off it hides without a fade; the custom pattern input is held for later; checked on the emulator (light): fade, reveal-without-press and stop on both run screens
 - [x] 2.3a Guided exercises list and player (play, pause, stop, offline, screen on, no log), language label, credit shown. Done: `GuidedListScreen`, `GuidedPlayerScreen` (MediaPlayer, audio focus, pauses when the app goes to the background); emulator check pending
@@ -37,5 +37,5 @@
 - [x] 3.2 README (key features, roadmap), CHANGELOG, in-app privacy notice
 - [x] 3.3a `docs/credits.md` with teacher, source URL, licence, version and file name of each recording (plus file hashes)
 - [x] 3.3 (checked on the emulator) Credits screen (English "Credits", Dutch "Bronnen") and a credits record in `docs/` with source, author, licence and version of every outside item; review against design decision 9
-- [ ] 3.4 Merge the deltas into `openspec/specs` (mindfulness, privacy, platform-android, localization) and archive the change
-- [ ] 3.5 `bash scripts/check-docs.sh` and `npx --no-install openspec validate --all --strict` pass
+- [x] 3.4 Merge the deltas into `openspec/specs` (mindfulness, privacy, platform-android, localization) and archive the change
+- [x] 3.5 `bash scripts/check-docs.sh` and `npx --no-install openspec validate --all --strict` pass

@@ -23,6 +23,7 @@ These specs are the platform-neutral source of truth for every business rule. A 
 | [compliance](compliance/spec.md) | Intended purpose, no advice, wording rules, review gate |
 | [data-export](data-export/spec.md) | CSV export and import, Libra |
 | [localization](localization/spec.md) | Languages, region, message resolution |
+| [mindfulness](mindfulness/spec.md) | Breathe, Meditate, Guided recordings, Start here, safety note, credits, nothing recorded |
 | [theming](theming/spec.md) | Light/dark palette, top bar |
 | [app-identity](app-identity/spec.md) | Icon palette |
 | [architecture-governance](architecture-governance/spec.md) | Layers, ADRs, README |

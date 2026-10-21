@@ -11,7 +11,7 @@ This page collects the design of Health Journal in one place: the principles, th
 | Pure core | rules live in `domain`, testable on the JVM in milliseconds | [ADR 0002](../adr/0002-hexagonal-architecture.md) |
 | Store metric, show what the user prefers | conversion happens at the edge only | [ADR 0014](../adr/0014-units-presentation.md) |
 | Derive, do not store | planned and missed doses and adherence are computed from schedule versions and recorded outcomes | [ADR 0020](../adr/0020-medication-model-and-pillbox.md) |
-| Nothing recorded, no advice | Mindfulness stores display choices only, shows counts and lengths as plain numbers and carries a safety note | [change `add-mindfulness`](../../openspec/changes/add-mindfulness/design.md), [Mindfulness decisions](mindfulness.md) |
+| Nothing recorded, no advice | Mindfulness stores display choices only, shows counts and lengths as plain numbers and carries a safety note | [change `add-mindfulness`](../../openspec/changes/archive/2026-10-21-add-mindfulness/design.md), [Mindfulness decisions](mindfulness.md) |
 | Few dependencies | first-party Android, Jetpack and Kotlin libraries only | [ADR 0003](../adr/0003-dependency-minimization.md) |
 | Dutch first, English too | layouts are checked in Dutch, with large fonts | [ADR 0010](../adr/0010-responsive-dutch-ui-layout.md) |
 

@@ -1,6 +1,6 @@
 # Mindfulness (the feature)
 
-> **Status: built (version 1).** The pure logic in `:domain` and every screen in `:app` exist: the 🪷 button, home, Breathe, Meditate, Guided recordings, Start here, the safety note, saved display choices and Credits. Open: a screen to enter a custom breathing pattern (the domain supports it), and a TalkBack and on-device audio check. The [status table](#7-status) says exactly what is where. The requirements are in the change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md); the decisions, the agreed safety wording and the content licences are in [Mindfulness: decisions, wording and licences](mindfulness.md).
+> **Status: built (version 1).** The pure logic in `:domain` and every screen in `:app` exist: the 🪷 button, home, Breathe, Meditate, Guided recordings, Start here, the safety note, saved display choices and Credits. Open: a screen to enter a custom breathing pattern (the domain supports it), and a TalkBack and on-device audio check. The [status table](#7-status) says exactly what is where. The requirements are in the [Mindfulness spec](../../openspec/specs/mindfulness/spec.md); the decisions, the agreed safety wording and the content licences are in [Mindfulness: decisions, wording and licences](mindfulness.md).
 
 The 🪷 button in the top bar, next to 💊, opens a quiet area with a few ways to slow down: paced **breathing**, a **meditation timer**, short **guided recordings** and a **Start here** ladder for a first time. The app gives no advice and keeps no record of what the user practised.
 
@@ -313,4 +313,4 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | Emulator check | 2.10 | done: all screens in English and Dutch, light and dark, animations off, narrow phone (320 dp), no clipping. Not checkable on the emulator: audible tones, speech, vibration, TalkBack |
 | Credits screen (Credits / Bronnen) and credits record | 3.3, 3.3a | built: `CreditsScreen` from a link on the home screen lists each recording with teacher, source, licence and links to the original and the licence text; [`docs/credits.md`](../credits.md) holds the same record (checked on the emulator in light and dark; the Original link opens the browser) |
 
-The living list is [`tasks.md`](../../openspec/changes/add-mindfulness/tasks.md).
+The living list is [`tasks.md`](../../openspec/changes/archive/2026-10-21-add-mindfulness/tasks.md).

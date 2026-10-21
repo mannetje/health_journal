@@ -1,6 +1,6 @@
 ## Context
 
-The area follows the pillbox pattern: a button in the top bar opens its own screens over the current tab. Content decisions (own texts, tones generated in code, no third-party audio) come from [docs/dev/mindfulness.md](../../../docs/dev/mindfulness.md). The app has no network permission and a build check keeps it that way.
+The area follows the pillbox pattern: a button in the top bar opens its own screens over the current tab. Content decisions (own texts, tones generated in code, no third-party audio) come from [docs/dev/mindfulness.md](../../../../docs/dev/mindfulness.md). The app has no network permission and a build check keeps it that way.
 
 ## Goals / Non-Goals
 

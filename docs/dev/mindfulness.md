@@ -1,6 +1,6 @@
 # Mindfulness: decisions, wording and licences
 
-> **Status: built (version 1).** This page is the reference for the choices behind the 🪷 area: what is in and out, the agreed safety wording, the content licences and the sources. How it works and where it lives in the code is on [Mindfulness (the feature)](mindfulness-feature.md); the requirements are in the change [`openspec/changes/add-mindfulness`](../../openspec/changes/add-mindfulness/proposal.md).
+> **Status: built (version 1).** This page is the reference for the choices behind the 🪷 area: what is in and out, the agreed safety wording, the content licences and the sources. How it works and where it lives in the code is on [Mindfulness (the feature)](mindfulness-feature.md); the requirements are in the [Mindfulness spec](../../openspec/specs/mindfulness/spec.md).
 
 The area sits next to the pillbox, opened from a 🪷 (lotus) icon beside the 💊 icon in the top bar, with its own screens. It stays inside the rules of the app: offline (no `INTERNET` permission), no accounts, no session log, no logging of personal data, neutral figures only, English and Dutch for all text.
 

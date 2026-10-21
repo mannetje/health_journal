@@ -1,7 +1,7 @@
 # Add Mindfulness
 
 ## Why
-The user wants a calm place in the app for slowing down: guided breathing exercises with a quiet visual, and a plain meditation timer. It sits next to the pillbox in the top bar, behind a lotus icon, and follows the rules of the rest of the app: offline, no accounts, nothing about a person's practice is stored. The brainstorm, the licence research and the decisions are in [docs/dev/mindfulness.md](../../../docs/dev/mindfulness.md).
+The user wants a calm place in the app for slowing down: guided breathing exercises with a quiet visual, and a plain meditation timer. It sits next to the pillbox in the top bar, behind a lotus icon, and follows the rules of the rest of the app: offline, no accounts, nothing about a person's practice is stored. The brainstorm, the licence research and the decisions are in [docs/dev/mindfulness.md](../../../../docs/dev/mindfulness.md).
 
 ## What Changes
 - **Lotus button:** a 🪷 button beside the 💊 button in the top bar on every main tab. It opens the Mindfulness screens on top of the current tab, and back returns to that tab.
