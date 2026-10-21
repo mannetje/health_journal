@@ -55,6 +55,19 @@ interface MedicationDao {
     @Query("DELETE FROM medications WHERE id = :id")
     suspend fun deleteMedication(id: String): Int
 
+    /** Insert-or-ignore for backup restore: -1 when the row exists (by id or unique key), never overwrites. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertMedicationIgnore(medication: MedicationEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertScheduleIgnore(schedule: MedicationScheduleEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertTimeIgnore(time: MedicationTimeEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIntakeIgnore(intake: IntakeEntity): Long
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertIntake(intake: IntakeEntity)
 

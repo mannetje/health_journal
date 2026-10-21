@@ -15,17 +15,17 @@
 - [x] 1.5 ADR 0024, `docs/dev/backup.md`, architecture and C4 additions, privacy page
 
 ## 2. Domain (`:domain`)
-- [ ] 2.1 `BackupDocument` model (profiles, entries, medication, schedule versions, intakes, optional display preferences) with no Android types
-- [ ] 2.2 Ports: `BackupSnapshotPort` (read everything, merge), `BackupCodecPort` (document to bytes and back), `BackupKeyDerivationPort`
-- [ ] 2.3 Use cases `CreateBackup` and `RestoreBackup` (merge counts), passphrase rules (min 8, NFKC)
-- [ ] 2.4 JVM tests: passphrase rules, merge counts, restore twice
+- [x] 2.1 `BackupDocument` model (profiles, entries, medication, schedule versions, intakes, optional display preferences) with no Android types
+- [x] 2.2 Ports: `BackupSnapshotPort` (read everything, merge), `BackupCodecPort` (document to bytes and back), `BackupKeyDerivationPort`
+- [x] 2.3 Use cases `CreateBackup` and `RestoreBackup` (merge counts), passphrase rules (min 8, NFKC)
+- [x] 2.4 JVM tests: passphrase rules, merge counts, restore twice
 
 ## 3. Data (`:data`)
-- [ ] 3.1 Argon2id adapter (library per ADR 0024) and AES-256-GCM, gzip, `SecureRandom` salt and nonce
-- [ ] 3.2 Container encoder and decoder with the reader limits and header authentication
-- [ ] 3.3 JSON writer and reader with `org.json`, fixed field order, decimals as strings
-- [ ] 3.4 Room snapshot and merge in one transaction (all tables, schema versions of medication)
-- [ ] 3.5 Tests with the published vectors (`docs/backup-format/test-vectors`) decoded to the expected document; tamper, truncation, wrong passphrase, hostile header; round trip through an in-memory database
+- [x] 3.1 Argon2id adapter (library per ADR 0024) and AES-256-GCM, gzip, `SecureRandom` salt and nonce
+- [x] 3.2 Container encoder and decoder with the reader limits and header authentication
+- [x] 3.3 JSON writer and reader with `org.json`, fixed field order, decimals as strings
+- [x] 3.4 Room snapshot and merge in one transaction (all tables, schema versions of medication)
+- [x] 3.5 Tests with the published vectors (`docs/backup-format/test-vectors`) decoded to the expected document; tamper, truncation, wrong passphrase, hostile header; round trip through an in-memory database
 
 ## 4. App (`:app`)
 - [ ] 4.1 Profile card: "Create backup" and "Restore backup", passphrase dialogs (twice, min length, warning)

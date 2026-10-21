@@ -1,6 +1,10 @@
 package nl.healthjournal.data
 
 import android.content.Context
+import nl.healthjournal.data.backup.Argon2KeyDerivation
+import nl.healthjournal.data.backup.BackupContainer
+import nl.healthjournal.data.backup.HjBackupCodec
+import nl.healthjournal.data.backup.RoomBackupSnapshot
 import nl.healthjournal.data.csv.CsvDataExportAdapter
 import nl.healthjournal.data.csv.CsvDataImportAdapter
 import nl.healthjournal.data.csv.CsvMedicationExportAdapter
@@ -9,6 +13,8 @@ import nl.healthjournal.data.local.HealthJournalDatabase
 import nl.healthjournal.data.repository.RoomHealthLogRepository
 import nl.healthjournal.data.repository.RoomMedicationRepository
 import nl.healthjournal.data.repository.RoomProfileRepository
+import nl.healthjournal.domain.port.secondary.BackupCodecPort
+import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
 import nl.healthjournal.domain.port.secondary.MedicationExportPort
 import nl.healthjournal.domain.port.secondary.MedicationImportPort
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
@@ -39,4 +45,8 @@ class DataModule(context: Context) {
     val medicationExportPort: MedicationExportPort = CsvMedicationExportAdapter(medicationRepository)
 
     val medicationImportPort: MedicationImportPort = CsvMedicationImportAdapter(medicationRepository, profileRepository)
+
+    val backupSnapshotPort: BackupSnapshotPort = RoomBackupSnapshot(database)
+
+    val backupCodec: BackupCodecPort = HjBackupCodec(BackupContainer(Argon2KeyDerivation()))
 }

@@ -13,6 +13,10 @@ interface WeightDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entry: WeightEntity)
 
+    /** Insert-or-ignore for backup restore: returns -1 when the id already exists, and never overwrites. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIgnore(entry: WeightEntity): Long
+
     @Update
     suspend fun update(entry: WeightEntity): Int
 

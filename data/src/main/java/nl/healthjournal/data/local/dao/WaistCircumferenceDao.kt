@@ -13,6 +13,10 @@ interface WaistCircumferenceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entry: WaistCircumferenceEntity)
 
+    /** Insert-or-ignore for backup restore: returns -1 when the id already exists, and never overwrites. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIgnore(entry: WaistCircumferenceEntity): Long
+
     @Update
     suspend fun update(entry: WaistCircumferenceEntity): Int
 
