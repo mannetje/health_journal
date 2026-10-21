@@ -19,7 +19,7 @@ The Breathe section SHALL offer these patterns, each with a short description an
 - **THEN** the exercise runs the four phases in order, repeats them, and ends after 3 minutes
 
 #### Scenario: Invalid custom counts
-- **WHEN** a custom count is empty, zero or outside the allowed range
+- **WHEN** a custom count is empty, or outside the allowed range (1 to 20 seconds for a breath, 0 to 20 for a hold, where 0 means no hold)
 - **THEN** the exercise does not start and a message next to the field says what is allowed
 
 #### Scenario: A pattern without a hold
