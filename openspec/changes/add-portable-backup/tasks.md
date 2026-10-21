@@ -36,7 +36,7 @@
 - [x] 4.4 CSV export warning before the destination is chosen
 - [x] 4.5 Strings in English and Dutch for every label, warning and message
 - [x] 4.6 Privacy notice text updated (EN, NL); `PrivacyChecksTest` still green (no INTERNET, no logging)
-- [ ] 4.7 Check on the emulator: create, restore into a cleared app, wrong passphrase, cancelled picker, lost-key restore, light and dark, English and Dutch
+- [x] 4.7 Check on the emulator: create, restore into a cleared app, wrong passphrase, cancelled picker, lost-key restore, light and dark, English and Dutch
 
 ## 5. Docs
 - [ ] 5.1 README (key features, roadmap), CHANGELOG, `docs/dev/privacy-and-security.md`, `docs/dev/testing.md`

@@ -62,6 +62,14 @@ All screenshots of the Health Journal app, in the light and dark theme. Back to 
 |-------|------|
 | <img src="screenshots/light-glucose-statistics.png" width="250" alt="Glucose time in range per NHG category, fasting and after a meal, light theme"> | <img src="screenshots/dark-glucose-statistics.png" width="250" alt="Glucose time in range per NHG category, fasting and after a meal, dark theme"> |
 
+**Encrypted backup** (Profile tab: create and restore a passphrase-protected `.hjbackup`, sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-backup-section.png" width="250" alt="Encrypted backup block on the Profile tab with Create backup and Restore backup buttons, light theme"> | <img src="screenshots/dark-backup-section.png" width="250" alt="Encrypted backup block on the Profile tab with Create backup and Restore backup buttons, dark theme"> |
+| <img src="screenshots/light-backup-create.png" width="250" alt="Create backup dialog asking for a passphrase twice with a neutral hint, light theme"> | <img src="screenshots/dark-backup-create.png" width="250" alt="Create backup dialog asking for a passphrase twice with a neutral hint, dark theme"> |
+| <img src="screenshots/light-backup-restore-confirm.png" width="250" alt="Restore this backup dialog with the contents summary and the Also restore settings option, light theme"> | <img src="screenshots/dark-backup-restore-confirm.png" width="250" alt="Restore this backup dialog with the contents summary and the Also restore settings option, dark theme"> |
+
 **App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](adr/0011-app-icon-and-adaptive-layers.md)):
 
 <img src="screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">
