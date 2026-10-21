@@ -301,9 +301,9 @@ Add a value to `BreathingVisual`, a draw function in [`BreathingCanvas.kt`](../.
 | Guided list and player | 2.3a | done (`GuidedListScreen`, `GuidedPlayerScreen`); no seek, no background playback by design |
 | Session object | 2.3c | done (screen-on, focus, player, cue player) |
 | Meditation timer screen | 2.4 | built (setup, countdown, session, bells) |
-| Tones, vibration, spoken cues | 2.5 | built: generated tones, vibration, offline-voice speech with a voice picker and a "not available" message; choices are kept only while the app is open until 2.7 |
+| Tones, vibration, spoken cues | 2.5 | built: generated tones, vibration, offline-voice speech with a voice picker and a "not available" message; choices are saved by 2.7 |
 | Safety note and acknowledgement | 2.6 | not started |
-| Saved display choices | 2.7 | not started |
+| Saved display choices | 2.7 | built: pattern, length, picture, meditation length and interval, and the cue choices and voice per exercise are kept in app preferences; nothing else is stored (checked on the emulator across a force-stop) |
 | Strings in English and Dutch | 2.8 | done for the built screens |
 | `VIBRATE` permission, privacy checks | 2.9 | not started |
 | Emulator check | 2.10 | not started |

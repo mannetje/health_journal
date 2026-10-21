@@ -27,7 +27,7 @@
 - [x] 2.4 Meditation timer screen
 - [x] 2.5 Tone generation, haptics, offline text-to-speech with the no-voice message
 - [ ] 2.6 Safety note (first open with a quiet Read more link, breath hold reminder, full text) with acknowledgement kept in preferences
-- [ ] 2.7 Display choices in preferences; nothing else stored or logged
+- [x] 2.7 Display choices in preferences; nothing else stored or logged. Done: `MindfulnessPreferences`; checked on the emulator across a force-stop
 - [ ] 2.8 Own texts written for the app, strings in English and Dutch for every label, phase, cue, note and message
 - [x] 2.9 `VIBRATE` in the manifest; `PrivacyChecksTest` still green (no INTERNET, no logging)
 - [ ] 2.10 Check on the emulator: each pattern, timer, both languages, light and dark, animations off, narrow phone

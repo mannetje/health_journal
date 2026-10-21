@@ -8,8 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import nl.healthjournal.domain.model.mindfulness.BreathingDuration
-import nl.healthjournal.domain.model.mindfulness.BreathingPatternId
+import androidx.compose.ui.platform.LocalContext
+import nl.healthjournal.app.settings.MindfulnessPreferences
 import nl.healthjournal.domain.model.mindfulness.BreathingPatterns
 import nl.healthjournal.domain.model.mindfulness.BreathingTimer
 import nl.healthjournal.domain.model.mindfulness.CueChoices
@@ -20,18 +20,21 @@ private enum class MindfulnessRoute { HOME, BREATHE_SETUP, BREATHE_RUN, MEDITATE
 
 /**
  * The Mindfulness area: home, the breathing and meditation setups and the running exercise. Back goes one step up;
- * the area's own state is only the current screen and the last choices on the setup screen.
+ * the area's own state is the current screen and the last choices on the setup screens, which are kept in
+ * [MindfulnessPreferences] so they are there next time.
  */
 @Composable
 fun MindfulnessArea() {
     var route by rememberSaveable { mutableStateOf(MindfulnessRoute.HOME) }
-    var patternId by rememberSaveable { mutableStateOf(BreathingPatternId.BELLY) }
-    var duration by rememberSaveable { mutableStateOf(BreathingDuration.THREE_MINUTES) }
-    var visual by rememberSaveable { mutableStateOf(BreathingVisual.LOTUS) }
-    var meditateMinutes by rememberSaveable { mutableStateOf(MeditationTimer.PRESET_MINUTES.first()) }
-    var meditateInterval by rememberSaveable { mutableStateOf<Int?>(null) }
-    var breatheCues by rememberSaveable(stateSaver = CueSaver) { mutableStateOf(CueChoices()) }
-    var meditateCues by rememberSaveable(stateSaver = CueSaver) { mutableStateOf(CueChoices(tones = true)) }
+    val context = LocalContext.current
+    val saved = remember { MindfulnessPreferences(context.applicationContext) }
+    var patternId by rememberSaveable { mutableStateOf(saved.pattern) }
+    var duration by rememberSaveable { mutableStateOf(saved.duration) }
+    var visual by rememberSaveable { mutableStateOf(saved.visual) }
+    var meditateMinutes by rememberSaveable { mutableStateOf(saved.meditateMinutes) }
+    var meditateInterval by rememberSaveable { mutableStateOf(saved.meditateInterval) }
+    var breatheCues by rememberSaveable(stateSaver = CueSaver) { mutableStateOf(saved.breatheCues) }
+    var meditateCues by rememberSaveable(stateSaver = CueSaver) { mutableStateOf(saved.meditateCues) }
     var guidedId by rememberSaveable { mutableStateOf<String?>(null) }
 
     BackHandler(enabled = route == MindfulnessRoute.BREATHE_SETUP || route == MindfulnessRoute.MEDITATE_SETUP || route == MindfulnessRoute.GUIDED_LIST) { route = MindfulnessRoute.HOME }
@@ -47,11 +50,15 @@ fun MindfulnessArea() {
             intervalMinutes = meditateInterval,
             onMinutes = { minutes ->
                 meditateMinutes = minutes
-                if (meditateInterval?.let { it >= minutes } == true) meditateInterval = null
+                saved.meditateMinutes = minutes
+                if (meditateInterval?.let { it >= minutes } == true) {
+                    meditateInterval = null
+                    saved.meditateInterval = null
+                }
             },
-            onInterval = { meditateInterval = it },
+            onInterval = { meditateInterval = it; saved.meditateInterval = it },
             cues = meditateCues,
-            onCues = { meditateCues = it },
+            onCues = { meditateCues = it; saved.meditateCues = it },
             onStart = { route = MindfulnessRoute.MEDITATE_RUN },
         )
         MindfulnessRoute.MEDITATE_RUN -> {
@@ -68,11 +75,11 @@ fun MindfulnessArea() {
             patternId = patternId,
             duration = duration,
             visual = visual,
-            onPattern = { patternId = it },
-            onDuration = { duration = it },
-            onVisual = { visual = it },
+            onPattern = { patternId = it; saved.pattern = it },
+            onDuration = { duration = it; saved.duration = it },
+            onVisual = { visual = it; saved.visual = it },
             cues = breatheCues,
-            onCues = { breatheCues = it },
+            onCues = { breatheCues = it; saved.breatheCues = it },
             onStart = { route = MindfulnessRoute.BREATHE_RUN },
         )
         MindfulnessRoute.BREATHE_RUN -> {
