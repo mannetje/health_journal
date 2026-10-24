@@ -11,13 +11,15 @@
 - [x] 0.6 Spec review by the user done (2026-10-24)
 - [x] 0.7 Final English and Dutch wording agreed, Dutch with "je" (table in design.md section 5)
 
+- [x] 0.8 Migraine is built first: `MIGRATION_6_7`, database version 7 (decided 2026-10-24); oxygen saturation and the others take the next free number
+
 ## 1. Data (`:data`) and domain (`:domain`)
-- [ ] 1.1 `MigraineEntry` (including `wokeUpWithIt`, `painCharacters`, `reliefMethods` and `intensityAfter2Hours`, the last valid only with `tookSomething`) and enums (`PainCharacter`, `ReliefMethod` and the added symptom, trigger and type values) with validation and derived values; JVM tests; `MigraineTag` with its validation (1 to 30 characters, no `|`, unique per kind ignoring case, limit of 30); the two `helpedMe` ticks with their validity rules
-- [ ] 1.2 `MigraineStatistics` pure functions; JVM tests for empty range, single entry, ongoing entry, midnight, time-of-day and bucket boundaries, week start; a woke-up-with-it entry is left out of the time-of-day grid and counted aside
-- [ ] 1.3 Port methods and use cases (record, update, delete, end; add, rename, archive and list personal tags)
-- [ ] 1.4 `MigraineEntity` with the columns `wokeUpWithIt`, `intensityAfter2Hours`, `painCharacter` and `reliefMethods`, DAO, mapper, `MIGRATION_7_8` (creates the table with those columns), the table `migraine_tags` and the entry columns `customTriggers` and `customReliefMethods`, version 8, repository methods; deleting a profile removes its tags; migration test from version 7; columns `medicationHelpedMe` and `reliefHelpedMe`
-- [ ] 1.5 CSV export and import with codes, the `woke_up_with_it`, `pain_character`, `intensity_after_2h` and `relief_methods` columns and row rejection; tests including round trip, ongoing and intensity after 2 hours without something taken; the `custom_triggers` and `custom_relief_methods` columns, tag creation on import, rejection of a bad label; `medication_helped_me` and `relief_helped_me` columns
-- [ ] 1.6 Backup snapshot and restore of `migraines` and `migraineTags` including the new fields; older file and newer file tests
+- [x] 1.1 `MigraineEntry` (including `wokeUpWithIt`, `painCharacters`, `reliefMethods` and `intensityAfter2Hours`, the last valid only with `tookSomething`) and enums (`PainCharacter`, `ReliefMethod` and the added symptom, trigger and type values) with validation and derived values; JVM tests; `MigraineTag` with its validation (1 to 30 characters, no `|`, unique per kind ignoring case, limit of 30); the two `helpedMe` ticks with their validity rules
+- [x] 1.2 `MigraineStatistics` pure functions; JVM tests for empty range, single entry, ongoing entry, midnight, time-of-day and bucket boundaries, week start; a woke-up-with-it entry is left out of the time-of-day grid and counted aside
+- [x] 1.3 Port methods and use cases (record, update, delete, end; add, rename, archive and list personal tags)
+- [x] 1.4 `MigraineEntity` with the columns `wokeUpWithIt`, `intensityAfter2Hours`, `painCharacters` and `reliefMethods`, DAO, mapper, `MIGRATION_6_7` (creates the table with those columns), the table `migraine_tags` and the entry columns `customTriggers` and `customReliefMethods`, version 7, repository methods; deleting a profile removes its tags (the app has no profile deletion yet, so nothing to cascade); migration test from version 6; columns `medicationHelpedMe` and `reliefHelpedMe`
+- [x] 1.5 CSV export and import with codes, the `woke_up_with_it`, `pain_character`, `intensity_after_2h` and `relief_methods` columns and row rejection; tests including round trip, ongoing and intensity after 2 hours without something taken; the `custom_triggers` and `custom_relief_methods` columns, tag creation on import, rejection of a bad label; `medication_helped_me` and `relief_helped_me` columns
+- [x] 1.6 Backup snapshot and restore of `migraines` and `migraineTags` including the new fields; older file and newer file tests
 
 ## 2. App (`:app`)
 - [ ] 2.1 Migraine card on the Log tab
@@ -30,7 +32,7 @@
 - [ ] 2.8 Emulator pass: English and Dutch, light and dark, 320 dp, screenshots
 
 ## 3. Documentation
-- [ ] 3.1 `docs/backup-format/` (README, JSON schema, `hjbackup.py`, test vectors, recovery page)
+- [x] 3.1 `docs/backup-format/` (README, JSON schema, `hjbackup.py`, recovery page; the test vectors stay valid because the new properties are optional and `schemaVersion` stays 1)
 - [ ] 3.2 `docs/dev/` (`database.md` ER diagram, current version and version history for both new tables, architecture, design, c4, testing, a Migraine feature page with the sources) and `docs/dev/how-to/add-a-metric.md` if the structure differs
 - [ ] 3.3 README, CHANGELOG, screenshots page
 - [ ] 3.4 Archive the change into `openspec/specs/`; release

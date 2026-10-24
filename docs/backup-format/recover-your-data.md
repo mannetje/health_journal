@@ -34,7 +34,7 @@ flowchart LR
    You are asked for the passphrase (it is not shown while you type). The first run takes a second or two, because the key derivation is slow on purpose. Instead of typing it you can set the environment variable `HJ_BACKUP_PASSPHRASE`, but then the passphrase is visible in your shell history.
 5. **Open the result.**
    - `backup.json` holds everything: all profiles, measurements, comments, medication with its schedule history and intake log. Its structure is explained in [README.md](README.md#4-the-document) and defined by [the schema](healthjournal-backup.schema.json).
-   - `csv-files/` holds one CSV per profile and metric (weight, blood pressure, glucose, waist, activity), oldest first, with the same columns as the app's own CSV export. Open them in any spreadsheet program (choose UTF-8 and the comma as separator). Medication is only in the JSON file.
+   - `csv-files/` holds one CSV per profile and metric (weight, blood pressure, glucose, waist, activity, migraine), oldest first, with the same columns as the app's own CSV export. Open them in any spreadsheet program (choose UTF-8 and the comma as separator). Medication is only in the JSON file.
 6. **Clean up.** These files are not encrypted. Move them somewhere safe or delete them when you are done.
 
 ### If you get an error

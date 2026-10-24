@@ -127,6 +127,30 @@ CSV_TABLES = {
 }
 
 
+MIGRAINE_HEADER = ["start_timestamp", "woke_up_with_it", "end_timestamp", "intensity", "areas", "pain_character",
+                   "type", "symptoms", "triggers", "took_something", "medication_text", "second_dose",
+                   "intensity_after_2h", "relief_methods", "custom_triggers", "custom_relief_methods",
+                   "medication_helped_me", "relief_helped_me", "activities", "comment"]
+
+
+def _migraine_row(e, labels):
+    """Same columns as the app's migraine CSV: codes joined with | and tag ids replaced by their labels."""
+    def codes(key):
+        return "|".join(sorted(e.get(key) or []))
+
+    def tags(key):
+        return "|".join(sorted((labels[i] for i in e.get(key) or [] if i in labels), key=str.lower))
+
+    def flag(key):
+        return "true" if e.get(key) else "false"
+
+    return [e["start"], flag("wokeUpWithIt"), e.get("end"), e.get("intensity"), codes("areas"),
+            codes("painCharacters"), e.get("type"), codes("symptoms"), codes("triggers"), flag("tookSomething"),
+            e.get("medicationText"), flag("secondDose"), e.get("intensityAfter2Hours"), codes("reliefMethods"),
+            tags("customTriggers"), tags("customReliefMethods"), flag("medicationHelpedMe"), flag("reliefHelpedMe"),
+            e.get("activities"), e.get("comment")]
+
+
 def write_csv(document, directory):
     """Writes one CSV per metric and profile, oldest first. Medication is only in the JSON."""
     os.makedirs(directory, exist_ok=True)
@@ -141,6 +165,14 @@ def write_csv(document, directory):
                 for entry in entries:
                     writer.writerow(["" if cell is None else cell for cell in row(entry)])
             written.append(path)
+        labels = {t["id"]: t["label"] for t in profile.get("migraineTags", [])}
+        path = os.path.join(directory, f"profile{index}_migraine.csv")
+        with open(path, "w", encoding="utf-8", newline="") as handle:
+            writer = csv.writer(handle, lineterminator="\n")
+            writer.writerow(MIGRAINE_HEADER)
+            for entry in sorted(profile.get("migraines", []), key=lambda e: e["start"]):
+                writer.writerow(["" if cell is None else cell for cell in _migraine_row(entry, labels)])
+        written.append(path)
     return written
 
 

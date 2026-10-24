@@ -53,7 +53,47 @@
         "glucoses": { "type": "array", "items": { "$ref": "#/$defs/glucose" } },
         "waistCircumferences": { "type": "array", "items": { "$ref": "#/$defs/waist" } },
         "activities": { "type": "array", "items": { "$ref": "#/$defs/activity" } },
-        "medications": { "type": "array", "items": { "$ref": "#/$defs/medication" } }
+        "medications": { "type": "array", "items": { "$ref": "#/$defs/medication" } },
+        "migraines": { "type": "array", "items": { "$ref": "#/$defs/migraine" }, "description": "Absent in files written before the migraine log existed; a reader restores none then." },
+        "migraineTags": { "type": "array", "items": { "$ref": "#/$defs/migraineTag" }, "description": "The personal trigger and relief tags of the profile, also archived ones, so that entries keep their labels." }
+      }
+    },
+    "migraineTag": {
+      "type": "object",
+      "required": ["id", "kind", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "kind": { "enum": ["TRIGGER", "RELIEF"] },
+        "label": { "type": "string", "minLength": 1, "maxLength": 30 },
+        "archived": { "type": "boolean", "description": "Hidden from the pick list, still resolves on old entries. Default false." }
+      }
+    },
+    "migraine": {
+      "type": "object",
+      "required": ["id", "start"],
+      "description": "One migraine or headache. Only the start is required; an entry without an end is ongoing. Readers ignore codes they do not know.",
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "start": { "$ref": "#/$defs/instant" },
+        "wokeUpWithIt": { "type": "boolean" },
+        "end": { "oneOf": [{ "$ref": "#/$defs/instant" }, { "type": "null" }] },
+        "intensity": { "type": ["integer", "null"], "minimum": 0, "maximum": 10 },
+        "areas": { "type": "array", "items": { "enum": ["WHOLE_HEAD", "LEFT_SIDE", "RIGHT_SIDE", "FOREHEAD", "BEHIND_EYES", "TEMPLES", "BACK_OF_HEAD_AND_NECK", "OTHER"] }, "uniqueItems": true },
+        "painCharacters": { "type": "array", "items": { "enum": ["THROBBING", "PRESSING", "PIERCING"] }, "uniqueItems": true },
+        "type": { "enum": ["WITH_AURA", "WITHOUT_AURA", "RECOGNIZED_HEADACHE", "OTHER_HEADACHE", "NOT_SURE", null] },
+        "symptoms": { "type": "array", "items": { "enum": ["NAUSEA", "AURA", "SENSITIVE_TO_LIGHT", "SENSITIVE_TO_SOUND", "SENSITIVE_TO_SMELL", "DIZZINESS", "VERTIGO", "MOVEMENT_SYMPTOMS", "WORSE_WITH_ACTIVITY", "BRAIN_FOG", "EXTREME_FATIGUE", "OTHER"] }, "uniqueItems": true },
+        "triggers": { "type": "array", "items": { "enum": ["SLEEP", "STRESS", "FOOD", "WEATHER", "MENSTRUATION", "OTHER"] }, "uniqueItems": true },
+        "customTriggers": { "type": "array", "items": { "$ref": "#/$defs/uuid" }, "description": "Ids of migraineTags of kind TRIGGER." },
+        "tookSomething": { "type": "boolean" },
+        "medicationText": { "type": ["string", "null"], "description": "Free text, what the person says they took." },
+        "secondDose": { "type": "boolean" },
+        "intensityAfter2Hours": { "type": ["integer", "null"], "minimum": 0, "maximum": 10, "description": "Only with tookSomething." },
+        "medicationHelpedMe": { "type": "boolean", "description": "The person's own tick. Never interpreted." },
+        "reliefMethods": { "type": "array", "items": { "enum": ["SLEEP_OR_REST", "DARK_QUIET_ROOM", "COLD_PACK", "HEAT", "MASSAGE", "COFFEE_OR_TEA", "OTHER"] }, "uniqueItems": true },
+        "customReliefMethods": { "type": "array", "items": { "$ref": "#/$defs/uuid" }, "description": "Ids of migraineTags of kind RELIEF." },
+        "reliefHelpedMe": { "type": "boolean", "description": "The person's own tick. Never interpreted." },
+        "activities": { "enum": ["COULD_CARRY_ON", "HAD_TO_STOP", null] },
+        "comment": { "$ref": "#/$defs/comment" }
       }
     },
     "weight": {

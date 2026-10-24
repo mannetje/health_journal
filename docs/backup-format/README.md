@@ -89,6 +89,9 @@ erDiagram
     PROFILE ||--o{ WAIST : waistCircumferences
     PROFILE ||--o{ ACTIVITY : activities
     PROFILE ||--o{ MEDICATION : medications
+    PROFILE ||--o{ MIGRAINE : migraines
+    PROFILE ||--o{ MIGRAINE_TAG : migraineTags
+    MIGRAINE }o--o{ MIGRAINE_TAG : "customTriggers, customReliefMethods"
     MEDICATION ||--o{ SCHEDULE : "schedules (versions)"
     MEDICATION ||--o{ INTAKE : intakes
     DOCUMENT {
@@ -151,6 +154,35 @@ erDiagram
         decimal distanceMeters
         string comment "nullable"
     }
+    MIGRAINE {
+        uuid id
+        instant start
+        bool wokeUpWithIt
+        instant end "nullable, null = ongoing"
+        int intensity "0-10, nullable"
+        array areas "codes"
+        array painCharacters "codes"
+        enum type "nullable"
+        array symptoms "codes"
+        array triggers "codes"
+        array customTriggers "tag ids"
+        bool tookSomething
+        string medicationText "nullable"
+        bool secondDose
+        int intensityAfter2Hours "nullable"
+        bool medicationHelpedMe "own tick"
+        array reliefMethods "codes"
+        array customReliefMethods "tag ids"
+        bool reliefHelpedMe "own tick"
+        enum activities "nullable"
+        string comment "nullable"
+    }
+    MIGRAINE_TAG {
+        uuid id
+        enum kind "TRIGGER RELIEF"
+        string label "max 30"
+        bool archived
+    }
     MEDICATION {
         uuid id
         string name
@@ -198,6 +230,10 @@ erDiagram
 | Order | Lists are written oldest first. Readers MUST NOT depend on order. |
 | Preferences | The optional `preferences` object holds display settings as tags (`system` means follow the device): `language` (`en`, `nl`), `region` (`NL`, `US`), `unitSystem` (`metric`, `imperial`), `glucoseUnit` (`mmol`, `mgdl`), `theme` (`light`, `dark`), `reminderSnoozeMinutes` (10, 30, 60). A reader applies only what it knows and may skip them. |
 | Not included | App lock and its timeout, the secure-screen switch, lock-screen details of reminders, accepted notices and permission prompts. They protect the device and are never taken from a file. |
+
+### Migraine
+
+`migraines` and `migraineTags` are written only when the profile has any; a file without them restores none. An entry needs only `start`; no `end` means it is ongoing. Sets of fixed answers (`areas`, `painCharacters`, `symptoms`, `triggers`, `reliefMethods`) are sorted arrays of upper-case codes. The person's own tags are separate objects in `migraineTags`; an entry refers to them by id in `customTriggers` (kind `TRIGGER`) and `customReliefMethods` (kind `RELIEF`). Archived tags stay in the list so old entries keep their labels. `medicationHelpedMe` and `reliefHelpedMe` are the person's own ticks and are never interpreted. A reader ignores a code it does not know and a tag kind it does not know, and drops a tag id that no longer resolves. On merge, entries and tags are matched on `id` and only added.
 
 ### Medication
 
