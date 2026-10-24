@@ -35,4 +35,4 @@
 - [x] 3.1 `docs/backup-format/` (README, JSON schema, `hjbackup.py`, recovery page; the test vectors stay valid because the new properties are optional and `schemaVersion` stays 1)
 - [x] 3.2 `docs/dev/` (`database.md` ER diagram, current version and version history for both new tables, architecture, design, c4, testing, a Migraine feature page with the sources) and `docs/dev/how-to/add-a-metric.md` if the structure differs
 - [x] 3.3 README, CHANGELOG, screenshots page (the README CSV table has its Migraine row)
-- [ ] 3.4 Archive the change into `openspec/specs/`; release
+- [x] 3.4 Archive the change into `openspec/specs/`; release

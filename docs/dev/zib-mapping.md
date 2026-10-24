@@ -17,7 +17,7 @@ When a new metric or field is designed, look up its zib on [zibs.nl](https://zib
 | Weight | Lichaamsgewicht | kg | BMI derived in the app | to verify |
 | Waist circumference | none known | | | own |
 | Glucose | Laboratoriumuitslag (glucose) | mmol/L | context FASTING / POSTPRANDIAL is ours | to verify |
-| Migraine log | Hoofdpijn (to look up) | start, end, intensity | see [`add-migraine-log`](../../openspec/changes/add-migraine-log/proposal.md) | to verify |
+| Migraine log | Hoofdpijn (to look up) | start, end, intensity | see [`add-migraine-log`](../../openspec/changes/archive/2026-10-24-add-migraine-log/proposal.md) | to verify |
 | Mindfulness | none | | stores nothing | own |
 | Sleep log | none matching (Slaapfunctie v3.0 is a clinical model; seen by title only) | none adopted | bed and wake times with computed duration, never judged; see [`add-sleep-log`](../../openspec/changes/add-sleep-log/proposal.md) | to verify (zibs.nl unreadable) |
 | Mood log | none found (check Functionele of Mentale Status) | nothing adopted | own five-step scale and fixed feeling words, no score; see [`add-mood-log`](../../openspec/changes/add-mood-log/proposal.md) | own / to verify |

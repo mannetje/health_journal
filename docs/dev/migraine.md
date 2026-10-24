@@ -1,6 +1,6 @@
 # Migraine
 
-The Migraine log is a personal record of headaches and migraines. It is not a medical device: it gives no advice, makes no diagnosis, predicts nothing and never compares or ranks. The intensity, the 2-hour score and the "this helped me" ticks are the person's own notes and are shown back as entered, never counted or interpreted. The decisions are in [ADR 0025](../adr/0025-migraine-log-data-model.md); the requirements are in the OpenSpec change `openspec/changes/add-migraine-log/`.
+The Migraine log is a personal record of headaches and migraines. It is not a medical device: it gives no advice, makes no diagnosis, predicts nothing and never compares or ranks. The intensity, the 2-hour score and the "this helped me" ticks are the person's own notes and are shown back as entered, never counted or interpreted. The decisions are in [ADR 0025](../adr/0025-migraine-log-data-model.md); the requirements are in [`openspec/specs/migraine/spec.md`](../../openspec/specs/migraine/spec.md).
 
 ## What a person can do
 

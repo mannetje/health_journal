@@ -36,4 +36,4 @@ The Migraine log is the first entry type with an optional end time, several mult
 
 ## Related
 - [ADR 0019](0019-entry-comments.md), [ADR 0021](0021-medication-compliance-and-privacy.md), [ADR 0023](0023-database-encryption-and-app-lock.md), [ADR 0024](0024-portable-encrypted-backup.md)
-- [OpenSpec change `add-migraine-log`](../../openspec/changes/add-migraine-log/proposal.md)
+- [OpenSpec change `add-migraine-log`](../../openspec/changes/archive/2026-10-24-add-migraine-log/proposal.md)
