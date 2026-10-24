@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Migraine entries in History
-The History list SHALL include migraine entries as a sixth entry type in the merged list, sorted by start time, and the single-metric filter SHALL offer Migraine. Editing SHALL re-validate with the recording rules (end not before start, intensity 0 to 10, free text length) and keep the entry id and profile. Deleting SHALL use the same confirmation as other entries. The row of an ongoing migraine SHALL offer an "it ended" action. Details are in the `migraine` capability.
+The History list SHALL include migraine entries as a sixth entry type in the merged list, sorted by start time, and the single-metric filter SHALL offer Migraine. Editing SHALL re-validate with the recording rules (end not before start, intensity 0 to 10, intensity after 2 hours 0 to 10 and only with something taken, free text length) and keep the entry id and profile. Deleting SHALL use the same confirmation as other entries. The row of an ongoing migraine SHALL offer an "it ended" action. Details are in the `migraine` capability.
 
 #### Scenario: Merged list with migraine
 - **WHEN** a glucose at 09:00 and a migraine starting at 10:00 exist

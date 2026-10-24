@@ -28,5 +28,5 @@
 
 ## 3. Documentation and release
 - [ ] 3.1 `docs/backup-format/` (README, schema, `hjbackup.py`, vectors, recovery page)
-- [ ] 3.2 `docs/dev/` pages, `docs/dev/zib-mapping.md`, README, CHANGELOG, screenshots
+- [ ] 3.2 `docs/dev/database.md` (ER diagram, current version, version history and the naming conventions for `sleep_sessions`), other `docs/dev/` pages, `docs/dev/zib-mapping.md`, README, CHANGELOG, screenshots
 - [ ] 3.3 Archive the change into `openspec/specs/`; release

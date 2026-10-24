@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Migraine data is protected like all entries
-Migraine entries, including the medication text and comment, SHALL be stored only in the encrypted database, SHALL NOT be written to any log, notification, preference file, crash text or the Android backup, and SHALL leave the device only through the user's own export or encrypted backup. A migraine screen SHALL follow the secure-screen setting.
+Migraine entries, including the medication text, personal tags and comment, SHALL be stored only in the encrypted database, SHALL NOT be written to any log, notification, preference file, crash text or the Android backup, and SHALL leave the device only through the user's own export or encrypted backup. A migraine screen SHALL follow the secure-screen setting.
 
 #### Scenario: No log output
 - **WHEN** a migraine is saved, edited or deleted in a release build

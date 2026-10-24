@@ -16,7 +16,7 @@ The Sleep log follows `docs/dev/how-to/add-a-metric.md` and `openspec/playbooks/
 - Day assignment is by the wake time in the given zone. Default form times (23:00 yesterday, 07:00 today) are computed by a small function taking today's date and a zone, for tests.
 
 ### 2. Data (`:data`)
-- `SleepLogEntity`, DAO, mapper, repository methods; table `sleep_logs` indexed by profile and wake time. Times stored as epoch instants like the other timestamps.
+- `SleepLogEntity`, DAO, mapper, repository methods; table `sleep_sessions` indexed by profile and wake time. Times stored as epoch instants like the other timestamps.
 - **Room migration to the next free version**, added to the `addMigrations` list: `CREATE TABLE IF NOT EXISTS` plus the index. The migration is the next free number at implementation time (current database version + 1, written `MIGRATION_N_(N+1)` in the implementation). A migration test opens a database of version N with rows and checks version N+1, old rows and an empty new table.
 - CSV adapter with `CsvQuoting.cell`, ISO-8601 UTC; backup snapshot and restore include `sleepLogs`.
 

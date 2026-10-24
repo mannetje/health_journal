@@ -5,11 +5,12 @@ Some people want a very short daily note of how the day feels, next to weight, b
 
 ## What Changes
 - **Mood card on the Log tab** with five labelled steps (1 to 5) in one row, optional feeling words (a small fixed set, at most three), the date and time (default now) and the existing 200-character comment. Several entries per day are allowed. Nothing is pre-selected and the card saves with one step chosen.
+- **Optional stress level (1 to 5), on the same entry:** a second row of five steps under the mood steps, asked as "How much tension or pressure do you feel right now?" (Dutch: "Hoeveel spanning of druk voel je nu?") with the labels 1 "Not at all", 2 "A little", 3 "Somewhat", 4 "Quite a lot", 5 "Very much" (Dutch "Helemaal niet", "Een beetje", "Redelijk", "Best veel", "Heel veel"). It can be left empty; the mood step stays required. It is a plain number the person notes: no questionnaire (no PSS or similar), no label such as "high stress", no band, no advice and no reaction.
 - **Scale wording (neutral):** the steps describe how the moment feels, not a verdict: 1 "Very unpleasant", 2 "Unpleasant", 3 "Neutral", 4 "Pleasant", 5 "Very pleasant" (Dutch: "Zeer onaangenaam", "Onaangenaam", "Neutraal", "Aangenaam", "Zeer aangenaam"). The data model stores only the whole number 1 to 5. The words good, bad, happy, sad-as-a-score, better and worse are not used for steps.
 - **Feeling words (optional, fixed set of 10):** calm, content, cheerful, energetic, tired, tense, restless, irritated, sad, worried. They are the person's own notes, stored as stable codes; they change no figure and nothing is derived from them.
 - **History:** mood entries in the merged timeline with edit and delete, and a Mood filter chip.
-- **Graph view under the Mood filter:** one dot per entry on a fixed 1 to 5 axis with the usual range chips, optionally joined by a thin line through the daily mean; plain figures for the range: entries, days with entries, average (one decimal) and the number of entries per step. No bands, no limits, no colour that reads as good or bad, no verdicts.
-- **Export and backup:** CSV export and import (`timestamp,mood_level,feelings,comment`) and a `moodEntries` list per profile in the `.hjbackup` document.
+- **Graph view under the Mood filter:** one dot per entry on a fixed 1 to 5 axis with the usual range chips, optionally joined by a thin line through the daily mean; plain figures for the range: entries, days with entries, average (one decimal) and the number of entries per step. A Mood/Stress switch shows the same chart for the stress levels (same axis and hue, a different marker shape) with the same figures over the entries that have a stress level. No bands, no limits, no colour that reads as good or bad, no verdicts.
+- **Export and backup:** CSV export and import (`timestamp,mood_level,stress_level,feelings,comment`) and a `moodEntries` list per profile in the `.hjbackup` document.
 - **Notice:** the Profile notice says the mood log records what you enter and does not assess it; it is not a questionnaire, not a screening and not a diagnosis.
 - **Relation to Mindfulness:** both live in the app but are separate. Mindfulness stores nothing; the Mood log stores what is typed. There is no link, shortcut or suggestion between them in v1.
 - **All text in English and Dutch.**
@@ -26,7 +27,7 @@ Some people want a very short daily note of how the day feels, next to weight, b
 - **Modified Capability:** `localization` (text in English and Dutch)
 
 ## Impact
-- **Database:** a Room migration (next free version, see below), creating one table `mood_entries` (id, profile id, timestamp, level 1 to 5, nullable feelings text of codes, nullable comment). Existing tables are untouched. A migration test opens a version 9 database with data. The migration is the next free number at implementation time (current database version + 1); the order against other metric changes is not fixed.
+- **Database:** a Room migration (next free version, see below), creating one table `moods` (id, profile id, timestamp, level 1 to 5, nullable stress level 1 to 5, nullable feelings text of codes, nullable comment). Existing tables are untouched. A migration test opens a version 9 database with data. The migration is the next free number at implementation time (current database version + 1); the order against other metric changes is not fixed.
 - **Stored data shape:** the backup document gains a `moodEntries` list per profile; `schemaVersion` stays 1. `docs/backup-format/` (README, JSON schema, `hjbackup.py`, test vectors, recovery page) is updated.
 - **Affected code:** `MoodEntry`, `MoodFeeling`, validation, `MoodStatistics` and use cases in `:domain` (JVM tests including empty range, one entry and several per day); entity, DAO, mapper, migration, repository and CSV adapters in `:data`; Log card, History row and edit dialog, graph view in `:app`.
 - **Dependencies and permissions:** none. No reminder or notification in v1.
@@ -50,6 +51,7 @@ Deliberately NOT copied:
 - The multi-times-a-day prompting of research apps: no reminder in v1.
 
 ## Non-goals
+- No stress questionnaire or scale (PSS, DASS, a stress score or index), no label or band for a stress level, no link between stress and mood figures; the stress level is one number the person taps, like the mood step.
 - No questionnaire, score, screening, diagnosis, risk estimate, prediction, alert, advice, coaching or encouragement; no words such as depressed, anxious, good, bad, better, worse in the data or in verdict-like text.
 - No reminder, notification, streak, goal or badge.
 - No calendar view in this version. A calendar view may come in a later change (reusing the Migraine calendar); no data-model change is needed.
@@ -59,5 +61,5 @@ Deliberately NOT copied:
 
 ## Open questions
 - **Static pointer to help (recorded default: no fixed line; still open for the final wording review).** Should the Profile or privacy notice carry one fixed, always-visible sentence such as "If you need to talk to someone, contact your GP; 113 is open day and night"? It is not triggered by any value and is the same for everyone, but it is advice-shaped and the `compliance` capability forbids tips and warnings except the existing pointer to doctor, pharmacist and Thuisarts. Option A: nothing beyond the existing pointer. Option B: one static line in the notice, wording agreed with the user. The drafted specs assume A. A reviewer outside the project should confirm either way.
-- Wording of the five step labels and the ten feeling words in English and Dutch (final review).
+- Wording of the five step labels, the ten feeling words and the stress question and labels in English and Dutch (final review).
 - Zib check once zibs.nl answers (task 0.5).

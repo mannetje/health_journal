@@ -24,7 +24,7 @@ Some people want to note, a few times a day or now and then, how energetic they 
 - **Modified Capability:** `localization` (text in English and Dutch)
 
 ## Impact
-- **Database:** Room migration to the next free version, creating one table `energy_entries` (id, profile id, timestamp, level, nullable comment). The migration is the next free number at implementation time (current database version + 1); this change does not depend on the order in which features are built. Existing tables are untouched. A migration test opens a database of the previous version with data.
+- **Database:** Room migration to the next free version, creating one table `energy_levels` (id, profile id, timestamp, level, nullable comment). The migration is the next free number at implementation time (current database version + 1); this change does not depend on the order in which features are built. Existing tables are untouched. A migration test opens a database of the previous version with data.
 - **Stored data shape:** the backup document gains an `energyEntries` list per profile; `schemaVersion` stays 1 (readers ignore unknown properties, older files restore with none). `docs/backup-format/` (README, JSON schema, `hjbackup.py`, test vectors, recovery page) is updated.
 - **Affected code:** `EnergyEntry`, validation, `EnergyStatistics` (count, average, lowest, highest) and use cases in `:domain` (JVM tests including empty range and a single entry); entity, DAO, mapper, migration, repository methods and CSV adapters in `:data`; Log card, History row and edit dialog and the graph view in `:app`. The shared 0-10 picker is created or reused (see design).
 - **Dependencies and permissions:** none.

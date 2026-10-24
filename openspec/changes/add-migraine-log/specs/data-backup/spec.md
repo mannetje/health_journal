@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Migraines in the backup document
-Each profile in the backup document SHALL hold a `migraines` list with every migraine of the profile (start, end or null, intensity or null, areas, type, symptoms, triggers, took-something, medication text, second dose, activities, comment), using the same stable codes as the CSV export. `schemaVersion` SHALL stay 1 because readers ignore unknown properties, and a file without `migraines` SHALL restore with no migraines. `docs/backup-format/` (README, JSON schema, `hjbackup.py`, test vectors and the recovery page) SHALL describe the list. Restoring into an app whose database predates migraines SHALL not occur, because the database is migrated on open.
+Each profile in the backup document SHALL hold a `migraines` list with every migraine of the profile (start, woke-up-with-it flag, end or null, intensity or null, areas, pain characters, type, symptoms, triggers, took-something, medication text, second dose, `intensityAfter2Hours` or null, relief methods, personal trigger tag ids, personal relief tag ids, the two "helped me" ticks, activities, comment) and a `migraineTags` list (id, kind trigger or relief, label, archived flag), using the same stable codes as the CSV export. `schemaVersion` SHALL stay 1 because readers ignore unknown properties, and a file without `migraines` SHALL restore with no migraines. `docs/backup-format/` (README, JSON schema, `hjbackup.py`, test vectors and the recovery page) SHALL describe the list. Restoring into an app whose database predates migraines SHALL not occur, because the database is migrated on open.
 
 #### Scenario: Everything is in the file
 - **WHEN** a profile with two migraines, one ongoing, is backed up and restored into an empty app

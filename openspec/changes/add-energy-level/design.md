@@ -21,7 +21,7 @@ The 0-10 picker is a shared UI component in the shared UI package, with the end 
 - `EnergyStatistics` pure functions: count, average (one decimal), lowest, highest for a range. Empty range gives no figures. No clock is read.
 
 ### 4. Data (`:data`)
-- `EnergyEntity`, DAO, mapper, repository methods; table `energy_entries` indexed by profile and timestamp.
+- `EnergyEntity`, DAO, mapper, repository methods; table `energy_levels` indexed by profile and timestamp.
 - **Migration to the next free database version** (current version + 1) at implementation time, added to the `addMigrations` list: `CREATE TABLE IF NOT EXISTS` plus the index. A migration test opens a database of the previous version with rows and checks the new version, old rows and an empty new table.
 - CSV adapter with `CsvQuoting.cell`; backup snapshot and restore include `energyEntries`.
 

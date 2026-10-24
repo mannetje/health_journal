@@ -108,6 +108,20 @@ erDiagram
     }
 ```
 
+## Naming conventions
+
+One rule per layer, so a new metric never has to guess:
+
+| Layer | Convention | Examples |
+| --- | --- | --- |
+| Table | plural `snake_case` noun for one row, with no `_entries` or `_logs` suffix | `weights`, `blood_pressures`, `medication_schedules`, `migraines`, `moods` |
+| Column | `camelCase`, with the unit as a suffix | `profileId`, `timestamp`, `weightKg`, `heightCm` |
+| Entity class | the domain name plus `Entity` | `WeightEntity` |
+| CSV header | `snake_case`, unit as a suffix | `weight_kg`, `systolic_mmhg` |
+| Backup JSON | `camelCase` per-profile list named after the domain type | `weights`, `migraines` |
+
+Primary key `id` (TEXT), `profileId` on every per-profile table, times as epoch milliseconds, and code sets as comma-separated stable codes. Indexes are named after table and columns.
+
 ## Reading the diagram
 
 - **Logical links to `profiles`.** The metric and medication tables hold a `profileId` column and an index on it, but no foreign key. The app always filters by the active profile.

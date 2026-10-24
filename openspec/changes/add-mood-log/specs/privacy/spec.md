@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Mood data is protected like all entries
-Mood entries, including steps, feeling words and comments, SHALL be stored only in the encrypted database, SHALL NOT be written to any log, notification, preference file, crash text or the Android backup, and SHALL leave the device only through the user's own export or encrypted backup. No notification, widget or reminder SHALL show a mood value or word. Mood screens follow the secure-screen setting.
+Mood entries, including steps, stress levels, feeling words and comments, SHALL be stored only in the encrypted database, SHALL NOT be written to any log, notification, preference file, crash text or the Android backup, and SHALL leave the device only through the user's own export or encrypted backup. No notification, widget or reminder SHALL show a mood value or word. Mood screens follow the secure-screen setting.
 
 #### Scenario: No log output
 - **WHEN** an entry is saved, edited or deleted in a release build
