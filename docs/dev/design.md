@@ -32,7 +32,7 @@ The bottom bar has three tabs. The pill button in the top bar opens the pillbox,
 
 ```mermaid
 flowchart TD
-    APP(["Health Journal"]) --> LOG["Log tab<br/>Weight, BP, Glucose, Waist, Activity"]
+    APP(["Health Journal"]) --> LOG["Log tab<br/>Weight, BP, Glucose, Waist, Activity, Migraine"]
     APP --> HIST["History tab<br/>filters, list or graph view, year and month rows, trend charts (tap an entry for its value, tap a second for the difference), weight and blood pressure statistics, edit, delete, CSV"]
     APP --> PROF["Profile tab<br/>height, birth date, sex, language, region,<br/>units, theme, reminder settings"]
     APP -->|"pill button"| PILL["Pillbox"]
@@ -55,6 +55,9 @@ flowchart TD
     MEDS --> EDIT["Medication form<br/>dose, unit, schedule from a date"]
     LOG --> PICK["Ruler and scrolling pickers<br/>pre-filled from the last value"]
     HIST --> DLG["Edit dialog / delete confirmation"]
+    LOG -->|"Migraine tab"| MFORM["Migraine step form<br/>time, intensity, where, type, symptoms,<br/>triggers, medication, relief, comment"]
+    HIST -->|"Migraine filter: card edit"| MFORM
+    HIST -->|"Migraine filter: graph icon"| MGRAPH["Migraine graph view<br/>counts, timeline, heat map"]
     NOTIF(["Reminder notification"]) -->|"tap"| TODAY
     NOTIF -->|"Taken all, Snooze (app stays closed)"| PILL
 ```
@@ -86,7 +89,7 @@ flowchart LR
 | Status | text and icon, never colour alone |
 | Colour for ranges | one neutral blue-grey ramp; a darker step is a higher band, not a warning |
 | Adherence | one neutral colour for the bar, counts as text |
-| History list and graph | glucose graph: two context lines, NHG limit lines, time in range, time of day, change, spread, 30-day comparison, largest rise (`GlucoseStatistics`); under Weight, Blood Pressure and Glucose an icon in the title row switches between entries and graph (per filter, list by default); the range selector stays above both. Weight statistics ignore the range and show figures only. The blood pressure graph view adds a scatter chart on the NHG bands, reading steadiness and a comparison with the previous period (window counted back from the newest reading), all figures only. The waist graph view adds NHG limit lines with band-coloured points, extremes and change in cm and percent, distance to the limits, the waist-to-height ratio (50 % rule of thumb) and a waist against weight scatter (pairs within 3 days, at least 5 for the trend line); a missing height or sex gives a note pointing to the Profile |
+| History list and graph | glucose graph: two context lines, NHG limit lines, time in range, time of day, change, spread, 30-day comparison, largest rise (`GlucoseStatistics`); under Weight, Blood Pressure and Glucose an icon in the title row switches between entries and graph (per filter, list by default); the range selector stays above both. Weight statistics ignore the range and show figures only. The blood pressure graph view adds a scatter chart on the NHG bands, reading steadiness and a comparison with the previous period (window counted back from the newest reading), all figures only. The waist graph view adds NHG limit lines with band-coloured points, extremes and change in cm and percent, distance to the limits, the waist-to-height ratio (50 % rule of thumb) and a waist against weight scatter (pairs within 3 days, at least 5 for the trend line); a missing height or sex gives a note pointing to the Profile. The Migraine filter shows one compact card per migraine (only what was filled in, an "It ended now" button while ongoing) and the same icon opens a counts-only graph view: summary tiles, intensity timeline, duration and intensity groups, weekday bars, a weekday by time-of-day heat map and symptom, trigger, pain and relief counts, in the same secondary colour as the other charts. Editing a migraine opens the step form in place of the list |
 | Bar charts | zero line, gain above and loss below in one neutral colour, value printed on the bar, scrolls sideways instead of squeezing labels |
 | History year and month rows | scrolling rows of filter chips, selected chip has a check icon, months without entries are dimmed. The selection is derived from the list position, never stored |
 

@@ -103,3 +103,23 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 **App icon** in the launcher, light and dark mode (navy adaptive icon, with a themed monochrome variant on Android 13+, see [ADR 0011](adr/0011-app-icon-and-adaptive-layers.md)):
 
 <img src="screenshots/launcher-icon.png" width="420" alt="Health Journal launcher icon in light and dark mode">
+
+**Migraine** (sixth tab of the Log screen: the newest entry as plain text, then the nine-step form shown under the tabs; sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-migraine-card.png" width="250" alt="Migraine tab with the newest entry and the Log a migraine button, light theme"> | <img src="screenshots/dark-migraine-card.png" width="250" alt="Migraine tab with the newest entry and the Log a migraine button, dark theme"> |
+| <img src="screenshots/light-migraine-step1.png" width="250" alt="Step 1 of 9 with start and end time, light theme"> | <img src="screenshots/dark-migraine-step1.png" width="250" alt="Step 1 of 9 with start and end time, dark theme"> |
+| <img src="screenshots/light-migraine-step2.png" width="250" alt="Step 2 of 9 with the 0 to 10 pain score and a No answer choice, light theme"> | <img src="screenshots/dark-migraine-step2.png" width="250" alt="Step 2 of 9 with the 0 to 10 pain score and a No answer choice, dark theme"> |
+| <img src="screenshots/light-migraine-step3.png" width="250" alt="Step 3 of 9 with where it hurts and what it feels like, light theme"> | <img src="screenshots/dark-migraine-step3.png" width="250" alt="Step 3 of 9 with where it hurts and what it feels like, dark theme"> |
+| <img src="screenshots/light-migraine-step5.png" width="250" alt="Step 5 of 9 with the symptom chips, light theme"> | <img src="screenshots/dark-migraine-step5.png" width="250" alt="Step 5 of 9 with the symptom chips, dark theme"> |
+| <img src="screenshots/light-migraine-discard.png" width="250" alt="Stop without saving dialog with Keep going and Stop, light theme"> | <img src="screenshots/dark-migraine-discard.png" width="250" alt="Stop without saving dialog with Keep going and Stop, dark theme"> |
+
+**Migraine in History** (the Migraine filter chip, same card and range chips as the other types; every filled-in part is a short "Label: values" line; the graph icon switches to the graph view; sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-migraine-history-list.png" width="250" alt="History under the Migraine filter with compact entry cards, light theme"> | <img src="screenshots/dark-migraine-history-list.png" width="250" alt="History under the Migraine filter with compact entry cards, dark theme"> |
+| <img src="screenshots/light-migraine-history-graph.png" width="250" alt="Migraine graph view with summary tiles and the intensity per migraine chart, light theme"> | <img src="screenshots/dark-migraine-history-graph.png" width="250" alt="Migraine graph view with summary tiles and the intensity per migraine chart, dark theme"> |
+| <img src="screenshots/light-migraine-history-graph2.png" width="250" alt="Migraine graph view with the per weekday counts and the weekday by time of day grid, light theme"> | <img src="screenshots/dark-migraine-history-graph2.png" width="250" alt="Migraine graph view with the per weekday counts and the weekday by time of day grid, dark theme"> |
+| <img src="screenshots/light-migraine-history-graph3.png" width="250" alt="Migraine graph view with symptom and pain counts, light theme"> | <img src="screenshots/dark-migraine-history-graph3.png" width="250" alt="Migraine graph view with symptom and pain counts, dark theme"> |

@@ -22,10 +22,10 @@
 - [x] 1.6 Backup snapshot and restore of `migraines` and `migraineTags` including the new fields; older file and newer file tests
 
 ## 2. App (`:app`)
-- [ ] 2.1 Migraine card on the Log tab
-- [ ] 2.2 Nine-step logging screen with draft, skip, save, discard confirmation: "Woke up with it" switch on step 1, pain character with head area, optional intensity after 2 hours on the medication step, relief methods with the carry-on choice; "Add my own" chip with dialog on the triggers and what-I-did steps, rename and remove by long-press and TalkBack action; optional "This helped me" ticks on the medication and what-I-did steps
-- [ ] 2.3 History rows, filter, edit, delete, "it ended"; "Started during sleep" and the 2-hour score on the row; the ticks shown as the person's note, no counts
-- [ ] 2.4 Migraine view: tiles, timeline, duration, intensity, weekday, heat map, symptom and trigger counts, chart descriptions; pain character and relief counts; started-during-sleep note on the heat map; personal tags in the trigger and relief counts
+- [x] 2.1 Migraine card on the Log tab
+- [x] 2.2 Nine-step logging screen with draft, skip, save, discard confirmation: "Woke up with it" switch on step 1, pain character with head area, optional intensity after 2 hours on the medication step, relief methods with the carry-on choice; "Add my own" chip with dialog on the triggers and what-I-did steps, rename and remove by long-press and TalkBack action; optional "This helped me" ticks on the medication and what-I-did steps
+- [x] 2.3 History rows, filter, edit, delete, "it ended"; "Started during sleep" and the 2-hour score on the row; the ticks shown as the person's note, no counts
+- [x] 2.4 Migraine view: tiles, timeline, duration, intensity, weekday, heat map, symptom and trigger counts, chart descriptions; pain character and relief counts; started-during-sleep note on the heat map; personal tags in the trigger and relief counts
 - [ ] 2.5 Calendar and navigation to a day in History
 - [ ] 2.6 Strings in English and Dutch; scan test for "attack" and "aanval"; the tag dialog and messages
 - [ ] 2.7 Export and import entries in Profile with the unencrypted warning
@@ -33,6 +33,6 @@
 
 ## 3. Documentation
 - [x] 3.1 `docs/backup-format/` (README, JSON schema, `hjbackup.py`, recovery page; the test vectors stay valid because the new properties are optional and `schemaVersion` stays 1)
-- [ ] 3.2 `docs/dev/` (`database.md` ER diagram, current version and version history for both new tables, architecture, design, c4, testing, a Migraine feature page with the sources) and `docs/dev/how-to/add-a-metric.md` if the structure differs
-- [ ] 3.3 README, CHANGELOG, screenshots page
+- [x] 3.2 `docs/dev/` (`database.md` ER diagram, current version and version history for both new tables, architecture, design, c4, testing, a Migraine feature page with the sources) and `docs/dev/how-to/add-a-metric.md` if the structure differs
+- [x] 3.3 README, CHANGELOG, screenshots page (the README CSV table gets its Migraine row with task 2.7)
 - [ ] 3.4 Archive the change into `openspec/specs/`; release

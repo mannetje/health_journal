@@ -33,7 +33,7 @@ Display preferences (language, region, units, theme, snooze length) are in the f
 
 ### What is in the file
 
-Everything a person would want back: every profile, all weights, blood pressures, glucose values, waist circumferences and activities with their comments, and all medication with its schedule versions and intake log. The structure is in [the format description](../backup-format/README.md#4-the-document).
+Everything a person would want back: every profile, all weights, blood pressures, glucose values, waist circumferences, activities and migraines (with the person's own trigger and relief tags) with their comments, and all medication with its schedule versions and intake log. The structure is in [the format description](../backup-format/README.md#4-the-document).
 
 ### What the user must know
 
@@ -165,6 +165,7 @@ sequenceDiagram
 |------|-----|------------------------|
 | profile | `id` | kept as it is |
 | weight, blood pressure, glucose, waist, activity | `id` | kept as it is |
+| migraine, migraine tag | `id` | kept as it is |
 | medication | `id` | kept as it is |
 | schedule version | medication `id` + `effectiveFrom` | kept as it is |
 | daily times | with their schedule version | follow their schedule version |

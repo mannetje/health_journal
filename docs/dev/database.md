@@ -2,7 +2,7 @@
 
 Health Journal keeps everything in one local Room (SQLite) database, `health_journal.db`, defined in `data/src/main/java/nl/healthjournal/data/local/HealthJournalDatabase.kt`. Nothing leaves the device. This page is the map of the tables; [Change the database](how-to/change-the-database.md) explains how to alter it safely.
 
-Current version: **6**. Schema export is off, so this page and the entity classes in `data/src/main/java/nl/healthjournal/data/local/entity/` are the source of truth.
+Current version: **7**. Schema export is off, so this page and the entity classes in `data/src/main/java/nl/healthjournal/data/local/entity/` are the source of truth.
 
 ## Entity-relationship diagram
 
@@ -17,6 +17,9 @@ erDiagram
     medications ||--|{ medication_schedules : "medicationId (FK, cascade)"
     medication_schedules ||--o{ medication_times : "medicationId + effectiveFrom (FK, cascade)"
     medications ||--o{ intakes : "medicationId (FK, cascade)"
+    profiles ||--o{ migraines : "profileId (logical)"
+    profiles ||--o{ migraine_tags : "profileId (logical)"
+    migraine_tags }o--o{ migraines : "ids in customTriggers and customReliefMethods (logical)"
 
     profiles {
         TEXT id PK
@@ -106,6 +109,38 @@ erDiagram
         TEXT actualAmount "nullable decimal text"
         TEXT comment "nullable"
     }
+    migraines {
+        TEXT id PK
+        TEXT profileId
+        INTEGER startTime "epoch ms"
+        INTEGER wokeUpWithIt
+        INTEGER endTime "nullable epoch ms, null while ongoing"
+        INTEGER intensity "nullable 0 to 10"
+        TEXT areas "comma-separated codes"
+        TEXT painCharacters "comma-separated codes"
+        TEXT type "nullable enum"
+        TEXT symptoms "comma-separated codes"
+        TEXT triggers "comma-separated codes"
+        TEXT customTriggers "comma-separated tag ids"
+        INTEGER tookSomething
+        TEXT medicationText "nullable"
+        INTEGER secondDose
+        INTEGER intensityAfter2Hours "nullable 0 to 10"
+        INTEGER medicationHelpedMe
+        TEXT reliefMethods "comma-separated codes"
+        TEXT customReliefMethods "comma-separated tag ids"
+        INTEGER reliefHelpedMe
+        TEXT activities "nullable enum"
+        TEXT comment "nullable"
+    }
+    migraine_tags {
+        TEXT id PK
+        TEXT profileId
+        TEXT kind "enum, trigger or relief"
+        TEXT label
+        INTEGER archived
+        INTEGER createdAt "epoch ms"
+    }
 ```
 
 ## Naming conventions
@@ -130,6 +165,7 @@ Primary key `id` (TEXT), `profileId` on every per-profile table, times as epoch 
 - **Planned and missed are never stored.** `intakes` only holds recorded outcomes. Planned intakes are computed from the schedule, and pending or missed is derived from the clock (see the [medication design](../../openspec/changes/archive/2026-10-07-add-medication-management/design.md)).
 - **Intake uniqueness.** A unique index on (`medicationId`, `planned`) keeps one outcome per planned intake. As-needed doses have a null `planned`, which SQLite treats as distinct, so several can exist on one day. A second index on (`medicationId`, `takenAt`) serves the as-needed lookups.
 - **Amounts as text.** Strength, dose and actual amount are stored as plain decimal text, so 2.5 stays 2.5. Units are stored as entered and never converted.
+- **Migraine sets.** A migraine keeps its multi-choice answers as comma-separated stable code names in one column each (`areas`, `symptoms`, `triggers` and so on), because they are only read back with the entry and never queried one by one. A personal tag is referenced by its id, so renaming a tag changes every entry that uses it. A tag is never hard-deleted: removing it sets `archived`, and older entries keep showing it. See [ADR 0025](../adr/0025-migraine-log-data-model.md) and the [Migraine page](migraine.md).
 - **Time.** Instants are epoch milliseconds. Planned times are local wall-clock text without a zone, so an 08:00 planned intake stays 08:00 when travelling.
 
 ## Version history
@@ -141,6 +177,7 @@ Primary key `id` (TEXT), `profileId` on every per-profile table, times as epoch 
 | 3 to 4 | `blood_pressures.pulse` added |
 | 4 to 5 | `comment` column added to the five entry tables |
 | 5 to 6 | medication tables added: `medications`, `medication_schedules`, `medication_times`, `intakes` |
+| 6 to 7 | migraine tables added: `migraines`, `migraine_tags` |
 
 Every migration is hand-written in `HealthJournalDatabase.kt`. Update this page, the diagram included, whenever an entity changes.
 

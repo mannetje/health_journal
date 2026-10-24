@@ -1,6 +1,6 @@
 # How to add a metric
 
-A *metric* is something the user logs: weight, blood pressure, glucose, waist circumference, activity. This guide lists every place a new one touches, in the order to work. Use blood pressure as the model; [Life of an entry](../life-of-an-entry.md) walks through it.
+A *metric* is something the user logs: weight, blood pressure, glucose, waist circumference, activity. A richer entry with several choices, an optional end time or its own tags does not fit this list; copy the structure of the [Migraine log](../migraine.md) instead (own ports, tables, view model and a tab on the Log screen). This guide lists every place a new one touches, in the order to work. Use blood pressure as the model; [Life of an entry](../life-of-an-entry.md) walks through it.
 
 Before writing code, **propose the change**: create an OpenSpec change describing the metric, its validation limits, its unit and, if it has ranges, its labels (see [CONTRIBUTING.md](../../../CONTRIBUTING.md)). A proposal for a waist circumference metric is an example: `openspec/changes/archive/2026-10-05-add-waist-circumference-tracking/`.
 

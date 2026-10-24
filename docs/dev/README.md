@@ -2,7 +2,7 @@
 
 Welcome. These pages explain how Health Journal is built and how to contribute. They are written in English so contributors from any country can join. The app itself is available in English and Dutch.
 
-Health Journal is an offline-first Android app for logging weight, blood pressure, blood glucose and activity. It is a personal logging tool, not a medical device: it shows ranges and never gives advice or a diagnosis.
+Health Journal is an offline-first Android app for logging weight, blood pressure, blood glucose, waist, activity, migraines and medication. It is a personal logging tool, not a medical device: it shows ranges and never gives advice or a diagnosis.
 
 ## Reading order
 
@@ -11,13 +11,14 @@ Health Journal is an offline-first Android app for logging weight, blood pressur
 | 1 | [Getting started](getting-started.md) | build, test and run the app |
 | 2 | [Architecture](architecture.md) | understand the three modules and the dependency rule |
 | 2a | [C4 diagrams](c4.md) | see the system at four zoom levels: context, containers, components, scenarios and deployment (Mermaid) |
-| 2b | [Design](design.md) | see the principles, quality goals, screen map, state flow, layout rules and medication design |
+| 2b | [Design](design.md) | see the principles, quality goals, screen map, state flow, layout rules, medication design and the migraine screens |
 | 3 | [Life of an entry](life-of-an-entry.md) | follow one blood pressure reading through every layer (the best way to learn the code) |
 | 4 | [Conventions](conventions.md) | know the rules the code follows |
 | 5 | [Testing](testing.md) | see what is tested where and how to run it |
 | 6 | [Releases](releases.md) | understand versions, tags and the release build |
 | 7 | [Database](database.md) | see every table and how they relate (entity-relationship diagram) |
 | 8 | [Pillbox](pillbox.md) | see the medication feature (Today, Medications, Adherence, reminders), where it lives and what it looks like |
+| 8a | [Migraine](migraine.md) | see the migraine log (step form, personal tags, History card and graph), where it lives, how the form is hosted twice and what is tested |
 | 9 | [Continuous integration](ci.md) | see which GitHub Actions run, what they check, how Dependabot is used and how to run the same checks locally |
 | 10 | [Graphs](graphs.md) | see how the History graph view is built, with the waist and glucose graphs as worked examples, and a checklist for a new graph |
 | 11 | [Privacy and security](privacy-and-security.md) | see offline-first rules, SQLCipher database encryption, key provider, app lock and backup exclusions |
