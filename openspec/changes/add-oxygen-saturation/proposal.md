@@ -24,7 +24,7 @@ People with a pulse oximeter at home want to note their readings next to weight,
 - **Modified Capability:** `localization` (text in English and Dutch)
 
 ## Impact
-- **Database:** Room version 6 → 7 with `MIGRATION_6_7`, creating one table `oxygen_saturations` (id, profile id, timestamp, percent, nullable pulse, nullable context, nullable site, oxygen-given flag, nullable comment). Existing tables are untouched, so old data stays readable and an upgrade only adds an empty table. A migration test opens a version 6 database with data. The Migraine change then takes 7 → 8.
+- **Database:** a Room migration to the next free number at implementation time (current database version + 1; Migraine takes 6 → 7 when it ships first), creating one table `oxygen_saturations` (id, profile id, timestamp, percent, nullable pulse, nullable context, nullable site, oxygen-given flag, nullable comment). Existing tables are untouched, so old data stays readable and an upgrade only adds an empty table. A migration test opens the previous version with data.
 - **Stored data shape:** the backup document gains an `oxygenSaturations` list per profile; `schemaVersion` stays 1 (readers ignore unknown properties, older files restore with none). `docs/backup-format/` (README, JSON schema, `hjbackup.py`, test vectors, recovery page) is updated.
 - **Affected code:** `OxygenSaturation` and a context enum, validation, statistics functions and use cases in `:domain` (JVM tests including empty range and a single reading); entity, DAO, mapper, migration, repository methods and CSV adapters in `:data`; Log card, form, History row and edit dialog, and the graph view in `:app`.
 - **Dependencies and permissions:** none.

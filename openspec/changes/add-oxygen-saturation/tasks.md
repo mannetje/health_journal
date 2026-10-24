@@ -1,5 +1,5 @@
 ## 0. Decisions
-- [x] 0.1 Own small release, before Migraine (requested 2026-10-21)
+- [x] 0.1 Own small release (requested 2026-10-21); Migraine is built first (2026-10-24), so this change takes the next free migration number
 - [x] 0.2 Fields: percent 50 to 100, optional pulse, optional context, optional site, optional oxygen-given tick, date and time, comment
 - [x] 0.3 No assessment of any kind; zibs as a naming guide only
 - [x] 0.3a Dismissible factual form tip kept (confirmed 2026-10-21)
@@ -12,7 +12,7 @@
 - [ ] 1.1 `OxygenSaturation`, `OxygenContext`, `OxygenSite`, validation; JVM tests
 - [ ] 1.2 `OxygenStatistics`; JVM tests for empty range, one reading, ties, rounding
 - [ ] 1.3 Port methods and use cases
-- [ ] 1.4 Entity, DAO, mapper, `MIGRATION_6_7`, version 7, repository; migration test from version 6
+- [ ] 1.4 Entity, DAO, mapper, the new migration (next free number), repository; migration test from the previous version
 - [ ] 1.5 CSV export and import with row rejection; round-trip tests
 - [ ] 1.6 Backup snapshot and restore of `oxygenSaturations`; older-file test
 

@@ -16,7 +16,7 @@ Oxygen saturation is a plain metric and follows `docs/dev/how-to/add-a-metric.md
 
 ### 2. Data (`:data`)
 - `OxygenSaturationEntity`, DAO, mapper, repository methods; table `oxygen_saturations` indexed by profile and timestamp.
-- **Database version 6 → 7, `MIGRATION_6_7`**, added to the `addMigrations` list: `CREATE TABLE IF NOT EXISTS` plus the index. Read-mapping alternative (columns on an existing table) rejected in ADR 0026. A migration test opens a version 6 database with rows and checks version 7, old rows and an empty new table. Unknown context or site codes read from the database map to none; `oxygen_given` is an integer, default 0.
+- **Database migration to the next free number at implementation time (current database version + 1; Migraine takes 6 → 7 when it ships first)**, added to the `addMigrations` list: `CREATE TABLE IF NOT EXISTS` plus the index. Read-mapping alternative (columns on an existing table) rejected in ADR 0026. A migration test opens the previous version with rows and checks the new version, old rows and an empty new table. Unknown context or site codes read from the database map to none; `oxygen_given` is an integer, default 0.
 - CSV adapter with `CsvQuoting.cell`; backup snapshot and restore include `oxygenSaturations`.
 
 ### 3. App (`:app`)
@@ -33,7 +33,7 @@ Rules and figures in `:domain` (no Android), persistence and CSV in `:data`, scr
 - Another migration adds a row to the upgrade path; covered by the migration test.
 
 ## Migration Plan
-1. Domain and tests; 2. table, migration and repository with the migration test; 3. CSV and backup with the format docs; 4. screens; 5. emulator pass with screenshots; 6. docs, changelog and release (own small release, before Migraine, which then moves to 7 → 8).
+1. Domain and tests; 2. table, migration and repository with the migration test; 3. CSV and backup with the format docs; 4. screens; 5. emulator pass with screenshots; 6. docs, changelog and release (own small release; the migration number depends on build order, see above).
 Rollback: the table is additive; Room refuses a downgrade of the version, as for every migration.
 
 ## Open Questions

@@ -27,7 +27,7 @@ Some people want a very short daily note of how the day feels, next to weight, b
 - **Modified Capability:** `localization` (text in English and Dutch)
 
 ## Impact
-- **Database:** a Room migration (next free version, see below), creating one table `moods` (id, profile id, timestamp, level 1 to 5, nullable stress level 1 to 5, nullable feelings text of codes, nullable comment). Existing tables are untouched. A migration test opens a version 9 database with data. The migration is the next free number at implementation time (current database version + 1); the order against other metric changes is not fixed.
+- **Database:** a Room migration (next free version, see below), creating one table `moods` (id, profile id, timestamp, level 1 to 5, nullable stress level 1 to 5, nullable feelings text of codes, nullable comment). Existing tables are untouched. A migration test opens the previous version with data. The migration is the next free number at implementation time (current database version + 1); the order against other metric changes is not fixed.
 - **Stored data shape:** the backup document gains a `moodEntries` list per profile; `schemaVersion` stays 1. `docs/backup-format/` (README, JSON schema, `hjbackup.py`, test vectors, recovery page) is updated.
 - **Affected code:** `MoodEntry`, `MoodFeeling`, validation, `MoodStatistics` and use cases in `:domain` (JVM tests including empty range, one entry and several per day); entity, DAO, mapper, migration, repository and CSV adapters in `:data`; Log card, History row and edit dialog, graph view in `:app`.
 - **Dependencies and permissions:** none. No reminder or notification in v1.
