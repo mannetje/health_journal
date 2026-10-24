@@ -7,6 +7,8 @@ import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
+import nl.healthjournal.domain.model.migraine.MigraineEntry
+import nl.healthjournal.domain.model.migraine.MigraineTag
 import nl.healthjournal.domain.model.profile.Profile
 import java.time.Instant
 
@@ -37,10 +39,12 @@ data class BackupProfile(
     val glucoses: List<GlucoseEntry> = emptyList(),
     val waistCircumferences: List<WaistCircumferenceEntry> = emptyList(),
     val activities: List<ActivitySession> = emptyList(),
-    val medications: List<BackupMedication> = emptyList()
+    val medications: List<BackupMedication> = emptyList(),
+    val migraines: List<MigraineEntry> = emptyList(),
+    val migraineTags: List<MigraineTag> = emptyList()
 ) {
     val entryCount: Int
-        get() = weights.size + bloodPressures.size + glucoses.size + waistCircumferences.size + activities.size
+        get() = weights.size + bloodPressures.size + glucoses.size + waistCircumferences.size + activities.size + migraines.size
     val intakeCount: Int
         get() = medications.sumOf { it.intakes.size }
 }
