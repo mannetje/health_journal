@@ -207,4 +207,52 @@ class BackupFormatTest {
         root.remove("preferences")
         assertEquals(null, BackupJson.read(root.toString().toByteArray()).preferences)
     }
+
+    private fun withMigraine(doc: BackupDocument): BackupDocument {
+        val p = doc.profiles.single()
+        val trigger = nl.healthjournal.domain.model.migraine.MigraineTag(
+            nl.healthjournal.domain.model.migraine.MigraineTagId.generate(), p.profile.id,
+            nl.healthjournal.domain.model.migraine.MigraineTagKind.TRIGGER, "skipped lunch"
+        )
+        val entry = nl.healthjournal.domain.model.migraine.MigraineEntry(
+            id = nl.healthjournal.domain.model.common.MeasurementId.generate(), profileId = p.profile.id,
+            start = java.time.Instant.parse("2026-10-20T06:30:00Z"), wokeUpWithIt = true,
+            end = java.time.Instant.parse("2026-10-20T10:00:00Z"), intensity = 7,
+            areas = setOf(nl.healthjournal.domain.model.migraine.HeadArea.TEMPLES),
+            symptoms = setOf(nl.healthjournal.domain.model.migraine.MigraineSymptom.NAUSEA),
+            customTriggerIds = setOf(trigger.id), tookSomething = true, medicationText = "my usual one",
+            intensityAfter2Hours = 3, medicationHelpedMe = true
+        )
+        return doc.copy(profiles = listOf(p.copy(migraines = listOf(entry), migraineTags = listOf(trigger))))
+    }
+
+    @Test
+    fun `migraines and tags survive the container round trip`() {
+        val codec = HjBackupCodec(fast)
+        val doc = withMigraine(codec.decode(vector("sample-fast-nogzip.hjbackup"), passphrase))
+        assertEquals(doc, codec.decode(codec.encode(doc, passphrase), passphrase))
+    }
+
+    @Test
+    fun `a file from a newer version with unknown migraine codes and tag kinds still opens`() {
+        val codec = HjBackupCodec(fast)
+        val doc = withMigraine(codec.decode(vector("sample-fast-nogzip.hjbackup"), passphrase))
+        val root = JSONObject(String(BackupJson.write(doc), Charsets.UTF_8))
+        val profile = root.getJSONArray("profiles").getJSONObject(0)
+        profile.getJSONArray("migraines").getJSONObject(0).getJSONArray("symptoms").put("FUTURE_SYMPTOM")
+        profile.getJSONArray("migraineTags").put(
+            JSONObject().put("id", java.util.UUID.randomUUID().toString()).put("kind", "FUTURE_KIND").put("label", "x")
+        )
+        val read = BackupJson.read(root.toString().toByteArray()).profiles.single()
+        assertEquals(doc.profiles.single().migraines, read.migraines)
+        assertEquals(doc.profiles.single().migraineTags, read.migraineTags)
+    }
+
+    @Test
+    fun `an invalid migraine makes the file malformed`() {
+        val doc = withMigraine(HjBackupCodec(fast).decode(vector("sample-fast-nogzip.hjbackup"), passphrase))
+        val root = JSONObject(String(BackupJson.write(doc), Charsets.UTF_8))
+        root.getJSONArray("profiles").getJSONObject(0).getJSONArray("migraines").getJSONObject(0).put("intensity", 11)
+        assertThrows(BackupException.Malformed::class.java) { BackupJson.read(root.toString().toByteArray()) }
+    }
 }

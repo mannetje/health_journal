@@ -24,6 +24,17 @@ import nl.healthjournal.domain.model.medication.Schedule
 import nl.healthjournal.domain.model.medication.ScheduleVersion
 import nl.healthjournal.domain.model.medication.Strength
 import nl.healthjournal.domain.model.medication.StrengthUnit
+import nl.healthjournal.domain.model.migraine.DailyActivities
+import nl.healthjournal.domain.model.migraine.HeadArea
+import nl.healthjournal.domain.model.migraine.MigraineEntry
+import nl.healthjournal.domain.model.migraine.MigraineSymptom
+import nl.healthjournal.domain.model.migraine.MigraineTag
+import nl.healthjournal.domain.model.migraine.MigraineTagId
+import nl.healthjournal.domain.model.migraine.MigraineTagKind
+import nl.healthjournal.domain.model.migraine.MigraineTrigger
+import nl.healthjournal.domain.model.migraine.MigraineType
+import nl.healthjournal.domain.model.migraine.PainCharacter
+import nl.healthjournal.domain.model.migraine.ReliefMethod
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.BloodPressureReading
@@ -124,7 +135,45 @@ object BackupJson {
                     .put("comment", nullable(e.comment?.text))
             })
             .put("medications", array(bp.medications) { writeMedication(it) })
+            .also { o ->
+                // Written only when present, so a profile without Migraine data looks like it did before.
+                if (bp.migraines.isNotEmpty()) o.put("migraines", array(bp.migraines.sortedBy { it.start }) { writeMigraine(it) })
+                if (bp.migraineTags.isNotEmpty()) {
+                    o.put("migraineTags", array(bp.migraineTags.sortedWith(compareBy({ it.kind.name }, { it.label.lowercase() }, { it.id.toString() }))) { t ->
+                        JSONObject().put("id", t.id.toString()).put("kind", t.kind.name).put("label", t.label)
+                            .put("archived", t.archived)
+                    })
+                }
+            }
     }
+
+    private fun writeMigraine(e: MigraineEntry): JSONObject = JSONObject()
+        .put("id", e.id.toString())
+        .put("start", e.start.toString())
+        .put("wokeUpWithIt", e.wokeUpWithIt)
+        .put("end", nullable(e.end?.toString()))
+        .put("intensity", nullable(e.intensity))
+        .put("areas", codes(e.areas))
+        .put("painCharacters", codes(e.painCharacters))
+        .put("type", nullable(e.type?.name))
+        .put("symptoms", codes(e.symptoms))
+        .put("triggers", codes(e.triggers))
+        .put("customTriggers", ids(e.customTriggerIds))
+        .put("tookSomething", e.tookSomething)
+        .put("medicationText", nullable(e.medicationText))
+        .put("secondDose", e.secondDose)
+        .put("intensityAfter2Hours", nullable(e.intensityAfter2Hours))
+        .put("medicationHelpedMe", e.medicationHelpedMe)
+        .put("reliefMethods", codes(e.reliefMethods))
+        .put("customReliefMethods", ids(e.customReliefIds))
+        .put("reliefHelpedMe", e.reliefHelpedMe)
+        .put("activities", nullable(e.activities?.name))
+        .put("comment", nullable(e.comment?.text))
+
+    private fun codes(values: Set<Enum<*>>): JSONArray = JSONArray().also { arr -> values.map { it.name }.sorted().forEach { arr.put(it) } }
+
+    private fun ids(values: Set<MigraineTagId>): JSONArray =
+        JSONArray().also { arr -> values.map { it.toString() }.sorted().forEach { arr.put(it) } }
 
     private fun decimal(value: Double): String = BigDecimal.valueOf(value).toPlainString()
 
@@ -290,9 +339,56 @@ object BackupJson {
                     )
                 }
             },
-            medications = guard("medications") { readList(o.optJSONArray("medications")) { readMedication(it, pid) } }
+            medications = guard("medications") { readList(o.optJSONArray("medications")) { readMedication(it, pid) } },
+            migraines = guard("migraines") { readList(o.optJSONArray("migraines")) { readMigraine(it, pid) } },
+            migraineTags = guard("migraineTags") {
+                // A tag of a kind this version does not know (from a newer file) is left out.
+                readList(o.optJSONArray("migraineTags")) { t ->
+                    enumOrNull<MigraineTagKind>(t.req("kind"))?.let { kind ->
+                        MigraineTag(MigraineTagId.fromString(t.req("id")), pid, kind, t.req("label"), t.optBoolean("archived", false))
+                    }
+                }.filterNotNull()
+            }
         )
     }
+
+    private fun readMigraine(o: JSONObject, profileId: ProfileId) = MigraineEntry(
+        id = MeasurementId.fromString(o.req("id")),
+        profileId = profileId,
+        start = Instant.parse(o.req("start")),
+        wokeUpWithIt = o.optBoolean("wokeUpWithIt", false),
+        end = o.text("end")?.let { Instant.parse(it) },
+        intensity = if (o.isNull("intensity")) null else o.getInt("intensity"),
+        areas = enums<HeadArea>(o, "areas"),
+        painCharacters = enums<PainCharacter>(o, "painCharacters"),
+        type = enumOrNull<MigraineType>(o.text("type")),
+        symptoms = enums<MigraineSymptom>(o, "symptoms"),
+        triggers = enums<MigraineTrigger>(o, "triggers"),
+        customTriggerIds = tagIds(o, "customTriggers"),
+        tookSomething = o.optBoolean("tookSomething", false),
+        medicationText = o.text("medicationText"),
+        secondDose = o.optBoolean("secondDose", false),
+        intensityAfter2Hours = if (o.isNull("intensityAfter2Hours")) null else o.getInt("intensityAfter2Hours"),
+        medicationHelpedMe = o.optBoolean("medicationHelpedMe", false),
+        reliefMethods = enums<ReliefMethod>(o, "reliefMethods"),
+        customReliefIds = tagIds(o, "customReliefMethods"),
+        reliefHelpedMe = o.optBoolean("reliefHelpedMe", false),
+        activities = enumOrNull<DailyActivities>(o.text("activities")),
+        comment = o.comment()
+    )
+
+    private fun strings(o: JSONObject, key: String): List<String> =
+        o.optJSONArray(key)?.let { arr -> List(arr.length()) { arr.getString(it) } }.orEmpty()
+
+    /** Codes this version does not know (from a newer file) are ignored. */
+    private inline fun <reified E : Enum<E>> enums(o: JSONObject, key: String): Set<E> =
+        strings(o, key).mapNotNull { name -> enumOrNull<E>(name) }.toSet()
+
+    private inline fun <reified E : Enum<E>> enumOrNull(name: String?): E? =
+        name?.let { n -> enumValues<E>().firstOrNull { it.name == n } }
+
+    private fun tagIds(o: JSONObject, key: String): Set<MigraineTagId> =
+        strings(o, key).mapNotNull { runCatching { MigraineTagId.fromString(it) }.getOrNull() }.toSet()
 
     private fun readMedication(o: JSONObject, profileId: ProfileId): BackupMedication {
         val id = MedicationId.fromString(o.req("id"))

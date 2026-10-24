@@ -126,6 +126,59 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
     }
 }
 
+/**
+ * Adds the Migraine tables (`migraines`, `migraine_tags`). Tables only: no existing row is touched.
+ * The SQL mirrors what Room expects for the entities in `MigraineEntities.kt`.
+ */
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `migraines` (
+                `id` TEXT NOT NULL,
+                `profileId` TEXT NOT NULL,
+                `startTime` INTEGER NOT NULL,
+                `wokeUpWithIt` INTEGER NOT NULL,
+                `endTime` INTEGER,
+                `intensity` INTEGER,
+                `areas` TEXT NOT NULL,
+                `painCharacters` TEXT NOT NULL,
+                `type` TEXT,
+                `symptoms` TEXT NOT NULL,
+                `triggers` TEXT NOT NULL,
+                `customTriggers` TEXT NOT NULL,
+                `tookSomething` INTEGER NOT NULL,
+                `medicationText` TEXT,
+                `secondDose` INTEGER NOT NULL,
+                `intensityAfter2Hours` INTEGER,
+                `medicationHelpedMe` INTEGER NOT NULL,
+                `reliefMethods` TEXT NOT NULL,
+                `customReliefMethods` TEXT NOT NULL,
+                `reliefHelpedMe` INTEGER NOT NULL,
+                `activities` TEXT,
+                `comment` TEXT,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_migraines_profileId_startTime` ON `migraines` (`profileId`, `startTime`)")
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `migraine_tags` (
+                `id` TEXT NOT NULL,
+                `profileId` TEXT NOT NULL,
+                `kind` TEXT NOT NULL,
+                `label` TEXT NOT NULL,
+                `archived` INTEGER NOT NULL,
+                `createdAt` INTEGER NOT NULL,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_migraine_tags_profileId_kind` ON `migraine_tags` (`profileId`, `kind`)")
+    }
+}
+
 @Database(
     entities = [
         ProfileEntity::class,
@@ -137,9 +190,11 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
         MedicationEntity::class,
         MedicationScheduleEntity::class,
         MedicationTimeEntity::class,
-        IntakeEntity::class
+        IntakeEntity::class,
+        MigraineEntity::class,
+        MigraineTagEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class HealthJournalDatabase : RoomDatabase() {
@@ -150,6 +205,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
     abstract fun activityDao(): ActivityDao
     abstract fun waistCircumferenceDao(): WaistCircumferenceDao
     abstract fun medicationDao(): MedicationDao
+    abstract fun migraineDao(): MigraineDao
 
     companion object {
         const val DATABASE_NAME = "health_journal.db"
@@ -182,7 +238,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 context,
                 HealthJournalDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
 
             if (!hasSqlCipher) {
                 return notEncrypted(builder, "the SQLCipher library could not be loaded")

@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import nl.healthjournal.data.local.HealthJournalDatabase
 import nl.healthjournal.data.local.mapper.HealthLogMapper
 import nl.healthjournal.data.local.mapper.MedicationMapper
+import nl.healthjournal.data.local.mapper.MigraineMapper
 import nl.healthjournal.data.local.mapper.ProfileMapper
 import nl.healthjournal.domain.model.backup.BackupMedication
 import nl.healthjournal.domain.model.backup.BackupProfile
@@ -14,7 +15,10 @@ import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
  * Reads and merges the whole database for a backup, each in one Room transaction. The merge only uses
  * insert-or-ignore, so nothing existing is overwritten and a failure rolls everything back.
  */
-class RoomBackupSnapshot(private val db: HealthJournalDatabase) : BackupSnapshotPort {
+class RoomBackupSnapshot(
+    private val db: HealthJournalDatabase,
+    private val clock: () -> Long = System::currentTimeMillis
+) : BackupSnapshotPort {
 
     override suspend fun snapshot(): List<BackupProfile> = db.withTransaction {
         val medicationDao = db.medicationDao()
@@ -33,6 +37,8 @@ class RoomBackupSnapshot(private val db: HealthJournalDatabase) : BackupSnapshot
                 glucoses = db.glucoseDao().getByProfileId(id).map(HealthLogMapper::toDomain),
                 waistCircumferences = db.waistCircumferenceDao().getByProfileId(id).map(HealthLogMapper::toDomain),
                 activities = db.activityDao().getByProfileId(id).map(HealthLogMapper::toDomain),
+                migraines = db.migraineDao().getByProfileId(id).map(MigraineMapper::toDomain),
+                migraineTags = db.migraineDao().getTags(id).mapNotNull(MigraineMapper::toDomain),
                 medications = medications.map { med ->
                     BackupMedication(
                         medication = MedicationMapper.toDomain(med, schedules[med.id].orEmpty(), times[med.id].orEmpty()),
@@ -64,6 +70,11 @@ class RoomBackupSnapshot(private val db: HealthJournalDatabase) : BackupSnapshot
             item.glucoses.forEach { count(db.glucoseDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
             item.waistCircumferences.forEach { count(db.waistCircumferenceDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
             item.activities.forEach { count(db.activityDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
+
+            val migraineDao = db.migraineDao()
+            item.migraines.forEach { count(migraineDao.insertIgnore(MigraineMapper.toEntity(it))) { entriesAdded++ } }
+            // Tags are not counted: they are the person's own labels, not entries.
+            item.migraineTags.forEach { migraineDao.insertTagIgnore(MigraineMapper.toEntity(it, clock())) }
 
             for (entry in item.medications) {
                 val rows = MedicationMapper.toRows(entry.medication)

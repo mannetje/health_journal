@@ -111,4 +111,27 @@ class RoomBackupSnapshotTest {
 
         assertEquals(0, db.profileDao().getAll().size)
     }
+
+    @Test
+    fun `migraines and their tags are merged once and read back`() = runTest {
+        val p = sample.profiles.single()
+        val tag = nl.healthjournal.domain.model.migraine.MigraineTag(
+            nl.healthjournal.domain.model.migraine.MigraineTagId.generate(), p.profile.id,
+            nl.healthjournal.domain.model.migraine.MigraineTagKind.RELIEF, "walk", archived = true
+        )
+        val entry = nl.healthjournal.domain.model.migraine.MigraineEntry(
+            id = nl.healthjournal.domain.model.common.MeasurementId.generate(), profileId = p.profile.id,
+            start = java.time.Instant.parse("2026-10-20T06:30:00Z"), customReliefIds = setOf(tag.id)
+        )
+        val withMigraine = p.copy(migraines = listOf(entry), migraineTags = listOf(tag))
+
+        val first = port.merge(listOf(withMigraine))
+        assertEquals(p.entryCount + 1, first.entriesAdded)
+        val second = port.merge(listOf(withMigraine))
+        assertEquals(0, second.entriesAdded)
+
+        val back = port.snapshot().single()
+        assertEquals(listOf(entry), back.migraines)
+        assertEquals(listOf(tag), back.migraineTags)
+    }
 }
