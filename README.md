@@ -23,7 +23,7 @@ An offline-first, privacy-focused Android health logging application built with 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.6.1)](https://github.com/mannetje/health_journal/releases/latest)**  
+👉 **[Download Latest APK (v1.6.2)](https://github.com/mannetje/health_journal/releases/latest)**  
 See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ---
@@ -49,7 +49,7 @@ More screenshots (dark theme, graphs and statistics, migraine log, medication re
 - **Waist Circumference (optional):** Record waist measurement in cm; evaluated against Voedingscentrum's sex-specific healthy-range thresholds when profile sex is set. *([spec](openspec/specs/health-metrics/weight/spec.md))*
 - **Blood Pressure & Pulse:** Record systolic, diastolic (mmHg), and pulse (30–250 bpm); evaluated against NHG 3-band categories (Normal, High, Seriously raised). *([spec](openspec/specs/health-metrics/blood-pressure/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
 - **Blood Glucose:** Record fasting and postprandial levels in mmol/L or mg/dL; evaluated against NHG context-specific target ranges. *([spec](openspec/specs/health-metrics/glucose/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
-- **Migraine log:** A step-by-step log of headaches and migraines on its own tab of the Log screen: start and end (or still ongoing), intensity 0 to 10, where it hurts, type, symptoms, triggers, medication taken, relief and a comment, with your own trigger and relief tags. History shows one compact card per migraine and a graph view with counts, a timeline, durations, weekdays and a time-of-day heat map. Plain facts only: no advice, no diagnosis and no comparisons. *([change](openspec/changes/add-migraine-log/proposal.md), [ADR 0025](docs/adr/0025-migraine-log-data-model.md), [dev doc](docs/dev/migraine.md))*
+- **Migraine log:** A step-by-step log of headaches and migraines on its own tab of the Log screen: start and end (or still ongoing), intensity 0 to 10, where it hurts, type, symptoms, triggers, medication taken, relief and a comment, with your own trigger and relief tags. History shows one compact card per migraine and a graph view with counts, a timeline, durations, weekdays and a time-of-day heat map. Plain facts only: no advice, no diagnosis and no comparisons. *([change](openspec/changes/archive/2026-10-24-add-migraine-log/proposal.md), [spec](openspec/specs/migraine/spec.md), [ADR 0025](docs/adr/0025-migraine-log-data-model.md), [dev doc](docs/dev/migraine.md))*
 - **Physical Activity:** Track duration and distance for workout sessions manually or via bulk import. *([spec](openspec/specs/health-metrics/activity/spec.md))*
 - **Medication Pillbox (💊):** Manage medications (tablets, liquids, sprays, injectables) with flexible schedule versions, daily time slots, and intake logs. *([spec](openspec/specs/medication/spec.md), [ADR 0020](docs/adr/0020-medication-model-and-pillbox.md), [dev doc](docs/dev/pillbox.md))*
 - **Mindfulness (🪷):** A calm corner next to the pillbox, with no advice and no record of your practice. Breathe: box, 4-7-8, physiological sigh or belly breathing for 1, 3 or 5 minutes, drawn as a soft lotus, circle or rounded square. Meditate: a quiet timer of 5, 10, 15, 20 or 30 minutes with optional interval bells. Guided: three recorded exercises from the Free Mindfulness Project, played on the device and credited in the app. Start here: a three-step first-time ladder. Tones, vibration and spoken cues (the phone's offline voice) can each be switched on or off, and a short safety note is shown on first open. Only your display choices are saved. Tapping the logo in the top bar takes you back to the Log screen. *([spec](openspec/specs/mindfulness/spec.md), [decisions and wording](docs/dev/mindfulness.md), [how it works](docs/dev/mindfulness-feature.md), [credits](docs/credits.md))*
@@ -171,7 +171,7 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.6.1-debug.apk`.
+2. Download `health-journal-v1.6.2-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
@@ -284,7 +284,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 | 5d | Database encryption and app lock | Done | 1.5.9 |
 | 5e | Portable encrypted backup (manual) | Done | 1.6.0 |
 | 6 | Mindfulness (🪷): breathing, meditation timer, guided recordings, Start here, credits and safety note | Done | 1.6.1 |
-| 7 | Migraine log: step form, personal tags, History card and graph, backup and CSV (database 6 to 7) | In progress | next release |
+| 7 | Migraine log: step form, personal tags, History card, graph and calendar, backup and CSV (database 6 to 7) | Done | 1.6.2 |
 
 ```mermaid
 flowchart LR
@@ -294,7 +294,8 @@ flowchart LR
     P5A --> P5C["5c Adherence"]:::done
     P5A --> P5D["5d Encryption<br/>and app lock"]:::done
     P5D --> P5E["5e Encrypted<br/>backup"]:::done
-    P5E --> P6["6 Mindfulness"]:::wip
+    P5E --> P6["6 Mindfulness"]:::done
+    P6 --> P7["7 Migraine log"]:::done
     classDef done fill:#dbeafe,stroke:#1e3a8a,color:#0f172a
     classDef wip fill:#fef9c3,stroke:#854d0e,color:#0f172a
 ```
@@ -318,7 +319,7 @@ flowchart LR
   - [x] [Phase 5c: Adherence](openspec/changes/archive/2026-10-07-add-medication-adherence/proposal.md): percentages for 7, 30 and 90 days, streak and missed list as a view in the pillbox.
   - [x] [Phase 5d: Database encryption and app lock](openspec/changes/archive/2026-10-19-add-database-encryption-and-lock/proposal.md): encrypted database (SQLCipher AES-256), opt-in lock with device credentials/biometrics, secure screen (`FLAG_SECURE`), backup rules (ADR 0023).
   - [x] [Phase 5e: Portable encrypted backup](openspec/changes/archive/2026-10-21-add-portable-backup/proposal.md) (manual backup and restore, 1.6.0; scheduled backup is a later decision): passphrase-protected `.hjbackup` file (Argon2id, AES-256-GCM) that can be restored on any device, with a [published format](docs/backup-format/README.md) and a [recovery guide](docs/backup-format/recover-your-data.md) for use without the app (ADR 0024).
-- [ ] **Phase 7: Migraine log** ([change](openspec/changes/add-migraine-log/proposal.md), [dev doc](docs/dev/migraine.md), in progress): step form on the Log screen, personal tags, History card and graph view, backup and CSV adapters, database 6 to 7 (ADR 0025).
+- [x] **Phase 7: Migraine log** ([change](openspec/changes/archive/2026-10-24-add-migraine-log/proposal.md), [spec](openspec/specs/migraine/spec.md), [dev doc](docs/dev/migraine.md), released in 1.6.2): step form on the Log screen, personal tags, History card, graph view and calendar, backup and CSV adapters, database 6 to 7 (ADR 0025).
 - [x] **Phase 6: Mindfulness (🪷)** ([change](openspec/changes/archive/2026-10-21-add-mindfulness/proposal.md), [spec](openspec/specs/mindfulness/spec.md), released in 1.6.1): breathing exercise with lotus, circle and square pictures, meditation timer with bells, guided recordings player, Start here, safety note, saved display choices and credits. Tones, vibration and spoken cues. No session log, English and Dutch.
 
 ## License

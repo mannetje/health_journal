@@ -4,6 +4,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-10-24
+
 ### Added
 - **Migraine log:** a Migraine tab on the Log screen with a step form for the start and end time (or still ongoing, or woke up with it), intensity 0 to 10, where it hurts and how, type, symptoms, triggers, medication taken (free text, second dose, a 0 to 10 score after 2 hours) and relief, a comment, and your own trigger and relief tags. Every step is optional and Save is on every step. English and Dutch. The text never gives advice or compares; the "this helped me" ticks and the scores are your own notes and are shown back as entered ([ADR 0025](docs/adr/0025-migraine-log-data-model.md)).
 - **Migraine in History:** a Migraine filter with one compact card per migraine showing everything that was filled in, an "It ended now" button for an ongoing entry, edit (the form opens in place of the list) and delete.
