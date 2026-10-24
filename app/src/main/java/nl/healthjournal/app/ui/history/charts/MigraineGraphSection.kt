@@ -9,10 +9,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -44,21 +52,39 @@ import java.util.Locale
 
 /**
  * The Migraine view of the History graph section: plain counts of the person's own entries in the
- * selected range, in the order the spec lists them. Nothing here ranks, scores or compares.
+ * selected range, in the order the spec lists them, or the calendar of the same entries. Nothing here
+ * ranks, scores or compares.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MigraineGraphSection(
     entries: List<MigraineEntry>,
     tags: List<MigraineTag>,
     selectedRange: TrendDateRange,
+    onOpenDay: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showCalendar by rememberSaveable { mutableStateOf(false) }
     val zone = remember { ZoneId.systemDefault() }
     val locale = LocalConfiguration.current.locales[0]
     val range = remember(entries, selectedRange) { migraineDateRange(entries, selectedRange, zone) }
     val stats = remember(entries, tags, range, locale) { MigraineGraphData.of(entries, tags, range, zone, locale) }
 
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        val views = listOf(R.string.migraine_view_graph, R.string.migraine_view_calendar)
+        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+            views.forEachIndexed { index, label ->
+                SegmentedButton(
+                    selected = showCalendar == (index == 1),
+                    onClick = { showCalendar = index == 1 },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = views.size)
+                ) { Text(stringResource(label)) }
+            }
+        }
+        if (showCalendar) {
+            MigraineCalendarCard(entries = entries, onOpenDay = onOpenDay)
+            return@Column
+        }
         if (stats.summary.migraines == 0) {
             TrendCard(title = stringResource(R.string.history_filter_migraine)) {
                 Text(stringResource(R.string.migraine_graph_empty))

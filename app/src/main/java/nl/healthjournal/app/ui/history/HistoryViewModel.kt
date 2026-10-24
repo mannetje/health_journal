@@ -17,6 +17,8 @@ import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.ImportResult
+import nl.healthjournal.domain.port.secondary.MigraineExportPort
+import nl.healthjournal.domain.port.secondary.MigraineImportPort
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.model.common.MeasurementId
@@ -36,6 +38,7 @@ import nl.healthjournal.domain.usecase.UpdateWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.UpdateWeightUseCase
 import java.math.BigDecimal
 import java.time.Instant
+import java.time.LocalDate
 import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.toUiText
@@ -85,6 +88,8 @@ data class HistoryUiState(
     val activeProfile: Profile? = null,
     val selectedFilter: HistoryFilter = HistoryFilter.ALL,
     val selectedDateRange: TrendDateRange = TrendDateRange.THIRTY_DAYS,
+    /** Set when the Migraine calendar opened a day: History then lists only that day's migraines. */
+    val migraineDay: LocalDate? = null,
     val weights: List<WeightEntry> = emptyList(),
     val bloodPressures: List<BloodPressureEntry> = emptyList(),
     val glucoses: List<GlucoseEntry> = emptyList(),
@@ -107,6 +112,8 @@ class HistoryViewModel(
     private val migraineRepository: MigraineRepositoryPort,
     private val dataExportPort: DataExportPort,
     private val dataImportPort: DataImportPort,
+    private val migraineExportPort: MigraineExportPort,
+    private val migraineImportPort: MigraineImportPort,
     private val entryUseCases: EntryUseCases
 ) : ViewModel() {
 
@@ -118,7 +125,20 @@ class HistoryViewModel(
     }
 
     fun setFilter(filter: HistoryFilter) {
-        _uiState.value = _uiState.value.copy(selectedFilter = filter)
+        _uiState.value = _uiState.value.copy(selectedFilter = filter, migraineDay = null)
+    }
+
+    /** Opens one day of the Migraine calendar: the Migraine filter, all dates, only that day's entries. */
+    fun showMigraineDay(day: LocalDate) {
+        _uiState.value = _uiState.value.copy(
+            selectedFilter = HistoryFilter.MIGRAINE,
+            selectedDateRange = TrendDateRange.ALL,
+            migraineDay = day
+        )
+    }
+
+    fun clearMigraineDay() {
+        _uiState.value = _uiState.value.copy(migraineDay = null)
     }
 
     fun setDateRange(range: TrendDateRange) {
@@ -169,6 +189,7 @@ class HistoryViewModel(
                     "glucose" -> dataExportPort.exportGlucoseCsv(profile.id)
                     "activity" -> dataExportPort.exportActivityCsv(profile.id)
                     "waist_circumference", "waist" -> dataExportPort.exportWaistCircumferenceCsv(profile.id)
+                    "migraine" -> migraineExportPort.exportMigraineCsv(profile.id)
                     else -> ""
                 }
                 _uiState.value = _uiState.value.copy(
@@ -185,7 +206,11 @@ class HistoryViewModel(
         val profile = _uiState.value.activeProfile ?: return
         viewModelScope.launch {
             try {
-                val result = dataImportPort.importCsv(profile.id, metricType, csvContent)
+                val result = if (metricType.lowercase() == "migraine") {
+                    migraineImportPort.importMigraineCsv(profile.id, csvContent)
+                } else {
+                    dataImportPort.importCsv(profile.id, metricType, csvContent)
+                }
                 _uiState.value = _uiState.value.copy(
                     importResult = result,
                     infoMessage = UiText.Res(R.string.history_msg_import_done, result.importedCount, result.skippedRows.size)
@@ -311,6 +336,8 @@ class HistoryViewModel(
         private val migraineRepository: MigraineRepositoryPort,
         private val dataExportPort: DataExportPort,
         private val dataImportPort: DataImportPort,
+        private val migraineExportPort: MigraineExportPort,
+        private val migraineImportPort: MigraineImportPort,
         private val entryUseCases: EntryUseCases
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -321,6 +348,8 @@ class HistoryViewModel(
                 migraineRepository,
                 dataExportPort,
                 dataImportPort,
+                migraineExportPort,
+                migraineImportPort,
                 entryUseCases
             ) as T
         }

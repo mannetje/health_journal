@@ -147,4 +147,16 @@ class MigraineStatisticsTest {
         assertEquals(1, counts[LocalDate.of(2026, 3, 6)])
         assertEquals(2, counts.size)
     }
+
+    @Test fun `days with something taken are marked by the start day`() {
+        val list = listOf(
+            entry(at(5, 8), tookSomething = true),
+            entry(at(5, 20)),
+            entry(at(6, 8)),
+            entry(at(31, 23), tookSomething = true)
+        )
+        val taken = MigraineStatistics.daysWithSomethingTaken(list, march, zone)
+        assertEquals(setOf(LocalDate.of(2026, 3, 5), LocalDate.of(2026, 3, 31)), taken)
+        assertEquals(emptySet<LocalDate>(), MigraineStatistics.daysWithSomethingTaken(list, LocalDate.of(2026, 4, 1)..LocalDate.of(2026, 4, 30), zone))
+    }
 }

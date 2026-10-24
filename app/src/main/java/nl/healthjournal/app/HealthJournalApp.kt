@@ -14,6 +14,8 @@ import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
+import nl.healthjournal.domain.port.secondary.MigraineExportPort
+import nl.healthjournal.domain.port.secondary.MigraineImportPort
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.*
@@ -39,6 +41,12 @@ class HealthJournalApp : Application() {
 
     val dataImportAdapter: DataImportPort
         get() = dataModule.dataImportPort
+
+    val migraineExportAdapter: MigraineExportPort
+        get() = dataModule.migraineExportPort
+
+    val migraineImportAdapter: MigraineImportPort
+        get() = dataModule.migraineImportPort
 
     val backupCodec: BackupCodecPort
         get() = dataModule.backupCodec

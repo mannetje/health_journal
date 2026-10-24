@@ -85,6 +85,19 @@
     <string name="history_migraine_second_dose">tweede dosis</string>
     <string name="history_migraine_relief">Verlichting: %1$s</string>
     <string name="history_migraine_activities">Dagelijkse bezigheden: %1$s</string>
+    <string name="migraine_view_graph">Grafiek</string>
+    <string name="migraine_view_calendar">Kalender</string>
+    <string name="migraine_calendar_title">Migraines per dag</string>
+    <string name="migraine_calendar_previous">Vorige maand</string>
+    <string name="migraine_calendar_next">Volgende maand</string>
+    <string name="migraine_calendar_taken">iets ingenomen</string>
+    <string name="migraine_calendar_hint">Tik op een gemarkeerde dag om de migraines van die dag te zien. Een stipje betekent dat je iets hebt ingenomen.</string>
+    <string name="migraine_day_filter">Dag: %1$s</string>
+    <string name="migraine_day_filter_clear">Toon alle dagen</string>
+    <plurals name="migraine_calendar_count">
+        <item quantity="one">%1$d migraine</item>
+        <item quantity="other">%1$d migraines</item>
+    </plurals>
     <string name="migraine_graph_empty">Geen migraines in deze periode.</string>
     <string name="migraine_graph_tile_migraines">Migraines</string>
     <string name="migraine_graph_tile_days">Dagen met migraine</string>
@@ -134,16 +147,20 @@
     <string name="history_export_glucose">Glucose CSV Exporteren</string>
     <string name="history_export_waist">Middelomtrek CSV Exporteren</string>
     <string name="history_preview_label">Voorbeeld:</string>
+    <string name="history_export_migraine">Migraine CSV Exporteren</string>
+
     <string name="history_import_dialog_title">CSV Importeren</string>
     <string name="history_import_type_weight">Gewicht</string>
     <string name="history_import_type_bp">Bloeddruk</string>
     <string name="history_import_type_glucose">Glucose</string>
     <string name="history_import_type_libra">Libra (CSV)</string>
+    <string name="history_import_type_migraine">Migraine</string>
     <string name="history_import_type_waist">Middelomtrek</string>
     <string name="history_paste_csv_label">Plak CSV-inhoud</string>
     <string name="history_pick_file_button">Kies bestand…</string>
     <string name="history_pick_file_error">Het gekozen bestand kon niet worden gelezen</string>
     <string name="history_libra_placeholder">#Version: 6\n#Units: kg\n#date;weight;...\n2026-09-20T08:00:00Z;74.5;...</string>
+    <string name="history_migraine_placeholder">start_timestamp,woke_up_with_it,end_timestamp,intensity,areas,...</string>
     <string name="history_csv_placeholder">timestamp,weight_kg,bmi\n...</string>
 
     <!-- Profile screen -->

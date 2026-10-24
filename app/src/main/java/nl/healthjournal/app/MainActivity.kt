@@ -202,6 +202,8 @@ class MainActivity : FragmentActivity() {
             app.migraineRepository,
             app.dataExportAdapter,
             app.dataImportAdapter,
+            app.migraineExportAdapter,
+            app.migraineImportAdapter,
             app.entryUseCases
         )
     }

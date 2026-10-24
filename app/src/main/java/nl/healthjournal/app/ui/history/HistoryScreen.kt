@@ -10,9 +10,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import kotlinx.coroutines.launch
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import nl.healthjournal.app.ui.history.charts.WaistStatisticsSection
 import nl.healthjournal.app.ui.history.charts.WaistTrendSection
@@ -241,10 +244,14 @@ private fun HistoryList(
         val bloodPressures = if (ranged) state.bloodPressures.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.bloodPressures
         val glucoses = if (ranged) state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.glucoses
         val waists = if (ranged) state.waistCircumferences.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.waistCircumferences
-        val migraines = if (ranged) {
-            val period = migraineDateRange(state.migraines, state.selectedDateRange, ZoneId.systemDefault())
-            state.migraines.filter { it.startDay(ZoneId.systemDefault()) in period }
-        } else state.migraines
+        val migraines = when {
+            state.migraineDay != null -> state.migraines.filter { it.startDay(ZoneId.systemDefault()) == state.migraineDay }
+            ranged -> {
+                val period = migraineDateRange(state.migraines, state.selectedDateRange, ZoneId.systemDefault())
+                state.migraines.filter { it.startDay(ZoneId.systemDefault()) in period }
+            }
+            else -> state.migraines
+        }
 
         // One chronological list (newest first) so no metric hides below a long run of another.
         val filter = state.selectedFilter
@@ -350,6 +357,19 @@ private fun HistoryList(
             DateRangeSelector(selected = state.selectedDateRange, onSelect = { viewModel.setDateRange(it) })
         }
 
+        state.migraineDay?.let { day ->
+            if (!graphViewNow && filterNow == HistoryFilter.MIGRAINE) {
+                InputChip(
+                    selected = true,
+                    onClick = { viewModel.clearMigraineDay() },
+                    label = { Text(stringResource(R.string.migraine_day_filter, day.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))) },
+                    trailingIcon = {
+                        Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.migraine_day_filter_clear), modifier = Modifier.size(18.dp))
+                    }
+                )
+            }
+        }
+
         if (!graphViewNow && timeline.navigable && !state.isLoading) {
             selectedMonth?.let { month ->
                 TimelineRows(
@@ -397,7 +417,11 @@ private fun HistoryList(
                                 HistoryFilter.MIGRAINE -> MigraineGraphSection(
                                     entries = state.migraines,
                                     tags = migraineTags,
-                                    selectedRange = state.selectedDateRange
+                                    selectedRange = state.selectedDateRange,
+                                    onOpenDay = { day ->
+                                        viewModel.showMigraineDay(day)
+                                        setGraphView(HistoryFilter.MIGRAINE, false)
+                                    }
                                 )
                                 else -> Unit
                             }
@@ -445,6 +469,9 @@ private fun HistoryList(
                     }
                     Button(onClick = { viewModel.exportCsv("waist_circumference") }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.history_export_waist))
+                    }
+                    Button(onClick = { viewModel.exportCsv("migraine") }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.history_export_migraine))
                     }
                     state.exportedCsvContent?.let { content ->
                         HorizontalDivider()
@@ -497,6 +524,11 @@ private fun HistoryList(
                             onClick = { importMetricType = "waist_circumference" },
                             label = { Text(stringResource(R.string.history_import_type_waist)) }
                         )
+                        FilterChip(
+                            selected = importMetricType == "migraine",
+                            onClick = { importMetricType = "migraine" },
+                            label = { Text(stringResource(R.string.history_import_type_migraine)) }
+                        )
                     }
                     OutlinedButton(onClick = { filePicker.launch(arrayOf("text/*", "application/octet-stream")) }) {
                         Text(stringResource(R.string.history_pick_file_button))
@@ -509,6 +541,7 @@ private fun HistoryList(
                             when (importMetricType) {
                                 "libra" -> Text(stringResource(R.string.history_libra_placeholder))
                                 "waist_circumference" -> Text("timestamp,waist_cm\n...")
+                                "migraine" -> Text(stringResource(R.string.history_migraine_placeholder))
                                 else -> Text(stringResource(R.string.history_csv_placeholder))
                             }
                         },

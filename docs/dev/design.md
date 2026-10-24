@@ -58,6 +58,7 @@ flowchart TD
     LOG -->|"Migraine tab"| MFORM["Migraine step form<br/>time, intensity, where, type, symptoms,<br/>triggers, medication, relief, comment"]
     HIST -->|"Migraine filter: card edit"| MFORM
     HIST -->|"Migraine filter: graph icon"| MGRAPH["Migraine graph view<br/>counts, timeline, heat map"]
+    MGRAPH -->|"Calendar: tap a marked day"| HIST
     NOTIF(["Reminder notification"]) -->|"tap"| TODAY
     NOTIF -->|"Taken all, Snooze (app stays closed)"| PILL
 ```

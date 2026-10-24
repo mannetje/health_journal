@@ -45,6 +45,8 @@ import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.ImportResult
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.model.migraine.MigraineEntry
+import nl.healthjournal.domain.port.secondary.MigraineExportPort
+import nl.healthjournal.domain.port.secondary.MigraineImportPort
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.usecase.CreateProfileUseCase
 import nl.healthjournal.domain.usecase.DeleteMigraineUseCase
@@ -171,6 +173,15 @@ class ViewModelsTest {
     private class FakeImportAdapter : DataImportPort {
         override suspend fun importCsv(profileId: ProfileId, metricType: String, csvContent: String): ImportResult =
             ImportResult(importedCount = 1, skippedRows = emptyList())
+    }
+
+    private class FakeMigraineExport : MigraineExportPort {
+        override suspend fun exportMigraineCsv(profileId: ProfileId): String = "start_timestamp,woke_up_with_it\n"
+    }
+
+    private class FakeMigraineImport : MigraineImportPort {
+        override suspend fun importMigraineCsv(profileId: ProfileId, csvContent: String): ImportResult =
+            ImportResult(importedCount = 2, skippedRows = emptyList())
     }
 
     @Before
@@ -457,6 +468,8 @@ class ViewModelsTest {
             FakeMigraines(),
             FakeExportAdapter(),
             FakeImportAdapter(),
+            FakeMigraineExport(),
+            FakeMigraineImport(),
             entryUseCases(healthLogRepo, profileRepo)
         )
         testDispatcher.scheduler.advanceUntilIdle()
@@ -494,6 +507,8 @@ class ViewModelsTest {
             FakeMigraines(),
             FakeExportAdapter(),
             FakeImportAdapter(),
+            FakeMigraineExport(),
+            FakeMigraineImport(),
             entryUseCases(healthLogRepo, profileRepo)
         )
         testDispatcher.scheduler.advanceUntilIdle()
@@ -520,6 +535,8 @@ class ViewModelsTest {
             FakeMigraines(),
             FakeExportAdapter(),
             FakeImportAdapter(),
+            FakeMigraineExport(),
+            FakeMigraineImport(),
             entryUseCases(healthLogRepo, profileRepo)
         )
         testDispatcher.scheduler.advanceUntilIdle()
@@ -616,6 +633,8 @@ class ViewModelsTest {
             FakeMigraines(),
             FakeExportAdapter(),
             FakeImportAdapter(),
+            FakeMigraineExport(),
+            FakeMigraineImport(),
             entryUseCases(healthLogRepo, profileRepo)
         )
         testDispatcher.scheduler.advanceUntilIdle()
@@ -638,7 +657,8 @@ class ViewModelsTest {
         import: DataImportPort = FakeImportAdapter(),
         migraines: FakeMigraines = FakeMigraines()
     ) = HistoryViewModel(
-        profileRepo, GetHealthHistoryUseCase(health), migraines, export, import, entryUseCases(health, profileRepo, migraines)
+        profileRepo, GetHealthHistoryUseCase(health), migraines, export, import,
+        FakeMigraineExport(), FakeMigraineImport(), entryUseCases(health, profileRepo, migraines)
     )
 
     private val at = Instant.parse("2026-03-01T08:00:00Z")
@@ -774,6 +794,41 @@ class ViewModelsTest {
     }
 
     @Test
+    fun `HistoryViewModel opens a calendar day on the Migraine filter with all dates and leaves it again`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepo())
+        testDispatcher.scheduler.advanceUntilIdle()
+        val day = LocalDate.of(2026, 3, 1)
+
+        vm.showMigraineDay(day)
+        assertEquals(HistoryFilter.MIGRAINE, vm.uiState.value.selectedFilter)
+        assertEquals(TrendDateRange.ALL, vm.uiState.value.selectedDateRange)
+        assertEquals(day, vm.uiState.value.migraineDay)
+
+        vm.setFilter(HistoryFilter.WEIGHT)
+        assertNull(vm.uiState.value.migraineDay)
+
+        vm.showMigraineDay(day)
+        vm.clearMigraineDay()
+        assertNull(vm.uiState.value.migraineDay)
+        assertEquals(HistoryFilter.MIGRAINE, vm.uiState.value.selectedFilter)
+    }
+
+    @Test
+    fun `HistoryViewModel imports a migraine file through the migraine port`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepo())
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.importCsv("migraine", "start_timestamp,woke_up_with_it\n2026-03-01T08:00:00Z,false")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(2, vm.uiState.value.importResult?.importedCount)
+    }
+
+    @Test
     fun `HistoryViewModel exports each metric and an unknown one as empty`() = runTest {
         val profileRepo = FakeProfileRepo()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
@@ -785,6 +840,7 @@ class ViewModelsTest {
             "glucose" to "timestamp,glucose_mmol_l,context,classification\n",
             "activity" to "start_timestamp,end_timestamp,distance_m,duration_s\n",
             "waist" to "timestamp,waist_cm,classification\n",
+            "migraine" to "start_timestamp,woke_up_with_it\n",
             "unknown" to ""
         )
         for ((metric, csv) in expected) {

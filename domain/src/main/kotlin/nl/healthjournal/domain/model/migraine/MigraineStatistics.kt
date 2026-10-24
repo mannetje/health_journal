@@ -139,4 +139,8 @@ object MigraineStatistics {
     /** Number of migraines per day, only for days that have one. */
     fun dayCounts(entries: List<MigraineEntry>, range: ClosedRange<LocalDate>, zone: ZoneId): Map<LocalDate, Int> =
         entries.filter { inRange(it, range, zone) }.groupingBy { it.startDay(zone) }.eachCount()
+
+    /** Days on which at least one migraine had something taken, for the second marker of the calendar. */
+    fun daysWithSomethingTaken(entries: List<MigraineEntry>, range: ClosedRange<LocalDate>, zone: ZoneId): Set<LocalDate> =
+        entries.filter { it.tookSomething && inRange(it, range, zone) }.map { it.startDay(zone) }.toSet()
 }

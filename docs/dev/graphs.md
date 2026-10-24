@@ -35,7 +35,7 @@ Three tricks worth knowing:
 - **Horizontal reference lines.** `LineTrendChart` has no "limit line" feature. A limit is a series with two points (first and last timestamp) at the same value, drawn thin (`strokeWidthDp = 1.5f`). Glucose draws three (3.9, 6.0 and 7.8 mmol/L); waist draws two.
 - **A dot per entry.** Pass `pointColors`. For band-coloured points use the category colour of each entry; for a plain dot use one colour for all (`rawPoints.map { rawColor }` on the weight chart).
 
-A third graph, the **Migraine** view (`MigraineGraphSection.kt`), shows a pattern without bands or limits: all cards are counts (summary tiles, timeline, duration and intensity groups, weekday bars, a weekday by time-of-day heat map and label counts). Its figures come from `MigraineStatistics` in `:domain`, and the section draws bars in the same `secondary` colour as the other charts. Read it as the example for a graph that has no reference values. See the [Migraine page](migraine.md).
+A third graph, the **Migraine** view (`MigraineGraphSection.kt`), shows a pattern without bands or limits: all cards are counts (summary tiles, timeline, duration and intensity groups, weekday bars, a weekday by time-of-day heat map and label counts) and a month calendar (`MigraineCalendarCard.kt`) behind a Graph and Calendar toggle. Its figures come from `MigraineStatistics` in `:domain`, and the section draws bars in the same `secondary` colour as the other charts. Read it as the example for a graph that has no reference values. See the [Migraine page](migraine.md).
 
 ## Example 1: waist graphs
 
