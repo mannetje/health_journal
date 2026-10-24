@@ -29,7 +29,7 @@
 - [x] 2.5 Calendar and navigation to a day in History
 - [x] 2.6 Strings in English and Dutch; scan test for "attack" and "aanval"; the tag dialog and messages (`MigraineStringsTest`)
 - [x] 2.7 Export and import entries with the unencrypted warning (in the History export and import dialogs, where the other CSV files are)
-- [ ] 2.8 Emulator pass: English and Dutch, light and dark, 320 dp, screenshots
+- [x] 2.8 Emulator pass: English and Dutch, light and dark, 320 dp, screenshots
 
 ## 3. Documentation
 - [x] 3.1 `docs/backup-format/` (README, JSON schema, `hjbackup.py`, recovery page; the test vectors stay valid because the new properties are optional and `schemaVersion` stays 1)
