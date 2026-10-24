@@ -14,6 +14,7 @@ import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
+import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.*
 
@@ -29,6 +30,9 @@ class HealthJournalApp : Application() {
 
     val medicationRepository: MedicationRepositoryPort
         get() = dataModule.medicationRepository
+
+    val migraineRepository: MigraineRepositoryPort
+        get() = dataModule.migraineRepository
 
     val dataExportAdapter: DataExportPort
         get() = dataModule.dataExportPort
@@ -93,7 +97,9 @@ class HealthJournalApp : Application() {
             deleteBloodPressure = DeleteBloodPressureUseCase(healthLogRepository),
             deleteGlucose = DeleteGlucoseUseCase(healthLogRepository),
             deleteActivity = DeleteActivityUseCase(healthLogRepository),
-            deleteWaistCircumference = DeleteWaistCircumferenceUseCase(healthLogRepository)
+            deleteWaistCircumference = DeleteWaistCircumferenceUseCase(healthLogRepository),
+            deleteMigraine = DeleteMigraineUseCase(migraineRepository),
+            endMigraine = EndMigraineUseCase(migraineRepository)
         )
         getHealthHistoryUseCase = GetHealthHistoryUseCase(healthLogRepository)
         val recordIntake = RecordIntakeUseCase(medicationRepository)

@@ -12,16 +12,20 @@ import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
+import nl.healthjournal.domain.model.migraine.MigraineEntry
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.ImportResult
+import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.usecase.DeleteActivityUseCase
 import nl.healthjournal.domain.usecase.DeleteBloodPressureUseCase
 import nl.healthjournal.domain.usecase.DeleteGlucoseUseCase
+import nl.healthjournal.domain.usecase.DeleteMigraineUseCase
+import nl.healthjournal.domain.usecase.EndMigraineUseCase
 import nl.healthjournal.domain.usecase.DeleteWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.DeleteWeightUseCase
 import nl.healthjournal.domain.usecase.GetHealthHistoryUseCase
@@ -43,7 +47,8 @@ enum class HistoryFilter {
     BLOOD_PRESSURE,
     GLUCOSE,
     ACTIVITY,
-    WAIST_CIRCUMFERENCE
+    WAIST_CIRCUMFERENCE,
+    MIGRAINE
 }
 
 /** The update and delete use cases the History screen needs, bundled to keep the constructor small. */
@@ -57,18 +62,24 @@ data class EntryUseCases(
     val deleteBloodPressure: DeleteBloodPressureUseCase,
     val deleteGlucose: DeleteGlucoseUseCase,
     val deleteActivity: DeleteActivityUseCase,
-    val deleteWaistCircumference: DeleteWaistCircumferenceUseCase
+    val deleteWaistCircumference: DeleteWaistCircumferenceUseCase,
+    val deleteMigraine: DeleteMigraineUseCase,
+    val endMigraine: EndMigraineUseCase
 )
 
 /** A reference to one History entry, used to track which entry is being edited or deleted. */
 sealed interface EntryRef {
     val id: MeasurementId
-    data class Weight(val entry: WeightEntry) : EntryRef { override val id get() = entry.id }
-    data class BloodPressure(val entry: BloodPressureEntry) : EntryRef { override val id get() = entry.id }
-    data class Glucose(val entry: GlucoseEntry) : EntryRef { override val id get() = entry.id }
-    data class Activity(val session: ActivitySession) : EntryRef { override val id get() = session.id }
-    data class WaistCircumference(val entry: WaistCircumferenceEntry) : EntryRef { override val id get() = entry.id }
+    data class Weight(val entry: WeightEntry) : DialogEntryRef { override val id get() = entry.id }
+    data class BloodPressure(val entry: BloodPressureEntry) : DialogEntryRef { override val id get() = entry.id }
+    data class Glucose(val entry: GlucoseEntry) : DialogEntryRef { override val id get() = entry.id }
+    data class Activity(val session: ActivitySession) : DialogEntryRef { override val id get() = session.id }
+    data class WaistCircumference(val entry: WaistCircumferenceEntry) : DialogEntryRef { override val id get() = entry.id }
+    data class Migraine(val entry: MigraineEntry) : EntryRef { override val id get() = entry.id }
 }
+
+/** The entries edited in the History edit dialog; a migraine is edited in its own step form instead. */
+sealed interface DialogEntryRef : EntryRef
 
 data class HistoryUiState(
     val activeProfile: Profile? = null,
@@ -79,12 +90,13 @@ data class HistoryUiState(
     val glucoses: List<GlucoseEntry> = emptyList(),
     val activities: List<ActivitySession> = emptyList(),
     val waistCircumferences: List<WaistCircumferenceEntry> = emptyList(),
+    val migraines: List<MigraineEntry> = emptyList(),
     val isLoading: Boolean = false,
     val exportedCsvContent: String? = null,
     val importResult: ImportResult? = null,
     val errorMessage: UiText? = null,
     val infoMessage: UiText? = null,
-    val editing: EntryRef? = null,
+    val editing: DialogEntryRef? = null,
     val editError: UiText? = null,
     val pendingDelete: EntryRef? = null
 )
@@ -92,6 +104,7 @@ data class HistoryUiState(
 class HistoryViewModel(
     private val profileRepository: ProfileRepositoryPort,
     private val getHealthHistoryUseCase: GetHealthHistoryUseCase,
+    private val migraineRepository: MigraineRepositoryPort,
     private val dataExportPort: DataExportPort,
     private val dataImportPort: DataImportPort,
     private val entryUseCases: EntryUseCases
@@ -134,6 +147,7 @@ class HistoryViewModel(
                     glucoses = history.glucoses,
                     activities = history.activities,
                     waistCircumferences = history.waistCircumferences,
+                    migraines = migraineRepository.getMigraineHistory(profile.id),
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -188,7 +202,7 @@ class HistoryViewModel(
         }
     }
 
-    fun startEdit(entry: EntryRef) {
+    fun startEdit(entry: DialogEntryRef) {
         _uiState.value = _uiState.value.copy(editing = entry, editError = null)
     }
 
@@ -214,6 +228,7 @@ class HistoryViewModel(
                     is EntryRef.Glucose -> entryUseCases.deleteGlucose(target.id)
                     is EntryRef.Activity -> entryUseCases.deleteActivity(target.id)
                     is EntryRef.WaistCircumference -> entryUseCases.deleteWaistCircumference(target.id)
+                    is EntryRef.Migraine -> entryUseCases.deleteMigraine(target.id)
                 }
                 _uiState.value = _uiState.value.copy(
                     pendingDelete = null,
@@ -250,6 +265,21 @@ class HistoryViewModel(
             )
         }
 
+    /** Ends an ongoing migraine now; the form's end field is the way to give another time. */
+    fun endMigraine(entry: MigraineEntry) {
+        viewModelScope.launch {
+            try {
+                if (entryUseCases.endMigraine(entry.id) == null) {
+                    _uiState.value = _uiState.value.copy(errorMessage = UiText.Res(R.string.history_err_update_failed))
+                    return@launch
+                }
+                loadHistory()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(errorMessage = e.toUiText(R.string.history_err_update_failed))
+            }
+        }
+    }
+
     /** Runs an update; on success closes the edit dialog and reloads so list and charts refresh. */
     private fun runUpdate(block: suspend () -> Any?) {
         viewModelScope.launch {
@@ -278,6 +308,7 @@ class HistoryViewModel(
     class Factory(
         private val profileRepository: ProfileRepositoryPort,
         private val getHealthHistoryUseCase: GetHealthHistoryUseCase,
+        private val migraineRepository: MigraineRepositoryPort,
         private val dataExportPort: DataExportPort,
         private val dataImportPort: DataImportPort,
         private val entryUseCases: EntryUseCases
@@ -287,6 +318,7 @@ class HistoryViewModel(
             return HistoryViewModel(
                 profileRepository,
                 getHealthHistoryUseCase,
+                migraineRepository,
                 dataExportPort,
                 dataImportPort,
                 entryUseCases

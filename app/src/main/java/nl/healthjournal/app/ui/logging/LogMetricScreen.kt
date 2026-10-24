@@ -37,7 +37,11 @@ import nl.healthjournal.app.ui.theme.successContainerColor
 fun LogMetricScreen(
     viewModel: LoggingViewModel,
     modifier: Modifier = Modifier,
-    onGlucoseUnitSelected: (GlucoseUnit) -> Unit = {}
+    onGlucoseUnitSelected: (GlucoseUnit) -> Unit = {},
+    /** The migraine tab sits beside the metric tabs; its content replaces the metric form. */
+    migraineTabSelected: Boolean = false,
+    onMigraineTabSelected: (Boolean) -> Unit = {},
+    migraineContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val units = LocalDisplayUnits.current
@@ -97,204 +101,213 @@ fun LogMetricScreen(
         }
 
         // Metric Selector Tabs
-        PrimaryScrollableTabRow(selectedTabIndex = state.selectedMetric.ordinal, edgePadding = 8.dp) {
+        PrimaryScrollableTabRow(selectedTabIndex = if (migraineTabSelected) MetricType.entries.size else state.selectedMetric.ordinal, edgePadding = 8.dp) {
             Tab(
-                selected = state.selectedMetric == MetricType.WEIGHT,
-                onClick = { viewModel.selectMetric(MetricType.WEIGHT) },
+                selected = !migraineTabSelected && state.selectedMetric == MetricType.WEIGHT,
+                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.WEIGHT) },
                 text = { Text(stringResource(R.string.log_tab_weight), maxLines = 1) }
             )
             Tab(
-                selected = state.selectedMetric == MetricType.BLOOD_PRESSURE,
-                onClick = { viewModel.selectMetric(MetricType.BLOOD_PRESSURE) },
+                selected = !migraineTabSelected && state.selectedMetric == MetricType.BLOOD_PRESSURE,
+                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.BLOOD_PRESSURE) },
                 text = { Text(stringResource(R.string.log_tab_blood_pressure), maxLines = 1) }
             )
             Tab(
-                selected = state.selectedMetric == MetricType.GLUCOSE,
-                onClick = { viewModel.selectMetric(MetricType.GLUCOSE) },
+                selected = !migraineTabSelected && state.selectedMetric == MetricType.GLUCOSE,
+                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.GLUCOSE) },
                 text = { Text(stringResource(R.string.log_tab_glucose), maxLines = 1) }
             )
             Tab(
-                selected = state.selectedMetric == MetricType.ACTIVITY,
-                onClick = { viewModel.selectMetric(MetricType.ACTIVITY) },
+                selected = !migraineTabSelected && state.selectedMetric == MetricType.ACTIVITY,
+                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.ACTIVITY) },
                 text = { Text(stringResource(R.string.log_tab_activity), maxLines = 1) }
             )
             Tab(
-                selected = state.selectedMetric == MetricType.WAIST_CIRCUMFERENCE,
-                onClick = { viewModel.selectMetric(MetricType.WAIST_CIRCUMFERENCE) },
+                selected = !migraineTabSelected && state.selectedMetric == MetricType.WAIST_CIRCUMFERENCE,
+                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.WAIST_CIRCUMFERENCE) },
                 text = { Text(stringResource(R.string.log_tab_waist_circumference), maxLines = 1) }
+            )
+            Tab(
+                selected = migraineTabSelected,
+                onClick = { onMigraineTabSelected(true) },
+                text = { Text(stringResource(R.string.log_tab_migraine), maxLines = 1) }
             )
         }
 
-        when (state.selectedMetric) {
-            MetricType.WEIGHT -> {
-                HorizontalRulerPicker(
-                    value = state.weightValue,
-                    onValueChange = { viewModel.onWeightValueChanged(it) },
-                    range = 20.0..250.0,
-                    step = 0.1,
-                    unitLabel = units.weightSymbol,
-                    tapeColor = Color(0xFFFFC107), // Measuring Tape Yellow
-                    tickColor = Color(0xFF212121),
-                    tapeHeight = 75.dp
-                )
-
-                if (state.previewBmi != null && state.previewBmiCategory != null) {
-                    CategoryBadge(
-                        label = stringResource(
-                            R.string.log_bmi_badge,
-                            state.previewBmi.toString(),
-                            state.previewBmiCategory!!.label()
-                        ),
-                        color = getBmiColor(state.previewBmiCategory!!)
+        if (migraineTabSelected) {
+            migraineContent()
+        } else {
+            when (state.selectedMetric) {
+                MetricType.WEIGHT -> {
+                    HorizontalRulerPicker(
+                        value = state.weightValue,
+                        onValueChange = { viewModel.onWeightValueChanged(it) },
+                        range = 20.0..250.0,
+                        step = 0.1,
+                        unitLabel = units.weightSymbol,
+                        tapeColor = Color(0xFFFFC107), // Measuring Tape Yellow
+                        tickColor = Color(0xFF212121),
+                        tapeHeight = 75.dp
                     )
-                }
-            }
 
-            MetricType.BLOOD_PRESSURE -> {
-                StackedBpPulsePicker(
-                    systolic = state.systolicValue,
-                    onSystolicChange = { viewModel.onSystolicValueChanged(it) },
-                    diastolic = state.diastolicValue,
-                    onDiastolicChange = { viewModel.onDiastolicValueChanged(it) },
-                    pulse = state.pulseValue,
-                    onPulseChange = { viewModel.onPulseValueChanged(it) },
-                    systolicLabel = stringResource(R.string.log_systolic_label),
-                    diastolicLabel = stringResource(R.string.log_diastolic_label),
-                    pulseLabel = stringResource(R.string.log_pulse_label)
-                )
-
-                if (state.previewBpCategory != null) {
-                    CategoryBadge(
-                        label = state.previewBpCategory!!.label(),
-                        color = getBpColor(state.previewBpCategory!!)
-                    )
-                }
-            }
-
-            MetricType.GLUCOSE -> {
-                // Context selector
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    itemVerticalAlignment = Alignment.CenterVertically
-                ) {
-                    FilterChip(
-                        selected = state.glucoseContext == GlucoseContext.FASTING,
-                        onClick = { viewModel.setGlucoseContext(GlucoseContext.FASTING) },
-                        label = { Text(stringResource(R.string.log_glucose_context_fasting)) }
-                    )
-                    FilterChip(
-                        selected = state.glucoseContext == GlucoseContext.POSTPRANDIAL,
-                        onClick = { viewModel.setGlucoseContext(GlucoseContext.POSTPRANDIAL) },
-                        label = { Text(stringResource(R.string.log_glucose_context_postprandial)) }
-                    )
-                }
-
-                // Unit toggle (wraps instead of clipping at large font scales)
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    itemVerticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(stringResource(R.string.log_unit_label), style = MaterialTheme.typography.bodyMedium)
-                    FilterChip(
-                        selected = units.glucose == GlucoseUnit.MMOL_PER_L,
-                        onClick = { onGlucoseUnitSelected(GlucoseUnit.MMOL_PER_L) },
-                        label = { Text(stringResource(R.string.log_unit_mmol)) }
-                    )
-                    FilterChip(
-                        selected = units.glucose == GlucoseUnit.MG_PER_DL,
-                        onClick = { onGlucoseUnitSelected(GlucoseUnit.MG_PER_DL) },
-                        label = { Text(stringResource(R.string.log_unit_mgdl)) }
-                    )
-                }
-
-                OutlinedTextField(
-                    value = state.glucoseInput,
-                    onValueChange = { viewModel.onGlucoseChanged(it) },
-                    label = { Text(stringResource(R.string.log_glucose_label, units.glucoseSymbol)) },
-                    placeholder = {
-                        Text(
-                            stringResource(
-                                if (units.glucose == GlucoseUnit.MG_PER_DL) R.string.log_glucose_placeholder_mgdl else R.string.log_glucose_placeholder_mmol
-                            )
+                    if (state.previewBmi != null && state.previewBmiCategory != null) {
+                        CategoryBadge(
+                            label = stringResource(
+                                R.string.log_bmi_badge,
+                                state.previewBmi.toString(),
+                                state.previewBmiCategory!!.label()
+                            ),
+                            color = getBmiColor(state.previewBmiCategory!!)
                         )
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    }
+                }
 
-                if (state.previewGlucoseCategory != null) {
-                    CategoryBadge(
-                        label = state.previewGlucoseCategory!!.label(state.glucoseContext),
-                        color = getGlucoseColor(state.previewGlucoseCategory!!)
+                MetricType.BLOOD_PRESSURE -> {
+                    StackedBpPulsePicker(
+                        systolic = state.systolicValue,
+                        onSystolicChange = { viewModel.onSystolicValueChanged(it) },
+                        diastolic = state.diastolicValue,
+                        onDiastolicChange = { viewModel.onDiastolicValueChanged(it) },
+                        pulse = state.pulseValue,
+                        onPulseChange = { viewModel.onPulseValueChanged(it) },
+                        systolicLabel = stringResource(R.string.log_systolic_label),
+                        diastolicLabel = stringResource(R.string.log_diastolic_label),
+                        pulseLabel = stringResource(R.string.log_pulse_label)
                     )
+
+                    if (state.previewBpCategory != null) {
+                        CategoryBadge(
+                            label = state.previewBpCategory!!.label(),
+                            color = getBpColor(state.previewBpCategory!!)
+                        )
+                    }
+                }
+
+                MetricType.GLUCOSE -> {
+                    // Context selector
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        itemVerticalAlignment = Alignment.CenterVertically
+                    ) {
+                        FilterChip(
+                            selected = state.glucoseContext == GlucoseContext.FASTING,
+                            onClick = { viewModel.setGlucoseContext(GlucoseContext.FASTING) },
+                            label = { Text(stringResource(R.string.log_glucose_context_fasting)) }
+                        )
+                        FilterChip(
+                            selected = state.glucoseContext == GlucoseContext.POSTPRANDIAL,
+                            onClick = { viewModel.setGlucoseContext(GlucoseContext.POSTPRANDIAL) },
+                            label = { Text(stringResource(R.string.log_glucose_context_postprandial)) }
+                        )
+                    }
+
+                    // Unit toggle (wraps instead of clipping at large font scales)
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        itemVerticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(R.string.log_unit_label), style = MaterialTheme.typography.bodyMedium)
+                        FilterChip(
+                            selected = units.glucose == GlucoseUnit.MMOL_PER_L,
+                            onClick = { onGlucoseUnitSelected(GlucoseUnit.MMOL_PER_L) },
+                            label = { Text(stringResource(R.string.log_unit_mmol)) }
+                        )
+                        FilterChip(
+                            selected = units.glucose == GlucoseUnit.MG_PER_DL,
+                            onClick = { onGlucoseUnitSelected(GlucoseUnit.MG_PER_DL) },
+                            label = { Text(stringResource(R.string.log_unit_mgdl)) }
+                        )
+                    }
+
+                    OutlinedTextField(
+                        value = state.glucoseInput,
+                        onValueChange = { viewModel.onGlucoseChanged(it) },
+                        label = { Text(stringResource(R.string.log_glucose_label, units.glucoseSymbol)) },
+                        placeholder = {
+                            Text(
+                                stringResource(
+                                    if (units.glucose == GlucoseUnit.MG_PER_DL) R.string.log_glucose_placeholder_mgdl else R.string.log_glucose_placeholder_mmol
+                                )
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    if (state.previewGlucoseCategory != null) {
+                        CategoryBadge(
+                            label = state.previewGlucoseCategory!!.label(state.glucoseContext),
+                            color = getGlucoseColor(state.previewGlucoseCategory!!)
+                        )
+                    }
+                }
+
+                MetricType.ACTIVITY -> {
+                    OutlinedTextField(
+                        value = state.activityDurationInput,
+                        onValueChange = { viewModel.onActivityDurationChanged(it) },
+                        label = { Text(stringResource(R.string.log_duration_label)) },
+                        placeholder = { Text(stringResource(R.string.log_duration_placeholder)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = state.activityDistanceInput,
+                        onValueChange = { viewModel.onActivityDistanceChanged(it) },
+                        label = { Text(stringResource(R.string.log_distance_label, units.distanceSymbol)) },
+                        placeholder = {
+                            Text(stringResource(if (units.isImperial) R.string.log_distance_placeholder_imperial else R.string.log_distance_placeholder))
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                MetricType.WAIST_CIRCUMFERENCE -> {
+                    HorizontalRulerPicker(
+                        value = state.waistValue,
+                        onValueChange = { viewModel.onWaistValueChanged(it) },
+                        range = 40.0..200.0,
+                        step = 0.1,
+                        unitLabel = "cm",
+                        tapeColor = Color(0xFF00ACC1), // Complementary Teal measuring tape
+                        tickColor = Color(0xFF212121),
+                        tapeHeight = 75.dp // Less broad for waist
+                    )
+
+                    if (state.previewWaistCategory != null) {
+                        CategoryBadge(
+                            label = stringResource(
+                                R.string.log_waist_badge,
+                                state.waistInput,
+                                state.previewWaistCategory!!.label(state.activeProfile?.sex)
+                            ),
+                            color = getWaistColor(state.previewWaistCategory!!)
+                        )
+                    }
                 }
             }
 
-            MetricType.ACTIVITY -> {
-                OutlinedTextField(
-                    value = state.activityDurationInput,
-                    onValueChange = { viewModel.onActivityDurationChanged(it) },
-                    label = { Text(stringResource(R.string.log_duration_label)) },
-                    placeholder = { Text(stringResource(R.string.log_duration_placeholder)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = state.activityDistanceInput,
-                    onValueChange = { viewModel.onActivityDistanceChanged(it) },
-                    label = { Text(stringResource(R.string.log_distance_label, units.distanceSymbol)) },
-                    placeholder = {
-                        Text(stringResource(if (units.isImperial) R.string.log_distance_placeholder_imperial else R.string.log_distance_placeholder))
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
+            CommentField(
+                value = state.commentInput,
+                onValueChange = { viewModel.onCommentChanged(it) }
+            )
+
+            if (state.selectedMetric != MetricType.ACTIVITY) {
+                RangeSourceNote()
             }
 
-            MetricType.WAIST_CIRCUMFERENCE -> {
-                HorizontalRulerPicker(
-                    value = state.waistValue,
-                    onValueChange = { viewModel.onWaistValueChanged(it) },
-                    range = 40.0..200.0,
-                    step = 0.1,
-                    unitLabel = "cm",
-                    tapeColor = Color(0xFF00ACC1), // Complementary Teal measuring tape
-                    tickColor = Color(0xFF212121),
-                    tapeHeight = 75.dp // Less broad for waist
-                )
-
-                if (state.previewWaistCategory != null) {
-                    CategoryBadge(
-                        label = stringResource(
-                            R.string.log_waist_badge,
-                            state.waistInput,
-                            state.previewWaistCategory!!.label(state.activeProfile?.sex)
-                        ),
-                        color = getWaistColor(state.previewWaistCategory!!)
-                    )
-                }
+            Button(
+                onClick = { viewModel.saveCurrentMetric() },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.isSaving && state.activeProfile != null
+            ) {
+                Text(stringResource(if (state.isSaving) R.string.log_saving else R.string.log_record_entry))
             }
-        }
-
-        CommentField(
-            value = state.commentInput,
-            onValueChange = { viewModel.onCommentChanged(it) }
-        )
-
-        if (state.selectedMetric != MetricType.ACTIVITY) {
-            RangeSourceNote()
-        }
-
-        Button(
-            onClick = { viewModel.saveCurrentMetric() },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !state.isSaving && state.activeProfile != null
-        ) {
-            Text(stringResource(if (state.isSaving) R.string.log_saving else R.string.log_record_entry))
         }
     }
 }

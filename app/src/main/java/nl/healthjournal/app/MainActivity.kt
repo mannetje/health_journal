@@ -57,6 +57,9 @@ import nl.healthjournal.app.ui.lock.DatabaseKeyLostScreen
 import nl.healthjournal.app.ui.lock.LockOverlay
 import nl.healthjournal.app.ui.logging.LogMetricScreen
 import nl.healthjournal.app.ui.logging.LoggingViewModel
+import nl.healthjournal.app.ui.migraine.MigraineCard
+import nl.healthjournal.app.ui.migraine.MigraineLogScreen
+import nl.healthjournal.app.ui.migraine.MigraineLogViewModel
 import nl.healthjournal.app.ui.medication.MedicationNoticeDialog
 import nl.healthjournal.app.ui.medication.MedicationViewModel
 import nl.healthjournal.app.ui.medication.PillboxScreen
@@ -123,6 +126,7 @@ class MainActivity : FragmentActivity() {
             onRestored = {
                 profileViewModel.loadProfile()
                 loggingViewModel.loadProfile()
+                migraineViewModel.loadProfile()
                 historyViewModel.loadHistory()
                 medicationViewModel.refresh()
                 lifecycleScope.launch { app.reminders.changed() }
@@ -187,10 +191,15 @@ class MainActivity : FragmentActivity() {
         )
     }
 
+    private val migraineViewModel: MigraineLogViewModel by viewModels {
+        MigraineLogViewModel.Factory(app.profileRepository, app.migraineRepository)
+    }
+
     private val historyViewModel: HistoryViewModel by viewModels {
         HistoryViewModel.Factory(
             app.profileRepository,
             app.getHealthHistoryUseCase,
+            app.migraineRepository,
             app.dataExportAdapter,
             app.dataImportAdapter,
             app.entryUseCases
@@ -320,7 +329,11 @@ class MainActivity : FragmentActivity() {
                 var openPillboxOnToday by remember { mutableStateOf(false) }
                 // Mindfulness is also a screen over the tabs; it and the pillbox are never open together.
                 var showMindfulness by rememberSaveable { mutableStateOf(false) }
+                // The migraine tab of the Log screen; hoisted so it survives the form opening and closing.
+                var logMigraineTab by rememberSaveable { mutableStateOf(false) }
+                val migraineState by migraineViewModel.uiState.collectAsState()
                 BackHandler(enabled = showPillbox) { showPillbox = false }
+                BackHandler(enabled = migraineState.open && (currentTab == AppNavDestination.LOG || currentTab == AppNavDestination.HISTORY)) { migraineViewModel.onBack() }
                 BackHandler(enabled = showMindfulness) { showMindfulness = false }
 
                 var snoozeMinutes by remember { mutableStateOf(app.reminderPreference.snoozeMinutes) }
@@ -352,11 +365,16 @@ class MainActivity : FragmentActivity() {
                     if (currentTab != previousTab) {
                         previousTab = currentTab
                         loggingViewModel.clearMessages()
+                        migraineViewModel.clearMessages()
                         profileViewModel.clearMessages()
                         historyViewModel.clearMessages()
                         medicationViewModel.clearMessages()
                         backupViewModel.clearMessages()
                     }
+                }
+                // A profile created on the Profile tab must reach the migraine tab when the Log tab opens.
+                LaunchedEffect(currentTab) {
+                    if (currentTab == AppNavDestination.LOG) migraineViewModel.loadProfile()
                 }
                 LaunchedEffect(showPillbox) {
                     if (!showPillbox) medicationViewModel.clearMessages()
@@ -463,9 +481,18 @@ class MainActivity : FragmentActivity() {
                                     val choice = GlucoseUnitChoice.from(it)
                                     glucoseUnitChoice = choice
                                     unitPreference.glucose = choice
+                                },
+                                migraineTabSelected = logMigraineTab,
+                                onMigraineTabSelected = { logMigraineTab = it },
+                                migraineContent = {
+                                    if (migraineState.open) {
+                                        MigraineLogScreen(viewModel = migraineViewModel)
+                                    } else {
+                                        MigraineCard(state = migraineState, onLog = migraineViewModel::startNew)
+                                    }
                                 }
                             )
-                            AppNavDestination.HISTORY -> HistoryScreen(viewModel = historyViewModel)
+                            AppNavDestination.HISTORY -> HistoryScreen(viewModel = historyViewModel, migraineViewModel = migraineViewModel)
                             AppNavDestination.PROFILE -> ProfileScreen(
                                 viewModel = profileViewModel,
                                 currentLanguage = currentLanguage,

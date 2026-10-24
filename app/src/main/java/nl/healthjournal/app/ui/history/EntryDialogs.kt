@@ -99,7 +99,7 @@ fun EntryDialogs(state: HistoryUiState, viewModel: HistoryViewModel) {
 }
 
 @Composable
-private fun EditEntryDialog(ref: EntryRef, serverError: UiText?, viewModel: HistoryViewModel) {
+private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel: HistoryViewModel) {
     val zone = remember { ZoneId.systemDefault() }
     val units = LocalDisplayUnits.current
     val initialTime: Instant = when (ref) {
@@ -295,7 +295,7 @@ private fun DecimalField(value: String, onChange: (String) -> Unit, label: Strin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DateTimeFields(value: LocalDateTime, onChange: (LocalDateTime) -> Unit) {
+internal fun DateTimeFields(value: LocalDateTime, onChange: (LocalDateTime) -> Unit) {
     var showDate by remember { mutableStateOf(false) }
     var showTime by remember { mutableStateOf(false) }
 

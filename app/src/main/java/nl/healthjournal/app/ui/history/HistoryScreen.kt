@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import nl.healthjournal.app.ui.history.charts.WaistStatisticsSection
@@ -26,6 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
 import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.migraine.MigraineEntry
+import nl.healthjournal.domain.model.migraine.MigraineTag
 import androidx.compose.ui.text.style.TextOverflow
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.asString
@@ -39,17 +42,44 @@ import nl.healthjournal.app.ui.history.charts.BloodPressureTrendSection
 import nl.healthjournal.app.ui.history.charts.DateRangeSelector
 import nl.healthjournal.app.ui.history.charts.GlucoseStatisticsSection
 import nl.healthjournal.app.ui.history.charts.GlucoseTrendSection
+import nl.healthjournal.app.ui.history.charts.MigraineGraphSection
+import nl.healthjournal.app.ui.history.charts.migraineDateRange
 import nl.healthjournal.app.ui.history.charts.WeightTrendSection
 import nl.healthjournal.app.ui.history.charts.filterByDateRange
+import nl.healthjournal.app.ui.migraine.MigraineLogScreen
+import nl.healthjournal.app.ui.migraine.MigraineLogViewModel
 import nl.healthjournal.app.ui.nhg.RangeSourceNote
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.app.ui.theme.infoContainerColor
 import nl.healthjournal.app.ui.theme.onInfoContainerColor
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * The History tab. Editing a migraine opens the same step form as the Log tab in place of the list,
+ * since [MigraineLogViewModel] owns the draft; the list reloads when the form closes.
+ */
 @Composable
 fun HistoryScreen(
     viewModel: HistoryViewModel,
+    migraineViewModel: MigraineLogViewModel,
+    modifier: Modifier = Modifier
+) {
+    val migraineState by migraineViewModel.uiState.collectAsState()
+    LaunchedEffect(Unit) { migraineViewModel.loadProfile() }
+    if (migraineState.open) {
+        Column(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
+            MigraineLogScreen(viewModel = migraineViewModel)
+        }
+    } else {
+        HistoryList(viewModel, migraineState.tags, migraineViewModel::startEdit, modifier)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HistoryList(
+    viewModel: HistoryViewModel,
+    migraineTags: List<MigraineTag>,
+    onEditMigraine: (MigraineEntry) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -78,13 +108,15 @@ fun HistoryScreen(
     var bpGraph by rememberSaveable { mutableStateOf(false) }
     var glucoseGraph by rememberSaveable { mutableStateOf(false) }
     var waistGraph by rememberSaveable { mutableStateOf(false) }
+    var migraineGraph by rememberSaveable { mutableStateOf(false) }
     val filterNow = state.selectedFilter
     val hasChart = filterNow == HistoryFilter.WEIGHT || filterNow == HistoryFilter.BLOOD_PRESSURE || filterNow == HistoryFilter.GLUCOSE ||
-        filterNow == HistoryFilter.WAIST_CIRCUMFERENCE
+        filterNow == HistoryFilter.WAIST_CIRCUMFERENCE || filterNow == HistoryFilter.MIGRAINE
     val graphViewNow = hasChart && when (filterNow) {
         HistoryFilter.WEIGHT -> weightGraph
         HistoryFilter.BLOOD_PRESSURE -> bpGraph
         HistoryFilter.WAIST_CIRCUMFERENCE -> waistGraph
+        HistoryFilter.MIGRAINE -> migraineGraph
         else -> glucoseGraph
     }
     val setGraphView: (HistoryFilter, Boolean) -> Unit = { f, on ->
@@ -92,6 +124,7 @@ fun HistoryScreen(
             HistoryFilter.WEIGHT -> weightGraph = on
             HistoryFilter.BLOOD_PRESSURE -> bpGraph = on
             HistoryFilter.WAIST_CIRCUMFERENCE -> waistGraph = on
+            HistoryFilter.MIGRAINE -> migraineGraph = on
             else -> glucoseGraph = on
         }
     }
@@ -109,7 +142,7 @@ fun HistoryScreen(
                 text = stringResource(R.string.history_title),
                 style = MaterialTheme.typography.titleLarge
             )
-            if (state.selectedFilter != HistoryFilter.ACTIVITY) {
+            if (state.selectedFilter != HistoryFilter.ACTIVITY && state.selectedFilter != HistoryFilter.MIGRAINE) {
                 RangeSourceNote(compact = true)
             }
             Spacer(Modifier.weight(1f))
@@ -194,6 +227,11 @@ fun HistoryScreen(
                 onClick = { viewModel.setFilter(HistoryFilter.WAIST_CIRCUMFERENCE) },
                 label = { Text(stringResource(R.string.history_filter_waist)) }
             )
+            FilterChip(
+                selected = state.selectedFilter == HistoryFilter.MIGRAINE,
+                onClick = { viewModel.setFilter(HistoryFilter.MIGRAINE) },
+                label = { Text(stringResource(R.string.history_filter_migraine)) }
+            )
         }
 
         // Under a single-metric filter the entries follow the selected date range, like the chart;
@@ -203,6 +241,10 @@ fun HistoryScreen(
         val bloodPressures = if (ranged) state.bloodPressures.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.bloodPressures
         val glucoses = if (ranged) state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.glucoses
         val waists = if (ranged) state.waistCircumferences.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.waistCircumferences
+        val migraines = if (ranged) {
+            val period = migraineDateRange(state.migraines, state.selectedDateRange, ZoneId.systemDefault())
+            state.migraines.filter { it.startDay(ZoneId.systemDefault()) in period }
+        } else state.migraines
 
         // One chronological list (newest first) so no metric hides below a long run of another.
         val filter = state.selectedFilter
@@ -281,6 +323,19 @@ fun HistoryScreen(
                     })
                 }
             }
+            if (filter == HistoryFilter.ALL || filter == HistoryFilter.MIGRAINE) {
+                migraines.forEach { m ->
+                    add(m.start to {
+                        MigraineHistoryCard(
+                            entry = m,
+                            tags = migraineTags,
+                            onEdit = { onEditMigraine(m) },
+                            onDelete = { viewModel.requestDelete(EntryRef.Migraine(m)) },
+                            onEnd = { viewModel.endMigraine(m) }
+                        )
+                    })
+                }
+            }
         }.sortedByDescending { it.first }
         val times = rows.map { it.first }
         val timeline = remember(times) { HistoryTimeline(times, ZoneId.systemDefault()) }
@@ -339,6 +394,11 @@ fun HistoryScreen(
                                         profile = state.activeProfile
                                     )
                                 }
+                                HistoryFilter.MIGRAINE -> MigraineGraphSection(
+                                    entries = state.migraines,
+                                    tags = migraineTags,
+                                    selectedRange = state.selectedDateRange
+                                )
                                 else -> Unit
                             }
                         }
@@ -478,7 +538,7 @@ fun HistoryScreen(
 
 /** The entry comment under a History row: at most two lines with an ellipsis, nothing when there is none. */
 @Composable
-private fun CommentLine(comment: EntryComment?) {
+internal fun CommentLine(comment: EntryComment?) {
     if (comment == null) return
     Text(
         text = comment.text,

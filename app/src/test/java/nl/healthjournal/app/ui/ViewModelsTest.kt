@@ -44,7 +44,11 @@ import nl.healthjournal.domain.port.secondary.DataImportPort
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.ImportResult
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.model.migraine.MigraineEntry
+import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.usecase.CreateProfileUseCase
+import nl.healthjournal.domain.usecase.DeleteMigraineUseCase
+import nl.healthjournal.domain.usecase.EndMigraineUseCase
 import nl.healthjournal.domain.usecase.DeleteActivityUseCase
 import nl.healthjournal.domain.usecase.DeleteBloodPressureUseCase
 import nl.healthjournal.domain.usecase.DeleteGlucoseUseCase
@@ -418,7 +422,11 @@ class ViewModelsTest {
         }
     }
 
-    private fun entryUseCases(health: HealthLogRepositoryPort, profiles: ProfileRepositoryPort) = EntryUseCases(
+    private fun entryUseCases(
+        health: HealthLogRepositoryPort,
+        profiles: ProfileRepositoryPort,
+        migraines: MigraineRepositoryPort = FakeMigraines()
+    ) = EntryUseCases(
         updateWeight = UpdateWeightUseCase(health, profiles),
         updateBloodPressure = UpdateBloodPressureUseCase(health),
         updateGlucose = UpdateGlucoseUseCase(health),
@@ -428,7 +436,9 @@ class ViewModelsTest {
         deleteBloodPressure = DeleteBloodPressureUseCase(health),
         deleteGlucose = DeleteGlucoseUseCase(health),
         deleteActivity = DeleteActivityUseCase(health),
-        deleteWaistCircumference = DeleteWaistCircumferenceUseCase(health)
+        deleteWaistCircumference = DeleteWaistCircumferenceUseCase(health),
+        deleteMigraine = DeleteMigraineUseCase(migraines),
+        endMigraine = EndMigraineUseCase(migraines)
     )
 
     @Test
@@ -444,6 +454,7 @@ class ViewModelsTest {
         val vm = HistoryViewModel(
             profileRepo,
             GetHealthHistoryUseCase(healthLogRepo),
+            FakeMigraines(),
             FakeExportAdapter(),
             FakeImportAdapter(),
             entryUseCases(healthLogRepo, profileRepo)
@@ -480,6 +491,7 @@ class ViewModelsTest {
         val vm = HistoryViewModel(
             profileRepo,
             GetHealthHistoryUseCase(healthLogRepo),
+            FakeMigraines(),
             FakeExportAdapter(),
             FakeImportAdapter(),
             entryUseCases(healthLogRepo, profileRepo)
@@ -505,6 +517,7 @@ class ViewModelsTest {
         val vm = HistoryViewModel(
             profileRepo,
             GetHealthHistoryUseCase(healthLogRepo),
+            FakeMigraines(),
             FakeExportAdapter(),
             FakeImportAdapter(),
             entryUseCases(healthLogRepo, profileRepo)
@@ -600,6 +613,7 @@ class ViewModelsTest {
         val vm = HistoryViewModel(
             profileRepo,
             GetHealthHistoryUseCase(healthLogRepo),
+            FakeMigraines(),
             FakeExportAdapter(),
             FakeImportAdapter(),
             entryUseCases(healthLogRepo, profileRepo)
@@ -621,10 +635,39 @@ class ViewModelsTest {
         profileRepo: ProfileRepositoryPort,
         health: FakeHealthLogRepo,
         export: DataExportPort = FakeExportAdapter(),
-        import: DataImportPort = FakeImportAdapter()
-    ) = HistoryViewModel(profileRepo, GetHealthHistoryUseCase(health), export, import, entryUseCases(health, profileRepo))
+        import: DataImportPort = FakeImportAdapter(),
+        migraines: FakeMigraines = FakeMigraines()
+    ) = HistoryViewModel(
+        profileRepo, GetHealthHistoryUseCase(health), migraines, export, import, entryUseCases(health, profileRepo, migraines)
+    )
 
     private val at = Instant.parse("2026-03-01T08:00:00Z")
+
+    @Test
+    fun `HistoryViewModel lists migraines, deletes one and ends an ongoing one`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val health = FakeHealthLogRepo()
+        val migraines = FakeMigraines()
+        val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val finished = MigraineEntry(MeasurementId.generate(), profile.id, at, end = at.plusSeconds(3600), intensity = 6)
+        val ongoing = MigraineEntry(MeasurementId.generate(), profile.id, at.plusSeconds(86_400))
+        migraines.saveMigraine(finished)
+        migraines.saveMigraine(ongoing)
+        val vm = historyViewModel(profileRepo, health, migraines = migraines)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(2, vm.uiState.value.migraines.size)
+
+        vm.endMigraine(ongoing)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertNotNull(vm.uiState.value.migraines.single { it.id == ongoing.id }.end)
+
+        vm.requestDelete(EntryRef.Migraine(finished))
+        vm.confirmDelete()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(listOf(ongoing.id), vm.uiState.value.migraines.map { it.id })
+        assertNull(vm.uiState.value.errorMessage)
+    }
 
     @Test
     fun `HistoryViewModel edits and deletes every entry type`() = runTest {
