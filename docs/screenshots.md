@@ -133,3 +133,9 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 | Light | Dark | Dutch, light |
 |---|---|---|
 | <img src="screenshots/light-encryption-banner.png" width="250" alt="Log screen with the red banner Your data is not encrypted and the buttons Open Profile and Dismiss, light theme"> | <img src="screenshots/dark-encryption-banner.png" width="250" alt="Log screen with the red banner Your data is not encrypted and the buttons Open Profile and Dismiss, dark theme"> | <img src="screenshots/light-encryption-banner-nl.png" width="250" alt="Logscherm met de banner Je gegevens zijn niet versleuteld en de knoppen Open Profiel en Sluiten, light theme"> |
+
+**Restore from a newer backup** (the confirm dialog when the file holds items this version does not know: a neutral note with the count, and the file is not changed; captured with a hand-made backup that holds an unknown symptom, type and tag kind)
+
+| Light | Dark | Dutch, light |
+|---|---|---|
+| <img src="screenshots/light-restore-unreadable.png" width="250" alt="Restore dialog with a red note that 3 items from a newer app version will be left out, light theme"> | <img src="screenshots/dark-restore-unreadable.png" width="250" alt="Restore dialog with a red note that 3 items from a newer app version will be left out, dark theme"> | <img src="screenshots/light-restore-unreadable-nl.png" width="250" alt="Dutch restore dialog with the red note about onbekende onderdelen, light theme"> |
