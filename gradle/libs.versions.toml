@@ -9,7 +9,7 @@ coroutines = "1.11.0"
 
 # AndroidX & Jetpack
 # ADR 0023 dependencies (exceptions to ADR 0003): SQLCipher and BiometricPrompt
-sqlcipher = "4.9.0"
+sqlcipher = "4.19.1"
 biometric = "1.4.0-alpha07"
 # ADR 0024 dependency (exception to ADR 0003): Argon2id for the portable backup
 bouncycastle = "1.86"
