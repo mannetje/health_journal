@@ -4,6 +4,13 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Added
+- **Unencrypted-storage banner:** when encryption could not be set up, a banner on every tab says so (dismissible for the session, with a shortcut to the Profile tab). Before, the notice was only in Profile.
+
+### Fixed
+- **Encryption migration is crash-safe:** the plain database is set aside and only deleted after the encrypted one is in place; an interrupted swap is recovered at the next start.
+- Docs: the database is at version 7 everywhere, and the README ADR list now includes ADRs 0026 to 0032.
+
 ## [1.6.2] - 2026-10-24
 
 ### Added

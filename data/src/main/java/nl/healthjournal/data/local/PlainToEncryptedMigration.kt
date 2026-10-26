@@ -16,8 +16,9 @@ import java.io.FileInputStream
  * - Exports the plain database to a temporary encrypted file using sqlcipher_export.
  * - Verifies that the encrypted database has the matching version and row counts.
  * - Keeps the plain file untouched until verification passes.
- * - Only upon successful verification, deletes the plain file (and WAL/journal files) and moves
- *   the encrypted database into place.
+ * - Only upon successful verification, moves the encrypted database into place. The plain files are
+ *   set aside under [BACKUP_SUFFIX] until the swap is complete, so a crash or failure in between
+ *   never loses data: the next [migrate] restores them.
  * - On any failure, removes temporary files, keeps the plain database intact, and returns [MigrationResult.Failed].
  */
 class PlainToEncryptedMigration(
@@ -35,6 +36,7 @@ class PlainToEncryptedMigration(
 
     fun migrate(): MigrationResult {
         val plainFile = context.getDatabasePath(DATABASE_NAME)
+        recoverInterruptedSwap(plainFile)
         if (!plainFile.exists()) {
             return MigrationResult.AlreadyEncrypted
         }
@@ -72,18 +74,8 @@ class PlainToEncryptedMigration(
             exportStep(plainFile.absolutePath, tempEncFile.absolutePath, passphrase, plainVersion)
             verifyStep(tempEncFile.absolutePath, passphrase, plainCounts, plainVersion)
 
-            // Verification succeeded! Now safely swap the files.
-            for (suffix in listOf("", "-journal", "-wal", "-shm")) {
-                val sibling = File(plainFile.parentFile, DATABASE_NAME + suffix)
-                if (sibling.exists()) {
-                    sibling.delete()
-                }
-            }
-
-            if (!tempEncFile.renameTo(plainFile)) {
-                tempEncFile.copyTo(plainFile, overwrite = true)
-                cleanupFiles(tempEncFile)
-            }
+            // Verification succeeded! Now swap the files; the plain ones stay recoverable until the end.
+            swapIn(plainFile, tempEncFile)
 
             return MigrationResult.Success
         } catch (e: Exception) {
@@ -94,6 +86,51 @@ class PlainToEncryptedMigration(
             passphrase.fill(0)
         }
     }
+
+    /** Sets the plain files aside, moves the encrypted file in, and only then drops the set-aside files. */
+    private fun swapIn(plainFile: File, tempEncFile: File) {
+        val dir = plainFile.parentFile ?: return
+        for (suffix in DATABASE_SUFFIXES) {
+            val original = File(dir, DATABASE_NAME + suffix)
+            if (original.exists()) {
+                check(original.renameTo(backupOf(original))) { "Could not set aside ${original.name}" }
+            }
+        }
+        if (!tempEncFile.renameTo(plainFile)) {
+            restoreBackups(plainFile)
+            error("Could not move the encrypted database into place")
+        }
+        deleteBackups(plainFile)
+    }
+
+    /**
+     * A crash during [swapIn] leaves set-aside files. When the encrypted database made it into place
+     * the swap had finished and they are dropped; otherwise they are put back so the migration retries.
+     */
+    private fun recoverInterruptedSwap(plainFile: File) {
+        val dir = plainFile.parentFile ?: return
+        if (DATABASE_SUFFIXES.none { backupOf(File(dir, DATABASE_NAME + it)).exists() }) return
+        if (plainFile.exists() && !isPlainSqlite(plainFile)) deleteBackups(plainFile) else restoreBackups(plainFile)
+    }
+
+    private fun restoreBackups(plainFile: File) {
+        val dir = plainFile.parentFile ?: return
+        for (suffix in DATABASE_SUFFIXES) {
+            val original = File(dir, DATABASE_NAME + suffix)
+            val backup = backupOf(original)
+            if (backup.exists()) {
+                original.delete()
+                backup.renameTo(original)
+            }
+        }
+    }
+
+    private fun deleteBackups(plainFile: File) {
+        val dir = plainFile.parentFile ?: return
+        for (suffix in DATABASE_SUFFIXES) backupOf(File(dir, DATABASE_NAME + suffix)).delete()
+    }
+
+    private fun backupOf(file: File) = File(file.parentFile, file.name + BACKUP_SUFFIX)
 
     /**
      * The database is still plain here, so stale key material from an earlier install carries no
@@ -130,7 +167,7 @@ class PlainToEncryptedMigration(
     private fun cleanupFiles(baseFile: File) {
         val parent = baseFile.parentFile ?: return
         val name = baseFile.name
-        for (suffix in listOf("", "-journal", "-wal", "-shm")) {
+        for (suffix in DATABASE_SUFFIXES) {
             val f = File(parent, name + suffix)
             if (f.exists()) {
                 f.delete()
@@ -140,6 +177,9 @@ class PlainToEncryptedMigration(
 
     companion object {
         const val TEMP_ENC_NAME = "health_journal_enc.db"
+        const val BACKUP_SUFFIX = ".pre-encryption"
+
+        private val DATABASE_SUFFIXES = listOf("", "-journal", "-wal", "-shm")
 
         private val SQLITE_HEADER = "SQLite format 3\u0000".toByteArray(Charsets.US_ASCII)
 

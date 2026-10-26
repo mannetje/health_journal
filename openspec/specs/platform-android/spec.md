@@ -20,11 +20,11 @@ The project SHALL consist of three Gradle modules: `domain` (pure Kotlin, no And
 - **THEN** it SHALL compile without any Android or third-party UI or persistence library (ADR 0002, ADR 0003)
 
 ### Requirement: Local storage with Room
-The app SHALL persist data offline in a SQLite database through Room, with the database at schema version 6. Each step SHALL be a real migration that keeps all rows: 1 to 2 adds the optional sex column to the profile table, 2 to 3 adds the waist circumference table, 3 to 4 adds the optional pulse column to blood pressure, 4 to 5 adds the optional comment column to the weight, blood pressure, glucose, waist circumference and activity tables, and 5 to 6 adds the medication, medication schedule, medication time and intake tables. Storage SHALL always be metric.
+The app SHALL persist data offline in a SQLite database through Room, with the database at schema version 7. Each step SHALL be a real migration that keeps all rows: 1 to 2 adds the optional sex column to the profile table, 2 to 3 adds the waist circumference table, 3 to 4 adds the optional pulse column to blood pressure, 4 to 5 adds the optional comment column to the weight, blood pressure, glucose, waist circumference and activity tables, 5 to 6 adds the medication, medication schedule, medication time and intake tables, and 6 to 7 adds the migraine tables. Storage SHALL always be metric.
 
 #### Scenario: Upgrade keeps data
-- **WHEN** a device with a version 1, 2, 3, 4 or 5 database installs a build that has version 6
-- **THEN** all profiles and entries SHALL still be present, the sex of each profile, the pulse of each earlier blood pressure and the comment of every earlier entry SHALL be unset, the waist circumference history SHALL be empty when upgrading from version 1 or 2, and the medication tables SHALL be empty (ADR 0004)
+- **WHEN** a device with a version 1, 2, 3, 4, 5 or 6 database installs a build that has version 7
+- **THEN** all profiles and entries SHALL still be present, the sex of each profile, the pulse of each earlier blood pressure and the comment of every earlier entry SHALL be unset, the waist circumference history SHALL be empty when upgrading from version 1 or 2, the medication tables SHALL be empty when upgrading from version 5 or older, and the migraine tables SHALL be empty (ADR 0004)
 
 ### Requirement: Preferences in SharedPreferences
 Language, region, unit system and glucose unit choices SHALL be stored in private SharedPreferences, not in the health database, so they survive a database reset and never appear in CSV files.

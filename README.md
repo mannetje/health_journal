@@ -269,6 +269,13 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0023: Database Encryption and App Lock](docs/adr/0023-database-encryption-and-app-lock.md)
 - [ADR 0024: Portable Encrypted Backup](docs/adr/0024-portable-encrypted-backup.md)
 - [ADR 0025: Migraine Log Data Model](docs/adr/0025-migraine-log-data-model.md)
+- [ADR 0026: Oxygen Saturation Without Assessment, and zibs as a Naming Guide](docs/adr/0026-oxygen-saturation-without-assessment.md)
+- [ADR 0027: Sleep Log Without Assessment](docs/adr/0027-sleep-log-without-assessment.md)
+- [ADR 0028: Mood Log Without Assessment](docs/adr/0028-mood-log-without-assessment.md)
+- [ADR 0029: Body Temperature Without Assessment](docs/adr/0029-body-temperature-without-assessment.md)
+- [ADR 0030: Fluid Intake as a Quick Log Without Target](docs/adr/0030-fluid-intake-quick-log-without-target.md)
+- [ADR 0031: Daily Activity Typed by Hand, Without Targets or Sensors](docs/adr/0031-daily-activity-typed-by-hand-without-targets.md)
+- [ADR 0032: Energy Level as a 0-10 Rating Without Assessment](docs/adr/0032-energy-level-without-assessment.md)
 
 ---
 

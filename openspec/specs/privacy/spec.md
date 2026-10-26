@@ -76,11 +76,15 @@ The system SHALL store all health and medication data in an encrypted database, 
 
 #### Scenario: Migrating an existing plain database
 - **WHEN** the app updates and finds a plain database
-- **THEN** the system SHALL create the encrypted copy, verify that row counts per table match, and only then remove the plain files
+- **THEN** the system SHALL create the encrypted copy, verify that row counts per table match, and only then move it into place, keeping the plain files set aside until the swap is complete
 
 #### Scenario: Migration failure keeps data
 - **WHEN** the encrypted copy cannot be created or verification fails
-- **THEN** the system SHALL keep the plain database unchanged, show a localized message, and retry on next start
+- **THEN** the system SHALL keep the plain database unchanged, show a localized banner on every tab (which the user can dismiss for the session) and a notice in the Profile tab, and retry on next start
+
+#### Scenario: Interrupted swap is recovered
+- **WHEN** the app is stopped after the plain files were set aside and before the swap finished
+- **THEN** the next start SHALL restore the plain files and migrate again, or drop the set-aside files when the encrypted database is already in place, and no entry SHALL be lost
 
 #### Scenario: Biometric change does not lose data
 - **WHEN** the user adds or removes a fingerprint or face, or changes the screen lock

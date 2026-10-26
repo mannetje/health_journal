@@ -237,6 +237,59 @@ class PlainToEncryptedMigrationTest {
         assertFalse(tempEnc.exists())
     }
 
+    private fun backupOf(file: File) = File(file.parentFile, file.name + PlainToEncryptedMigration.BACKUP_SUFFIX)
+
+    private fun migrationWithFakeSteps() = PlainToEncryptedMigration(
+        context = context,
+        keyProvider = keyProvider,
+        exportStep = fakeExportStep,
+        verifyStep = fakeVerifyStep
+    )
+
+    @Test
+    fun successful_migration_leaves_no_set_aside_files() {
+        createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }
+
+        val result = migrationWithFakeSteps().migrate()
+
+        assertTrue(result is PlainToEncryptedMigration.MigrationResult.Success)
+        assertFalse(backupOf(dbFile).exists())
+    }
+
+    @Test
+    fun crash_after_setting_the_plain_files_aside_restores_them_and_migrates_again() {
+        createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }
+        // The state a crash leaves behind: the plain database set aside, nothing moved in yet.
+        check(dbFile.renameTo(backupOf(dbFile)))
+        val walBackup = backupOf(File(dbFile.parentFile, HealthJournalDatabase.DATABASE_NAME + "-wal"))
+        walBackup.writeText("")
+
+        val result = migrationWithFakeSteps().migrate()
+
+        assertTrue(result is PlainToEncryptedMigration.MigrationResult.Success)
+        assertFalse(backupOf(dbFile).exists())
+        assertFalse(walBackup.exists())
+        SQLiteDatabase.openDatabase(dbFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY).use {
+            it.rawQuery("SELECT COUNT(*) FROM profiles", null).use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals(1L, c.getLong(0))
+            }
+        }
+    }
+
+    @Test
+    fun crash_after_the_encrypted_file_is_in_place_drops_the_set_aside_files() {
+        createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }
+        check(dbFile.renameTo(backupOf(dbFile)))
+        dbFile.writeBytes(ByteArray(64) { 0x7F })
+
+        val result = migrationWithFakeSteps().migrate()
+
+        assertTrue(result is PlainToEncryptedMigration.MigrationResult.AlreadyEncrypted)
+        assertFalse(backupOf(dbFile).exists())
+        assertEquals(64L, dbFile.length())
+    }
+
     @Test
     fun stale_unreadable_key_on_a_plain_database_is_discarded_and_replaced() {
         createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }

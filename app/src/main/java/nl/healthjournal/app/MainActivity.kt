@@ -17,6 +17,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.height
@@ -54,6 +55,7 @@ import nl.healthjournal.app.ui.backup.ContentResolverBackupFileIo
 import nl.healthjournal.app.ui.history.HistoryScreen
 import nl.healthjournal.app.ui.history.HistoryViewModel
 import nl.healthjournal.app.ui.lock.DatabaseKeyLostScreen
+import nl.healthjournal.app.ui.lock.EncryptionNotActiveBanner
 import nl.healthjournal.app.ui.lock.LockOverlay
 import nl.healthjournal.app.ui.logging.LogMetricScreen
 import nl.healthjournal.app.ui.logging.LoggingViewModel
@@ -385,55 +387,68 @@ class MainActivity : FragmentActivity() {
                 val pillboxDescription = stringResource(R.string.nav_pillbox_desc)
                 val mindfulnessDescription = stringResource(R.string.nav_mindfulness_desc)
                 val logoDescription = stringResource(R.string.nav_logo_desc)
+                var encryptionBannerDismissed by rememberSaveable { mutableStateOf(false) }
                 Scaffold(
                     topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(
-                                    if (showPillbox) stringResource(R.string.nav_title_pillbox) else if (showMindfulness) stringResource(R.string.nav_title_mindfulness) else when (currentTab) {
-                                        AppNavDestination.LOG -> stringResource(R.string.nav_title_log)
-                                        AppNavDestination.HISTORY -> stringResource(R.string.nav_title_history)
-                                        AppNavDestination.PROFILE -> stringResource(R.string.nav_title_profile)
-                                    }
-                                )
-                            },
-                            actions = {
-                                IconButton(
-                                    onClick = { showMindfulness = false; showPillbox = true },
-                                    modifier = Modifier.size(48.dp)
-                                ) {
+                        Column {
+                            TopAppBar(
+                                title = {
                                     Text(
-                                        "💊",
-                                        modifier = Modifier.semantics { contentDescription = pillboxDescription }
-                                    )
-                                }
-                                IconButton(
-                                    onClick = { showPillbox = false; showMindfulness = true },
-                                    modifier = Modifier.size(48.dp)
-                                ) {
-                                    Text(
-                                        "🪷",
-                                        modifier = Modifier.semantics { contentDescription = mindfulnessDescription }
-                                    )
-                                }
-                                Image(
-                                    painter = painterResource(R.drawable.logo_health_journal_on_navy),
-                                    contentDescription = logoDescription,
-                                    modifier = Modifier
-                                        .padding(end = 16.dp)
-                                        .height(40.dp)
-                                        .clickable(role = Role.Button) {
-                                            showPillbox = false
-                                            showMindfulness = false
-                                            currentTab = AppNavDestination.LOG
+                                        if (showPillbox) stringResource(R.string.nav_title_pillbox) else if (showMindfulness) stringResource(R.string.nav_title_mindfulness) else when (currentTab) {
+                                            AppNavDestination.LOG -> stringResource(R.string.nav_title_log)
+                                            AppNavDestination.HISTORY -> stringResource(R.string.nav_title_history)
+                                            AppNavDestination.PROFILE -> stringResource(R.string.nav_title_profile)
                                         }
+                                    )
+                                },
+                                actions = {
+                                    IconButton(
+                                        onClick = { showMindfulness = false; showPillbox = true },
+                                        modifier = Modifier.size(48.dp)
+                                    ) {
+                                        Text(
+                                            "💊",
+                                            modifier = Modifier.semantics { contentDescription = pillboxDescription }
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { showPillbox = false; showMindfulness = true },
+                                        modifier = Modifier.size(48.dp)
+                                    ) {
+                                        Text(
+                                            "🪷",
+                                            modifier = Modifier.semantics { contentDescription = mindfulnessDescription }
+                                        )
+                                    }
+                                    Image(
+                                        painter = painterResource(R.drawable.logo_health_journal_on_navy),
+                                        contentDescription = logoDescription,
+                                        modifier = Modifier
+                                            .padding(end = 16.dp)
+                                            .height(40.dp)
+                                            .clickable(role = Role.Button) {
+                                                showPillbox = false
+                                                showMindfulness = false
+                                                currentTab = AppNavDestination.LOG
+                                            }
+                                    )
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = BrandNavy,
+                                    titleContentColor = Color.White
                                 )
-                            },
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = BrandNavy,
-                                titleContentColor = Color.White
                             )
-                        )
+                            if (DatabaseEncryptionStatus.state is EncryptionState.NotActive && !encryptionBannerDismissed) {
+                                EncryptionNotActiveBanner(
+                                    onOpenProfile = {
+                                        showPillbox = false
+                                        showMindfulness = false
+                                        currentTab = AppNavDestination.PROFILE
+                                    },
+                                    onDismiss = { encryptionBannerDismissed = true }
+                                )
+                            }
+                        }
                     },
                     bottomBar = {
                         NavigationBar {

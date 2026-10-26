@@ -660,6 +660,11 @@
     <string name="security_secure_screen_lock_desc">Altijd aan zolang de app-vergrendeling aan staat, zodat recente apps en schermafbeeldingen je gegevens nooit tonen.</string>
     <string name="privacy_backup_notice_body_unencrypted">Je gezondheidsgegevens staan op dit apparaat nu zonder versleuteling: versleuteling kon niet worden ingesteld en de app probeert het bij de volgende start opnieuw. De gegevens blijven op dit apparaat en kunnen niet worden hersteld vanuit een cloudback-up of automatisch naar een nieuw toestel worden overgezet. Maak een versleutelde back-up op het tabblad Profiel voor een beschermde kopie; CSV-export in Geschiedenis is niet versleuteld. Het Mindfulness-gedeelte bewaart niets over je oefeningen, alleen je weergavekeuzes.</string>
 
+    <string name="encryption_not_active_banner_title">Je gegevens zijn niet versleuteld</string>
+    <string name="encryption_not_active_banner_body">Versleuteling kon op dit apparaat niet worden ingesteld. Je gegevens staan er zonder, en de app probeert het bij de volgende start opnieuw.</string>
+    <string name="encryption_not_active_banner_open_profile">Open Profiel</string>
+    <string name="encryption_not_active_banner_dismiss">Sluiten</string>
+
     <string name="key_lost_title">Je gegevens kunnen niet worden geopend</string>
     <string name="key_lost_body">De versleutelingssleutel voor de gegevens op dit apparaat is niet meer beschikbaar, waardoor de gegevens niet gelezen kunnen worden. Dit kan gebeuren na het herstellen van het toestel of na een systeemupdate. De gegevens zijn nergens anders opgeslagen en kunnen dus niet worden hersteld. Heb je een CSV-export, dan kun je die importeren nadat je opnieuw bent begonnen.</string>
     <string name="key_lost_delete_button">Gegevens verwijderen en opnieuw beginnen</string>

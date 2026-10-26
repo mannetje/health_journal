@@ -30,7 +30,7 @@ Prefer a **read mapping** when only the meaning of a stored string changes. The 
    }
    ```
 
-4. Register it: `.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)` in `create`, and append yours. The list always contains every migration, never only the newest. The database is at version 6 today (the medication tables), so the next change is `Migration(6, 7)`. Database encryption (proposed `add-database-encryption-and-lock`) is a separate file-level migration and does not change the schema version.
+4. Register it: `.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)` in `create`, and append yours. The list always contains every migration, never only the newest. The database is at version 7 today (the migraine tables, `MIGRATION_6_7`), so the next change is `Migration(7, 8)`. Database encryption (proposed `add-database-encryption-and-lock`) is a separate file-level migration and does not change the schema version.
 5. **Never use destructive migration** (`fallbackToDestructiveMigration`). Existing users must keep their data.
 6. New columns must be nullable or have a default, so existing rows stay valid.
 

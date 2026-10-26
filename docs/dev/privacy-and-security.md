@@ -20,7 +20,7 @@ For architectural decisions and regulatory context, see [ADR 0023](../adr/0023-d
 
 ### Database Encryption (SQLCipher)
 - The Room database file (`health_journal.db`) is encrypted on-disk using 256-bit AES encryption via **SQLCipher**.
-- Unencrypted database files from earlier versions are automatically and transparently migrated to the encrypted format on first launch with row-count verification.
+- Unencrypted database files from earlier versions are automatically and transparently migrated to the encrypted format on first launch with row-count verification. The plain files are only deleted after the encrypted database is in place; a crash in between is recovered at the next start.
 
 ### App Lock & Biometric Authentication
 - Users can enable an **App Lock** from the Profile screen under *Security & Privacy*.
@@ -70,7 +70,7 @@ flowchart TD
         KEY_PROV["DatabaseKeyProvider (Android Keystore + AES-GCM)"]
         SQLCIPHER["SupportOpenHelperFactory (SQLCipher)"]
         MIGRATION["PlainToEncryptedMigration"]
-        ROOM_DB["HealthJournalDatabase (Room v6)"]
+        ROOM_DB["HealthJournalDatabase (Room v7)"]
     end
 
     LOCK_MGR -->|implements| PORT_LOCK
@@ -97,7 +97,7 @@ flowchart TD
 | State | When | What the user sees |
 |-------|------|--------------------|
 | `Active` | The database is encrypted and its key unwraps. | Normal app. |
-| `NotActive(reason)` | The migration failed or SQLCipher could not load, so the plain database stays in use. The next start retries. | The Profile "Data storage & backups" card says the data is currently not encrypted. |
+| `NotActive(reason)` | The migration failed or SQLCipher could not load, so the plain database stays in use. The next start retries. | A banner on every tab says the data is currently not encrypted (dismissible per session, with a shortcut to Profile), and the Profile "Data storage & backups" card says the same. |
 | `KeyLost` | The database is encrypted but the key files are missing or the Keystore key is gone or invalidated (`DatabaseKeyLostException`). | `DatabaseKeyLostScreen` replaces the app. After a confirmation, `DatabaseRecovery` deletes the unreadable data and key material and the app restarts empty. |
 
 - Only permanent failures (missing or invalidated key, failed GCM authentication) count as `KeyLost`. Transient Keystore errors propagate, so a temporary glitch never offers to delete data.
@@ -126,7 +126,7 @@ sequenceDiagram
     alt Plain DB exists
         Migrator->>Migrator: Verify plain DB & copy to temp encrypted DB
         Migrator->>Migrator: Verify row counts match
-        Migrator->>Migrator: Replace plain DB with encrypted DB
+        Migrator->>Migrator: Set plain files aside (.pre-encryption), move encrypted DB in, delete set-aside files
     end
     DB-->>App: Room Database Ready (Encrypted at Rest)
 ```

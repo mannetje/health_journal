@@ -1,6 +1,6 @@
 # Testing
 
-Tests are plain JUnit 4 with `kotlinx-coroutines-test`. Robolectric is used only for the tests that need a real SQLite (the migration test and the medication DAO test); there is no instrumented test suite. This keeps `./gradlew test` fast and runnable in CI.
+Tests are plain JUnit 4 with `kotlinx-coroutines-test`. Robolectric is used only for the tests that need a real SQLite (the encryption migration test (including crash recovery of the file swap) and the medication DAO test); there is no instrumented test suite. This keeps `./gradlew test` fast and runnable in CI.
 
 ```bash
 ./gradlew test             # unit tests, all modules

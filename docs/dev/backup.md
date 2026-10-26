@@ -175,7 +175,7 @@ The active profile of the app is not changed when it has one; otherwise the acti
 
 ### Two version numbers, one rule
 
-The container version and the document `schemaVersion` live in the file and are independent of the Room version (6 now, next 6 to 7). A Room migration changes how the snapshot is read, not what the file looks like. A change to the file format updates, in one commit: the [format page](../backup-format/README.md), the [schema](../backup-format/healthjournal-backup.schema.json), the [test vectors](../backup-format/test-vectors/README.md), [`docs/backup-format/hjbackup.py`](../backup-format/hjbackup.py) and the app's tests.
+The container version and the document `schemaVersion` live in the file and are independent of the Room version (7 now, next 7 to 8). A Room migration changes how the snapshot is read, not what the file looks like. A change to the file format updates, in one commit: the [format page](../backup-format/README.md), the [schema](../backup-format/healthjournal-backup.schema.json), the [test vectors](../backup-format/test-vectors/README.md), [`docs/backup-format/hjbackup.py`](../backup-format/hjbackup.py) and the app's tests.
 
 ### Testing plan
 

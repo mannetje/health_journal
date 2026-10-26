@@ -13,7 +13,7 @@ context: |
   Conventions: metric storage, display units converted only in the UI; every
   user-facing string in both values/ and values-nl/; UiText for ViewModel text;
   isAppDarkTheme() never isSystemInDarkTheme(); Room migrations are never
-  destructive (new columns nullable or defaulted; DB is at version 6, next is 6->7).
+  destructive (new columns nullable or defaulted; DB is at version 7, next is 7->8).
 
 rules:
   proposal:
