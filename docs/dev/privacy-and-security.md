@@ -97,7 +97,7 @@ flowchart TD
 | State | When | What the user sees |
 |-------|------|--------------------|
 | `Active` | The database is encrypted and its key unwraps. | Normal app. |
-| `NotActive(reason)` | The migration failed or SQLCipher could not load, so the plain database stays in use. The next start retries. | A banner on every tab says the data is currently not encrypted (dismissible per session, with a shortcut to Profile), and the Profile "Data storage & backups" card says the same. |
+| `NotActive(reason)` | The migration failed or SQLCipher could not load, so the plain database stays in use. The next start retries. | A banner on every tab says the data is currently not encrypted (dismissible per session, with a shortcut to Profile), and the Profile "Data storage & backups" card says the same (see the [screenshots](../screenshots.md)). |
 | `KeyLost` | The database is encrypted but the key files are missing or the Keystore key is gone or invalidated (`DatabaseKeyLostException`). | `DatabaseKeyLostScreen` replaces the app. After a confirmation, `DatabaseRecovery` deletes the unreadable data and key material and the app restarts empty. |
 
 - Only permanent failures (missing or invalidated key, failed GCM authentication) count as `KeyLost`. Transient Keystore errors propagate, so a temporary glitch never offers to delete data.

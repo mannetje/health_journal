@@ -127,3 +127,9 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 | <img src="screenshots/light-migraine-history-day.png" width="250" alt="History filtered to one day with the Day chip, light theme"> | <img src="screenshots/dark-migraine-history-day.png" width="250" alt="History filtered to one day with the Day chip, dark theme"> |
 | <img src="screenshots/light-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, light theme"> | <img src="screenshots/dark-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, dark theme"> |
 | <img src="screenshots/light-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, light theme"> | <img src="screenshots/dark-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, dark theme"> |
+
+**Unencrypted-storage banner** (shown on every tab when encryption could not be set up, with "Open Profile" and a per-session "Dismiss"; captured by forcing the state on a debug build, since a normal device never reaches it; the Dutch text wraps to three lines and still fits at 320 dp):
+
+| Light | Dark | Dutch, light |
+|---|---|---|
+| <img src="screenshots/light-encryption-banner.png" width="250" alt="Log screen with the red banner Your data is not encrypted and the buttons Open Profile and Dismiss, light theme"> | <img src="screenshots/dark-encryption-banner.png" width="250" alt="Log screen with the red banner Your data is not encrypted and the buttons Open Profile and Dismiss, dark theme"> | <img src="screenshots/light-encryption-banner-nl.png" width="250" alt="Logscherm met de banner Je gegevens zijn niet versleuteld en de knoppen Open Profiel en Sluiten, light theme"> |
