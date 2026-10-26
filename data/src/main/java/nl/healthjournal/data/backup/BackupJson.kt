@@ -238,12 +238,19 @@ object BackupJson {
         if (root.optString("format") != FORMAT) throw BackupException.Malformed("format")
         val version = root.optInt("schemaVersion", -1)
         if (version != SCHEMA_VERSION) throw BackupException.Unsupported("schema version $version, a newer app is needed")
+        val unknown = UnknownItems()
         return BackupDocument(
             createdAt = guard("createdAt") { Instant.parse(root.getString("createdAt")) },
             appVersion = root.optJSONObject("app")?.let { if (it.isNull("version")) null else it.optString("version") },
             preferences = root.optJSONObject("preferences")?.let(::readPreferences),
-            profiles = guard("profiles") { readList(root.getJSONArray("profiles")) { readProfile(it) } }
+            profiles = guard("profiles") { readList(root.getJSONArray("profiles")) { readProfile(it, unknown) } },
+            unreadableItems = unknown.count
         )
+    }
+
+    /** Counts what a file from a newer app holds that this version leaves out, so the restore can say so. */
+    private class UnknownItems {
+        var count = 0
     }
 
     /** Wraps any parse or validation failure in [BackupException.Malformed]; the cause (which may hold values) is dropped. */
@@ -277,7 +284,7 @@ object BackupJson {
         )
     }
 
-    private fun readProfile(o: JSONObject): BackupProfile {
+    private fun readProfile(o: JSONObject, unknown: UnknownItems): BackupProfile {
         val profile = guard("profile") {
             Profile.reconstruct(
                 id = ProfileId.fromString(o.req("id")),
@@ -340,11 +347,11 @@ object BackupJson {
                 }
             },
             medications = guard("medications") { readList(o.optJSONArray("medications")) { readMedication(it, pid) } },
-            migraines = guard("migraines") { readList(o.optJSONArray("migraines")) { readMigraine(it, pid) } },
+            migraines = guard("migraines") { readList(o.optJSONArray("migraines")) { readMigraine(it, pid, unknown) } },
             migraineTags = guard("migraineTags") {
-                // A tag of a kind this version does not know (from a newer file) is left out.
+                // A tag of a kind this version does not know (from a newer file) is left out and counted.
                 readList(o.optJSONArray("migraineTags")) { t ->
-                    enumOrNull<MigraineTagKind>(t.req("kind"))?.let { kind ->
+                    enumOrNull<MigraineTagKind>(t.req("kind"), unknown)?.let { kind ->
                         MigraineTag(MigraineTagId.fromString(t.req("id")), pid, kind, t.req("label"), t.optBoolean("archived", false))
                     }
                 }.filterNotNull()
@@ -352,40 +359,40 @@ object BackupJson {
         )
     }
 
-    private fun readMigraine(o: JSONObject, profileId: ProfileId) = MigraineEntry(
+    private fun readMigraine(o: JSONObject, profileId: ProfileId, unknown: UnknownItems) = MigraineEntry(
         id = MeasurementId.fromString(o.req("id")),
         profileId = profileId,
         start = Instant.parse(o.req("start")),
         wokeUpWithIt = o.optBoolean("wokeUpWithIt", false),
         end = o.text("end")?.let { Instant.parse(it) },
         intensity = if (o.isNull("intensity")) null else o.getInt("intensity"),
-        areas = enums<HeadArea>(o, "areas"),
-        painCharacters = enums<PainCharacter>(o, "painCharacters"),
-        type = enumOrNull<MigraineType>(o.text("type")),
-        symptoms = enums<MigraineSymptom>(o, "symptoms"),
-        triggers = enums<MigraineTrigger>(o, "triggers"),
+        areas = enums<HeadArea>(o, "areas", unknown),
+        painCharacters = enums<PainCharacter>(o, "painCharacters", unknown),
+        type = enumOrNull<MigraineType>(o.text("type"), unknown),
+        symptoms = enums<MigraineSymptom>(o, "symptoms", unknown),
+        triggers = enums<MigraineTrigger>(o, "triggers", unknown),
         customTriggerIds = tagIds(o, "customTriggers"),
         tookSomething = o.optBoolean("tookSomething", false),
         medicationText = o.text("medicationText"),
         secondDose = o.optBoolean("secondDose", false),
         intensityAfter2Hours = if (o.isNull("intensityAfter2Hours")) null else o.getInt("intensityAfter2Hours"),
         medicationHelpedMe = o.optBoolean("medicationHelpedMe", false),
-        reliefMethods = enums<ReliefMethod>(o, "reliefMethods"),
+        reliefMethods = enums<ReliefMethod>(o, "reliefMethods", unknown),
         customReliefIds = tagIds(o, "customReliefMethods"),
         reliefHelpedMe = o.optBoolean("reliefHelpedMe", false),
-        activities = enumOrNull<DailyActivities>(o.text("activities")),
+        activities = enumOrNull<DailyActivities>(o.text("activities"), unknown),
         comment = o.comment()
     )
 
     private fun strings(o: JSONObject, key: String): List<String> =
         o.optJSONArray(key)?.let { arr -> List(arr.length()) { arr.getString(it) } }.orEmpty()
 
-    /** Codes this version does not know (from a newer file) are ignored. */
-    private inline fun <reified E : Enum<E>> enums(o: JSONObject, key: String): Set<E> =
-        strings(o, key).mapNotNull { name -> enumOrNull<E>(name) }.toSet()
+    /** Codes this version does not know (from a newer file) are left out and counted. */
+    private inline fun <reified E : Enum<E>> enums(o: JSONObject, key: String, unknown: UnknownItems): Set<E> =
+        strings(o, key).mapNotNull { name -> enumOrNull<E>(name, unknown) }.toSet()
 
-    private inline fun <reified E : Enum<E>> enumOrNull(name: String?): E? =
-        name?.let { n -> enumValues<E>().firstOrNull { it.name == n } }
+    private inline fun <reified E : Enum<E>> enumOrNull(name: String?, unknown: UnknownItems): E? =
+        name?.let { n -> enumValues<E>().firstOrNull { it.name == n } ?: null.also { unknown.count++ } }
 
     private fun tagIds(o: JSONObject, key: String): Set<MigraineTagId> =
         strings(o, key).mapNotNull { runCatching { MigraineTagId.fromString(it) }.getOrNull() }.toSet()

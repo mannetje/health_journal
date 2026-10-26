@@ -248,7 +248,7 @@ There are two independent version numbers.
 | container version | header, offset 8 | the byte layout or the meaning of an id changes (rare). A reader that sees a higher number refuses the file. |
 | `schemaVersion` | document | a property is removed, renamed or reinterpreted. Adding a property does not change it. |
 
-Rules for readers: ignore properties you do not know; refuse a `schemaVersion` you cannot interpret and say that a newer version is needed; never guess. Rules for writers: when the format changes, update this page, the schema, the test vectors and `hjbackup.py` in the same commit. The Room database version of the Android app is unrelated to both numbers.
+Rules for readers: ignore properties you do not know; refuse a `schemaVersion` you cannot interpret and say that a newer version is needed; never guess. A reader that leaves out a value it does not know (an unknown enum code, a tag of an unknown kind) should tell the user how many it left out. Rules for writers: when the format changes, update this page, the schema, the test vectors and `hjbackup.py` in the same commit. The Room database version of the Android app is unrelated to both numbers.
 
 ## 6. Building a reader or writer on another platform
 

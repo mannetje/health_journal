@@ -175,6 +175,8 @@ flowchart TD
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
+> **Verifying:** each release also has a `.sha256` file. Run `sha256sum health-journal-v1.6.2-debug.apk` (or `Get-FileHash` on Windows) and compare. These are personal, sideloaded builds signed with a public debug key, not store builds ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
+>
 > **Updating:** builds from v1.4.4 onward share one fixed signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)) and install over the previous version. If your installed copy is v1.4.3 or older, Android will report a signature conflict once: export your data as CSV (History → Export) or make an encrypted backup (Profile), uninstall, install the new APK, then import the CSV again.
 
 ---

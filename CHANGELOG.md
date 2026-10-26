@@ -7,6 +7,10 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ### Added
 - **Unencrypted-storage banner:** when encryption could not be set up, a banner on every tab says so (dismissible for the session, with a shortcut to the Profile tab). Before, the notice was only in Profile. Light, dark and Dutch screenshots are in `docs/screenshots.md`.
 
+- **Backup restore tells what it leaves out:** a backup made by a newer app can hold tags or codes this version does not know. The restore dialog now says how many items will be left out, before anything is imported. Before, they were dropped without a word.
+
+- **Release policy and checksum:** releases now carry a SHA-256 file next to the APK, and the README and ADR 0008 state that they are personal, sideloaded, debug-signed builds, and name when a private release keystore becomes necessary.
+
 ### Fixed
 - **Encryption migration is crash-safe:** the plain database is set aside and only deleted after the encrypted one is in place; an interrupted swap is recovered at the next start.
 - Docs: the database is at version 7 everywhere, and the README ADR list now includes ADRs 0026 to 0032.

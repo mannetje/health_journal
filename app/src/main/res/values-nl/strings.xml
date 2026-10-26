@@ -691,6 +691,7 @@
     <string name="backup_restore_summary">De back-up bevat %1$d profiel(en), %2$d meting(en), %3$d medicijn(en) en %4$d inname(s).</string>
     <string name="backup_restore_merge_note">Gegevens die nog niet op dit apparaat staan worden toegevoegd. Bestaande gegevens blijven zoals ze zijn.</string>
     <string name="backup_restore_lostkey_note">De onleesbare gegevens op dit apparaat worden verwijderd en vervangen door de inhoud van deze back-up.</string>
+    <string name="backup_restore_unreadable_note">Deze back-up is gemaakt met een nieuwere versie van de app. %1$d onderdeel/onderdelen daarin zijn onbekend in deze versie en worden weggelaten. Het bestand zelf verandert niet.</string>
     <string name="backup_restore_settings">Ook instellingen herstellen</string>
     <string name="backup_restore_settings_desc">Taal, regio, eenheden, thema en sluimertijd van herinneringen. Beveiligingsinstellingen worden nooit hersteld.</string>
     <string name="backup_restore_confirm">Herstellen</string>

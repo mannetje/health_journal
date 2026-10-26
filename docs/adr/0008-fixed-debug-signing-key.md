@@ -12,6 +12,12 @@ Releases are debug-signed APKs built by GitHub Actions and sideloaded onto phone
 
 Commit a dedicated keystore, `app/debug.keystore`, and point the `debug` signing config in `app/build.gradle.kts` at it (alias `androiddebugkey`, password `android`, valid for 100 years). Local and CI builds now produce the same signature, so a new APK installs over an older one and keeps the user's data.
 
+## Release policy
+
+Releases are **personal, sideloaded builds**: debug-signed with this public key and still `debuggable`. They are not store-grade and the README says so. Each release carries a SHA-256 file (`health-journal-<tag>-debug.apk.sha256`) next to the APK, so a downloader can check that the file is intact. The checksum comes from the same release, so it detects a damaged download, not a hostile release.
+
+**Trigger for a private release keystore:** switch to a non-debuggable release build signed with a key held in CI secrets before any of these happens: the app is offered through a store, it is shared beyond people who know the project, or a third party depends on the signature to trust an update. That change needs a new ADR, because installs signed with this key cannot be updated in place and need the one-time export, uninstall and restore described below.
+
 ## Consequences
 
 ### Positive

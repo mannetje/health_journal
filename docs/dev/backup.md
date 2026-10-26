@@ -171,6 +171,8 @@ sequenceDiagram
 | daily times | with their schedule version | follow their schedule version |
 | intake | `id`; also medication + `planned` (unique) | kept as it is |
 
+A file written by a newer app can hold a tag kind or an enum code this version does not know. `BackupJson.read` leaves those out and counts them (`BackupDocument.unreadableItems`); the restore dialog shows the count in a note ("N item(s) … will be left out. The file itself is not changed.") so nothing is dropped silently. `BackupFormatTest` covers the count.
+
 The active profile of the app is not changed when it has one; otherwise the active profile of the file is used. The whole merge is one Room transaction (`withTransaction`, insert-or-ignore DAO methods), so a failure part-way leaves the database as it was. After a restore the view models reload and reminders are rescheduled; ticking "Also restore settings" recreates the activity so a new language or theme shows at once.
 
 ### Two version numbers, one rule

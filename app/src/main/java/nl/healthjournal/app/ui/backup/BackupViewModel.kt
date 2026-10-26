@@ -37,7 +37,8 @@ data class RestorePreview(
     val entries: Int,
     val medications: Int,
     val intakes: Int,
-    val hasPreferences: Boolean
+    val hasPreferences: Boolean,
+    val unreadableItems: Int = 0
 )
 
 data class BackupUiState(
@@ -171,7 +172,8 @@ class BackupViewModel(
                         entries = document.profiles.sumOf { it.entryCount },
                         medications = document.profiles.sumOf { it.medications.size },
                         intakes = document.profiles.sumOf { it.intakeCount },
-                        hasPreferences = document.preferences != null
+                        hasPreferences = document.preferences != null,
+                        unreadableItems = document.unreadableItems
                     )
                 )
             } catch (e: BackupException.WrongPassphraseOrCorrupt) {

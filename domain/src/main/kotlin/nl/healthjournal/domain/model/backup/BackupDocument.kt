@@ -54,7 +54,9 @@ data class BackupDocument(
     val createdAt: Instant,
     val appVersion: String?,
     val preferences: BackupPreferences?,
-    val profiles: List<BackupProfile>
+    val profiles: List<BackupProfile>,
+    /** Items (a tag, a code) written by a newer app that this version does not know and left out. */
+    val unreadableItems: Int = 0
 )
 
 /** What a merge added, and how many items it left alone because they already existed. */

@@ -691,6 +691,7 @@
     <string name="backup_restore_summary">The backup contains %1$d profile(s), %2$d measurement(s), %3$d medication(s) and %4$d intake(s).</string>
     <string name="backup_restore_merge_note">Entries that are not on this device yet are added. Entries that already exist are left as they are.</string>
     <string name="backup_restore_lostkey_note">The unreadable data on this device is deleted and replaced by the contents of this backup.</string>
+    <string name="backup_restore_unreadable_note">This backup was made by a newer version of the app. %1$d item(s) in it are not known to this version and will be left out. The file itself is not changed.</string>
     <string name="backup_restore_settings">Also restore settings</string>
     <string name="backup_restore_settings_desc">Language, region, units, theme and reminder snooze. Security settings are never restored.</string>
     <string name="backup_restore_confirm">Restore</string>

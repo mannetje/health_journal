@@ -249,6 +249,23 @@ class BackupFormatTest {
     }
 
     @Test
+    fun `what a newer version wrote and this one leaves out is counted`() {
+        val codec = HjBackupCodec(fast)
+        val doc = withMigraine(codec.decode(vector("sample-fast-nogzip.hjbackup"), passphrase))
+        val root = JSONObject(String(BackupJson.write(doc), Charsets.UTF_8))
+        assertEquals(0, BackupJson.read(root.toString().toByteArray()).unreadableItems)
+
+        val profile = root.getJSONArray("profiles").getJSONObject(0)
+        val migraine = profile.getJSONArray("migraines").getJSONObject(0)
+        migraine.getJSONArray("symptoms").put("FUTURE_SYMPTOM")
+        migraine.put("type", "FUTURE_TYPE")
+        profile.getJSONArray("migraineTags").put(
+            JSONObject().put("id", java.util.UUID.randomUUID().toString()).put("kind", "FUTURE_KIND").put("label", "x")
+        )
+        assertEquals(3, BackupJson.read(root.toString().toByteArray()).unreadableItems)
+    }
+
+    @Test
     fun `an invalid migraine makes the file malformed`() {
         val doc = withMigraine(HjBackupCodec(fast).decode(vector("sample-fast-nogzip.hjbackup"), passphrase))
         val root = JSONObject(String(BackupJson.write(doc), Charsets.UTF_8))

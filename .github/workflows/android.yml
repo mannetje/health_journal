@@ -70,6 +70,8 @@ jobs:
           VERSION="${GITHUB_REF_NAME}"
           cp app/build/outputs/apk/debug/app-debug.apk \
              app/build/outputs/apk/debug/health-journal-${VERSION}-debug.apk
+          cd app/build/outputs/apk/debug
+          sha256sum health-journal-${VERSION}-debug.apk > health-journal-${VERSION}-debug.apk.sha256
 
       - name: Upload APK Artifact (CI runs)
         if: "!startsWith(github.ref, 'refs/tags/v')"
@@ -93,6 +95,8 @@ jobs:
             echo "1. Download health-journal-${GITHUB_REF_NAME}-debug.apk below."
             echo '2. On your Android device, open the file and tap **Install**.'
             echo '3. Enable *Install from unknown sources* if prompted. Updating over an earlier release keeps your data.'
+            echo
+            echo "This is a personal, sideloaded build signed with a public debug key (ADR 0008), not a store build. Compare the SHA-256 of the APK with the .sha256 file in the assets to check that the download is intact."
           } >> RELEASE_NOTES.md
 
       - name: Create GitHub Release & upload APK
@@ -102,6 +106,8 @@ jobs:
           name: "Health Journal ${{ github.ref_name }}"
           body_path: RELEASE_NOTES.md
           generate_release_notes: true
-          files: app/build/outputs/apk/debug/health-journal-${{ github.ref_name }}-debug.apk
+          files: |
+            app/build/outputs/apk/debug/health-journal-${{ github.ref_name }}-debug.apk
+            app/build/outputs/apk/debug/health-journal-${{ github.ref_name }}-debug.apk.sha256
           draft: false
           prerelease: false

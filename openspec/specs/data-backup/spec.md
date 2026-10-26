@@ -54,6 +54,10 @@ The decrypted document SHALL be a JSON object that validates against `docs/backu
 - **WHEN** a reader supporting schemaVersion 1 opens a file with extra properties
 - **THEN** it ignores them and imports what it knows
 
+#### Scenario: Unknown codes are counted, not dropped silently
+- **WHEN** a file of the same `schemaVersion` holds a tag kind or an enum code this version does not know (written by a newer app)
+- **THEN** the restore dialog says how many such items will be left out, in neutral words and without advice, and everything else is imported
+
 #### Scenario: Unsupported schema
 - **WHEN** a file has a `schemaVersion` the reader cannot interpret (greater than it supports and flagged incompatible)
 - **THEN** it refuses with a message that a newer app version is needed and imports nothing

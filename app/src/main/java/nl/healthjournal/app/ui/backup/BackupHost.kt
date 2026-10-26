@@ -190,6 +190,13 @@ private fun RestoreConfirmDialog(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (preview.unreadableItems > 0) {
+                    Text(
+                        stringResource(R.string.backup_restore_unreadable_note, preview.unreadableItems),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
                 if (preview.hasPreferences) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = applySettings, onCheckedChange = { applySettings = it }, enabled = !busy)
