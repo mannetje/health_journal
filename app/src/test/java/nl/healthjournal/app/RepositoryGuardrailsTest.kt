@@ -112,6 +112,20 @@ class RepositoryGuardrailsTest {
         assertTrue("the workflow uses the fixed debug key of ADR 0008", file("docs/adr/0008-fixed-debug-signing-key.md").exists())
     }
 
+    // --- Intended purpose (compliance spec) ---
+
+    @Test
+    fun readmeStatesTheIntendedPurposeAndNoClaimOfClinicalEvaluation() {
+        val readme = text("README.md")
+        assertTrue(
+            "README.md: the compliance spec requires the same purpose statement everywhere",
+            readme.contains("a personal tool for logging and reminders, for private use. It is not a medical device.")
+        )
+        listOf("empowers", "clinical standards", "evaluation logic", "evaluated against").forEach {
+            assertFalse("README.md must not describe the app as assessing values: '$it'", readme.contains(it, ignoreCase = true))
+        }
+    }
+
     // --- Policy-sensitive defaults (ADR 0033) ---
 
     private val loggingViewModel = "app/src/main/java/nl/healthjournal/app/ui/logging/LoggingViewModel.kt"

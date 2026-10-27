@@ -38,6 +38,7 @@ Both run on every push and pull request. [Continuous integration](ci.md) describ
 | Migration chain | one `MIGRATION_n_(n+1)` for every version step, all registered in `create`, in order |
 | ADR index | numbers without a gap, a matching heading and a Status line in every ADR, and one entry per ADR in the README index |
 | Release artifact | the release attaches only the debug APK and its checksum, no app bundle, and the release docs name the same file |
+| Intended purpose | the README carries the purpose statement the [compliance spec](../../openspec/specs/compliance/spec.md) requires and does not say the app evaluates values against clinical standards |
 | Starting values | the picker starting positions equal the ones in ADR 0033, glucose starts empty, and the Log ViewModel does not read sex, height or an ideal to choose a start |
 
 A change that moves one of these facts moves the others in the same commit. A new policy-sensitive default gets a check here, next to the ADR that fixes it.

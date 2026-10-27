@@ -4,7 +4,7 @@
 
 # Health Journal
 
-**An offline-first, privacy-focused Android health journal.**
+**A private, offline health journal for Android: record your own numbers, look back at them, keep them on your phone.**
 
 [![Android CI](https://github.com/mannetje/health_journal/actions/workflows/android.yml/badge.svg)](https://github.com/mannetje/health_journal/actions/workflows/android.yml)
 [![Latest Release](https://img.shields.io/github/v/release/mannetje/health_journal?include_prereleases&color=blue&label=APK%20Release)](https://github.com/mannetje/health_journal/releases/latest)
@@ -13,7 +13,7 @@
 
 </div>
 
-An offline-first, privacy-focused Android health logging application built with Kotlin, Jetpack Compose, and Hexagonal Architecture (Ports and Adapters).
+Health Journal is **a personal tool for logging and reminders, for private use. It is not a medical device.** It stores what you enter, encrypted on your phone, and shows it back as lists and trend charts. It has no account, no network access and no cloud. It is built with Kotlin, Jetpack Compose and Hexagonal Architecture (Ports and Adapters).
 
 > **Want to build on it or contribute?** Start with the [Developer Docs](docs/dev/README.md): getting started, an architecture tour and how-to guides. See also [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -40,15 +40,26 @@ More screenshots (dark theme, graphs and statistics, migraine log, medication re
 
 ## Overview & Vision
 
-**Health Journal** empowers individuals to track and understand their vital health metrics locally on their device, with zero reliance on cloud services or external servers. All evaluation logic adheres strictly to clinical standards, defaulting to the official guidelines of the **Dutch College of General Practitioners** (*Nederlands Huisartsen Genootschap* / NHG).
+**Health Journal** lets you keep a record of your weight, blood pressure, glucose, headaches, medication and more on your own device, with no reliance on cloud services or external servers. Where a published guideline gives a range, such as the one from the **Dutch College of General Practitioners** (*Nederlands Huisartsen Genootschap* / NHG), the app shows the name of the range a value falls in as a plain label. A label is not a diagnosis.
+
+#### What it is, and what it is not
+
+| It is | It is not |
+|---|---|
+| A logbook that records and shows what you enter | A medical device, or a tool for healthcare professionals |
+| Offline: no `INTERNET` permission, no telemetry, no sync | A service with an account, a cloud or a sharing feed |
+| Encrypted on the device, with an optional app lock and an encrypted backup you control | A place that gives advice, targets, scores, rankings or comparisons |
+| Open source under Apache 2.0 | A diagnosis, a prediction, a dose check or an alarm based on your values |
+
+Questions about your values go to your doctor or pharmacist. The rules behind this are in the [compliance spec](openspec/specs/compliance/spec.md) and [ADR 0021](docs/adr/0021-medication-compliance-and-privacy.md).
 
 ### Key Features
 
 #### 📊 Tracked Health Metrics
-- **Body Weight & BMI:** Record weight in kg or lb; automatically calculates Body Mass Index (BMI) categorized against NHG/WHO standards. *([spec](openspec/specs/health-metrics/weight/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
-- **Waist Circumference (optional):** Record waist measurement in cm; evaluated against Voedingscentrum's sex-specific healthy-range thresholds when profile sex is set. *([spec](openspec/specs/health-metrics/weight/spec.md))*
-- **Blood Pressure & Pulse:** Record systolic, diastolic (mmHg), and pulse (30–250 bpm); evaluated against NHG 3-band categories (Normal, High, Seriously raised). *([spec](openspec/specs/health-metrics/blood-pressure/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
-- **Blood Glucose:** Record fasting and postprandial levels in mmol/L or mg/dL; evaluated against NHG context-specific target ranges. *([spec](openspec/specs/health-metrics/glucose/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
+- **Body Weight & BMI:** Record weight in kg or lb; calculates the Body Mass Index (BMI) and shows its NHG/WHO range label. *([spec](openspec/specs/health-metrics/weight/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
+- **Waist Circumference (optional):** Record waist measurement in cm; shown with the Voedingscentrum range label when profile sex is set. *([spec](openspec/specs/health-metrics/weight/spec.md))*
+- **Blood Pressure & Pulse:** Record systolic, diastolic (mmHg), and pulse (30–250 bpm); shown with its NHG range label (Normal, High, Seriously raised). *([spec](openspec/specs/health-metrics/blood-pressure/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
+- **Blood Glucose:** Record fasting and postprandial levels in mmol/L or mg/dL; shown with the NHG range label for the context. *([spec](openspec/specs/health-metrics/glucose/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
 - **Migraine log:** A step-by-step log of headaches and migraines on its own tab of the Log screen: start and end (or still ongoing), intensity 0 to 10, where it hurts, type, symptoms, triggers, medication taken, relief and a comment, with your own trigger and relief tags. History shows one compact card per migraine and a graph view with counts, a timeline, durations, weekdays and a time-of-day heat map. Plain facts only: no advice, no diagnosis and no comparisons. *([change](openspec/changes/archive/2026-10-24-add-migraine-log/proposal.md), [spec](openspec/specs/migraine/spec.md), [ADR 0025](docs/adr/0025-migraine-log-data-model.md), [dev doc](docs/dev/migraine.md))*
 - **Physical Activity:** Track duration and distance for workout sessions manually or via bulk import. *([spec](openspec/specs/health-metrics/activity/spec.md))*
 - **Medication Pillbox (💊):** Manage medications (tablets, liquids, sprays, injectables) with flexible schedule versions, daily time slots, and intake logs. *([spec](openspec/specs/medication/spec.md), [ADR 0020](docs/adr/0020-medication-model-and-pillbox.md), [dev doc](docs/dev/pillbox.md))*
