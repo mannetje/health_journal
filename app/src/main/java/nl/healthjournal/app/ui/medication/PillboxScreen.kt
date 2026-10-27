@@ -283,7 +283,7 @@ private fun WeekStrip(week: List<WeekDay>, selected: java.time.LocalDate, onSele
                         if (isSelected) MaterialTheme.colorScheme.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent,
                         RoundedCornerShape(8.dp)
                     )
-                    .clickable { onSelect(weekDay.date) }
+                    .clickable(role = Role.Button) { onSelect(weekDay.date) }
                     .semantics { contentDescription = "$name $dateText: $statusText" }
                     .padding(vertical = 6.dp),
                 horizontalAlignment = Alignment.CenterHorizontally

@@ -425,12 +425,13 @@ class MainActivity : FragmentActivity() {
                                         contentDescription = logoDescription,
                                         modifier = Modifier
                                             .padding(end = 16.dp)
-                                            .height(40.dp)
                                             .clickable(role = Role.Button) {
                                                 showPillbox = false
                                                 showMindfulness = false
                                                 currentTab = AppNavDestination.LOG
                                             }
+                                            .minimumInteractiveComponentSize()
+                                            .height(40.dp)
                                     )
                                 },
                                 colors = TopAppBarDefaults.topAppBarColors(

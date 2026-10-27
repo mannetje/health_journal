@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
@@ -141,7 +142,7 @@ private fun DayCell(
             .height(CellHeight)
             .clip(MaterialTheme.shapes.small)
             .background(if (marked) colors.secondary else colors.surface)
-            .then(if (marked) Modifier.clickable { onOpenDay(day) } else Modifier)
+            .then(if (marked) Modifier.clickable(role = Role.Button) { onOpenDay(day) } else Modifier)
             .clearAndSetSemantics { contentDescription = description },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -158,4 +159,4 @@ private fun DayCell(
     }
 }
 
-private val CellHeight = 40.dp
+private val CellHeight = 48.dp
