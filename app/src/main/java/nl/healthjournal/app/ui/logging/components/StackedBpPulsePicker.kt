@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 
 @Composable
 fun StackedBpPulsePicker(
@@ -25,6 +26,9 @@ fun StackedBpPulsePicker(
     onDiastolicChange: (Int) -> Unit,
     pulse: Int,
     onPulseChange: (Int) -> Unit,
+    systolicSet: Boolean,
+    diastolicSet: Boolean,
+    pulseSet: Boolean,
     systolicLabel: String,
     diastolicLabel: String,
     pulseLabel: String,
@@ -39,6 +43,7 @@ fun StackedBpPulsePicker(
         // Top Row: Systolic (Red Box)
         SingleNumberRowPicker(
             label = systolicLabel,
+            isSet = systolicSet,
             value = systolic,
             onValueChange = onSystolicChange,
             range = 40..260,
@@ -48,6 +53,7 @@ fun StackedBpPulsePicker(
         // Middle Row: Diastolic (Blue Box)
         SingleNumberRowPicker(
             label = diastolicLabel,
+            isSet = diastolicSet,
             value = diastolic,
             onValueChange = onDiastolicChange,
             range = 20..200,
@@ -57,6 +63,7 @@ fun StackedBpPulsePicker(
         // Bottom Row: Pulse (Green Box)
         SingleNumberRowPicker(
             label = pulseLabel,
+            isSet = pulseSet,
             value = pulse,
             onValueChange = onPulseChange,
             range = 30..220,
@@ -68,6 +75,7 @@ fun StackedBpPulsePicker(
 @Composable
 private fun SingleNumberRowPicker(
     label: String,
+    isSet: Boolean,
     value: Int,
     onValueChange: (Int) -> Unit,
     range: IntRange,
@@ -99,7 +107,21 @@ private fun SingleNumberRowPicker(
         }
     }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .adjustableValue(
+                label = label,
+                valueText = value.toString(),
+                isSet = isSet,
+                value = value.toFloat(),
+                range = range.first.toFloat()..range.last.toFloat(),
+                steps = totalCount - 2,
+                bigStep = 10f,
+                bigStepText = "10",
+                onSet = { onValueChange(it.roundToInt()) }
+            )
+    ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),

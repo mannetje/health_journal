@@ -317,6 +317,10 @@
     <string name="log_err_distance">Please enter a valid distance in %1$s</string>
     <string name="log_err_waist">Please enter a valid waist circumference (40–200 cm)</string>
     <string name="log_choose_value_hint">Scroll or type to set a value. The starting position is not recorded.</string>
+    <string name="log_picker_not_set">not set yet</string>
+    <string name="log_picker_state">%1$s, %2$s</string>
+    <string name="log_picker_increase_by">Increase by %1$s</string>
+    <string name="log_picker_decrease_by">Decrease by %1$s</string>
     <string name="log_err_choose_value">Set a value first by scrolling or typing</string>
     <string name="log_err_save_failed">Failed to save entry</string>
     <string name="history_msg_export_done">CSV export generated (%1$s)!</string>

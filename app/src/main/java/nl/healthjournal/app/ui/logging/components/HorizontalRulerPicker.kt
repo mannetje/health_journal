@@ -30,6 +30,8 @@ fun HorizontalRulerPicker(
     value: Double,
     onValueChange: (Double) -> Unit,
     range: ClosedFloatingPointRange<Double>,
+    label: String,
+    isSet: Boolean,
     step: Double = 0.1,
     unitLabel: String = "",
     tapeColor: Color = Color(0xFFFFC107), // Yellow Measuring Tape
@@ -71,8 +73,21 @@ fun HorizontalRulerPicker(
         }
     }
 
+    val readout = String.format(java.util.Locale.US, "%.1f", value)
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .adjustableValue(
+                label = label,
+                valueText = if (unitLabel.isBlank()) readout else "$readout $unitLabel",
+                isSet = isSet,
+                value = value.toFloat(),
+                range = range.start.toFloat()..range.endInclusive.toFloat(),
+                steps = totalSteps - 1,
+                bigStep = 1f,
+                bigStepText = "1",
+                onSet = { onValueChange((it.toDouble() * 10).roundToInt() / 10.0) }
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -83,7 +98,7 @@ fun HorizontalRulerPicker(
             modifier = Modifier.padding(bottom = 4.dp)
         ) {
             Text(
-                text = String.format(java.util.Locale.US, "%.1f", value),
+                text = readout,
                 style = MaterialTheme.typography.displayMedium.copy(
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold

@@ -5,6 +5,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 ### Added
+- **Log pickers work with TalkBack:** the weight, waist and blood pressure rulers now announce their label and value ("Systolic, 120, not set yet" until you move them) and adjust like a slider: swipe up or down for one step, or use the actions "Increase by 10" and "Decrease by 10" (1 for weight and waist). Before, the scrolling tape could not be changed without touch gestures. English and Dutch strings; not yet checked on a device with TalkBack.
+
 - **Unencrypted-storage banner:** when encryption could not be set up, a banner on every tab says so (dismissible for the session, with a shortcut to the Profile tab). Before, the notice was only in Profile. Light, dark and Dutch screenshots are in `docs/screenshots.md`.
 
 - **Backup restore tells what it leaves out:** a backup made by a newer app can hold tags or codes this version does not know. The restore dialog now says how many items will be left out, before anything is imported. Before, they were dropped without a word.

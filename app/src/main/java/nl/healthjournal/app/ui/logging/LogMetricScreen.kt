@@ -143,6 +143,8 @@ fun LogMetricScreen(
                         value = state.weightValue,
                         onValueChange = { viewModel.onWeightValueChanged(it) },
                         range = 20.0..250.0,
+                        label = stringResource(R.string.log_weight_label, units.weightSymbol),
+                        isSet = LogField.WEIGHT in state.chosen,
                         step = 0.1,
                         unitLabel = units.weightSymbol,
                         tapeColor = Color(0xFFFFC107), // Measuring Tape Yellow
@@ -170,6 +172,9 @@ fun LogMetricScreen(
                         onDiastolicChange = { viewModel.onDiastolicValueChanged(it) },
                         pulse = state.pulseValue,
                         onPulseChange = { viewModel.onPulseValueChanged(it) },
+                        systolicSet = LogField.SYSTOLIC in state.chosen,
+                        diastolicSet = LogField.DIASTOLIC in state.chosen,
+                        pulseSet = LogField.PULSE in state.chosen,
                         systolicLabel = stringResource(R.string.log_systolic_label),
                         diastolicLabel = stringResource(R.string.log_diastolic_label),
                         pulseLabel = stringResource(R.string.log_pulse_label)
@@ -272,6 +277,8 @@ fun LogMetricScreen(
                         value = state.waistValue,
                         onValueChange = { viewModel.onWaistValueChanged(it) },
                         range = 40.0..200.0,
+                        label = stringResource(R.string.log_waist_label),
+                        isSet = LogField.WAIST in state.chosen,
                         step = 0.1,
                         unitLabel = "cm",
                         tapeColor = Color(0xFF00ACC1), // Complementary Teal measuring tape
