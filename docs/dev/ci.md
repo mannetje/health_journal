@@ -68,7 +68,7 @@ Run these before you push. They are what CI runs.
 ```bash
 bash scripts/check-docs.sh                       # docs links and paths
 npx --no-install openspec validate --all --strict  # specs, when you touched openspec/
-./gradlew test                                   # unit tests, all modules
+./gradlew test                                   # unit tests, all modules, with the repository guardrails
 ./gradlew :app:lintDebug                         # Android Lint
 ./gradlew assembleDebug                          # the APK builds
 ```

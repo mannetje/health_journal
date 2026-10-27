@@ -24,7 +24,6 @@ import nl.healthjournal.domain.model.nhg.NhgBmiCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
 import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.model.profile.Sex
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.RecordActivityUseCase

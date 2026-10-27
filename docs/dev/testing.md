@@ -18,7 +18,7 @@ Both run on every push and pull request. [Continuous integration](ci.md) describ
 |--------|--------|------|
 | `domain` | `domain/src/test/kotlin/…` | Value object limits, unit conversion, NHG classifiers (both sides of every boundary), use cases with fake ports (`usecase/UseCasesTest.kt`, `usecase/EntryCommentUseCasesTest.kt`), the backup passphrase rules and use cases (`model/backup/`), the medication model (`model/medication/`, including `AdherenceTest`) and its use cases (`usecase/MedicationUseCasesTest.kt`, which also holds the in-memory `FakeMedicationRepository`), the Migraine model, statistics and tags (`model/migraine/`), and the Mindfulness logic (`model/mindfulness/`: patterns, both timers, session registry, tones, catalogue and credits, Start here) |
 | `data` | `data/src/test/java/…` | Mappers (`local/mapper/`), CSV export and import (`csv/CsvAdaptersTest.kt`, `csv/MedicationCsvTest.kt`, `csv/MigraineCsvTest.kt`), repositories against fake DAOs (`repository/RoomRepositoriesTest.kt`, `repository/RoomMedicationRepositoryTest.kt`), the encrypted backup (`backup/BackupFormatTest.kt` with the published test vectors, `backup/RoomBackupSnapshotTest.kt` for the merge and its rollback) |
-| `app` | `app/src/test/java/…` | ViewModels (`ui/ViewModelsTest.kt`, `ui/MedicationViewModelTest.kt`, `ui/MigraineLogViewModelTest.kt` with the fakes in `ui/FakeMigraines.kt`), history, timeline grouping (`ui/history/HistoryTimelineTest.kt`), weight and blood pressure statistics (`ui/history/charts/WeightStatisticsTest.kt`, `BloodPressureStatisticsTest.kt`, `WaistStatisticsTest.kt`, `GlucoseStatisticsTest.kt`), point selection (`PointSelectionTest.kt`) and chart maths (`ui/history/`), glucose ranges and label strings (`ui/nhg/`, `ui/MedicationStringsTest.kt`), medication formatting (`ui/MedicationFormatTest.kt`), unit and theme preferences (`settings/`), saved Mindfulness choices (`settings/MindfulnessPreferencesTest.kt`), and the privacy checks (`PrivacyChecksTest.kt`) |
+| `app` | `app/src/test/java/…` | ViewModels (`ui/ViewModelsTest.kt`, `ui/MedicationViewModelTest.kt`, `ui/MigraineLogViewModelTest.kt` with the fakes in `ui/FakeMigraines.kt`), history, timeline grouping (`ui/history/HistoryTimelineTest.kt`), weight and blood pressure statistics (`ui/history/charts/WeightStatisticsTest.kt`, `BloodPressureStatisticsTest.kt`, `WaistStatisticsTest.kt`, `GlucoseStatisticsTest.kt`), point selection (`PointSelectionTest.kt`) and chart maths (`ui/history/`), glucose ranges and label strings (`ui/nhg/`, `ui/MedicationStringsTest.kt`), medication formatting (`ui/MedicationFormatTest.kt`), unit and theme preferences (`settings/`), saved Mindfulness choices (`settings/MindfulnessPreferencesTest.kt`), the privacy checks (`PrivacyChecksTest.kt`) and the repository guardrails (`RepositoryGuardrailsTest.kt`) |
 
 ## Rules of thumb
 
@@ -27,6 +27,20 @@ Both run on every push and pull request. [Continuous integration](ci.md) describ
 - Use fakes of the ports, not mocking frameworks.
 - A bug fix starts with a failing test.
 - A string test can read `res/values*/strings.xml` directly, as `RangeLabelStringsTest` does, to keep English and Dutch aligned.
+
+## Guardrails
+
+`app/src/test/java/nl/healthjournal/app/RepositoryGuardrailsTest.kt` keeps facts that are written in more than one place in step. It reads the files directly, so it runs with `./gradlew test` and in CI. When it fails, the message names the file that fell behind.
+
+| Fact | What must agree |
+|------|-----------------|
+| Schema version | `version` in `HealthJournalDatabase`, one exported schema per version in `data/schemas`, `MigrationChainTest.CURRENT_VERSION`, the version in `DatabaseKeyProviderTest`, and the version and the next `Migration(n, n+1)` in [Change the database](how-to/change-the-database.md) |
+| Migration chain | one `MIGRATION_n_(n+1)` for every version step, all registered in `create`, in order |
+| ADR index | numbers without a gap, a matching heading and a Status line in every ADR, and one entry per ADR in the README index |
+| Release artifact | the release attaches only the debug APK and its checksum, no app bundle, and the release docs name the same file |
+| Starting values | the picker starting positions equal the ones in ADR 0033, glucose starts empty, and the Log ViewModel does not read sex, height or an ideal to choose a start |
+
+A change that moves one of these facts moves the others in the same commit. A new policy-sensitive default gets a check here, next to the ADR that fixes it.
 
 ## Coverage
 
