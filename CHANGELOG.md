@@ -11,6 +11,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 - **Release policy and checksum:** releases now carry a SHA-256 file next to the APK, and the README and ADR 0008 state that they are personal, sideloaded, debug-signed builds, and name when a private release keystore becomes necessary.
 
+### Changed
+- **SQLCipher 4.9.0 → 4.19.1** (dependabot): the `:data` module now compiles against SDK 36, which the new release requires. Build, unit tests and lint pass.
+
 ### Fixed
 - **Encryption migration is crash-safe:** the plain database is set aside and only deleted after the encrypted one is in place; an interrupted swap is recovered at the next start.
 - Docs: the database is at version 7 everywhere, and the README ADR list now includes ADRs 0026 to 0032.

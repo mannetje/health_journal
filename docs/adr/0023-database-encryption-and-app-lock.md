@@ -51,7 +51,7 @@ Both protections were part of the original medication proposal but are split int
 Both are recorded here as exceptions to ADR 0003 with the required checks:
 
 1. **`net.zetetic:sqlcipher-android`** (BSD-3-Clause-like "Zetetic" licence)
-   - No network code, native library (~4 MB per ABI, total ~12–16 MB), supports 16 KB page size (tested on API 35+).
+   - No network code, native library (~4 MB per ABI, total ~12–16 MB), supports 16 KB page size (tested on API 35+). Version 4.19.1 since the dependabot bump; it needs compileSdk 36.
    - Fallback if review fails: field-level AES-GCM envelope on selected tables only (keeps Room plain, encrypts only sensitive columns via TypeConverters).
 
 2. **`androidx.biometric`** (Apache-2.0)
