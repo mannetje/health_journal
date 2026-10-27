@@ -12,8 +12,8 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 /**
- * Opens a hand-built version 5 database through Room with the real migrations.
- * The schema is not exported, so the version 5 tables are written out here.
+ * Opens a hand-built version 5 database through [HealthJournalDatabase.create], the path the app takes at start-up.
+ * Every version step against the exported schemas is covered by [MigrationChainTest].
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])

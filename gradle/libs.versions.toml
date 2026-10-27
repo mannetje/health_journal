@@ -56,6 +56,7 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 
 # ADR 0023 exceptions to ADR 0003: SQLCipher (BSD-style, no network) and BiometricPrompt
 sqlcipher-android = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }

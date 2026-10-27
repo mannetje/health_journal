@@ -19,7 +19,7 @@ Prefer a **read mapping** when only the meaning of a stored string changes. The 
 ## Add a table or column
 
 1. Change the entity in `local/entity/` (or add one) and register new entities in the `@Database` annotation.
-2. Increase `version` by one.
+2. Increase `version` by one. Build the `data` module (for example `./gradlew :data:kspDebugKotlin`): Room writes `data/schemas/nl.healthjournal.data.local.HealthJournalDatabase/<new version>.json`. Commit that file with the change, and never edit or delete an older one.
 3. Write a `Migration(old, new)` with plain SQL. Look at `MIGRATION_1_2` (adds the optional `sex` column), `MIGRATION_2_3` (adds the `waist_circumferences` table with `CREATE TABLE IF NOT EXISTS` and two indexes) and `MIGRATION_3_4` (adds the optional `pulse` column). The simplest one:
 
    ```kotlin
@@ -44,7 +44,7 @@ Store metric units and plain types. Do not store anything that depends on the us
 - Test CSV export and import if the shape changed (`data/src/test/java/nl/healthjournal/data/csv/CsvAdaptersTest.kt`).
 - Repository logic is tested against fake DAOs in `RoomRepositoriesTest.kt`.
 
-The schema is not exported, so a migration test builds the old database by hand: see `MigrationTest.kt` in `data/src/test/java/nl/healthjournal/data/local/`. It creates the previous version with plain SQL, opens it through Room with the migrations, and checks that every row is kept. Extend it for your migration. Also test on a device: install the previous release on an emulator, add data, install your build over it and check that the data is still there. Debug builds use a fixed signing key, so this works ([ADR 0008](../../adr/0008-fixed-debug-signing-key.md)).
+The exported schemas make the migration test mechanical: `MigrationChainTest.kt` in `data/src/test/java/nl/healthjournal/data/local/` uses Room's `MigrationTestHelper` to create the database as each earlier version did, runs your migrations, and validates the result against the exported schema of the new version, so a migration that does not match the entities fails the build. Add your `MIGRATION_x_y` to its list and set `CURRENT_VERSION`; add rows to the version 1 test if the change touches existing data. `MigrationTest.kt` next to it opens a hand-built version 5 database through `HealthJournalDatabase.create`, the path the app takes at start-up. Also test on a device: install the previous release on an emulator, add data, install your build over it and check that the data is still there. Debug builds use a fixed signing key, so this works ([ADR 0008](../../adr/0008-fixed-debug-signing-key.md)).
 
 ## Tell the users
 

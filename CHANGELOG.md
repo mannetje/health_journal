@@ -11,6 +11,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 - **Release policy and checksum:** releases now carry a SHA-256 file next to the APK, and the README and ADR 0008 state that they are personal, sideloaded, debug-signed builds, and name when a private release keystore becomes necessary.
 
+- **Room schemas are exported and every migration is tested:** the schema of database versions 1 to 7 is committed in `data/schemas`, and `MigrationChainTest` migrates a database from each version to the current one and validates the result against the exported schema. Developer docs only; the app itself is unchanged.
+- **SQLCipher instrumented tests:** `SqlCipherDatabaseTest` runs on an emulator or device and checks the encrypted database (same key reads, another key fails, the file is not plain) and the real plain-to-encrypted migration. The existing key test expected database version 6 and now expects 7. `docs/dev/testing.md` describes the suite; CI does not run it.
+
 ### Changed
 - **SQLCipher 4.9.0 → 4.19.1** (dependabot): the `:data` module now compiles against SDK 36, which the new release requires. Build, unit tests and lint pass.
 

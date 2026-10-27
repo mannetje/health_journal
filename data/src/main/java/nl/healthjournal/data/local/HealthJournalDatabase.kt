@@ -195,7 +195,7 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         MigraineTagEntity::class
     ],
     version = 7,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class HealthJournalDatabase : RoomDatabase() {
     abstract fun profileDao(): ProfileDao

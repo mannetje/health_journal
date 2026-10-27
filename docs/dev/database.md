@@ -2,7 +2,7 @@
 
 Health Journal keeps everything in one local Room (SQLite) database, `health_journal.db`, defined in `data/src/main/java/nl/healthjournal/data/local/HealthJournalDatabase.kt`. Nothing leaves the device. This page is the map of the tables; [Change the database](how-to/change-the-database.md) explains how to alter it safely.
 
-Current version: **7**. Schema export is off, so this page and the entity classes in `data/src/main/java/nl/healthjournal/data/local/entity/` are the source of truth.
+Current version: **7**. Room exports the schema of every version to `data/schemas/nl.healthjournal.data.local.HealthJournalDatabase/<version>.json`. Those files are committed and are the exact record of what each released version looked like; the migration tests are built on them ([Testing](testing.md)). This page and the entity classes in `data/src/main/java/nl/healthjournal/data/local/entity/` are the readable map.
 
 ## Entity-relationship diagram
 
@@ -179,7 +179,7 @@ Primary key `id` (TEXT), `profileId` on every per-profile table, times as epoch 
 | 5 to 6 | medication tables added: `medications`, `medication_schedules`, `medication_times`, `intakes` |
 | 6 to 7 | migraine tables added: `migraines`, `migraine_tags` |
 
-Every migration is hand-written in `HealthJournalDatabase.kt`. Update this page, the diagram included, whenever an entity changes.
+Every migration is hand-written in `HealthJournalDatabase.kt`. Update this page, the diagram included, whenever an entity changes. `MigrationChainTest` migrates a database from each exported version to the current one and checks the result against the exported schema.
 
 ## Encryption at rest
 

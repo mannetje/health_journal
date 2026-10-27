@@ -1,10 +1,13 @@
 # Testing
 
-Tests are plain JUnit 4 with `kotlinx-coroutines-test`. Robolectric is used only for the tests that need a real SQLite (the encryption migration test (including crash recovery of the file swap) and the medication DAO test); there is no instrumented test suite. This keeps `./gradlew test` fast and runnable in CI.
+Tests are plain JUnit 4 with `kotlinx-coroutines-test`. Robolectric is used only for the tests that need a real SQLite (the encryption migration test (including crash recovery of the file swap), the medication DAO test and the schema migration tests). This keeps `./gradlew test` fast and runnable in CI.
+
+A small instrumented suite in `data/src/androidTest/` covers what needs the real device: the Android Keystore key (`DatabaseKeyProviderTest`) and the native SQLCipher library (`SqlCipherDatabaseTest`: an encrypted database reads back with the same key, does not open with another key and is not plain on disk, and the real plain-to-encrypted migration keeps the rows and leaves no set-aside files). CI does not run it, because that needs an emulator; run it before a release that touches storage.
 
 ```bash
 ./gradlew test             # unit tests, all modules
 ./gradlew :app:lintDebug   # Android Lint (errors fail CI)
+./gradlew :data:connectedDebugAndroidTest   # instrumented tests, needs a running emulator or device
 ```
 
 Both run on every push and pull request. [Continuous integration](ci.md) describes the workflows, the run summary and the artifacts.
@@ -39,8 +42,8 @@ Line coverage when this was written: `domain` about 90%, `data` about 32%, `app`
 
 ## Not covered by unit tests
 
-Compose screens and the Android back stack are checked by hand (the Mindfulness area too: audio, speech and vibration need a device); the migration from version 5 to 6 has a test (`data/src/test/java/nl/healthjournal/data/local/MigrationTest.kt`). Before a release, run the app on a device in English and Dutch, with each Theme choice in Profile (System, Light and Dark), at large font scales (1.3x and 2.0x to verify Dutch labels like "Activiteit" do not clip in tab rows or navigation bars), and install over the previous version to check that data survives ([Change the database](how-to/change-the-database.md)).
+Compose screens and the Android back stack are checked by hand (the Mindfulness area too: audio, speech and vibration need a device); every schema migration is tested (`data/src/test/java/nl/healthjournal/data/local/MigrationChainTest.kt` against the exported schemas, and `MigrationTest.kt` through the start-up path). Before a release, run the app on a device in English and Dutch, with each Theme choice in Profile (System, Light and Dark), at large font scales (1.3x and 2.0x to verify Dutch labels like "Activiteit" do not clip in tab rows or navigation bars), and install over the previous version to check that data survives ([Change the database](how-to/change-the-database.md)).
 
 ## Known gaps
 
-Only the medication DAO is tested against a real database (`local/MedicationDaoTest.kt`); the other DAOs are covered through fake DAOs that mirror the SQL. There are no migration tests before version 5, no tests for the Compose screens, and none for the CSV file picker flow. The Robolectric setup can be reused to close most of this. Contributions here are welcome.
+Only the medication DAO is tested against a real database (`local/MedicationDaoTest.kt`); the other DAOs are covered through fake DAOs that mirror the SQL. There are no tests for the Compose screens, and none for the CSV file picker flow. The Robolectric setup can be reused to close most of this. Contributions here are welcome.

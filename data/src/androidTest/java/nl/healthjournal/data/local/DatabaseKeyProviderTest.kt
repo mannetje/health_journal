@@ -154,6 +154,6 @@ class DatabaseKeyProviderTest {
         db2.close()
 
         assertEquals("DB version must be the same after reopen", version1, version2)
-        assertEquals("DB must be at the expected schema version", 6, version1)
+        assertEquals("DB must be at the expected schema version", 7, version1)
     }
 }
