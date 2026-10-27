@@ -15,24 +15,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
 import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import nl.healthjournal.app.reminder.ReminderIntents
@@ -75,18 +65,11 @@ import nl.healthjournal.app.ui.profile.ReminderSettingsSection
 import nl.healthjournal.app.ui.profile.ReminderSettingsState
 import nl.healthjournal.app.ui.profile.SecuritySettingsSection
 import nl.healthjournal.app.ui.profile.SecuritySettingsState
-import nl.healthjournal.app.ui.theme.BrandNavy
 import nl.healthjournal.app.ui.theme.HealthJournalTheme
 import nl.healthjournal.data.backup.FreshDatabaseBackupSnapshot
 import nl.healthjournal.data.local.DatabaseEncryptionStatus
 import nl.healthjournal.data.local.DatabaseRecovery
 import nl.healthjournal.data.local.EncryptionState
-
-enum class AppNavDestination {
-    LOG,
-    HISTORY,
-    PROFILE
-}
 
 class MainActivity : FragmentActivity() {
 
@@ -278,7 +261,6 @@ class MainActivity : FragmentActivity() {
         super.attachBaseContext(newBase.withAppLocale(preference.language, preference.region))
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (DatabaseEncryptionStatus.state == EncryptionState.KeyLost) {
@@ -384,60 +366,25 @@ class MainActivity : FragmentActivity() {
                     if (!showPillbox) medicationViewModel.clearMessages()
                 }
 
-                val pillboxDescription = stringResource(R.string.nav_pillbox_desc)
-                val mindfulnessDescription = stringResource(R.string.nav_mindfulness_desc)
-                val logoDescription = stringResource(R.string.nav_logo_desc)
                 var encryptionBannerDismissed by rememberSaveable { mutableStateOf(false) }
                 Scaffold(
                     topBar = {
                         Column {
-                            TopAppBar(
-                                title = {
-                                    Text(
-                                        if (showPillbox) stringResource(R.string.nav_title_pillbox) else if (showMindfulness) stringResource(R.string.nav_title_mindfulness) else when (currentTab) {
-                                            AppNavDestination.LOG -> stringResource(R.string.nav_title_log)
-                                            AppNavDestination.HISTORY -> stringResource(R.string.nav_title_history)
-                                            AppNavDestination.PROFILE -> stringResource(R.string.nav_title_profile)
-                                        }
-                                    )
-                                },
-                                actions = {
-                                    IconButton(
-                                        onClick = { showMindfulness = false; showPillbox = true },
-                                        modifier = Modifier.size(48.dp)
-                                    ) {
-                                        Text(
-                                            "💊",
-                                            modifier = Modifier.semantics { contentDescription = pillboxDescription }
-                                        )
+                            AppTopBar(
+                                title = stringResource(
+                                    when {
+                                        showPillbox -> R.string.nav_title_pillbox
+                                        showMindfulness -> R.string.nav_title_mindfulness
+                                        else -> currentTab.titleRes
                                     }
-                                    IconButton(
-                                        onClick = { showPillbox = false; showMindfulness = true },
-                                        modifier = Modifier.size(48.dp)
-                                    ) {
-                                        Text(
-                                            "🪷",
-                                            modifier = Modifier.semantics { contentDescription = mindfulnessDescription }
-                                        )
-                                    }
-                                    Image(
-                                        painter = painterResource(R.drawable.logo_health_journal_on_navy),
-                                        contentDescription = logoDescription,
-                                        modifier = Modifier
-                                            .padding(end = 16.dp)
-                                            .clickable(role = Role.Button) {
-                                                showPillbox = false
-                                                showMindfulness = false
-                                                currentTab = AppNavDestination.LOG
-                                            }
-                                            .minimumInteractiveComponentSize()
-                                            .height(40.dp)
-                                    )
-                                },
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = BrandNavy,
-                                    titleContentColor = Color.White
-                                )
+                                ),
+                                onOpenPillbox = { showMindfulness = false; showPillbox = true },
+                                onOpenMindfulness = { showPillbox = false; showMindfulness = true },
+                                onOpenLog = {
+                                    showPillbox = false
+                                    showMindfulness = false
+                                    currentTab = AppNavDestination.LOG
+                                }
                             )
                             if (DatabaseEncryptionStatus.state is EncryptionState.NotActive && !encryptionBannerDismissed) {
                                 EncryptionNotActiveBanner(
@@ -452,26 +399,10 @@ class MainActivity : FragmentActivity() {
                         }
                     },
                     bottomBar = {
-                        NavigationBar {
-                            NavigationBarItem(
-                                selected = !showPillbox && !showMindfulness && currentTab == AppNavDestination.LOG,
-                                onClick = { showPillbox = false; showMindfulness = false; currentTab = AppNavDestination.LOG },
-                                label = { Text(stringResource(R.string.nav_tab_log)) },
-                                icon = { Text("📝") }
-                            )
-                            NavigationBarItem(
-                                selected = !showPillbox && !showMindfulness && currentTab == AppNavDestination.HISTORY,
-                                onClick = { showPillbox = false; showMindfulness = false; currentTab = AppNavDestination.HISTORY },
-                                label = { Text(stringResource(R.string.nav_tab_history)) },
-                                icon = { Text("📊") }
-                            )
-                            NavigationBarItem(
-                                selected = !showPillbox && !showMindfulness && currentTab == AppNavDestination.PROFILE,
-                                onClick = { showPillbox = false; showMindfulness = false; currentTab = AppNavDestination.PROFILE },
-                                label = { Text(stringResource(R.string.nav_tab_profile)) },
-                                icon = { Text("👤") }
-                            )
-                        }
+                        AppNavigationBar(
+                            selected = currentTab.takeIf { !showPillbox && !showMindfulness },
+                            onSelect = { showPillbox = false; showMindfulness = false; currentTab = it }
+                        )
                     }
                 ) { innerPadding ->
                     Surface(
@@ -611,25 +542,15 @@ class MainActivity : FragmentActivity() {
                     )
                 }
                 if (showPermissionDialog && !exerciseGate.active) {
-                    AlertDialog(
-                        onDismissRequest = {
+                    ReminderPermissionDialog(
+                        onAllow = {
                             showPermissionDialog = false
                             app.reminderPreference.permissionAsked = true
+                            requestNotificationPermission()
                         },
-                        title = { Text(stringResource(R.string.reminder_permission_title)) },
-                        text = { Text(stringResource(R.string.reminder_permission_body)) },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                showPermissionDialog = false
-                                app.reminderPreference.permissionAsked = true
-                                requestNotificationPermission()
-                            }) { Text(stringResource(R.string.reminder_permission_allow)) }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = {
-                                showPermissionDialog = false
-                                app.reminderPreference.permissionAsked = true
-                            }) { Text(stringResource(R.string.reminder_permission_later)) }
+                        onLater = {
+                            showPermissionDialog = false
+                            app.reminderPreference.permissionAsked = true
                         }
                     )
                 }
