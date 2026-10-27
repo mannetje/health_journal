@@ -41,9 +41,13 @@ Contributions in English are welcome; the app itself is in English and Dutch, an
 
 Use a prefix (`feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`), an imperative first line, and a body that explains why.
 
+## Conduct and decisions
+
+Take part according to the [Code of conduct](CODE_OF_CONDUCT.md). [Governance](GOVERNANCE.md) says who decides and which principles do not change.
+
 ## Reporting a security problem
 
-Do not open a public issue for a vulnerability. Use GitHub's private vulnerability reporting on the repository's Security tab.
+Do not open a public issue for a vulnerability. Use GitHub's private vulnerability reporting on the repository's Security tab; the [Security policy](SECURITY.md) says what is in scope.
 
 ## Licence
 

@@ -13,6 +13,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 - **Room schemas are exported and every migration is tested:** the schema of database versions 1 to 7 is committed in `data/schemas`, and `MigrationChainTest` migrates a database from each version to the current one and validates the result against the exported schema. Developer docs only; the app itself is unchanged.
 - **SQLCipher instrumented tests:** `SqlCipherDatabaseTest` runs on an emulator or device and checks the encrypted database (same key reads, another key fails, the file is not plain) and the real plain-to-encrypted migration. The existing key test expected database version 6 and now expects 7. `docs/dev/testing.md` describes the suite; CI does not run it.
+- **Project governance pages:** `SECURITY.md` (how to report a vulnerability, what is in scope), `CODE_OF_CONDUCT.md` and `GOVERNANCE.md` (who decides, how a change is decided, the principles that do not change). `CONTRIBUTING.md` links to them, and the pull request template now lists the lint check like the contributing checklist does. No change to the app.
 - **Repository guardrails:** `RepositoryGuardrailsTest` fails the build when the schema version, the migration chain, the README ADR index, the release artifact or the picker starting values disagree between code, tests and docs. Developer docs only; the app itself is unchanged.
 
 ### Changed

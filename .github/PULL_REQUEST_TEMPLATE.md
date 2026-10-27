@@ -9,6 +9,7 @@
 ## Checklist
 
 - [ ] `./gradlew test` passes
+- [ ] `./gradlew :app:lintDebug` has no errors
 - [ ] New or changed behaviour has tests
 - [ ] English and Dutch strings are both updated
 - [ ] No condition names, advice or warnings in user-facing text
