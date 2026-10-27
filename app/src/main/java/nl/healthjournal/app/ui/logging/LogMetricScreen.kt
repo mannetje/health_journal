@@ -301,10 +301,18 @@ fun LogMetricScreen(
                 RangeSourceNote()
             }
 
+            if (!state.canSave) {
+                Text(
+                    text = stringResource(R.string.log_choose_value_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             Button(
                 onClick = { viewModel.saveCurrentMetric() },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isSaving && state.activeProfile != null
+                enabled = !state.isSaving && state.activeProfile != null && state.canSave
             ) {
                 Text(stringResource(if (state.isSaving) R.string.log_saving else R.string.log_record_entry))
             }

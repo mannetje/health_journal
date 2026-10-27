@@ -44,27 +44,29 @@ enum class MetricType {
     WAIST_CIRCUMFERENCE
 }
 
+/** The picker values the person has to set themselves when there is no earlier entry to start from. */
+enum class LogField { WEIGHT, SYSTOLIC, DIASTOLIC, PULSE, WAIST }
+
 data class LoggingUiState(
     val activeProfile: Profile? = null,
     val selectedMetric: MetricType = MetricType.WEIGHT,
 
     // Weight inputs & feedback
-    val weightValue: Double = 75.0,
-    val weightInput: String = "75.0",
+    val weightValue: Double = START_WEIGHT_KG,
+    val weightInput: String = START_WEIGHT_KG.toString(),
     val previewBmi: BigDecimal? = null,
     val previewBmiCategory: NhgBmiCategory? = null,
 
     // BP inputs & feedback
-    val systolicValue: Int = 120,
-    val systolicInput: String = "120",
-    val diastolicValue: Int = 80,
-    val diastolicInput: String = "80",
-    val pulseValue: Int = 70,
+    val systolicValue: Int = START_SYSTOLIC,
+    val systolicInput: String = START_SYSTOLIC.toString(),
+    val diastolicValue: Int = START_DIASTOLIC,
+    val diastolicInput: String = START_DIASTOLIC.toString(),
+    val pulseValue: Int = START_PULSE,
     val previewBpCategory: NhgBloodPressureCategory? = null,
 
     // Glucose inputs & feedback
-    val glucoseValue: Double = 5.5,
-    val glucoseInput: String = "5.5",
+    val glucoseInput: String = "",
     val glucoseContext: GlucoseContext = GlucoseContext.FASTING,
     val previewGlucoseCategory: NhgGlucoseCategory? = null,
 
@@ -73,17 +75,40 @@ data class LoggingUiState(
     val activityDistanceInput: String = "",
 
     // Waist inputs & feedback
-    val waistValue: Double = 90.0,
-    val waistInput: String = "90.0",
+    val waistValue: Double = START_WAIST_CM,
+    val waistInput: String = START_WAIST_CM.toString(),
     val previewWaistCategory: NhgWaistCircumferenceCategory? = null,
 
     // Optional comment for the entry being logged (one draft, cleared after save and on tab change)
     val commentInput: String = "",
 
+    /**
+     * The picker values the person set or that come from their own latest entry. A picker without an earlier
+     * entry only shows a starting position: it is not a value of theirs until they move it, and it is never
+     * classified or recorded.
+     */
+    val chosen: Set<LogField> = emptySet(),
+
     val isSaving: Boolean = false,
     val successMessage: UiText? = null,
     val errorMessage: UiText? = null
-)
+) {
+    /** Whether the selected tab holds a value the person set, so the entry can be recorded. */
+    val canSave: Boolean
+        get() = when (selectedMetric) {
+            MetricType.WEIGHT -> LogField.WEIGHT in chosen
+            MetricType.BLOOD_PRESSURE -> LogField.SYSTOLIC in chosen && LogField.DIASTOLIC in chosen
+            MetricType.WAIST_CIRCUMFERENCE -> LogField.WAIST in chosen
+            MetricType.GLUCOSE, MetricType.ACTIVITY -> true
+        }
+}
+
+// Where a picker starts when there is no earlier entry. These are scroll positions, not targets or advice.
+private const val START_WEIGHT_KG = 75.0
+private const val START_SYSTOLIC = 120
+private const val START_DIASTOLIC = 80
+private const val START_PULSE = 70
+private const val START_WAIST_CM = 90.0
 
 class LoggingViewModel(
     private val profileRepository: ProfileRepositoryPort,
@@ -112,59 +137,45 @@ class LoggingViewModel(
             val glucoseHistory = profile?.let { healthLogRepository?.getGlucoseHistory(it.id) }
             val waistHistory = profile?.let { healthLogRepository?.getWaistCircumferenceHistory(it.id) }
 
-            // Pre-fill Weight
+            // Start from the person's own latest entries; without one the picker keeps its starting position
             val latestWeight = history?.maxByOrNull { it.timestamp }
-            val profileHeight = profile?.height
-            val prefilledWeightKg = when {
-                latestWeight != null -> latestWeight.weight.value.toDouble()
-                profileHeight != null -> {
-                    val hMeters = profileHeight.value / 100.0
-                    22.5 * hMeters * hMeters
-                }
-                else -> 75.0
-            }
-
-            // Pre-fill Waist
             val latestWaist = waistHistory?.maxByOrNull { it.timestamp }
-            val prefilledWaistCm = when {
-                latestWaist != null -> latestWaist.waist.value
-                profile?.sex == Sex.FEMALE -> 74.0
-                profile?.sex == Sex.MALE -> 86.5
-                else -> 90.0
-            }
-
-            // Pre-fill Blood Pressure & Pulse
             val latestBp = bpHistory?.maxByOrNull { it.timestamp }
-            val prefilledSystolic = latestBp?.reading?.systolic ?: 120
-            val prefilledDiastolic = latestBp?.reading?.diastolic ?: 80
-            val prefilledPulse = latestBp?.reading?.pulse ?: 70
-
-            // Pre-fill Glucose
             val latestGlucose = glucoseHistory?.maxByOrNull { it.timestamp }
-            val prefilledGlucoseMmol = latestGlucose?.glucose?.valueInMmolL?.toDouble() ?: 5.5
 
-            val formattedWeight = String.format(Locale.US, "%.1f", prefilledWeightKg)
-            val formattedWaist = String.format(Locale.US, "%.1f", prefilledWaistCm)
-            val formattedGlucose = String.format(Locale.US, "%.1f", prefilledGlucoseMmol)
+            val start = LoggingUiState()
+            val weightKg = latestWeight?.weight?.value?.toDouble() ?: start.weightValue
+            val waistCm = latestWaist?.waist?.value ?: start.waistValue
+            val systolic = latestBp?.reading?.systolic ?: start.systolicValue
+            val diastolic = latestBp?.reading?.diastolic ?: start.diastolicValue
+            val pulse = latestBp?.reading?.pulse ?: start.pulseValue
+            val formattedWeight = String.format(Locale.US, "%.1f", weightKg)
+            val formattedWaist = String.format(Locale.US, "%.1f", waistCm)
+            val formattedGlucose = latestGlucose?.glucose?.valueInMmolL?.let { String.format(Locale.US, "%.1f", it.toDouble()) }.orEmpty()
 
             _uiState.value = _uiState.value.copy(
                 activeProfile = profile,
-                weightValue = prefilledWeightKg,
+                weightValue = weightKg,
                 weightInput = formattedWeight,
-                waistValue = prefilledWaistCm,
+                waistValue = waistCm,
                 waistInput = formattedWaist,
-                systolicValue = prefilledSystolic,
-                systolicInput = prefilledSystolic.toString(),
-                diastolicValue = prefilledDiastolic,
-                diastolicInput = prefilledDiastolic.toString(),
-                pulseValue = prefilledPulse,
-                glucoseValue = prefilledGlucoseMmol,
-                glucoseInput = formattedGlucose
+                systolicValue = systolic,
+                systolicInput = systolic.toString(),
+                diastolicValue = diastolic,
+                diastolicInput = diastolic.toString(),
+                pulseValue = pulse,
+                glucoseInput = formattedGlucose,
+                chosen = buildSet {
+                    if (latestWeight != null) add(LogField.WEIGHT)
+                    if (latestWaist != null) add(LogField.WAIST)
+                    if (latestBp != null) addAll(listOf(LogField.SYSTOLIC, LogField.DIASTOLIC))
+                    if (latestBp?.reading?.pulse != null) add(LogField.PULSE)
+                }
             )
 
             updateWeightPreview(formattedWeight)
             updateWaistPreview(formattedWaist)
-            updateBpPreview(prefilledSystolic.toString(), prefilledDiastolic.toString())
+            updateBpPreview(systolic.toString(), diastolic.toString())
         }
     }
 
@@ -179,7 +190,7 @@ class LoggingViewModel(
 
     fun onWeightValueChanged(value: Double) {
         val str = String.format(Locale.US, "%.1f", value)
-        _uiState.value = _uiState.value.copy(weightValue = value, weightInput = str, errorMessage = null)
+        _uiState.value = _uiState.value.copy(weightValue = value, weightInput = str, chosen = _uiState.value.chosen + LogField.WEIGHT, errorMessage = null)
         updateWeightPreview(str)
     }
 
@@ -188,6 +199,7 @@ class LoggingViewModel(
         _uiState.value = _uiState.value.copy(
             weightInput = input,
             weightValue = parsed ?: _uiState.value.weightValue,
+            chosen = _uiState.value.chosen + LogField.WEIGHT,
             errorMessage = null
         )
         updateWeightPreview(input)
@@ -196,7 +208,7 @@ class LoggingViewModel(
     private fun updateWeightPreview(input: String) {
         val weightVal = input.parseDecimal()?.let { units().weightToKg(it) }
         val profile = _uiState.value.activeProfile
-        if (weightVal != null && weightVal in 1.0..700.0 && profile != null) {
+        if (weightVal != null && weightVal in 1.0..700.0 && profile != null && LogField.WEIGHT in _uiState.value.chosen) {
             val weight = WeightKg(UnitConversion.toStoredKg(weightVal))
             val bmiResult = profile.calculateBmi(weight)
             if (bmiResult != null) {
@@ -214,6 +226,7 @@ class LoggingViewModel(
         _uiState.value = _uiState.value.copy(
             systolicValue = value,
             systolicInput = value.toString(),
+            chosen = _uiState.value.chosen + LogField.SYSTOLIC,
             errorMessage = null
         )
         updateBpPreview(value.toString(), _uiState.value.diastolicInput)
@@ -223,20 +236,25 @@ class LoggingViewModel(
         _uiState.value = _uiState.value.copy(
             diastolicValue = value,
             diastolicInput = value.toString(),
+            chosen = _uiState.value.chosen + LogField.DIASTOLIC,
             errorMessage = null
         )
         updateBpPreview(_uiState.value.systolicInput, value.toString())
     }
 
     fun onPulseValueChanged(value: Int) {
-        _uiState.value = _uiState.value.copy(pulseValue = value, errorMessage = null)
+        _uiState.value = _uiState.value.copy(pulseValue = value, chosen = _uiState.value.chosen + LogField.PULSE, errorMessage = null)
     }
+
+    /** The pulse only counts when the person set it; the starting position is never recorded. */
+    private fun chosenPulse(): Int? = _uiState.value.pulseValue.takeIf { LogField.PULSE in _uiState.value.chosen }
 
     fun onSystolicChanged(input: String) {
         val parsed = input.toIntOrNull()
         _uiState.value = _uiState.value.copy(
             systolicInput = input,
             systolicValue = parsed ?: _uiState.value.systolicValue,
+            chosen = _uiState.value.chosen + LogField.SYSTOLIC,
             errorMessage = null
         )
         updateBpPreview(input, _uiState.value.diastolicInput)
@@ -247,6 +265,7 @@ class LoggingViewModel(
         _uiState.value = _uiState.value.copy(
             diastolicInput = input,
             diastolicValue = parsed ?: _uiState.value.diastolicValue,
+            chosen = _uiState.value.chosen + LogField.DIASTOLIC,
             errorMessage = null
         )
         updateBpPreview(_uiState.value.systolicInput, input)
@@ -255,8 +274,11 @@ class LoggingViewModel(
     private fun updateBpPreview(sysStr: String, diaStr: String) {
         val sys = sysStr.toIntOrNull()
         val dia = diaStr.toIntOrNull()
-        if (sys != null && dia != null && sys in 40..300 && dia in 20..200 && sys > dia) {
-            val reading = BloodPressureReading(systolic = sys, diastolic = dia, pulse = _uiState.value.pulseValue)
+        val chosen = _uiState.value.chosen
+        if (sys != null && dia != null && sys in 40..300 && dia in 20..200 && sys > dia &&
+            LogField.SYSTOLIC in chosen && LogField.DIASTOLIC in chosen
+        ) {
+            val reading = BloodPressureReading(systolic = sys, diastolic = dia, pulse = chosenPulse())
             _uiState.value = _uiState.value.copy(previewBpCategory = NhgBloodPressureCategory.classify(reading))
         } else {
             _uiState.value = _uiState.value.copy(previewBpCategory = null)
@@ -264,10 +286,8 @@ class LoggingViewModel(
     }
 
     fun onGlucoseChanged(input: String) {
-        val parsed = input.toDoubleOrNull()
         _uiState.value = _uiState.value.copy(
             glucoseInput = input,
-            glucoseValue = parsed ?: _uiState.value.glucoseValue,
             errorMessage = null
         )
         updateGlucosePreview(input, _uiState.value.glucoseContext)
@@ -289,7 +309,7 @@ class LoggingViewModel(
 
     fun onWaistValueChanged(value: Double) {
         val str = String.format(Locale.US, "%.1f", value)
-        _uiState.value = _uiState.value.copy(waistValue = value, waistInput = str, errorMessage = null)
+        _uiState.value = _uiState.value.copy(waistValue = value, waistInput = str, chosen = _uiState.value.chosen + LogField.WAIST, errorMessage = null)
         updateWaistPreview(str)
     }
 
@@ -298,6 +318,7 @@ class LoggingViewModel(
         _uiState.value = _uiState.value.copy(
             waistInput = input,
             waistValue = parsed ?: _uiState.value.waistValue,
+            chosen = _uiState.value.chosen + LogField.WAIST,
             errorMessage = null
         )
         updateWaistPreview(input)
@@ -306,7 +327,9 @@ class LoggingViewModel(
     private fun updateWaistPreview(input: String) {
         val cm = input.toDoubleOrNull()
         val profile = _uiState.value.activeProfile
-        if (cm != null && cm in WaistCircumferenceCm.MIN_CM..WaistCircumferenceCm.MAX_CM && profile != null) {
+        if (cm != null && cm in WaistCircumferenceCm.MIN_CM..WaistCircumferenceCm.MAX_CM && profile != null &&
+            LogField.WAIST in _uiState.value.chosen
+        ) {
             val waist = WaistCircumferenceCm(cm)
             _uiState.value = _uiState.value.copy(
                 previewWaistCategory = profile.classifyWaistCircumference(waist)
@@ -344,6 +367,11 @@ class LoggingViewModel(
             return
         }
 
+        if (!_uiState.value.canSave) {
+            _uiState.value = _uiState.value.copy(errorMessage = UiText.Res(R.string.log_err_choose_value))
+            return
+        }
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSaving = true, errorMessage = null, successMessage = null)
             val comment = _uiState.value.commentInput
@@ -366,7 +394,7 @@ class LoggingViewModel(
                             ?: throw UiTextException(UiText.Res(R.string.log_err_systolic))
                         val dia = _uiState.value.diastolicInput.toIntOrNull()
                             ?: throw UiTextException(UiText.Res(R.string.log_err_diastolic))
-                        val pulse = _uiState.value.pulseValue
+                        val pulse = chosenPulse()
                         recordBloodPressureUseCase(profile.id, sys, dia, pulse, comment = comment)
                         _uiState.value = _uiState.value.copy(
                             successMessage = UiText.Res(R.string.log_msg_bp_saved)

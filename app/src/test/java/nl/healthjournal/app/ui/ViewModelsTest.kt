@@ -15,6 +15,7 @@ import nl.healthjournal.app.ui.history.EntryRef
 import nl.healthjournal.app.ui.history.EntryUseCases
 import nl.healthjournal.app.ui.history.HistoryFilter
 import nl.healthjournal.app.ui.history.HistoryViewModel
+import nl.healthjournal.app.ui.logging.LogField
 import nl.healthjournal.app.ui.logging.LoggingViewModel
 import nl.healthjournal.app.ui.logging.MetricType
 import nl.healthjournal.app.ui.profile.ProfileViewModel
@@ -72,6 +73,7 @@ import nl.healthjournal.domain.model.metrics.GlucoseLevel
 import org.junit.Assert.assertTrue
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -268,39 +270,90 @@ class ViewModelsTest {
     )
 
     @Test
-    fun `LoggingViewModel smart pre-fill uses 3-tier fallback chain`() = runTest {
+    fun `LoggingViewModel starts from the latest entry and never from a value derived from the profile`() = runTest {
         val profileRepo = FakeProfileRepo()
         val healthLogRepo = FakeHealthLogRepo()
 
-        // Tier 3: No profile, no history -> Standard defaults
-        val vm1 = loggingViewModel(profileRepo, healthLogRepo)
-        testDispatcher.scheduler.advanceUntilIdle()
-        assertEquals(75.0, vm1.uiState.value.weightValue, 0.01)
-        assertEquals(120, vm1.uiState.value.systolicValue)
-        assertEquals(80, vm1.uiState.value.diastolicValue)
-        assertEquals(70, vm1.uiState.value.pulseValue)
-        assertEquals(90.0, vm1.uiState.value.waistValue, 0.01)
-
-        // Tier 2: Profile height = 180cm, sex = Female -> Personalized defaults
+        // No history: the pickers only show their starting positions and none of them counts as a value
         val profile = Profile.create("Bob", LocalDate.of(1990, 1, 1), height = HeightCm(180), sex = Sex.FEMALE)
         profileRepo.save(profile)
-        val vm2 = loggingViewModel(profileRepo, healthLogRepo)
+        val empty = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
-        assertEquals(72.9, vm2.uiState.value.weightValue, 0.01)
-        assertEquals(74.0, vm2.uiState.value.waistValue, 0.01)
+        assertEquals(75.0, empty.uiState.value.weightValue, 0.01)
+        assertEquals(90.0, empty.uiState.value.waistValue, 0.01)
+        assertEquals(120, empty.uiState.value.systolicValue)
+        assertEquals(80, empty.uiState.value.diastolicValue)
+        assertEquals(70, empty.uiState.value.pulseValue)
+        assertEquals("", empty.uiState.value.glucoseInput)
+        assertTrue(empty.uiState.value.chosen.isEmpty())
+        assertNull(empty.uiState.value.previewBmi)
+        assertNull(empty.uiState.value.previewBpCategory)
+        assertNull(empty.uiState.value.previewWaistCategory)
 
-        // Tier 1: Latest entry takes precedence
+        // The latest entry takes over and counts as the person's own value
         val weightEntry = WeightEntry(MeasurementId.generate(), profile.id, Instant.now(), WeightKg(BigDecimal("82.5")), null)
         val bpEntry = BloodPressureEntry(MeasurementId.generate(), profile.id, Instant.now(), BloodPressureReading(130, 85, 68), NhgBloodPressureCategory.NORMAL)
         healthLogRepo.saveWeight(weightEntry)
         healthLogRepo.saveBloodPressure(bpEntry)
 
-        val vm3 = loggingViewModel(profileRepo, healthLogRepo)
+        val withHistory = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
-        assertEquals(82.5, vm3.uiState.value.weightValue, 0.01)
-        assertEquals(130, vm3.uiState.value.systolicValue)
-        assertEquals(85, vm3.uiState.value.diastolicValue)
-        assertEquals(68, vm3.uiState.value.pulseValue)
+        assertEquals(82.5, withHistory.uiState.value.weightValue, 0.01)
+        assertEquals(130, withHistory.uiState.value.systolicValue)
+        assertEquals(85, withHistory.uiState.value.diastolicValue)
+        assertEquals(68, withHistory.uiState.value.pulseValue)
+        assertEquals(setOf(LogField.WEIGHT, LogField.SYSTOLIC, LogField.DIASTOLIC, LogField.PULSE), withHistory.uiState.value.chosen)
+        assertEquals(90.0, withHistory.uiState.value.waistValue, 0.01)
+    }
+
+    @Test
+    fun `LoggingViewModel cannot record a starting position until the person sets the value`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1), HeightCm(170)))
+        val vm = loggingViewModel(profileRepo, healthLogRepo)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        for (metric in listOf(MetricType.WEIGHT, MetricType.BLOOD_PRESSURE, MetricType.WAIST_CIRCUMFERENCE)) {
+            vm.selectMetric(metric)
+            assertFalse(vm.uiState.value.canSave)
+            vm.saveCurrentMetric()
+            testDispatcher.scheduler.advanceUntilIdle()
+            assertEquals(UiText.Res(R.string.log_err_choose_value, emptyList()), vm.uiState.value.errorMessage)
+        }
+        assertTrue(healthLogRepo.weights.isEmpty() && healthLogRepo.bps.isEmpty() && healthLogRepo.waistCircumferences.isEmpty())
+
+        vm.selectMetric(MetricType.WEIGHT)
+        vm.onWeightValueChanged(75.0)
+        assertTrue(vm.uiState.value.canSave)
+        assertEquals(BigDecimal("26.0"), vm.uiState.value.previewBmi)
+
+        vm.selectMetric(MetricType.BLOOD_PRESSURE)
+        vm.onSystolicValueChanged(120)
+        assertFalse("both pressures are needed", vm.uiState.value.canSave)
+        vm.onDiastolicValueChanged(80)
+        assertTrue(vm.uiState.value.canSave)
+    }
+
+    @Test
+    fun `LoggingViewModel records no pulse when the person did not set one`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val vm = loggingViewModel(profileRepo, healthLogRepo)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.selectMetric(MetricType.BLOOD_PRESSURE)
+        vm.onSystolicValueChanged(118)
+        vm.onDiastolicValueChanged(76)
+        vm.saveCurrentMetric()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertNull(healthLogRepo.bps.single().reading.pulse)
+
+        vm.onPulseValueChanged(64)
+        vm.saveCurrentMetric()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(64, healthLogRepo.bps.last().reading.pulse)
     }
 
     @Test
@@ -574,16 +627,20 @@ class ViewModelsTest {
         assertEquals("", vm.uiState.value.commentInput)
 
         vm.selectMetric(MetricType.BLOOD_PRESSURE)
+        vm.onSystolicValueChanged(118)
+        vm.onDiastolicValueChanged(76)
         vm.onCommentChanged("stressed")
         save()
         assertEquals("stressed", healthLogRepo.bps.single().comment?.text)
 
         vm.selectMetric(MetricType.GLUCOSE)
+        vm.onGlucoseChanged("5.5")
         vm.onCommentChanged("late dinner")
         save()
         assertEquals("late dinner", healthLogRepo.glucoses.single().comment?.text)
 
         vm.selectMetric(MetricType.WAIST_CIRCUMFERENCE)
+        vm.onWaistValueChanged(85.0)
         vm.onCommentChanged("morning")
         save()
         assertEquals("morning", healthLogRepo.waistCircumferences.single().comment?.text)

@@ -1,7 +1,7 @@
 # 18. Smart Input Pickers, Pulse and Standalone Waist
 
 - **Date:** 2026-10-06
-- **Status:** Accepted
+- **Status:** Accepted (the starting value is amended by [ADR 0033](0033-picker-starts-from-own-entries-only.md))
 - **Deciders:** Architecture Team, AI Coding Assistant
 
 ## Context
@@ -11,7 +11,7 @@ Typing numbers on the Log screen was slow and error-prone. Blood pressure also l
 ## Decision
 
 - **Pickers:** weight and waist use `HorizontalRulerPicker` (tape style, 0.1 steps, whole-number labels). Blood pressure and pulse use `StackedBpPulsePicker`, three scrolling rows. Both ruler pickers use the same tape height (75 dp); only the colour differs (yellow for weight, teal for waist).
-- **Starting value:** a fallback chain: the latest entry, else a value derived from the profile (weight from height, waist from sex), else a fixed default (weight 75.0 kg, blood pressure 120/80, pulse 70 bpm, waist 90 cm).
+- **Starting value** (replaced by [ADR 0033](0033-picker-starts-from-own-entries-only.md): nothing is derived from the profile and an untouched start is never recorded): a fallback chain: the latest entry, else a value derived from the profile (weight from height, waist from sex), else a fixed default (weight 75.0 kg, blood pressure 120/80, pulse 70 bpm, waist 90 cm).
 - **Pulse:** `BloodPressureReading.pulse` is optional, 30 to 250 bpm, stored in a nullable `pulse` column (`MIGRATION_3_4`). CSV export writes `pulse_bpm`; import still accepts files without it.
 - **Waist is its own entry:** waist is recorded only on the Waist tab. A weight entry saves only weight. Waist keeps its own history, edit, delete and CSV type.
 - **Labels:** waist labels follow the Dutch authority wording (see [ADR 0005](0005-dutch-nhg-guidelines.md)); the neutral wording rule does not apply to them.

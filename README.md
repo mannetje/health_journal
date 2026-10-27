@@ -57,7 +57,7 @@ More screenshots (dark theme, graphs and statistics, migraine log, medication re
 
 #### 🎛️ Smart Input & User Experience
 - **Interactive Number Pickers:** Tactile horizontal measuring tape ruler pickers for Weight and Waist (0.1 step precision) and stacked color-coded rows for Blood Pressure & Pulse. *([ADR 0018](docs/adr/0018-smart-input-pickers.md))*
-- **Smart 3-Tier Pre-fill:** Automatically pre-fills log forms using a fallback chain: latest measurement → profile-derived target → standard sane default. *([ADR 0018](docs/adr/0018-smart-input-pickers.md))*
+- **Pickers start from your own entries:** the log pickers start at your latest measurement. Without one they show a plain starting position that is not recorded until you set a value. *([ADR 0018](docs/adr/0018-smart-input-pickers.md), [ADR 0033](docs/adr/0033-picker-starts-from-own-entries-only.md))*
 - **Medication Reminders & Adherence:** Scheduled time slot notifications with Taken/Snooze actions, plus 7/30/90-day adherence statistics and streak tracking. *([ADR 0022](docs/adr/0022-medication-reminders.md), [ADR 0021](docs/adr/0021-medication-compliance-and-privacy.md))*
 - **Timeline & Trend Visualizations:** Interactive pinch-zoom trend charts, moving averages, range gauges, and interleaved chronological history timeline with month/year quick navigation. *([spec](openspec/specs/health-trends/spec.md), [ADR 0006](docs/adr/0006-health-trend-visualizations.md), [dev doc](docs/dev/graphs.md))*
 
@@ -278,6 +278,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0030: Fluid Intake as a Quick Log Without Target](docs/adr/0030-fluid-intake-quick-log-without-target.md)
 - [ADR 0031: Daily Activity Typed by Hand, Without Targets or Sensors](docs/adr/0031-daily-activity-typed-by-hand-without-targets.md)
 - [ADR 0032: Energy Level as a 0-10 Rating Without Assessment](docs/adr/0032-energy-level-without-assessment.md)
+- [ADR 0033: Pickers Start from the Person's Own Entries Only](docs/adr/0033-picker-starts-from-own-entries-only.md)
 
 ---
 

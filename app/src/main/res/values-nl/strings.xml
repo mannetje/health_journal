@@ -316,6 +316,8 @@
     <string name="log_err_duration">Voer een geldige duur in minuten in</string>
     <string name="log_err_distance">Voer een geldige afstand in (%1$s)</string>
     <string name="log_err_waist">Voer een geldige middelomtrek in (40–200 cm)</string>
+    <string name="log_choose_value_hint">Scroll of typ om een waarde in te stellen. De beginpositie wordt niet opgeslagen.</string>
+    <string name="log_err_choose_value">Stel eerst een waarde in door te scrollen of te typen</string>
     <string name="log_err_save_failed">Opslaan mislukt</string>
     <string name="history_msg_export_done">CSV-export gemaakt (%1$s)!</string>
     <string name="history_msg_import_done">%1$d rijen geïmporteerd (%2$d overgeslagen)</string>

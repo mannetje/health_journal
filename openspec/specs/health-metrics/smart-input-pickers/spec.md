@@ -1,7 +1,7 @@
 # health-metrics/smart-input-pickers Specification
 
 ## Purpose
-Defines how values are entered on the Log screen: pulse recorded with blood pressure, a pre-fill fallback chain for the starting value, and scrolling pickers for weight, waist, blood pressure and pulse, in English and Dutch.
+Defines how values are entered on the Log screen: pulse recorded with blood pressure, a starting position taken from the latest entry only, and scrolling pickers for weight, waist, blood pressure and pulse, in English and Dutch.
 
 ## Requirements
 
@@ -12,20 +12,24 @@ The system SHALL support recording heart rate (pulse in bpm) alongside systolic 
 - **WHEN** a user records a blood pressure measurement with systolic, diastolic, and pulse values
 - **THEN** the system persists all three values and includes pulse in history and CSV export/import.
 
-### Requirement: Smart pre-fill fallback chain
-The system SHALL initialize log screen input values using a fallback chain: latest entry -> profile-derived ideal -> standard default.
+### Requirement: Pickers start from the person's own entries
+The system SHALL start a log picker at the person's latest entry for that metric, and SHALL NOT derive a starting value from the profile or treat an untouched starting position as a recorded value.
 
 #### Scenario: Fallback to latest entry
 - **WHEN** a user opens the log screen for a metric with previous entries
 - **THEN** the initial picker position reflects the most recent measurement.
 
-#### Scenario: Fallback to profile-derived default
-- **WHEN** no previous entries exist and user profile data is present (e.g. height for weight, sex for waist)
-- **THEN** initial values are calculated using personalized health ideals.
+#### Scenario: No earlier entry
+- **WHEN** no previous entry exists for a metric, whatever the profile holds
+- **THEN** the picker shows a plain starting position (Weight = 75.0 kg, BP = 120/80, Pulse = 70 bpm, Waist = 90 cm) and the glucose field is empty; none of these is a target.
 
-#### Scenario: Fallback to standard default
-- **WHEN** neither previous entries nor profile data are available
-- **THEN** standard defaults are used (Weight = 75.0 kg, BP = 120/80, Pulse = 70 bpm, Waist = 90 cm).
+#### Scenario: A starting position is not recorded
+- **WHEN** the person has not moved the picker or typed a value
+- **THEN** no category is shown for it, Save is off with a short hint, and an untouched pulse is saved as no pulse.
+
+#### Scenario: Repeating the last value
+- **WHEN** a latest entry exists
+- **THEN** its value counts as chosen and can be recorded again with one tap.
 
 ### Requirement: Interactive visual number pickers
 The system SHALL provide horizontal ruler pickers for continuous metrics (weight, waist) and stacked scrolling number pickers for multi-value metrics (BP & pulse).

@@ -15,6 +15,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **SQLCipher instrumented tests:** `SqlCipherDatabaseTest` runs on an emulator or device and checks the encrypted database (same key reads, another key fails, the file is not plain) and the real plain-to-encrypted migration. The existing key test expected database version 6 and now expects 7. `docs/dev/testing.md` describes the suite; CI does not run it.
 
 ### Changed
+- **Log pickers no longer start at an "ideal":** without an earlier entry, weight no longer starts at the BMI 22.5 weight for your height and waist no longer starts at a value chosen by sex. A picker you have not moved is not a value: no category is shown for it, Save stays off with a hint until you set weight, waist or both blood pressure numbers, and an untouched pulse is saved as no pulse. Glucose starts empty. Your own latest entry is still the starting point. See ADR 0033.
 - **SQLCipher 4.9.0 → 4.19.1** (dependabot): the `:data` module now compiles against SDK 36, which the new release requires. Build, unit tests and lint pass.
 
 ### Fixed
