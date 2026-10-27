@@ -5,6 +5,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 ### Added
+- **Changelog links and a range test:** every release heading in this file now links to its GitHub comparison (before, only 1.4.7 to 1.4.9 did, and "Unreleased" compared from 1.4.9), and `MigraineDateRangeTest` covers the date range behind the Migraine graphs. Developer-facing only; the app itself is unchanged.
 - **Log pickers work with TalkBack:** the weight, waist and blood pressure rulers now announce their label and value ("Systolic, 120, not set yet" until you move them) and adjust like a slider: swipe up or down for one step, or use the actions "Increase by 10" and "Decrease by 10" (1 for weight and waist). Before, the scrolling tape could not be changed without touch gestures. English and Dutch strings; not yet checked on a device with TalkBack.
 
 - **Unencrypted-storage banner:** when encryption could not be set up, a banner on every tab says so (dismissible for the session, with a shortcut to the Profile tab). Before, the notice was only in Profile. Light, dark and Dutch screenshots are in `docs/screenshots.md`.
@@ -264,7 +265,29 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.4.9...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.2...HEAD
+[1.6.2]: https://github.com/mannetje/health_journal/compare/v1.6.1...v1.6.2
+[1.6.1]: https://github.com/mannetje/health_journal/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/mannetje/health_journal/compare/v1.5.9...v1.6.0
+[1.5.9]: https://github.com/mannetje/health_journal/compare/v1.5.8...v1.5.9
+[1.5.8]: https://github.com/mannetje/health_journal/compare/v1.5.7...v1.5.8
+[1.5.7]: https://github.com/mannetje/health_journal/compare/v1.5.6...v1.5.7
+[1.5.6]: https://github.com/mannetje/health_journal/compare/v1.5.5...v1.5.6
+[1.5.5]: https://github.com/mannetje/health_journal/compare/v1.5.4...v1.5.5
+[1.5.4]: https://github.com/mannetje/health_journal/compare/v1.5.3...v1.5.4
+[1.5.3]: https://github.com/mannetje/health_journal/compare/v1.5.2...v1.5.3
+[1.5.2]: https://github.com/mannetje/health_journal/compare/v1.5.1...v1.5.2
+[1.5.1]: https://github.com/mannetje/health_journal/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/mannetje/health_journal/compare/v1.4.9...v1.5.0
 [1.4.9]: https://github.com/mannetje/health_journal/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/mannetje/health_journal/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/mannetje/health_journal/compare/v1.4.6...v1.4.7
+[1.4.6]: https://github.com/mannetje/health_journal/compare/v1.4.5...v1.4.6
+[1.4.5]: https://github.com/mannetje/health_journal/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/mannetje/health_journal/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/mannetje/health_journal/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/mannetje/health_journal/compare/v1.4.1...v1.4.2
+[1.4.0]: https://github.com/mannetje/health_journal/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/mannetje/health_journal/compare/v1.1.0...v1.3.0
+[1.1.0]: https://github.com/mannetje/health_journal/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/mannetje/health_journal/releases/tag/v1.0.0
