@@ -129,7 +129,7 @@ flowchart TD
             VO["Value Objects (GlucoseLevel, BloodPressureReading, WaistCircumferenceCm)"]
             MIG["Migraine model: MigraineEntry, MigraineTag, MigraineStatistics"]
             MED["Medication model: Medication, ScheduleVersion, Intake, Pillbox, Adherence"]
-            NHG["NHG Clinical Evaluation Rules"]
+            NHG["NHG range labels (reference table)"]
             AR --> VO
             AR --> NHG
             MED --> VO

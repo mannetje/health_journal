@@ -121,7 +121,7 @@ class RepositoryGuardrailsTest {
             "README.md: the compliance spec requires the same purpose statement everywhere",
             readme.contains("a personal tool for logging and reminders, for private use. It is not a medical device.")
         )
-        listOf("empowers", "clinical standards", "evaluation logic", "evaluated against").forEach {
+        listOf("empowers", "clinical standards", "clinical evaluation", "evaluation logic", "evaluated against").forEach {
             assertFalse("README.md must not describe the app as assessing values: '$it'", readme.contains(it, ignoreCase = true))
         }
     }
