@@ -4,6 +4,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.6.3] - 2026-10-28
+
 ### Added
 - **Metric order is yours to choose:** Profile has a new "Metric order" section. Move a metric up or down with the buttons, or press and hold its handle and drag. The Log tabs and the History chips follow it at once, and Log opens on the first metric in your order. The order is kept on the device only and is not part of a backup. English and Dutch strings; not yet checked on a device with TalkBack. See ADR 0034.
 - **Changelog links and a range test:** every release heading in this file now links to its GitHub comparison (before, only 1.4.7 to 1.4.9 did, and "Unreleased" compared from 1.4.9), and `MigraineDateRangeTest` covers the date range behind the Migraine graphs. Developer-facing only; the app itself is unchanged.
@@ -267,7 +269,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.2...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.3...HEAD
+[1.6.3]: https://github.com/mannetje/health_journal/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/mannetje/health_journal/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/mannetje/health_journal/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/mannetje/health_journal/compare/v1.5.9...v1.6.0

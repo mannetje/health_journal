@@ -23,7 +23,7 @@ Health Journal is **a personal tool for logging and reminders, for private use. 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.6.2)](https://github.com/mannetje/health_journal/releases/latest)**  
+👉 **[Download Latest APK (v1.6.3)](https://github.com/mannetje/health_journal/releases/latest)**  
 See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ---
@@ -183,11 +183,11 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.6.2-debug.apk`.
+2. Download `health-journal-v1.6.3-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
-> **Verifying:** each release also has a `.sha256` file. Run `sha256sum health-journal-v1.6.2-debug.apk` (or `Get-FileHash` on Windows) and compare. These are personal, sideloaded builds signed with a public debug key, not store builds ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
+> **Verifying:** each release also has a `.sha256` file. Run `sha256sum health-journal-v1.6.3-debug.apk` (or `Get-FileHash` on Windows) and compare. These are personal, sideloaded builds signed with a public debug key, not store builds ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
 >
 > **Updating:** builds from v1.4.4 onward share one fixed signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)) and install over the previous version. If your installed copy is v1.4.3 or older, Android will report a signature conflict once: export your data as CSV (History → Export) or make an encrypted backup (Profile), uninstall, install the new APK, then import the CSV again.
 
