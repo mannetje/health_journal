@@ -31,6 +31,7 @@ import nl.healthjournal.app.lock.BiometricAuthHelper
 import nl.healthjournal.app.settings.AppLockPreference
 import nl.healthjournal.app.settings.BackupPreferenceBridge
 import nl.healthjournal.app.settings.GlucoseUnitChoice
+import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.settings.LanguagePreference
 import nl.healthjournal.app.settings.MedicationNoticePreference
 import nl.healthjournal.app.settings.SecureScreenPreference
@@ -159,7 +160,9 @@ class MainActivity : FragmentActivity() {
     private val profileViewModel: ProfileViewModel by viewModels {
         ProfileViewModel.Factory(
             app.profileRepository,
-            app.createProfileUseCase
+            app.createProfileUseCase,
+            app.metricDisplayOrderPreference.order,
+            app.metricDisplayOrderPreference::save
         )
     }
 
@@ -172,7 +175,8 @@ class MainActivity : FragmentActivity() {
             app.recordActivityUseCase,
             app.recordWaistCircumferenceUseCase,
             app.healthLogRepository,
-            units = { unitPreference.resolve() }
+            units = { unitPreference.resolve() },
+            metricOrder = app.metricDisplayOrderPreference.order
         )
     }
 
@@ -189,7 +193,8 @@ class MainActivity : FragmentActivity() {
             app.dataImportAdapter,
             app.migraineExportAdapter,
             app.migraineImportAdapter,
-            app.entryUseCases
+            app.entryUseCases,
+            app.metricDisplayOrderPreference.order
         )
     }
 
@@ -316,7 +321,9 @@ class MainActivity : FragmentActivity() {
                 // Mindfulness is also a screen over the tabs; it and the pillbox are never open together.
                 var showMindfulness by rememberSaveable { mutableStateOf(false) }
                 // The migraine tab of the Log screen; hoisted so it survives the form opening and closing.
-                var logMigraineTab by rememberSaveable { mutableStateOf(false) }
+                var logMigraineTab by rememberSaveable {
+                    mutableStateOf(app.metricDisplayOrderPreference.order.value.first() == MetricSlot.MIGRAINE)
+                }
                 val migraineState by migraineViewModel.uiState.collectAsState()
                 BackHandler(enabled = showPillbox) { showPillbox = false }
                 BackHandler(enabled = migraineState.open && (currentTab == AppNavDestination.LOG || currentTab == AppNavDestination.HISTORY)) { migraineViewModel.onBack() }

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.DisplayUnits
+import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.UiTextException
 import nl.healthjournal.app.ui.common.toUiText
@@ -49,6 +50,8 @@ enum class LogField { WEIGHT, SYSTOLIC, DIASTOLIC, PULSE, WAIST }
 data class LoggingUiState(
     val activeProfile: Profile? = null,
     val selectedMetric: MetricType = MetricType.WEIGHT,
+    /** The metrics in the order the person chose, Migraine included. */
+    val orderedMetrics: List<MetricSlot> = MetricSlot.DEFAULT_ORDER,
 
     // Weight inputs & feedback
     val weightValue: Double = START_WEIGHT_KG,
@@ -118,14 +121,28 @@ class LoggingViewModel(
     private val recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
     private val healthLogRepository: HealthLogRepositoryPort? = null,
     /** Reads the units currently chosen, so typed values are converted to metric before validation. */
-    private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT }
+    private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT },
+    /** The order of the metric tabs; the first tab with a form of its own is the one that opens selected. */
+    private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(LoggingUiState())
+    private val _uiState = MutableStateFlow(
+        LoggingUiState(
+            selectedMetric = metricOrder.value.firstNotNullOf { it.metricType },
+            orderedMetrics = metricOrder.value
+        )
+    )
     val uiState: StateFlow<LoggingUiState> = _uiState.asStateFlow()
 
     init {
+        observeMetricOrder()
         loadProfile()
+    }
+
+    private fun observeMetricOrder() {
+        viewModelScope.launch {
+            metricOrder.collect { order -> _uiState.value = _uiState.value.copy(orderedMetrics = order) }
+        }
     }
 
     fun loadProfile() {
@@ -483,7 +500,8 @@ class LoggingViewModel(
         private val recordActivityUseCase: RecordActivityUseCase,
         private val recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
         private val healthLogRepository: HealthLogRepositoryPort? = null,
-        private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT }
+        private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT },
+        private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -495,7 +513,8 @@ class LoggingViewModel(
                 recordActivityUseCase,
                 recordWaistCircumferenceUseCase,
                 healthLogRepository,
-                units
+                units,
+                metricOrder
             ) as T
         }
     }

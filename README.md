@@ -84,6 +84,7 @@ Questions about your values go to your doctor or pharmacist. The rules behind th
 - **Dutch & English Localization:** Fully localized UI text in English and Dutch, with manual language selection or system default. *([spec](openspec/specs/localization/spec.md), [add a translation](docs/dev/how-to/add-a-translation.md))*
 - **Independent Regional Formats:** Custom date and number formatting styles (Netherlands / US / System) independent of language choice. *([spec](openspec/specs/localization/spec.md))*
 - **Presentation Units:** Toggle between Metric (kg, cm, m) and Imperial (lb, mi, ft/in) as well as mmol/L or mg/dL glucose units. *([spec](openspec/specs/units-presentation/spec.md), [ADR 0014](docs/adr/0014-units-presentation.md))*
+- **Your Own Metric Order:** Choose the order of the metrics on the Log tabs and History chips in Profile, with Move up and Move down buttons or by dragging. The order is a display setting kept on the device. *([spec](openspec/changes/configure-metric-chip-order/specs/metric-display-order/spec.md), [ADR 0034](docs/adr/0034-metric-display-order-preference.md))*
 - **Light & Dark Themes:** Automatic system theme matching or manual System/Light/Dark selection. *([spec](openspec/specs/theming/spec.md), [ADR 0017](docs/adr/0017-in-app-theme-choice.md))*
 
 ---
@@ -290,6 +291,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0031: Daily Activity Typed by Hand, Without Targets or Sensors](docs/adr/0031-daily-activity-typed-by-hand-without-targets.md)
 - [ADR 0032: Energy Level as a 0-10 Rating Without Assessment](docs/adr/0032-energy-level-without-assessment.md)
 - [ADR 0033: Pickers Start from the Person's Own Entries Only](docs/adr/0033-picker-starts-from-own-entries-only.md)
+- [ADR 0034: User-Configurable Metric Display Order](docs/adr/0034-metric-display-order-preference.md)
 
 ---
 

@@ -4,6 +4,7 @@ import android.app.Application
 import nl.healthjournal.app.reminder.AlarmReminderScheduler
 import nl.healthjournal.app.reminder.ReminderCoordinator
 import nl.healthjournal.app.reminder.ReminderNotifier
+import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.ui.history.EntryUseCases
 import nl.healthjournal.app.ui.medication.MedicationUseCases
@@ -78,6 +79,7 @@ class HealthJournalApp : Application() {
     lateinit var restoreBackupUseCase: RestoreBackupUseCase
         private set
 
+    val metricDisplayOrderPreference: MetricDisplayOrderPreference by lazy { MetricDisplayOrderPreference(this) }
     val reminderPreference: ReminderPreference by lazy { ReminderPreference(this) }
     private val reminderScheduler: AlarmReminderScheduler by lazy { AlarmReminderScheduler(this) }
     lateinit var reminders: ReminderCoordinator

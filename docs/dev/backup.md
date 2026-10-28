@@ -29,7 +29,7 @@ flowchart TD
 | Restore on the lost-key screen | Same, but the unreadable data is deleted only after the file has been decrypted and validated, then the new database is filled from the backup. A wrong passphrase destroys nothing. |
 | Export CSV | Unchanged plaintext export, now with a clear "not encrypted" warning. Meant for spreadsheets, not as a backup. |
 
-Display preferences (language, region, units, theme, snooze length) are in the file and applied only when the user ticks "Also restore settings". **Never** in the file: app lock and its timeout, secure screen, lock-screen details and other per-device state, so a backup can never weaken a device's protection.
+Display preferences (language, region, units, theme, snooze length) are in the file and applied only when the user ticks "Also restore settings". **Never** in the file: app lock and its timeout, the metric order, secure screen, lock-screen details and other per-device state, so a backup can never weaken a device's protection.
 
 ### What is in the file
 

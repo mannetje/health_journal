@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.CommentField
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.asString
@@ -101,37 +102,22 @@ fun LogMetricScreen(
         }
 
         // Metric Selector Tabs
-        PrimaryScrollableTabRow(selectedTabIndex = if (migraineTabSelected) MetricType.entries.size else state.selectedMetric.ordinal, edgePadding = 8.dp) {
-            Tab(
-                selected = !migraineTabSelected && state.selectedMetric == MetricType.WEIGHT,
-                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.WEIGHT) },
-                text = { Text(stringResource(R.string.log_tab_weight), maxLines = 1) }
-            )
-            Tab(
-                selected = !migraineTabSelected && state.selectedMetric == MetricType.BLOOD_PRESSURE,
-                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.BLOOD_PRESSURE) },
-                text = { Text(stringResource(R.string.log_tab_blood_pressure), maxLines = 1) }
-            )
-            Tab(
-                selected = !migraineTabSelected && state.selectedMetric == MetricType.GLUCOSE,
-                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.GLUCOSE) },
-                text = { Text(stringResource(R.string.log_tab_glucose), maxLines = 1) }
-            )
-            Tab(
-                selected = !migraineTabSelected && state.selectedMetric == MetricType.ACTIVITY,
-                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.ACTIVITY) },
-                text = { Text(stringResource(R.string.log_tab_activity), maxLines = 1) }
-            )
-            Tab(
-                selected = !migraineTabSelected && state.selectedMetric == MetricType.WAIST_CIRCUMFERENCE,
-                onClick = { onMigraineTabSelected(false); viewModel.selectMetric(MetricType.WAIST_CIRCUMFERENCE) },
-                text = { Text(stringResource(R.string.log_tab_waist_circumference), maxLines = 1) }
-            )
-            Tab(
-                selected = migraineTabSelected,
-                onClick = { onMigraineTabSelected(true) },
-                text = { Text(stringResource(R.string.log_tab_migraine), maxLines = 1) }
-            )
+        val selectedSlot = if (migraineTabSelected) {
+            MetricSlot.MIGRAINE
+        } else {
+            state.orderedMetrics.first { it.metricType == state.selectedMetric }
+        }
+        PrimaryScrollableTabRow(selectedTabIndex = state.orderedMetrics.indexOf(selectedSlot), edgePadding = 8.dp) {
+            state.orderedMetrics.forEach { slot ->
+                Tab(
+                    selected = slot == selectedSlot,
+                    onClick = {
+                        onMigraineTabSelected(slot.metricType == null)
+                        slot.metricType?.let(viewModel::selectMetric)
+                    },
+                    text = { Text(stringResource(slot.nameRes), maxLines = 1) }
+                )
+            }
         }
 
         if (migraineTabSelected) {

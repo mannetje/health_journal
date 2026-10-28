@@ -56,6 +56,7 @@ fun ProfileScreen(
     backupSettings: @Composable () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
+    val metricOrder by viewModel.metricOrder.collectAsState()
     val units = LocalDisplayUnits.current
 
     var nameInput by remember { mutableStateOf("") }
@@ -292,6 +293,8 @@ fun ProfileScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+
+        MetricOrderSection(order = metricOrder, onMove = viewModel::moveMetric)
 
         OutlinedButton(
             onClick = onShowMedicationNotice,

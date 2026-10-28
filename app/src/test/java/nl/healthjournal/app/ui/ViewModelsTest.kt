@@ -3,6 +3,7 @@ package nl.healthjournal.app.ui
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -10,6 +11,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.DisplayUnits
+import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.history.EntryRef
 import nl.healthjournal.app.ui.history.EntryUseCases
@@ -257,7 +259,8 @@ class ViewModelsTest {
     private fun loggingViewModel(
         profileRepo: FakeProfileRepo,
         healthLogRepo: FakeHealthLogRepo,
-        units: DisplayUnits = DisplayUnits.DEFAULT
+        units: DisplayUnits = DisplayUnits.DEFAULT,
+        metricOrder: MutableStateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
     ) = LoggingViewModel(
         profileRepo,
         RecordWeightUseCase(healthLogRepo, profileRepo),
@@ -266,7 +269,8 @@ class ViewModelsTest {
         RecordActivityUseCase(healthLogRepo),
         RecordWaistCircumferenceUseCase(healthLogRepo, profileRepo),
         healthLogRepo,
-        units = { units }
+        units = { units },
+        metricOrder = metricOrder
     )
 
     @Test
@@ -951,5 +955,110 @@ class ViewModelsTest {
         val range = TrendDateRange.values().last()
         vm.setDateRange(range)
         assertEquals(range, vm.uiState.value.selectedDateRange)
+    }
+
+    @Test
+    fun `LoggingViewModel lists the metrics in the default order when none is saved`() = runTest {
+        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepo())
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(MetricSlot.DEFAULT_ORDER, vm.uiState.value.orderedMetrics)
+        assertEquals(MetricType.WEIGHT, vm.uiState.value.selectedMetric)
+    }
+
+    @Test
+    fun `LoggingViewModel opens on the first metric of a saved order`() = runTest {
+        val order = MutableStateFlow(listOf(MetricSlot.GLUCOSE) + (MetricSlot.DEFAULT_ORDER - MetricSlot.GLUCOSE))
+        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepo(), metricOrder = order)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(MetricType.GLUCOSE, vm.uiState.value.selectedMetric)
+    }
+
+    @Test
+    fun `LoggingViewModel starts on the first metric with its own form when Migraine comes first`() = runTest {
+        val order = MutableStateFlow(listOf(MetricSlot.MIGRAINE, MetricSlot.ACTIVITY, MetricSlot.WEIGHT, MetricSlot.BLOOD_PRESSURE, MetricSlot.GLUCOSE, MetricSlot.WAIST_CIRCUMFERENCE))
+        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepo(), metricOrder = order)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(MetricType.ACTIVITY, vm.uiState.value.selectedMetric)
+    }
+
+    @Test
+    fun `LoggingViewModel follows a new order without changing the selected metric`() = runTest {
+        val order = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
+        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepo(), metricOrder = order)
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.selectMetric(MetricType.GLUCOSE)
+
+        order.value = MetricSlot.DEFAULT_ORDER.reversed()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(MetricSlot.DEFAULT_ORDER.reversed(), vm.uiState.value.orderedMetrics)
+        assertEquals(MetricType.GLUCOSE, vm.uiState.value.selectedMetric)
+    }
+
+    @Test
+    fun `HistoryViewModel follows the metric order and keeps the selected filter`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepo()
+        val order = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
+        val vm = HistoryViewModel(
+            profileRepo,
+            GetHealthHistoryUseCase(healthLogRepo),
+            FakeMigraines(),
+            FakeExportAdapter(),
+            FakeImportAdapter(),
+            FakeMigraineExport(),
+            FakeMigraineImport(),
+            entryUseCases(healthLogRepo, profileRepo),
+            order
+        )
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(MetricSlot.DEFAULT_ORDER, vm.uiState.value.orderedMetrics)
+
+        vm.setFilter(HistoryFilter.GLUCOSE)
+        order.value = MetricSlot.DEFAULT_ORDER.reversed()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(MetricSlot.DEFAULT_ORDER.reversed(), vm.uiState.value.orderedMetrics)
+        assertEquals(HistoryFilter.GLUCOSE, vm.uiState.value.selectedFilter)
+    }
+
+    @Test
+    fun `ProfileViewModel moves a metric and saves the new order at once`() = runTest {
+        val saved = mutableListOf<List<MetricSlot>>()
+        val profileRepo = FakeProfileRepo()
+        val vm = ProfileViewModel(
+            profileRepo,
+            CreateProfileUseCase(profileRepo),
+            MutableStateFlow(MetricSlot.DEFAULT_ORDER),
+            saved::add
+        )
+
+        vm.moveMetric(from = 3, to = 0)
+
+        assertEquals(
+            listOf(MetricSlot.MIGRAINE, MetricSlot.WEIGHT, MetricSlot.BLOOD_PRESSURE, MetricSlot.GLUCOSE, MetricSlot.WAIST_CIRCUMFERENCE, MetricSlot.ACTIVITY),
+            saved.single()
+        )
+    }
+
+    @Test
+    fun `ProfileViewModel ignores a move that goes nowhere or off the list`() = runTest {
+        val saved = mutableListOf<List<MetricSlot>>()
+        val profileRepo = FakeProfileRepo()
+        val vm = ProfileViewModel(
+            profileRepo,
+            CreateProfileUseCase(profileRepo),
+            MutableStateFlow(MetricSlot.DEFAULT_ORDER),
+            saved::add
+        )
+
+        vm.moveMetric(from = 2, to = 2)
+        vm.moveMetric(from = 0, to = -1)
+        vm.moveMetric(from = 6, to = 0)
+
+        assertEquals(emptyList<List<MetricSlot>>(), saved)
     }
 }

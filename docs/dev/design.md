@@ -21,7 +21,7 @@ This page collects the design of Health Journal in one place: the principles, th
 |---|---|---|
 | Privacy | no network, no logging, private storage | `PrivacyChecksTest` fails the build on logging or the `INTERNET` permission |
 | Correctness of rules | one source for ranges, one source for the plan of a day | boundary tests for every classifier, `AdherenceTest`, `PillboxTest` |
-| Accessibility | 48 dp targets, text and icon besides colour, merged TalkBack descriptions, no gestures that are required (the Log rulers expose label, value and slider actions through `adjustableValue`) | layout checks at font scale 1.3 and 2.0, Dutch and English |
+| Accessibility | 48 dp targets, text and icon besides colour, merged TalkBack descriptions, no gestures that are required (the metric order has Move up and Move down buttons next to the drag handle; the Log rulers expose label, value and slider actions through `adjustableValue`) | layout checks at font scale 1.3 and 2.0, Dutch and English |
 | Readability | brand-navy bar, neutral range colours, light and dark | [ADR 0017](../adr/0017-in-app-theme-choice.md) |
 | Updatability | one fixed signing key, additive migrations | [ADR 0008](../adr/0008-fixed-debug-signing-key.md), migration test |
 | Maintainability | small use cases, a convention page, specs that name behaviour | [Conventions](conventions.md), [OpenSpec](../../openspec/specs/README.md) |

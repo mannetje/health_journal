@@ -28,7 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.annotation.StringRes
 import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.migraine.MigraineEntry
 import nl.healthjournal.domain.model.migraine.MigraineTag
@@ -205,36 +207,13 @@ private fun HistoryList(
                 onClick = { viewModel.setFilter(HistoryFilter.ALL) },
                 label = { Text(stringResource(R.string.history_filter_all)) }
             )
-            FilterChip(
-                selected = state.selectedFilter == HistoryFilter.WEIGHT,
-                onClick = { viewModel.setFilter(HistoryFilter.WEIGHT) },
-                label = { Text(stringResource(R.string.history_filter_weight)) }
-            )
-            FilterChip(
-                selected = state.selectedFilter == HistoryFilter.BLOOD_PRESSURE,
-                onClick = { viewModel.setFilter(HistoryFilter.BLOOD_PRESSURE) },
-                label = { Text(stringResource(R.string.history_filter_bp)) }
-            )
-            FilterChip(
-                selected = state.selectedFilter == HistoryFilter.GLUCOSE,
-                onClick = { viewModel.setFilter(HistoryFilter.GLUCOSE) },
-                label = { Text(stringResource(R.string.history_filter_glucose)) }
-            )
-            FilterChip(
-                selected = state.selectedFilter == HistoryFilter.ACTIVITY,
-                onClick = { viewModel.setFilter(HistoryFilter.ACTIVITY) },
-                label = { Text(stringResource(R.string.history_filter_activity)) }
-            )
-            FilterChip(
-                selected = state.selectedFilter == HistoryFilter.WAIST_CIRCUMFERENCE,
-                onClick = { viewModel.setFilter(HistoryFilter.WAIST_CIRCUMFERENCE) },
-                label = { Text(stringResource(R.string.history_filter_waist)) }
-            )
-            FilterChip(
-                selected = state.selectedFilter == HistoryFilter.MIGRAINE,
-                onClick = { viewModel.setFilter(HistoryFilter.MIGRAINE) },
-                label = { Text(stringResource(R.string.history_filter_migraine)) }
-            )
+            state.orderedMetrics.forEach { slot ->
+                FilterChip(
+                    selected = state.selectedFilter == slot.historyFilter,
+                    onClick = { viewModel.setFilter(slot.historyFilter) },
+                    label = { Text(stringResource(slot.filterLabelRes)) }
+                )
+            }
         }
 
         // Under a single-metric filter the entries follow the selected date range, like the chart;
@@ -580,3 +559,13 @@ internal fun CommentLine(comment: EntryComment?) {
         overflow = TextOverflow.Ellipsis
     )
 }
+
+private val MetricSlot.filterLabelRes: Int
+    @StringRes get() = when (this) {
+        MetricSlot.WEIGHT -> R.string.history_filter_weight
+        MetricSlot.BLOOD_PRESSURE -> R.string.history_filter_bp
+        MetricSlot.GLUCOSE -> R.string.history_filter_glucose
+        MetricSlot.MIGRAINE -> R.string.history_filter_migraine
+        MetricSlot.WAIST_CIRCUMFERENCE -> R.string.history_filter_waist
+        MetricSlot.ACTIVITY -> R.string.history_filter_activity
+    }

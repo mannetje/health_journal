@@ -40,6 +40,7 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.toUiText
 import nl.healthjournal.app.ui.history.charts.TrendDateRange
@@ -87,6 +88,8 @@ sealed interface DialogEntryRef : EntryRef
 data class HistoryUiState(
     val activeProfile: Profile? = null,
     val selectedFilter: HistoryFilter = HistoryFilter.ALL,
+    /** The metric filters in the order the person chose; "All" always comes first. */
+    val orderedMetrics: List<MetricSlot> = MetricSlot.DEFAULT_ORDER,
     val selectedDateRange: TrendDateRange = TrendDateRange.THIRTY_DAYS,
     /** Set when the Migraine calendar opened a day: History then lists only that day's migraines. */
     val migraineDay: LocalDate? = null,
@@ -114,14 +117,22 @@ class HistoryViewModel(
     private val dataImportPort: DataImportPort,
     private val migraineExportPort: MigraineExportPort,
     private val migraineImportPort: MigraineImportPort,
-    private val entryUseCases: EntryUseCases
+    private val entryUseCases: EntryUseCases,
+    private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HistoryUiState(isLoading = true))
+    private val _uiState = MutableStateFlow(HistoryUiState(isLoading = true, orderedMetrics = metricOrder.value))
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
 
     init {
+        observeMetricOrder()
         loadHistory()
+    }
+
+    private fun observeMetricOrder() {
+        viewModelScope.launch {
+            metricOrder.collect { order -> _uiState.value = _uiState.value.copy(orderedMetrics = order) }
+        }
     }
 
     fun setFilter(filter: HistoryFilter) {
@@ -338,7 +349,8 @@ class HistoryViewModel(
         private val dataImportPort: DataImportPort,
         private val migraineExportPort: MigraineExportPort,
         private val migraineImportPort: MigraineImportPort,
-        private val entryUseCases: EntryUseCases
+        private val entryUseCases: EntryUseCases,
+        private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -350,7 +362,8 @@ class HistoryViewModel(
                 dataImportPort,
                 migraineExportPort,
                 migraineImportPort,
-                entryUseCases
+                entryUseCases,
+                metricOrder
             ) as T
         }
     }

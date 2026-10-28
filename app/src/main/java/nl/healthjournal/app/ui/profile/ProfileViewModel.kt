@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.toUiText
 import nl.healthjournal.domain.model.metrics.HeightCm
@@ -26,11 +27,22 @@ data class ProfileUiState(
 
 class ProfileViewModel(
     private val profileRepository: ProfileRepositoryPort,
-    private val createProfileUseCase: CreateProfileUseCase
+    private val createProfileUseCase: CreateProfileUseCase,
+    /** The order of the metrics on the Log tabs and History chips. */
+    val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER),
+    private val saveMetricOrder: (List<MetricSlot>) -> Unit = {}
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState(isLoading = true))
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
+    /** Moves the metric at [from] to [to] and saves the new order at once. */
+    fun moveMetric(from: Int, to: Int) {
+        val order = metricOrder.value.toMutableList()
+        if (from !in order.indices || to !in order.indices || from == to) return
+        order.add(to, order.removeAt(from))
+        saveMetricOrder(order)
+    }
 
     init {
         loadProfile()
@@ -86,11 +98,13 @@ class ProfileViewModel(
 
     class Factory(
         private val profileRepository: ProfileRepositoryPort,
-        private val createProfileUseCase: CreateProfileUseCase
+        private val createProfileUseCase: CreateProfileUseCase,
+        private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER),
+        private val saveMetricOrder: (List<MetricSlot>) -> Unit = {}
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ProfileViewModel(profileRepository, createProfileUseCase) as T
+            return ProfileViewModel(profileRepository, createProfileUseCase, metricOrder, saveMetricOrder) as T
         }
     }
 }

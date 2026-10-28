@@ -61,7 +61,7 @@ The debug APK is signed with a fixed key committed in `app/debug.keystore`, so u
 ```text
 domain/   pure Kotlin: model/, usecase/, port/
 data/     local/ (Room), csv/, repository/, DataModule.kt
-app/      HealthJournalApp.kt, MainActivity.kt, AppChrome.kt (top bar, bottom bar, reminder permission dialog), AppNavDestination.kt, ui/, settings/, res/
+app/      HealthJournalApp.kt, MainActivity.kt, AppChrome.kt (top bar, bottom bar, reminder permission dialog), AppNavDestination.kt, ui/, settings/ (display preferences, including the metric order), res/
 docs/     adr/, dev/, screenshots/
 openspec/ specs/ (what the system does), changes/ (proposed work)
 ```

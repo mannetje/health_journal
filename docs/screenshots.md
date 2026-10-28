@@ -139,3 +139,9 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 | Light | Dark | Dutch, light |
 |---|---|---|
 | <img src="screenshots/light-restore-unreadable.png" width="250" alt="Restore dialog with a red note that 3 items from a newer app version will be left out, light theme"> | <img src="screenshots/dark-restore-unreadable.png" width="250" alt="Restore dialog with a red note that 3 items from a newer app version will be left out, dark theme"> | <img src="screenshots/light-restore-unreadable-nl.png" width="250" alt="Dutch restore dialog with the red note about onbekende onderdelen, light theme"> |
+
+**Metric order** (Profile: Migraine moved to the top with Move up, Activity dragged to second place; the Log tabs and History chips follow it and it stays after a restart)
+
+| Light | Dark |
+|---|---|
+| <img src="screenshots/light-metric-order.png" width="250" alt="Profile tab with the Metric order list: Migraine, Activity, Weight, Blood Pressure, Glucose, Waist, each row with move up, move down and drag handle buttons, light theme"> | <img src="screenshots/dark-metric-order.png" width="250" alt="Profile tab with the Metric order list: Migraine, Activity, Weight, Blood Pressure, Glucose, Waist, each row with move up, move down and drag handle buttons, dark theme"> |

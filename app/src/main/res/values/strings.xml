@@ -199,6 +199,12 @@
     <string name="profile_theme_light">Light</string>
     <string name="profile_theme_dark">Dark</string>
     <string name="profile_theme_hint">System follows the device setting.</string>
+    <string name="profile_metric_order_label">Metric order</string>
+    <string name="profile_metric_order_hint">Choose the order of the metrics on the Log and History screens. Press and hold the handle to drag a row.</string>
+    <string name="profile_metric_order_move_up">Move %1$s up</string>
+    <string name="profile_metric_order_move_down">Move %1$s down</string>
+    <string name="profile_metric_order_drag">Drag %1$s to another position</string>
+    <string name="profile_metric_order_position">%1$s, position %2$d of %3$d</string>
     <string name="profile_units_label">Units</string>
     <string name="profile_units_metric">Metric</string>
     <string name="profile_units_imperial">Imperial</string>

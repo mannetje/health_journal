@@ -5,6 +5,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 ### Added
+- **Metric order is yours to choose:** Profile has a new "Metric order" section. Move a metric up or down with the buttons, or press and hold its handle and drag. The Log tabs and the History chips follow it at once, and Log opens on the first metric in your order. The order is kept on the device only and is not part of a backup. English and Dutch strings; not yet checked on a device with TalkBack. See ADR 0034.
 - **Changelog links and a range test:** every release heading in this file now links to its GitHub comparison (before, only 1.4.7 to 1.4.9 did, and "Unreleased" compared from 1.4.9), and `MigraineDateRangeTest` covers the date range behind the Migraine graphs. Developer-facing only; the app itself is unchanged.
 - **Log pickers work with TalkBack:** the weight, waist and blood pressure rulers now announce their label and value ("Systolic, 120, not set yet" until you move them) and adjust like a slider: swipe up or down for one step, or use the actions "Increase by 10" and "Decrease by 10" (1 for weight and waist). Before, the scrolling tape could not be changed without touch gestures. English and Dutch strings; not yet checked on a device with TalkBack.
 
@@ -21,6 +22,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **Repository guardrails:** `RepositoryGuardrailsTest` fails the build when the schema version, the migration chain, the README ADR index, the release artifact or the picker starting values disagree between code, tests and docs. Developer docs only; the app itself is unchanged.
 
 ### Changed
+- **New default metric order:** without a saved order, the Log tabs and History chips are now Weight, Blood Pressure, Glucose, Migraine, Waist and Activity (before, Migraine came last). Nothing changes for an order you set yourself.
 - **Larger touch targets and button roles:** the logo in the top bar and the days in the Migraine calendar are now at least 48 dp high, and the calendar days, the logo and the Pillbox week days are announced as buttons by TalkBack.
 - **Log pickers no longer start at an "ideal":** without an earlier entry, weight no longer starts at the BMI 22.5 weight for your height and waist no longer starts at a value chosen by sex. A picker you have not moved is not a value: no category is shown for it, Save stays off with a hint until you set weight, waist or both blood pressure numbers, and an untouched pulse is saved as no pulse. Glucose starts empty. Your own latest entry is still the starting point. See ADR 0033.
 - **SQLCipher 4.9.0 → 4.19.1** (dependabot): the `:data` module now compiles against SDK 36, which the new release requires. Build, unit tests and lint pass.
