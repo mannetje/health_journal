@@ -1,80 +1,100 @@
 ## Context
 
-The Log screen (`LogMetricScreen.kt`) uses a `PrimaryScrollableTabRow` whose tab sequence is currently hardcoded in the order the `Tab` composables are declared, with `selectedTabIndex` derived from `MetricType.ordinal`. The History screen (`HistoryScreen.kt`) renders filter chips in a plain hardcoded `Row`. Neither surface is configurable by the user.
+The Log screen (`LogMetricScreen.kt`) has a `PrimaryScrollableTabRow` whose tabs are declared one by one. Five of them are `MetricType` values; Migraine is a separate flow: `migraineTabSelected` is hoisted in `MainActivity` (`logMigraineTab`), the form has its own `MigraineLogViewModel`, and the tab index is `if (migraineTabSelected) MetricType.entries.size else selectedMetric.ordinal`. The History screen has its own hardcoded chip row driven by `HistoryFilter` (which does contain `MIGRAINE`). The History import dialog has a third chip row for file formats.
 
-The app already stores lightweight user preferences via `SharedPreferences` (see `UnitPreference.kt`, `ThemePreference.kt`, etc.) using the same pattern: a class in `app/settings/` wrapping a named `SharedPreferences` file. No ADR conflicts with adding another preference there. The project avoids extra dependencies (ADR-0003), so no third-party drag-to-reorder library will be introduced.
+Settings do not have a screen of their own: they sit on the Profile tab (`ui/profile/`: `ReminderSettings`, `SecuritySettingsSection`), and that screen scrolls vertically.
+
+Preferences are small classes in `app/settings/` wrapping a named `SharedPreferences` file (`ThemePreference`, `UnitPreference`). Shared instances live in `HealthJournalApp` (`reminderPreference`). ADR-0003 keeps dependencies to a minimum, so no drag-and-drop library is added. The Log pickers are accessible to TalkBack, so a control that works only with a drag gesture would be a step back.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Persist a user-defined metric order in SharedPreferences.
-- Drive Log tab and History chip sequences from that stored order.
-- Provide a drag-to-reorder UI in the Settings screen.
-- Default order when no preference is saved: **Weight → Blood Pressure → Glucose → Migraine → Waist Circumference → Activity**.
+- Persist one user-defined metric order in SharedPreferences.
+- Drive the Log tabs and the History chips from it, updating both as soon as the order changes.
+- Provide a reorder list on the Profile tab that works with a finger drag and without one (TalkBack, switch access).
+- New default order: **Weight, Blood Pressure, Glucose, Migraine, Waist, Activity**.
 
 **Non-Goals:**
-- Separate per-screen ordering (Log vs History share one preference).
-- Runtime drag reorder directly on the tab bar or chip row.
-- Database or Room migration changes.
-- Adding external drag-to-reorder libraries.
+- A separate order per screen.
+- Reordering directly on the tab bar or chip row.
+- Database or Room changes.
+- An external drag-and-drop library.
+- Putting the order in the encrypted backup (D7).
+- Reordering the file-format chips of the History import dialog.
 
 ## Decisions
 
-### D1 — `MetricDisplayOrderPreference` in `:app/settings/`
+### D1 — `MetricSlot` is the orderable entry; it maps to the existing types
 
-**Choice**: Add `MetricDisplayOrderPreference.kt` following the existing `UnitPreference` pattern. It wraps a `SharedPreferences` file named `"metric_order_prefs"` and stores the order as a comma-separated string of `MetricType` names (e.g. `"WEIGHT,BLOOD_PRESSURE,GLUCOSE,MIGRAINE,WAIST_CIRCUMFERENCE,ACTIVITY"`).
+`MetricType` has no Migraine entry and adding one would touch every `when (state.selectedMetric)` and the logging use cases. Instead a small enum in `app/settings/MetricSlot.kt` names the six orderable entries:
 
-Reading: split on `","`, map each token to `MetricType` by name, fall back to the default list for any unknown token. If the stored list omits any valid `MetricType` (e.g. after a future metric is added), append missing types at the end in their default relative order.
-
-Default constant:
 ```kotlin
-val DEFAULT_ORDER = listOf(
-    MetricType.WEIGHT,
-    MetricType.BLOOD_PRESSURE,
-    MetricType.GLUCOSE,
-    MetricType.MIGRAINE,   // Migraine lives in the shared ordered list
-    MetricType.WAIST_CIRCUMFERENCE,
-    MetricType.ACTIVITY
-)
+enum class MetricSlot { WEIGHT, BLOOD_PRESSURE, GLUCOSE, MIGRAINE, WAIST_CIRCUMFERENCE, ACTIVITY }
 ```
 
-> **Note on Migraine in the ordered list**: Migraine is included in the shared preference list alongside the other metrics, even though its Log tab is handled slightly differently (it triggers a separate composable instead of the metric form). This keeps a single unified ordered list. Both ViewModels treat Migraine as a regular entry in the ordered sequence.
+Each slot maps to the existing code: `metricType: MetricType?` (null for `MIGRAINE`) for the Log screen, and `historyFilter: HistoryFilter` for the History screen. The label string resource per screen is chosen with a `when` over the slot next to the composable that shows it. `MetricType`, `HistoryFilter` and the migraine flow stay as they are.
 
-**Alternative considered**: Store the order as a JSON array. Rejected to avoid adding a JSON parsing dependency; comma-separated names are sufficient and readable.
+The default is `MetricSlot.DEFAULT_ORDER` in the same file (the order above).
 
-### D2 — ViewModels expose `orderedMetrics: List<MetricType>`
+### D2 — `MetricDisplayOrderPreference`: storage, parsing and a shared `StateFlow`
 
-**Choice**: Both `LoggingViewModel` and `HistoryViewModel` read `MetricDisplayOrderPreference` at startup (or on a settings-change event) and expose the ordered list via their `UiState`. `LogMetricScreen` computes `selectedTabIndex` by finding `state.selectedMetric` in `state.orderedMetrics` (index-of), eliminating the `MetricType.ordinal` dependency.
+It wraps the file `metric_order_prefs`, key `metric_display_order`, and stores the order as comma-separated `MetricSlot` names. There is no JSON, so no parsing dependency.
 
-**Alternative considered**: Keep the tab-index calculation ordinal-based and only reorder enum entries. Rejected because ordinal-based ordering is fragile and cannot support a runtime-configurable sequence.
+`read()` rules (one place, unit-tested):
+1. Split on `,`, trim, map tokens to `MetricSlot` by name.
+2. **Drop** unknown tokens and duplicates (first occurrence wins). One bad token never resets the rest of the list.
+3. **Append** every slot that is missing, in its position from the default order.
+4. Nothing stored, or an empty string, gives the default order.
 
-### D3 — Settings screen drag-to-reorder using `ReorderableColumn` (no library)
+The class exposes `val order: StateFlow<List<MetricSlot>>` and `fun save(order: List<MetricSlot>)`. `save` normalises the list with the same rules, writes it, and emits it. `HealthJournalApp` holds one lazy instance (`metricDisplayOrderPreference`, next to `reminderPreference`), so the Profile tab, the Log screen and the History screen all see the same flow.
 
-**Choice**: Implement drag-to-reorder in the Settings UI using Jetpack Compose's built-in `LazyColumn` with `Modifier.pointerInput` for drag detection and manual index-swap logic. The item being dragged is given an elevated `zIndex`; the list shifts items around it. On drag release the new `List<MetricType>` is written to `MetricDisplayOrderPreference`.
+### D3 — ViewModels combine the flow into their UI state
 
-**Alternative considered**: Use the `reorderable` Compose library (a popular community library). Rejected per ADR-0003 (dependency minimisation); the interaction is straightforward enough to implement without it.
+`LoggingViewModel` and `HistoryViewModel` get the preference through their factories and collect `order` into `orderedMetrics: List<MetricSlot>` in their `UiState`. A change made on the Profile tab therefore reaches both screens without reloading anything. `ProfileViewModel` calls `save()`.
 
-### D4 — Log and History screens iterate `state.orderedMetrics`
+### D4 — Log tabs, tab index and the starting selection
 
-**Choice**: Replace the hardcoded `Tab` / `FilterChip` declarations with a loop over `state.orderedMetrics`. Each `MetricType` in the list maps to one tab/chip using a `when` expression for the label string resource. The Migraine tab/chip is included in the loop since Migraine is part of the unified ordered list.
+`LogMetricScreen` loops over `state.orderedMetrics` for the tabs. The selected index is `orderedMetrics.indexOf(selectedSlot)`, where the selected slot is `MIGRAINE` when `migraineTabSelected` is true and otherwise the slot of `state.selectedMetric`. The `ordinal` and `entries.size` arithmetic goes away.
 
-**Rationale**: Keeps rendering declarative and driven by data rather than hardcoded layout.
+Starting selection: on a fresh launch the first slot of the order is selected. `LoggingUiState.selectedMetric` starts from the first slot that has a `MetricType`, and `MainActivity` starts `logMigraineTab` as `true` when the first slot is `MIGRAINE`. After that the selection is the user's: changing the order does not move the selected tab (its index just changes).
+
+### D5 — History chips
+
+After the "All" chip, `HistoryScreen` loops over `state.orderedMetrics` and shows the chip for each slot's `historyFilter`. `selectedFilter` still starts as `ALL`.
+
+### D6 — Reorder UI on the Profile tab
+
+`MetricOrderSection.kt` shows the six metrics in a plain `Column` (not a `LazyColumn`: the Profile screen already scrolls vertically, and a lazy list inside it fails with unbounded height; six rows do not need laziness). Each row has:
+- the metric name,
+- Move up and Move down icon buttons (48 dp touch targets, disabled at the ends, content descriptions such as "Move Glucose up"), and
+- a drag handle that reorders with `detectDragGesturesAfterLongPress` and manual index swapping, with an elevated `zIndex` and a tint on the dragged row.
+
+The buttons are the accessible path. They give TalkBack users the same result without custom gesture handling, and after a move the new position is announced through a polite live region ("Glucose, position 2 of 6"). The order is saved on every completed move (button press or drag release), not when the screen is left.
+
+The texts name positions only. They do not say which order is better or recommended.
+
+### D7 — The order is not in the encrypted backup
+
+The backup document has a fixed set of display preferences (`BackupPreferences`: language, region, units, theme, reminder snooze) and a documented format (`docs/backup-format`). Adding the order means a format change and a restore path for older files. That is a separate change; until then a restored phone starts on the default order. This is recorded here and in the backup docs as a known limit.
+
+### D8 — Metrics added later
+
+New metrics (oxygen saturation, mood, sleep, temperature, fluid, energy) each add a `MetricSlot`. `read()` appends slots missing from an older saved order, so nothing breaks and nothing needs a migration. The requirements say "every metric", not "six", and `docs/dev/how-to/add-a-metric.md` gets a step for adding the slot, its `when` mappings and its labels.
 
 ## Risks / Trade-offs
 
-- **`MetricType.ordinal` removal** → Any code currently relying on `MetricType.ordinal` for the selected-tab index (see `LogMetricScreen`) must be updated to use `indexOf`. Search all usages before applying. Impact is confined to `:app`. → Mitigation: D2 covers this; tests in task 4.1 verify.
-- **Future new metric types** → If a new `MetricType` is added later, `MetricDisplayOrderPreference.read()` appends unknown types at the end, so old saved preferences remain valid. No migration needed.
-- **Manual drag implementation complexity** → Without a library, the drag-to-reorder code is more verbose. → Mitigation: scope is a simple 6-item list, not a large dynamic collection; the implementation is proportionate.
+- **The new default order moves Migraine up for existing users.** Accepted on purpose. → Mitigation: a "Changed" line in the changelog, and the Profile section lets anyone put it back.
+- **`MetricType.ordinal` removal** → every use for the tab index must be replaced. The only use is in `LogMetricScreen` (checked with a search); task 3.1 repeats the search.
+- **Manual drag code is verbose.** → The buttons carry the accessibility; the drag is an extra for sighted users, and the list has a handful of rows.
+- **Two sources for the selected Log tab** (`logMigraineTab` and `selectedMetric`) already exist. → This change does not merge them; D4 only reads both through one `selectedSlot` helper.
 
 ## Migration Plan
 
-1. Add `MetricDisplayOrderPreference.kt` in `app/settings/`.
-2. Wire the preference into `LoggingViewModel` and `HistoryViewModel` (`loadProfile` or `init`).
-3. Update `LogMetricScreen` to loop over `orderedMetrics` for tabs.
-4. Update `HistoryScreen` to loop over `orderedMetrics` for chips.
-5. Add the reorderable list section to the Settings screen.
-6. Add EN and NL string resources.
-7. Run existing `ViewModelsTest`; add new tests.
+1. `MetricSlot` and `MetricDisplayOrderPreference`, plus the shared instance in `HealthJournalApp`.
+2. Pass the preference to `LoggingViewModel`, `HistoryViewModel` and `ProfileViewModel` through their factories.
+3. Log screen: ordered tabs, index from the list, initial selection.
+4. History screen: ordered chips.
+5. Profile tab: `MetricOrderSection`.
+6. Strings (EN and NL), tests, docs, screenshots.
 
-Rollback: revert the changed files; the preference key is never read unless the new code is present, so existing installs are unaffected.
-
+Rollback: revert the changed files. The preference key is only read by the new code, so existing installs are unaffected.
