@@ -18,6 +18,8 @@ These specs are the platform-neutral source of truth for every business rule. A 
 | [health-trends/blood-pressure](health-trends/blood-pressure/spec.md) | Averages, gauges, distribution |
 | [health-trends/glucose](health-trends/glucose/spec.md) | In-range bars, chips |
 | health-metrics/range-labels (added when `reword-range-labels` is archived) | Neutral "name · range" labels, three blood pressure bands, source order, neutral colours |
+| [health-metrics](health-metrics/spec.md) | Order of the Log tabs and History chips |
+| [metric-display-order](metric-display-order/spec.md) | User-chosen metric order, kept on the device, never in a backup |
 | [medication](medication/spec.md) | Medications, schedules, intake outcomes, pillbox view |
 | [privacy](privacy/spec.md) | No transmission, controlled export, no sensitive logging |
 | [compliance](compliance/spec.md) | Intended purpose, no advice, wording rules, review gate |

@@ -1,4 +1,4 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Log screen metric tab order
 The Log screen metric tabs SHALL follow the stored metric order (see the `metric-display-order` capability), Migraine included. When no order is saved the default order SHALL be used: Weight, Blood Pressure, Glucose, Migraine, Waist, Activity. The `PrimaryScrollableTabRow` SHALL build its tabs and its selected index from the ordered list at render time and SHALL NOT use `MetricType.ordinal`.
