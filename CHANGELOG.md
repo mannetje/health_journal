@@ -4,6 +4,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.6.4] - 2026-10-29
+
 ### Added
 - **Version and changelog link in Profile:** a new "About" section at the bottom of Profile shows "Version X.Y.Z" and a "What's new" link that opens the changelog on GitHub at the section of your version (at the top of the file when that version has no section yet, as in a development build). The app makes no network request itself; the browser opens the link. English and Dutch strings. Light and dark screenshots are in `docs/screenshots.md`.
 
@@ -272,7 +274,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.3...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.4...HEAD
+[1.6.4]: https://github.com/mannetje/health_journal/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/mannetje/health_journal/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/mannetje/health_journal/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/mannetje/health_journal/compare/v1.6.0...v1.6.1
