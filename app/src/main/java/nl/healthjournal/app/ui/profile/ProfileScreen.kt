@@ -53,7 +53,9 @@ fun ProfileScreen(
     onShowMedicationNotice: () -> Unit = {},
     reminderSettings: @Composable () -> Unit = {},
     securitySettings: @Composable () -> Unit = {},
-    backupSettings: @Composable () -> Unit = {}
+    backupSettings: @Composable () -> Unit = {},
+    versionName: String = "",
+    changelogAnchor: String = ""
 ) {
     val state by viewModel.uiState.collectAsState()
     val metricOrder by viewModel.metricOrder.collectAsState()
@@ -382,6 +384,8 @@ fun ProfileScreen(
             }
             Text(stringResource(R.string.profile_summary_sex, sexText))
         }
+
+        AboutSection(versionName = versionName, changelogAnchor = changelogAnchor)
     }
 }
 

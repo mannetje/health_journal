@@ -4,6 +4,14 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+// GitHub builds a heading anchor from the whole heading, date included:
+// "## [1.6.3] - 2026-10-28" gives "163---2026-10-28". Empty when the version has no section.
+fun changelogAnchor(version: String): String =
+    Regex("""^## \[${Regex.escape(version)}] - (\S+)""", RegexOption.MULTILINE)
+        .find(rootProject.file("CHANGELOG.md").readText())
+        ?.let { "${version.replace(".", "")}---${it.groupValues[1]}" }
+        ?: ""
+
 android {
     namespace = "nl.healthjournal.app"
     compileSdk = 36
@@ -14,6 +22,7 @@ android {
         targetSdk = 35
         versionCode = 28
         versionName = "1.6.3"
+        buildConfigField("String", "CHANGELOG_ANCHOR", "\"${changelogAnchor(versionName!!)}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -48,6 +57,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

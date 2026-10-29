@@ -9,7 +9,7 @@ Semantic Versioning, tags `vX.Y.Z`. The version lives in `app/build.gradle.kts` 
 ## Steps
 
 1. Move the entries under `## [Unreleased]` in `CHANGELOG.md` to a new `## [X.Y.Z] - YYYY-MM-DD` section. Use the headings `Added`, `Changed`, `Fixed`, and an `Upgrade note` when users need to know something.
-2. Bump `versionCode` and `versionName` in `app/build.gradle.kts`.
+2. Bump `versionCode` and `versionName` in `app/build.gradle.kts`. The changelog heading from step 1 must exist before you build: the Profile "What's new" link takes its anchor from it (`CHANGELOG_ANCHOR`, worked out in `app/build.gradle.kts`).
 3. Update the download links in the README.
 4. Run `./gradlew test` and try the app on a device.
 5. Commit (`chore: release X.Y.Z`) and push to `master`.

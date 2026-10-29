@@ -199,6 +199,9 @@
     <string name="profile_theme_light">Licht</string>
     <string name="profile_theme_dark">Donker</string>
     <string name="profile_theme_hint">Systeem volgt de instelling van je toestel.</string>
+    <string name="profile_about_title">Over</string>
+    <string name="profile_about_version">Versie %1$s</string>
+    <string name="profile_about_whats_new">Wat is er nieuw</string>
     <string name="profile_metric_order_label">Volgorde van metingen</string>
     <string name="profile_metric_order_hint">Kies de volgorde van de metingen op de schermen Loggen en Historie. Houd de greep ingedrukt om een rij te slepen.</string>
     <string name="profile_metric_order_move_up">%1$s omhoog</string>

@@ -199,6 +199,9 @@
     <string name="profile_theme_light">Light</string>
     <string name="profile_theme_dark">Dark</string>
     <string name="profile_theme_hint">System follows the device setting.</string>
+    <string name="profile_about_title">About</string>
+    <string name="profile_about_version">Version %1$s</string>
+    <string name="profile_about_whats_new">What\'s new</string>
     <string name="profile_metric_order_label">Metric order</string>
     <string name="profile_metric_order_hint">Choose the order of the metrics on the Log and History screens. Press and hold the handle to drag a row.</string>
     <string name="profile_metric_order_move_up">Move %1$s up</string>

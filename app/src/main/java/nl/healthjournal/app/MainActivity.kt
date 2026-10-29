@@ -501,6 +501,8 @@ class MainActivity : FragmentActivity() {
                                     )
                                 },
                                 backupSettings = { BackupSection(viewModel = backupViewModel) },
+                                versionName = versionName,
+                                changelogAnchor = BuildConfig.CHANGELOG_ANCHOR,
                                 securitySettings = {
                                     SecuritySettingsSection(
                                         state = SecuritySettingsState(

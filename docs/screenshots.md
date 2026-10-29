@@ -140,6 +140,12 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 |---|---|---|
 | <img src="screenshots/light-restore-unreadable.png" width="250" alt="Restore dialog with a red note that 3 items from a newer app version will be left out, light theme"> | <img src="screenshots/dark-restore-unreadable.png" width="250" alt="Restore dialog with a red note that 3 items from a newer app version will be left out, dark theme"> | <img src="screenshots/light-restore-unreadable-nl.png" width="250" alt="Dutch restore dialog with the red note about onbekende onderdelen, light theme"> |
 
+**Version and changelog link** (bottom of Profile: the installed version and the "What's new" link, which opens the changelog at that version)
+
+| Light | Dark |
+|---|---|
+| <img src="screenshots/light-profile-about.png" width="250" alt="Bottom of the Profile tab with an About section showing Version 1.6.3 and a What's new link, light theme"> | <img src="screenshots/dark-profile-about.png" width="250" alt="Bottom of the Profile tab with an About section showing Version 1.6.3 and a What's new link, dark theme"> |
+
 **Metric order** (Profile: Migraine moved to the top with Move up, Activity dragged to second place; the Log tabs and History chips follow it and it stays after a restart)
 
 | Light | Dark |

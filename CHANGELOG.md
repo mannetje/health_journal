@@ -4,6 +4,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Added
+- **Version and changelog link in Profile:** a new "About" section at the bottom of Profile shows "Version X.Y.Z" and a "What's new" link that opens the changelog on GitHub at the section of your version (at the top of the file when that version has no section yet, as in a development build). The app makes no network request itself; the browser opens the link. English and Dutch strings. Light and dark screenshots are in `docs/screenshots.md`.
+
 ## [1.6.3] - 2026-10-28
 
 ### Added
