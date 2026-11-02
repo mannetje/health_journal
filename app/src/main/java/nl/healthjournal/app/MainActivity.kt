@@ -61,6 +61,7 @@ import nl.healthjournal.app.ui.mindfulness.ExerciseGate
 import nl.healthjournal.app.ui.mindfulness.LocalExerciseGate
 import nl.healthjournal.app.ui.mindfulness.MindfulnessArea
 import nl.healthjournal.app.ui.profile.ProfileScreen
+import nl.healthjournal.app.ui.shell.AppNavigationState
 import nl.healthjournal.domain.usecase.RestoreBackupUseCase
 import nl.healthjournal.app.ui.profile.ProfileViewModel
 import nl.healthjournal.app.ui.profile.ReminderSettingsSection
@@ -315,21 +316,15 @@ class MainActivity : FragmentActivity() {
                         }
                     )
                 } else {
-                var currentTab by rememberSaveable { mutableStateOf(AppNavDestination.LOG) }
-                // The pillbox is a separate screen over the tabs, so Back returns to the tab it was opened from.
-                var showPillbox by rememberSaveable { mutableStateOf(false) }
-                // Set by a tap on a reminder notification; the pillbox then shows Today whatever it showed before.
-                var openPillboxOnToday by remember { mutableStateOf(false) }
-                // Mindfulness is also a screen over the tabs; it and the pillbox are never open together.
-                var showMindfulness by rememberSaveable { mutableStateOf(false) }
-                // The migraine tab of the Log screen; hoisted so it survives the form opening and closing.
-                var logMigraineTab by rememberSaveable {
-                    mutableStateOf(app.metricDisplayOrderPreference.order.value.first() == MetricSlot.MIGRAINE)
+                val navigation = rememberSaveable(saver = AppNavigationState.Saver) {
+                    AppNavigationState(
+                        logMigraineTab = app.metricDisplayOrderPreference.order.value.first() == MetricSlot.MIGRAINE
+                    )
                 }
                 val migraineState by migraineViewModel.uiState.collectAsStateWithLifecycle()
-                BackHandler(enabled = showPillbox) { showPillbox = false }
-                BackHandler(enabled = migraineState.open && (currentTab == AppNavDestination.LOG || currentTab == AppNavDestination.HISTORY)) { migraineViewModel.onBack() }
-                BackHandler(enabled = showMindfulness) { showMindfulness = false }
+                BackHandler(enabled = navigation.showPillbox) { navigation.closePillbox() }
+                BackHandler(enabled = navigation.migraineBackEnabled(migraineState.open)) { migraineViewModel.onBack() }
+                BackHandler(enabled = navigation.showMindfulness) { navigation.closeMindfulness() }
 
                 var snoozeMinutes by remember { mutableStateOf(app.reminderPreference.snoozeMinutes) }
                 var showDetails by remember { mutableStateOf(app.reminderPreference.showDetailsOnLockScreen) }
@@ -337,8 +332,8 @@ class MainActivity : FragmentActivity() {
                 val exerciseGate = remember { ExerciseGate() }
                 // Ask once, with an explanation, when the first schedule exists and the pillbox is in view.
                 val hasMedication = medicationViewModel.uiState.collectAsStateWithLifecycle().value.medications.isNotEmpty()
-                LaunchedEffect(hasMedication, showPillbox) {
-                    if (hasMedication && showPillbox && !app.reminderPreference.permissionAsked &&
+                LaunchedEffect(hasMedication, navigation.showPillbox) {
+                    if (hasMedication && navigation.showPillbox && !app.reminderPreference.permissionAsked &&
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationsAllowed
                     ) {
                         showPermissionDialog = true
@@ -346,19 +341,17 @@ class MainActivity : FragmentActivity() {
                 }
                 LaunchedEffect(pillboxRequested) {
                     if (pillboxRequested) {
-                        showMindfulness = false
-                        showPillbox = true
-                        openPillboxOnToday = true
+                        navigation.openPillboxOnToday()
                         pillboxRequested = false
                     }
                 }
 
                 // Banners belong to the screen that raised them. Skip the first run so a banner survives the
                 // Activity recreation caused by a language change (ADR 0015).
-                var previousTab by remember { mutableStateOf(currentTab) }
-                LaunchedEffect(currentTab) {
-                    if (currentTab != previousTab) {
-                        previousTab = currentTab
+                var previousTab by remember { mutableStateOf(navigation.currentTab) }
+                LaunchedEffect(navigation.currentTab) {
+                    if (navigation.currentTab != previousTab) {
+                        previousTab = navigation.currentTab
                         loggingViewModel.clearMessages()
                         migraineViewModel.clearMessages()
                         profileViewModel.clearMessages()
@@ -368,49 +361,40 @@ class MainActivity : FragmentActivity() {
                     }
                 }
                 // A profile created on the Profile tab must reach the migraine tab when the Log tab opens.
-                LaunchedEffect(currentTab) {
-                    if (currentTab == AppNavDestination.LOG) migraineViewModel.loadProfile()
+                LaunchedEffect(navigation.currentTab) {
+                    if (navigation.currentTab == AppNavDestination.LOG) migraineViewModel.loadProfile()
                 }
-                LaunchedEffect(showPillbox) {
-                    if (!showPillbox) medicationViewModel.clearMessages()
+                LaunchedEffect(navigation.showPillbox) {
+                    if (!navigation.showPillbox) medicationViewModel.clearMessages()
                 }
 
-                var encryptionBannerDismissed by rememberSaveable { mutableStateOf(false) }
                 Scaffold(
                     topBar = {
                         Column {
                             AppTopBar(
                                 title = stringResource(
                                     when {
-                                        showPillbox -> R.string.nav_title_pillbox
-                                        showMindfulness -> R.string.nav_title_mindfulness
-                                        else -> currentTab.titleRes
+                                        navigation.showPillbox -> R.string.nav_title_pillbox
+                                        navigation.showMindfulness -> R.string.nav_title_mindfulness
+                                        else -> navigation.currentTab.titleRes
                                     }
                                 ),
-                                onOpenPillbox = { showMindfulness = false; showPillbox = true },
-                                onOpenMindfulness = { showPillbox = false; showMindfulness = true },
-                                onOpenLog = {
-                                    showPillbox = false
-                                    showMindfulness = false
-                                    currentTab = AppNavDestination.LOG
-                                }
+                                onOpenPillbox = navigation::openPillbox,
+                                onOpenMindfulness = navigation::openMindfulness,
+                                onOpenLog = { navigation.openTab(AppNavDestination.LOG) }
                             )
-                            if (DatabaseEncryptionStatus.state is EncryptionState.NotActive && !encryptionBannerDismissed) {
+                            if (DatabaseEncryptionStatus.state is EncryptionState.NotActive && !navigation.encryptionBannerDismissed) {
                                 EncryptionNotActiveBanner(
-                                    onOpenProfile = {
-                                        showPillbox = false
-                                        showMindfulness = false
-                                        currentTab = AppNavDestination.PROFILE
-                                    },
-                                    onDismiss = { encryptionBannerDismissed = true }
+                                    onOpenProfile = { navigation.openTab(AppNavDestination.PROFILE) },
+                                    onDismiss = { navigation.encryptionBannerDismissed = true }
                                 )
                             }
                         }
                     },
                     bottomBar = {
                         AppNavigationBar(
-                            selected = currentTab.takeIf { !showPillbox && !showMindfulness },
-                            onSelect = { showPillbox = false; showMindfulness = false; currentTab = it }
+                            selected = navigation.selectedTab,
+                            onSelect = navigation::openTab
                         )
                     }
                 ) { innerPadding ->
@@ -419,20 +403,20 @@ class MainActivity : FragmentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        if (showPillbox) {
+                        if (navigation.showPillbox) {
                             PillboxScreen(
                                 viewModel = medicationViewModel,
                                 showNotice = !noticeAccepted,
-                                openOnToday = openPillboxOnToday,
-                                onOpenedOnToday = { openPillboxOnToday = false },
+                                openOnToday = navigation.openPillboxOnToday,
+                                onOpenedOnToday = navigation::onOpenedOnToday,
                                 onNoticeAccepted = {
                                     noticePreference.accepted = true
                                     noticeAccepted = true
                                 }
                             )
-                        } else if (showMindfulness) {
+                        } else if (navigation.showMindfulness) {
                             CompositionLocalProvider(LocalExerciseGate provides exerciseGate) { MindfulnessArea() }
-                        } else when (currentTab) {
+                        } else when (navigation.currentTab) {
                             AppNavDestination.LOG -> LogMetricScreen(
                                 viewModel = loggingViewModel,
                                 onGlucoseUnitSelected = {
@@ -440,8 +424,8 @@ class MainActivity : FragmentActivity() {
                                     glucoseUnitChoice = choice
                                     unitPreference.glucose = choice
                                 },
-                                migraineTabSelected = logMigraineTab,
-                                onMigraineTabSelected = { logMigraineTab = it },
+                                migraineTabSelected = navigation.logMigraineTab,
+                                onMigraineTabSelected = { navigation.logMigraineTab = it },
                                 migraineContent = {
                                     if (migraineState.open) {
                                         MigraineLogScreen(viewModel = migraineViewModel)
