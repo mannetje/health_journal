@@ -31,6 +31,8 @@ Short rules that keep the code and the docs consistent. When a rule has a reason
 - Comment why, not what. Keep comments short.
 - Collect a `StateFlow` in a screen with `collectAsStateWithLifecycle()`, not `collectAsState()`.
 - A ViewModel factory lambda never captures the Activity (no `recreate()`, `lifecycleScope`, `contentResolver` or Activity-context preference). Use objects from `HealthJournalApp`, or send an event the Activity collects.
+- Keep `MainActivity` to what needs the Activity. Screen state goes in a plain holder in `ui/shell` that takes its inputs as constructor parameters or functions and has a JVM unit test; the Activity passes in what only it can do as lambdas. A holder never keeps an Activity reference.
+- A property with a `private set` and a `fun setX` clash on the JVM signature; name the function `changeX`.
 - Around a suspending call, rethrow `CancellationException` before a broad `catch (e: Exception)`, so a cancelled operation stops instead of being reported as a failure.
 
 ## Commits

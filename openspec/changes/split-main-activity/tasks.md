@@ -13,7 +13,7 @@
 
 ## 3. Verify
 
-- [ ] 3.1 Unit tests and lint pass
-- [ ] 3.2 Emulator: repeat 1.2, plus restore after rotation, a lock timeout, the lost-key screen, light and dark
-- [ ] 3.3 `MainActivity.kt` under about 250 lines, no function over about 80
-- [ ] 3.4 Update `docs/dev/architecture.md` and `docs/dev/conventions.md`; add the `CHANGELOG.md` line
+- [x] 3.1 Unit tests and lint pass
+- [x] 3.2 Emulator: repeat 1.2, plus restore after rotation, a lock timeout, the lost-key screen, light and dark (all passed on Pixel_7_Pro except the restore: a real backup restore through the file picker was not driven; its refresh is covered by `ViewModelRefresherTest`, and the restore collector in `onCreate` is unchanged)
+- [x] 3.3 `MainActivity.kt` under about 250 lines, no function over about 80 (255 lines; `onCreate` is 78; the ViewModel factories, the settings intents and the Profile reminder and security sections moved to `ViewModelFactories.kt`, `SystemSettingsIntents.kt` and `ShellSettingsSections.kt`)
+- [x] 3.4 Update `docs/dev/architecture.md` and `docs/dev/conventions.md`; add the `CHANGELOG.md` line
