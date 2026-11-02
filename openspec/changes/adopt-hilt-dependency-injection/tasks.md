@@ -1,7 +1,7 @@
 ## 0. Before starting
 
-- [ ] 0.1 `app-scoped-lock-and-activity-free-viewmodels` is archived
-- [ ] 0.2 Record the clean build time, APK size and cold-start time for comparison
+- [x] 0.1 `app-scoped-lock-and-activity-free-viewmodels` is archived (archived 2026-11-02, with `split-main-activity`)
+- [x] 0.2 Record the clean build time, APK size and cold-start time for comparison: baseline at `c0c77dd`, clean `assembleDebug assembleRelease` 1m 7s (153 tasks executed); debug APK 36,557,684 bytes, release APK (unsigned) 31,860,534 bytes; cold start on the Pixel_7_Pro emulator, debug build, `am start -W` TotalTime 1789 to 1978 ms over 5 runs (median 1797 ms)
 
 ## 1. Set up
 
