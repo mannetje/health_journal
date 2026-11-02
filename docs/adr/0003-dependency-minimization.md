@@ -38,3 +38,8 @@ We enforce a strict **Dependency Minimization Policy**:
 - **Date:** 2026-10-07
 - **Library:** [`org.robolectric:robolectric`](https://robolectric.org/), version 4.17, `testImplementation` in the `data` module only. It is not part of the APK.
 - **Why it clears the bar:** a migration needs a real SQLite. (The schema is exported since the migration chain test; `androidx.room:room-testing` is also a test-only dependency, from the Room family that is already in use.) A JVM unit test cannot open a Room database, and an instrumented test needs an emulator in CI. Robolectric runs the migration test on the JVM, so `./gradlew test` stays the one command. The alternative, testing migrations only by hand on a device. It needs network on the first run to fetch the Android jar it runs against.
+
+### Hilt (dependency injection, `:app` only)
+- **Date:** 2026-11-02
+- **Library:** [`com.google.dagger:hilt-android`](https://dagger.dev/hilt/) 2.58 with its compiler through KSP; a Google library, Apache-2.0.
+- **Why it clears the bar:** it replaces hand wiring in `HealthJournalApp` and six ViewModel factories, so a missing dependency fails the build instead of a run. The measured cost is small (+3 s on a clean build of both variants, +0.23% debug and +0.16% release APK, no cold-start regression). It is confined to `:app`; a guardrail test keeps Hilt, Dagger and `javax.inject` out of `:domain` and `:data`. The decision and the measurements are in [ADR 0035](0035-hilt-for-dependency-injection.md).

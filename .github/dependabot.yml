@@ -16,6 +16,10 @@ updates:
           - "com.google.devtools.ksp*"
           - "androidx.compose*"
           - "androidx.room*"
+      # Hilt is tied to the Android Gradle plugin and KSP; 2.59 and later need AGP 9
+      hilt:
+        patterns:
+          - "com.google.dagger*"
       androidx:
         patterns:
           - "androidx.*"
@@ -27,12 +31,14 @@ updates:
       # Major versions are reviewed by hand
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-      # These releases need compileSdk 37 and a newer Android Gradle plugin than the one in use.
+      # These releases need compileSdk 37 or a newer Android Gradle plugin than the one in use (Hilt 2.59 needs AGP 9).
       # Remove these rules after the AGP and compileSdk upgrade.
       - dependency-name: "androidx.core:core-ktx"
         versions: [">= 1.19"]
       - dependency-name: "androidx.core:core"
         versions: [">= 1.19"]
+      - dependency-name: "com.google.dagger:*"
+        versions: [">= 2.59"]
       - dependency-name: "com.patrykandpatrick.vico:*"
         versions: [">= 3.3"]
 

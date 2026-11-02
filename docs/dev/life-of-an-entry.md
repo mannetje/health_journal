@@ -43,13 +43,14 @@ recordBloodPressureUseCase(profile.id, sys, dia)
 
 If the text is not a number, it throws a `UiTextException` carrying a `UiText.Res(R.string.log_err_systolic)`. The ViewModel never builds a user-facing string itself; the screen resolves the resource id in the current language ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)).
 
-Where does `recordBloodPressureUseCase` come from? It is passed into the ViewModel's constructor. The object itself is created once in `HealthJournalApp.onCreate`:
+Where does `recordBloodPressureUseCase` come from? Hilt passes it into the ViewModel's `@Inject` constructor. The domain has no annotations, so the object is built by one `@Provides` function in `app/di/UseCaseModule.kt`:
 
 ```kotlin
-recordBloodPressureUseCase = RecordBloodPressureUseCase(healthLogRepository)
+@Provides
+fun recordBloodPressure(log: HealthLogRepositoryPort) = RecordBloodPressureUseCase(log)
 ```
 
-That line is the whole "dependency injection": a plain constructor call in the composition root.
+`log` is the port; `DataPortsModule` supplies it from the one `DataModule` (the Room adapter). `MainActivity` is an `@AndroidEntryPoint` and gets the ViewModel with `by viewModels()`, so no factory is written ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md)).
 
 ## 3. The use case applies the rules
 
@@ -93,7 +94,7 @@ The same state feeds the trend charts in `ui/history/charts/`. For blood pressur
 
 ## 6. Editing and deleting
 
-The History screen can edit or delete an entry. That goes through `EntryUseCases` (created in `HealthJournalApp`): `UpdateBloodPressureUseCase` and `DeleteBloodPressureUseCase`. The port returns `false` when the id is unknown, so a stale screen cannot silently change nothing ([ADR 0012](../adr/0012-edit-and-delete-entries.md)).
+The History screen can edit or delete an entry. That goes through `EntryUseCases` (provided by `UseCaseModule`): `UpdateBloodPressureUseCase` and `DeleteBloodPressureUseCase`. The port returns `false` when the id is unknown, so a stale screen cannot silently change nothing ([ADR 0012](../adr/0012-edit-and-delete-entries.md)).
 
 ## 7. Export and import
 

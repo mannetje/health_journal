@@ -25,7 +25,7 @@ Before writing code, **propose the change**: create an OpenSpec change describin
 
 ## 3. App (`app/src/main/java/nl/healthjournal/app/`)
 
-1. In `HealthJournalApp.kt`, create the use cases once and, for update and delete, add them to `EntryUseCases` in `ui/history/HistoryViewModel.kt`.
+1. In `di/UseCaseModule.kt`, add one `@Provides` function per new use case (the domain has no annotations, so Hilt cannot build them itself) and, for update and delete, add them to `EntryUseCases`. Then take the use case in the ViewModel's secondary `@Inject` constructor.
 2. **Logging:** the shared `CommentField` (`ui/common/CommentField.kt`) already covers the optional comment; pass `commentInput` to the new record use case. Extend `MetricType` and the state in `ui/logging/LoggingViewModel.kt`, and add the input form in `ui/logging/LogMetricScreen.kt`. If the user types a quantity that has display units (weight, glucose, distance), convert it to metric before validating (see `ui/common/UnitFormat.kt` and [ADR 0014](../../adr/0014-units-presentation.md)). Each metric saves as its own entry; do not add an optional second metric to another metric's form (see [ADR 0018](../../adr/0018-smart-input-pickers.md)).
 3. **Order:** add an entry to `settings/MetricSlot.kt` (its `MetricType` and `HistoryFilter`) and a label in `ui/logging/MetricSlotLabels.kt`. The Log tabs, History chips and the Profile order list are built from it; a stored order without the new slot gets it appended ([ADR 0034](../../adr/0034-metric-display-order-preference.md)).
 4. **History:** add the entries to the list and the filter in `ui/history/HistoryViewModel.kt` and `HistoryScreen.kt`, plus edit and delete dialogs in `EntryDialogs.kt` (add the `CommentField` and a `CommentLine` under the row).

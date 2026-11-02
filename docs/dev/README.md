@@ -11,6 +11,7 @@ Health Journal is an offline-first Android app for logging weight, blood pressur
 | 1 | [Getting started](getting-started.md) | build, test and run the app |
 | 2 | [Architecture](architecture.md) | understand the three modules and the dependency rule |
 | 2a | [C4 diagrams](c4.md) | see the system at four zoom levels: context, containers, components, scenarios and deployment (Mermaid) |
+| 2a1 | [Dependency injection (Hilt)](dependency-injection.md) | see how Hilt is set up, the three modules, how ViewModels and receivers get their objects, and how to add a binding (Mermaid) |
 | 2b | [Design](design.md) | see the principles, quality goals, screen map, state flow, layout rules, medication design and the migraine screens |
 | 3 | [Life of an entry](life-of-an-entry.md) | follow one blood pressure reading through every layer (the best way to learn the code) |
 | 4 | [Conventions](conventions.md) | know the rules the code follows |

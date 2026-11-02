@@ -16,7 +16,7 @@ We adopt **Hexagonal Architecture (Ports and Adapters)** organized in a multi-mo
 2. **`:data` (Driven / Secondary Adapter):** Implements secondary persistence ports (`ProfileRepositoryPort`, `HealthLogRepositoryPort`) using Jetpack Room SQLite, and data portability ports (`DataExportPort`, `DataImportPort`) using UTF-8 CSV streams.
 3. **`:app` (Driving / Primary Adapter):** Presentation layer with Jetpack Compose UI and AndroidX ViewModels that invoke domain use cases.
 
-Dependencies flow strictly inward: `:app` -> `:domain` and `:data` -> `:domain`.
+Dependencies flow strictly inward: `:app` -> `:domain` and `:data` -> `:domain`. The composition root lives in `:app` (Hilt modules, [ADR 0035](0035-hilt-for-dependency-injection.md)); `:domain` and `:data` carry no DI annotations.
 
 ## Consequences
 
