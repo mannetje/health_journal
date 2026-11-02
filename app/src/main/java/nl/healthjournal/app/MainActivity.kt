@@ -12,18 +12,10 @@ import android.view.WindowManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.compose.BackHandler
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -31,39 +23,24 @@ import kotlinx.coroutines.launch
 import nl.healthjournal.app.reminder.ReminderIntents
 import nl.healthjournal.app.lock.AppLockManager
 import nl.healthjournal.app.lock.BiometricAuthHelper
-import nl.healthjournal.app.settings.GlucoseUnitChoice
 import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.settings.LanguagePreference
 import nl.healthjournal.app.settings.MedicationNoticePreference
 import nl.healthjournal.app.settings.SecureScreenPreference
 import nl.healthjournal.app.settings.ThemePreference
-import nl.healthjournal.app.settings.UnitSystemChoice
 import nl.healthjournal.app.settings.withAppLocale
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.backup.BackupEvent
-import nl.healthjournal.app.ui.backup.BackupSection
 import nl.healthjournal.app.ui.backup.BackupViewModel
 import nl.healthjournal.app.ui.backup.ContentResolverBackupFileIo
-import nl.healthjournal.app.ui.history.HistoryScreen
 import nl.healthjournal.app.ui.history.HistoryViewModel
 import nl.healthjournal.app.ui.lock.DatabaseKeyLostScreen
-import nl.healthjournal.app.ui.lock.EncryptionNotActiveBanner
 import nl.healthjournal.app.ui.lock.LockOverlay
-import nl.healthjournal.app.ui.logging.LogMetricScreen
 import nl.healthjournal.app.ui.logging.LoggingViewModel
-import nl.healthjournal.app.ui.migraine.MigraineCard
-import nl.healthjournal.app.ui.migraine.MigraineLogScreen
 import nl.healthjournal.app.ui.migraine.MigraineLogViewModel
-import nl.healthjournal.app.ui.medication.MedicationNoticeDialog
 import nl.healthjournal.app.ui.medication.MedicationViewModel
-import nl.healthjournal.app.ui.medication.PillboxScreen
-import nl.healthjournal.app.ui.mindfulness.ExerciseGate
-import nl.healthjournal.app.ui.mindfulness.LocalExerciseGate
-import nl.healthjournal.app.ui.mindfulness.MindfulnessArea
-import nl.healthjournal.app.ui.shell.AppNavigationState
 import nl.healthjournal.app.ui.shell.AppSettingsState
 import nl.healthjournal.app.ui.shell.PreferencesSettingsStore
-import nl.healthjournal.app.ui.shell.ProfileRoute
 import nl.healthjournal.app.ui.shell.ReminderPermissionState
 import nl.healthjournal.app.ui.shell.ViewModelRefresher
 import nl.healthjournal.domain.usecase.RestoreBackupUseCase
@@ -210,6 +187,13 @@ class MainActivity : FragmentActivity() {
         )
     }
 
+    private val shellViewModels by lazy {
+        ShellViewModels(
+            profileViewModel, loggingViewModel, migraineViewModel, historyViewModel, medicationViewModel,
+            backupViewModel
+        )
+    }
+
     /** Set when a reminder notification was tapped; the composition opens the pillbox and clears it. */
     private var pillboxRequested by mutableStateOf(false)
 
@@ -307,185 +291,87 @@ class MainActivity : FragmentActivity() {
                     )
                 )
             }
-            var showNoticeFromProfile by remember { mutableStateOf(false) }
             val lockState by appLockManager.lockState.collectAsStateWithLifecycle()
+            val actions = remember {
+                ShellActions(
+                    recreate = ::recreate,
+                    requestNotificationPermission = ::requestNotificationPermission,
+                    reminderSettings = { ReminderSettings(settings) },
+                    securitySettings = { SecuritySettings(settings) }
+                )
+            }
 
             CompositionLocalProvider(LocalDisplayUnits provides settings.displayUnits) {
-            HealthJournalTheme(choice = settings.theme) {
-                if (lockState.requiresAuthentication) {
-                    LockOverlay(
-                        onUnlock = {
-                            biometricAuthHelper.authenticate(confirmDeviceCredentialLauncher)
-                        }
-                    )
-                } else {
-                val navigation = rememberSaveable(saver = AppNavigationState.Saver) {
-                    AppNavigationState(
-                        logMigraineTab = app.metricDisplayOrderPreference.order.value.first() == MetricSlot.MIGRAINE
-                    )
-                }
-                val migraineState by migraineViewModel.uiState.collectAsStateWithLifecycle()
-                BackHandler(enabled = navigation.showPillbox) { navigation.closePillbox() }
-                BackHandler(enabled = navigation.migraineBackEnabled(migraineState.open)) { migraineViewModel.onBack() }
-                BackHandler(enabled = navigation.showMindfulness) { navigation.closeMindfulness() }
-
-                val exerciseGate = remember { ExerciseGate() }
-                // Ask once, with an explanation, when the first schedule exists and the pillbox is in view.
-                val hasMedication = medicationViewModel.uiState.collectAsStateWithLifecycle().value.medications.isNotEmpty()
-                LaunchedEffect(hasMedication, navigation.showPillbox) {
-                    reminderPermissions.onPillboxState(hasMedication, navigation.showPillbox)
-                }
-                LaunchedEffect(pillboxRequested) {
-                    if (pillboxRequested) {
-                        navigation.openPillboxOnToday()
-                        pillboxRequested = false
-                    }
-                }
-
-                LaunchedEffect(navigation.currentTab) { refresher.onTabShown(navigation.currentTab) }
-                LaunchedEffect(navigation.showPillbox) {
-                    if (!navigation.showPillbox) refresher.onPillboxClosed()
-                }
-
-                Scaffold(
-                    topBar = {
-                        Column {
-                            AppTopBar(
-                                title = stringResource(
-                                    when {
-                                        navigation.showPillbox -> R.string.nav_title_pillbox
-                                        navigation.showMindfulness -> R.string.nav_title_mindfulness
-                                        else -> navigation.currentTab.titleRes
-                                    }
-                                ),
-                                onOpenPillbox = navigation::openPillbox,
-                                onOpenMindfulness = navigation::openMindfulness,
-                                onOpenLog = { navigation.openTab(AppNavDestination.LOG) }
-                            )
-                            if (DatabaseEncryptionStatus.state is EncryptionState.NotActive && !navigation.encryptionBannerDismissed) {
-                                EncryptionNotActiveBanner(
-                                    onOpenProfile = { navigation.openTab(AppNavDestination.PROFILE) },
-                                    onDismiss = { navigation.encryptionBannerDismissed = true }
-                                )
-                            }
-                        }
-                    },
-                    bottomBar = {
-                        AppNavigationBar(
-                            selected = navigation.selectedTab,
-                            onSelect = navigation::openTab
+                HealthJournalTheme(choice = settings.theme) {
+                    if (lockState.requiresAuthentication) {
+                        LockOverlay(onUnlock = { biometricAuthHelper.authenticate(confirmDeviceCredentialLauncher) })
+                    } else {
+                        AppContent(
+                            settings = settings,
+                            reminderPermissions = reminderPermissions,
+                            refresher = refresher,
+                            viewModels = shellViewModels,
+                            startOnMigraineTab = app.metricDisplayOrderPreference.order.value.first() == MetricSlot.MIGRAINE,
+                            pillboxRequested = pillboxRequested,
+                            onPillboxRequestHandled = { pillboxRequested = false },
+                            actions = actions
                         )
                     }
-                ) { innerPadding ->
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    ) {
-                        if (navigation.showPillbox) {
-                            PillboxScreen(
-                                viewModel = medicationViewModel,
-                                showNotice = !settings.medicationNoticeAccepted,
-                                openOnToday = navigation.openPillboxOnToday,
-                                onOpenedOnToday = navigation::onOpenedOnToday,
-                                onNoticeAccepted = settings::acceptMedicationNotice
-                            )
-                        } else if (navigation.showMindfulness) {
-                            CompositionLocalProvider(LocalExerciseGate provides exerciseGate) { MindfulnessArea() }
-                        } else when (navigation.currentTab) {
-                            AppNavDestination.LOG -> LogMetricScreen(
-                                viewModel = loggingViewModel,
-                                onGlucoseUnitSelected = { settings.changeGlucoseUnit(GlucoseUnitChoice.from(it)) },
-                                migraineTabSelected = navigation.logMigraineTab,
-                                onMigraineTabSelected = { navigation.logMigraineTab = it },
-                                migraineContent = {
-                                    if (migraineState.open) {
-                                        MigraineLogScreen(viewModel = migraineViewModel)
-                                    } else {
-                                        MigraineCard(state = migraineState, onLog = migraineViewModel::startNew)
-                                    }
-                                }
-                            )
-                            AppNavDestination.HISTORY -> HistoryScreen(viewModel = historyViewModel, migraineViewModel = migraineViewModel)
-                            AppNavDestination.PROFILE -> ProfileRoute(
-                                viewModel = profileViewModel,
-                                settings = settings,
-                                onLocaleChanged = ::recreate,
-                                onShowMedicationNotice = { showNoticeFromProfile = true },
-                                reminderSettings = {
-                                    ReminderSettingsSection(
-                                        state = ReminderSettingsState(
-                                            snoozeMinutes = settings.snoozeMinutes,
-                                            showDetailsOnLockScreen = settings.showDetailsOnLockScreen,
-                                            notificationsAllowed = reminderPermissions.notificationsAllowed,
-                                            exactAlarmsAllowed = reminderPermissions.exactAlarmsAllowed
-                                        ),
-                                        onSnoozeChange = settings::changeSnoozeMinutes,
-                                        onShowDetailsChange = {
-                                            settings.changeShowDetailsOnLockScreen(it)
-                                            lifecycleScope.launch { app.reminders.changed() }
-                                        },
-                                        onOpenNotificationSettings = ::openNotificationSettings,
-                                        onOpenExactAlarmSettings = ::openExactAlarmSettings
-                                    )
-                                },
-                                backupSettings = { BackupSection(viewModel = backupViewModel) },
-                                versionName = BuildConfig.VERSION_NAME,
-                                changelogAnchor = BuildConfig.CHANGELOG_ANCHOR,
-                                securitySettings = {
-                                    SecuritySettingsSection(
-                                        state = SecuritySettingsState(
-                                            appLockEnabled = settings.appLockEnabled,
-                                            appLockAvailable = appLockManager.isAvailable,
-                                            timeout = settings.lockTimeout,
-                                            secureScreenEnabled = settings.secureScreen,
-                                            encryptionActive = DatabaseEncryptionStatus.state == EncryptionState.Active
-                                        ),
-                                        onAppLockChange = { enable ->
-                                            val apply = {
-                                                settings.changeAppLockEnabled(enable)
-                                                applySecureScreen(settings.secureScreen || appLockManager.isEnabled)
-                                            }
-                                            // Weakening the lock needs the device credential, so a borrowed unlocked phone cannot switch it off.
-                                            if (enable) apply()
-                                            else biometricAuthHelper.confirm(apply, confirmDeviceCredentialLauncher)
-                                        },
-                                        onTimeoutChange = { newTimeout ->
-                                            val apply = { settings.changeLockTimeout(newTimeout) }
-                                            if (newTimeout.seconds > settings.lockTimeout.seconds) {
-                                                biometricAuthHelper.confirm(apply, confirmDeviceCredentialLauncher)
-                                            } else {
-                                                apply()
-                                            }
-                                        },
-                                        onSecureScreenChange = {
-                                            settings.changeSecureScreen(it)
-                                            applySecureScreen(it || appLockManager.isEnabled)
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    }
                 }
-                if (showNoticeFromProfile) {
-                    MedicationNoticeDialog(
-                        confirmLabel = stringResource(android.R.string.ok),
-                        onConfirm = { showNoticeFromProfile = false }
-                    )
-                }
-                if (reminderPermissions.showDialog && !exerciseGate.active) {
-                    ReminderPermissionDialog(
-                        onAllow = {
-                            reminderPermissions.answered()
-                            requestNotificationPermission()
-                        },
-                        onLater = reminderPermissions::answered
-                    )
-                }
-                }
-            }
             }
         }
+    }
+
+    @Composable
+    private fun ReminderSettings(settings: AppSettingsState) {
+        ReminderSettingsSection(
+            state = ReminderSettingsState(
+                snoozeMinutes = settings.snoozeMinutes,
+                showDetailsOnLockScreen = settings.showDetailsOnLockScreen,
+                notificationsAllowed = reminderPermissions.notificationsAllowed,
+                exactAlarmsAllowed = reminderPermissions.exactAlarmsAllowed
+            ),
+            onSnoozeChange = settings::changeSnoozeMinutes,
+            onShowDetailsChange = {
+                settings.changeShowDetailsOnLockScreen(it)
+                lifecycleScope.launch { app.reminders.changed() }
+            },
+            onOpenNotificationSettings = ::openNotificationSettings,
+            onOpenExactAlarmSettings = ::openExactAlarmSettings
+        )
+    }
+
+    @Composable
+    private fun SecuritySettings(settings: AppSettingsState) {
+        SecuritySettingsSection(
+            state = SecuritySettingsState(
+                appLockEnabled = settings.appLockEnabled,
+                appLockAvailable = appLockManager.isAvailable,
+                timeout = settings.lockTimeout,
+                secureScreenEnabled = settings.secureScreen,
+                encryptionActive = DatabaseEncryptionStatus.state == EncryptionState.Active
+            ),
+            onAppLockChange = { enable ->
+                val apply = {
+                    settings.changeAppLockEnabled(enable)
+                    applySecureScreen(settings.secureScreen || appLockManager.isEnabled)
+                }
+                // Weakening the lock needs the device credential, so a borrowed unlocked phone cannot switch it off.
+                if (enable) apply()
+                else biometricAuthHelper.confirm(apply, confirmDeviceCredentialLauncher)
+            },
+            onTimeoutChange = { newTimeout ->
+                val apply = { settings.changeLockTimeout(newTimeout) }
+                if (newTimeout.seconds > settings.lockTimeout.seconds) {
+                    biometricAuthHelper.confirm(apply, confirmDeviceCredentialLauncher)
+                } else {
+                    apply()
+                }
+            },
+            onSecureScreenChange = {
+                settings.changeSecureScreen(it)
+                applySecureScreen(it || appLockManager.isEnabled)
+            }
+        )
     }
 }
