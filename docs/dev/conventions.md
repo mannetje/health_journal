@@ -30,6 +30,7 @@ Short rules that keep the code and the docs consistent. When a rule has a reason
 - Name things after the domain, not the technology (`BloodPressureReading`, not `BpDto`).
 - Comment why, not what. Keep comments short.
 - Collect a `StateFlow` in a screen with `collectAsStateWithLifecycle()`, not `collectAsState()`.
+- A ViewModel factory lambda never captures the Activity (no `recreate()`, `lifecycleScope`, `contentResolver` or Activity-context preference). Use objects from `HealthJournalApp`, or send an event the Activity collects.
 - Around a suspending call, rethrow `CancellationException` before a broad `catch (e: Exception)`, so a cancelled operation stops instead of being reported as a failure.
 
 ## Commits

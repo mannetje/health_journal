@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,22 +26,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import nl.healthjournal.app.reminder.ReminderIntents
 import nl.healthjournal.app.lock.AppLockManager
 import nl.healthjournal.app.lock.BiometricAuthHelper
-import nl.healthjournal.app.settings.AppLockPreference
-import nl.healthjournal.app.settings.BackupPreferenceBridge
 import nl.healthjournal.app.settings.GlucoseUnitChoice
 import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.settings.LanguagePreference
 import nl.healthjournal.app.settings.MedicationNoticePreference
 import nl.healthjournal.app.settings.SecureScreenPreference
 import nl.healthjournal.app.settings.ThemePreference
-import nl.healthjournal.app.settings.UnitPreference
 import nl.healthjournal.app.settings.UnitSystemChoice
 import nl.healthjournal.app.settings.withAppLocale
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
+import nl.healthjournal.app.ui.backup.BackupEvent
 import nl.healthjournal.app.ui.backup.BackupSection
 import nl.healthjournal.app.ui.backup.BackupViewModel
 import nl.healthjournal.app.ui.backup.ContentResolverBackupFileIo
@@ -77,12 +77,14 @@ class MainActivity : FragmentActivity() {
 
     private val app by lazy { application as HealthJournalApp }
 
-    private val unitPreference by lazy { UnitPreference(this) }
+    // Owned by the Application: ViewModels outlive this Activity and must not capture it.
+    private val unitPreference get() = app.unitPreference
+    private val backupPreferences get() = app.backupPreferences
     private val themePreference by lazy { ThemePreference(this) }
     private val noticePreference by lazy { MedicationNoticePreference(this) }
     private val secureScreenPreference by lazy { SecureScreenPreference(this) }
-    private val appLockPreference by lazy { AppLockPreference(this) }
-    val appLockManager by lazy { AppLockManager(this, appLockPreference) }
+    // Owned by the Application, so a recreated Activity (rotation, language change) does not lock the app again.
+    private val appLockManager: AppLockManager get() = app.appLock
     private val biometricAuthHelper by lazy {
         BiometricAuthHelper(this) {
             appLockManager.onAuthenticated()
@@ -96,29 +98,26 @@ class MainActivity : FragmentActivity() {
             }
         }
 
-    private val backupPreferences by lazy { BackupPreferenceBridge(this) }
-
     private val backupViewModel: BackupViewModel by viewModels {
         BackupViewModel.Factory(
             create = app.createBackupUseCase,
             restore = app.restoreBackupUseCase,
-            io = ContentResolverBackupFileIo(contentResolver),
+            io = ContentResolverBackupFileIo(applicationContext.contentResolver),
             preferences = { backupPreferences.collect() },
-            applyPreferences = {
-                backupPreferences.apply(it)
-                // Language, region, theme and units are read when the screen is built.
-                recreate()
-            },
-            appVersion = versionName,
-            onRestored = {
-                profileViewModel.loadProfile()
-                loggingViewModel.loadProfile()
-                migraineViewModel.loadProfile()
-                historyViewModel.loadHistory()
-                medicationViewModel.refresh()
-                lifecycleScope.launch { app.reminders.changed() }
-            }
+            applyPreferences = { backupPreferences.apply(it) },
+            appVersion = BuildConfig.VERSION_NAME
         )
+    }
+
+    private suspend fun onBackupRestored(event: BackupEvent.Restored) {
+        profileViewModel.loadProfile()
+        loggingViewModel.loadProfile()
+        migraineViewModel.loadProfile()
+        historyViewModel.loadHistory()
+        medicationViewModel.refresh()
+        app.reminders.changed()
+        // Language, region, theme and units are read when the screen is built.
+        if (event.preferencesApplied) recreate()
     }
 
     /** Restore on the lost-key screen: the merge deletes the unreadable data first, into a fresh database. */
@@ -127,16 +126,12 @@ class MainActivity : FragmentActivity() {
         ViewModelProvider(this, BackupViewModel.Factory(
             create = null,
             restore = RestoreBackupUseCase(FreshDatabaseBackupSnapshot(applicationContext), app.backupCodec),
-            io = ContentResolverBackupFileIo(contentResolver),
+            io = ContentResolverBackupFileIo(applicationContext.contentResolver),
             preferences = { null },
             applyPreferences = { backupPreferences.apply(it) },
-            appVersion = versionName,
-            onRestored = {}
+            appVersion = BuildConfig.VERSION_NAME
         ))["recovery", BackupViewModel::class.java]
     }
-
-    private val versionName: String
-        get() = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
 
     private fun restartApp() {
         val launch = packageManager.getLaunchIntentForPackage(packageName)
@@ -258,7 +253,8 @@ class MainActivity : FragmentActivity() {
 
     override fun onStop() {
         super.onStop()
-        appLockManager.onBackgrounded()
+        // A configuration change or recreate() is not leaving the app, so it must not start the lock timeout.
+        if (!isChangingConfigurations) appLockManager.onBackgrounded()
     }
 
     /** Applies the chosen app language and region to the whole Activity, including dialogs and pickers. */
@@ -287,6 +283,11 @@ class MainActivity : FragmentActivity() {
         applySecureScreen(secureScreenPreference.enabled || appLockManager.isEnabled)
         if (savedInstanceState == null && intent.getBooleanExtra(ReminderIntents.EXTRA_OPEN_PILLBOX, false)) {
             pillboxRequested = true
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                backupViewModel.events.collect { if (it is BackupEvent.Restored) onBackupRestored(it) }
+            }
         }
         setContent {
             val languagePreference = remember { LanguagePreference(this) }
@@ -502,7 +503,7 @@ class MainActivity : FragmentActivity() {
                                     )
                                 },
                                 backupSettings = { BackupSection(viewModel = backupViewModel) },
-                                versionName = versionName,
+                                versionName = BuildConfig.VERSION_NAME,
                                 changelogAnchor = BuildConfig.CHANGELOG_ANCHOR,
                                 securitySettings = {
                                     SecuritySettingsSection(

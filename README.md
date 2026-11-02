@@ -293,6 +293,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0032: Energy Level as a 0-10 Rating Without Assessment](docs/adr/0032-energy-level-without-assessment.md)
 - [ADR 0033: Pickers Start from the Person's Own Entries Only](docs/adr/0033-picker-starts-from-own-entries-only.md)
 - [ADR 0034: User-Configurable Metric Display Order](docs/adr/0034-metric-display-order-preference.md)
+- [ADR 0035: Hilt for Dependency Injection](docs/adr/0035-hilt-for-dependency-injection.md)
 
 ---
 

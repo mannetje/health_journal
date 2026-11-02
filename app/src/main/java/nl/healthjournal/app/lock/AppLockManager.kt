@@ -79,6 +79,9 @@ class AppLockManager(
         }
 
         val lastBackground = backgroundTimestamp
+        // Consumed: a resume that follows no new backgrounding (a configuration change, a system dialog)
+        // must not be measured against an old timestamp.
+        backgroundTimestamp = null
         if (lastBackground != null) {
             if (timeout.hasElapsed(elapsedRealtime() - lastBackground)) {
                 _lockState.value = LockState.TimedOut

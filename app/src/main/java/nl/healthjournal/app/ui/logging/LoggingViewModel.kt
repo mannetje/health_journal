@@ -49,6 +49,8 @@ enum class LogField { WEIGHT, SYSTOLIC, DIASTOLIC, PULSE, WAIST }
 
 data class LoggingUiState(
     val activeProfile: Profile? = null,
+    /** False until the first read of the profile has finished, so "no profile" is not shown while loading. */
+    val profileLoaded: Boolean = false,
     val selectedMetric: MetricType = MetricType.WEIGHT,
     /** The metrics in the order the person chose, Migraine included. */
     val orderedMetrics: List<MetricSlot> = MetricSlot.DEFAULT_ORDER,
@@ -171,6 +173,7 @@ class LoggingViewModel(
 
             _uiState.value = _uiState.value.copy(
                 activeProfile = profile,
+                profileLoaded = true,
                 weightValue = weightKg,
                 weightInput = formattedWeight,
                 waistValue = waistCm,

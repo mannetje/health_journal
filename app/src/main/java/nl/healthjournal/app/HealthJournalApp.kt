@@ -1,11 +1,15 @@
 package nl.healthjournal.app
 
 import android.app.Application
+import nl.healthjournal.app.lock.AppLockManager
 import nl.healthjournal.app.reminder.AlarmReminderScheduler
 import nl.healthjournal.app.reminder.ReminderCoordinator
 import nl.healthjournal.app.reminder.ReminderNotifier
+import nl.healthjournal.app.settings.AppLockPreference
+import nl.healthjournal.app.settings.BackupPreferenceBridge
 import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.ReminderPreference
+import nl.healthjournal.app.settings.UnitPreference
 import nl.healthjournal.app.ui.history.EntryUseCases
 import nl.healthjournal.app.ui.medication.MedicationUseCases
 import nl.healthjournal.data.DataModule
@@ -81,6 +85,11 @@ class HealthJournalApp : Application() {
 
     val metricDisplayOrderPreference: MetricDisplayOrderPreference by lazy { MetricDisplayOrderPreference(this) }
     val reminderPreference: ReminderPreference by lazy { ReminderPreference(this) }
+    val unitPreference: UnitPreference by lazy { UnitPreference(this) }
+    val backupPreferences: BackupPreferenceBridge by lazy { BackupPreferenceBridge(this) }
+
+    /** Owned by the process, not the Activity: the lock must survive an Activity being recreated. */
+    val appLock: AppLockManager by lazy { AppLockManager(this, AppLockPreference(this)) }
     private val reminderScheduler: AlarmReminderScheduler by lazy { AlarmReminderScheduler(this) }
     lateinit var reminders: ReminderCoordinator
         private set

@@ -1,0 +1,1 @@
+- [ADR 0035: Hilt for Dependency Injection](../../../docs/adr/0035-hilt-for-dependency-injection.md) (Proposed)

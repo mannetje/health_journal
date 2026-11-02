@@ -6,9 +6,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nl.healthjournal.app.R
@@ -53,6 +56,12 @@ data class BackupUiState(
     val error: UiText? = null
 )
 
+/** One-shot results the screen must act on, which the ViewModel cannot do itself without holding the Activity. */
+sealed interface BackupEvent {
+    /** A restore finished: the data on screen is stale, and [preferencesApplied] means the display settings changed. */
+    data class Restored(val preferencesApplied: Boolean) : BackupEvent
+}
+
 /**
  * Drives creating and restoring a `.hjbackup`. Passphrases arrive as char arrays and are cleared as soon as the
  * key has been derived; nothing here stores them. The key derivation is heavy, so it runs off the main thread.
@@ -63,12 +72,15 @@ class BackupViewModel(
     private val io: BackupFileIo,
     private val preferences: () -> BackupPreferences?,
     private val applyPreferences: (BackupPreferences) -> Unit,
-    private val appVersion: String,
-    private val onRestored: () -> Unit
+    private val appVersion: String
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(BackupUiState())
     val state: StateFlow<BackupUiState> = _state.asStateFlow()
+
+    // Buffered: an event raised while the app is in the background is delivered when it is visible again.
+    private val _events = Channel<BackupEvent>(Channel.BUFFERED)
+    val events: Flow<BackupEvent> = _events.receiveAsFlow()
 
     private var fileToSave: ByteArray? = null
     private var fileToOpen: ByteArray? = null
@@ -206,7 +218,8 @@ class BackupViewModel(
         viewModelScope.launch {
             try {
                 val result = restore.merge(document)
-                if (applySettings) document.preferences?.let(applyPreferences)
+                val preferences = document.preferences.takeIf { applySettings }
+                preferences?.let(applyPreferences)
                 clearOpened()
                 _state.value = BackupUiState(
                     message = if (result.profilesAdded + result.entriesAdded + result.medicationsAdded + result.intakesAdded == 0) {
@@ -219,7 +232,7 @@ class BackupViewModel(
                         )
                     }
                 )
-                onRestored()
+                _events.trySend(BackupEvent.Restored(preferencesApplied = preferences != null))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -266,12 +279,11 @@ class BackupViewModel(
         private val io: BackupFileIo,
         private val preferences: () -> BackupPreferences?,
         private val applyPreferences: (BackupPreferences) -> Unit,
-        private val appVersion: String,
-        private val onRestored: () -> Unit
+        private val appVersion: String
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            BackupViewModel(create, restore, io, preferences, applyPreferences, appVersion, onRestored) as T
+            BackupViewModel(create, restore, io, preferences, applyPreferences, appVersion) as T
     }
 
     private companion object {

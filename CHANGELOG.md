@@ -4,6 +4,11 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Fixed
+- **The app lock no longer asks again after a language change or rotation:** the lock state belonged to the screen, so rebuilding the screen (changing the language or region, rotating) started a new locked state. It now belongs to the app, so an unlocked app stays unlocked while you use it. Starting the app fresh, or coming back after the chosen timeout, still locks it.
+- **A restore started before a rotation now refreshes the screen it finishes on:** the backup screen kept a reference to the first screen instance, so after a rotation a finished restore did not reload the data or recreate the screen for restored settings.
+- **No more flash of "no profile" when the app starts:** the Log tab showed the "no active profile" card for a moment while the profile was still loading. It now waits until the profile has been read.
+
 ## [1.6.5] - 2026-11-02
 
 ### Fixed
