@@ -23,7 +23,7 @@ Anything that needs `this` as a `Context`, a result launcher, the window or `rec
 | the tab-change `LaunchedEffect`s and `onBackupRestored` | `ViewModelRefresher` |
 | `hasMedication` effect, `showPermissionDialog`, the two flags | `ReminderPermissionState` |
 | Scaffold, top bar, tab `when`, dialogs | `AppContent.kt` |
-| the 20-parameter `ProfileScreen(...)` call | `ProfileRoute` in `AppContent.kt` |
+| the 20-parameter `ProfileScreen(...)` call | `ProfileRoute` (own file, `ui/shell/ProfileRoute.kt`) |
 
 ### 4. Refresh rules stay equivalent
 `ViewModelRefresher` keeps the exact current behaviour: a tab change clears the messages of all six ViewModels except on the first composition (ADR 0015: a banner survives the recreation caused by a language change); opening the Log tab reloads the migraine profile; a restore reloads the five loaders and `reminders.changed()`. Existing screenshots must not change.
