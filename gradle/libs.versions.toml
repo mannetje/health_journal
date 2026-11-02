@@ -2,7 +2,7 @@
 # Core Tooling & Language
 agp = "8.13.2"
 kotlin = "2.4.21"
-ksp = "2.3.12"
+ksp = "2.3.13"
 # ADR 0035 dependency (exception to ADR 0003): Hilt, in :app only
 hilt = "2.58"
 
