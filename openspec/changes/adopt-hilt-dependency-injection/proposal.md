@@ -2,7 +2,7 @@
 
 Dependencies are wired by hand: `HealthJournalApp.onCreate` builds the `DataModule`, about 25 use cases and the reminder coordinator, and `MainActivity` builds six ViewModels with six hand-written `ViewModelProvider.Factory` classes. This works and is easy to read at the current size, so this change is **optional**. It is worth doing only if the boilerplate starts to cost more than a DI library does: each new metric adds a use case, a ViewModel parameter, a factory parameter and a line in two places, and a missing wire is found at runtime (`lateinit` not initialised), not at build time.
 
-It depends on `app-scoped-lock-and-activity-free-viewmodels`: Hilt cannot inject a lambda that captures an Activity, so no ViewModel dependency may be tied to the Activity first.
+It depends on `app-scoped-lock-and-activity-free-viewmodels`: Hilt cannot inject a lambda that captures an Activity, so no ViewModel dependency may be tied to the Activity first. It is best done after `split-main-activity`, so the factories are removed from a thin Activity instead of a 570-line one.
 
 ## What Changes
 
