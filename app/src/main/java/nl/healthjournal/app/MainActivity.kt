@@ -73,11 +73,11 @@ class MainActivity : FragmentActivity() {
         }
 
     private val backupViewModel: BackupViewModel by viewModels { app.backupViewModelFactory(contentResolver) }
-    private val profileViewModel: ProfileViewModel by viewModels { app.profileViewModelFactory() }
+    private val profileViewModel: ProfileViewModel by viewModels()
     private val loggingViewModel: LoggingViewModel by viewModels { app.loggingViewModelFactory() }
-    private val migraineViewModel: MigraineLogViewModel by viewModels { app.migraineViewModelFactory() }
+    private val migraineViewModel: MigraineLogViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels { app.historyViewModelFactory() }
-    private val medicationViewModel: MedicationViewModel by viewModels { app.medicationViewModelFactory() }
+    private val medicationViewModel: MedicationViewModel by viewModels()
 
     private val refresher by lazy {
         ViewModelRefresher.of(

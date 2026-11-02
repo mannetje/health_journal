@@ -1,7 +1,9 @@
 package nl.healthjournal.app.ui.medication
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import nl.healthjournal.app.reminder.ReminderCoordinator
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -156,6 +158,7 @@ data class MedicationUiState(
     val successMessage: UiText? = null
 )
 
+@HiltViewModel
 class MedicationViewModel(
     private val profileRepository: ProfileRepositoryPort,
     private val medicationRepository: MedicationRepositoryPort,
@@ -163,6 +166,15 @@ class MedicationViewModel(
     private val clock: Clock = Clock.systemDefaultZone(),
     private val reminders: ReminderHooks = ReminderHooks.None
 ) : ViewModel() {
+
+    /** The constructor Hilt uses; tests pass the clock and the reminder hooks directly. */
+    @Inject
+    constructor(
+        profileRepository: ProfileRepositoryPort,
+        medicationRepository: MedicationRepositoryPort,
+        useCases: MedicationUseCases,
+        reminders: ReminderCoordinator
+    ) : this(profileRepository, medicationRepository, useCases, reminders = reminders as ReminderHooks) // upcast: picks the primary constructor
 
     private val _uiState = MutableStateFlow(
         MedicationUiState(date = LocalDate.now(clock), today = LocalDate.now(clock), isLoading = true)
@@ -344,18 +356,5 @@ class MedicationViewModel(
             Schedule.Recurring.of(draft.times, days, draft.applyFrom ?: today)
         }
         return Parsed(strength, dose, appearance, schedule)
-    }
-
-    class Factory(
-        private val profileRepository: ProfileRepositoryPort,
-        private val medicationRepository: MedicationRepositoryPort,
-        private val useCases: MedicationUseCases,
-        private val reminders: ReminderHooks = ReminderHooks.None
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            MedicationViewModel(
-                profileRepository, medicationRepository, useCases, reminders = reminders
-            ) as T
     }
 }
