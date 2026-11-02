@@ -4,12 +4,15 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.6.6] - 2026-11-02
+
 ### Fixed
 - **The app lock no longer asks again after a language change or rotation:** the lock state belonged to the screen, so rebuilding the screen (changing the language or region, rotating) started a new locked state. It now belongs to the app, so an unlocked app stays unlocked while you use it. Starting the app fresh, or coming back after the chosen timeout, still locks it.
 - **A restore started before a rotation now refreshes the screen it finishes on:** the backup screen kept a reference to the first screen instance, so after a rotation a finished restore did not reload the data or recreate the screen for restored settings.
 - **No more flash of "no profile" when the app starts:** the Log tab showed the "no active profile" card for a moment while the profile was still loading. It now waits until the profile has been read.
 
 ### Changed
+- **Dependencies are wired with Hilt:** the hand-written wiring in `HealthJournalApp` and the six ViewModel factories are replaced by Hilt modules in `app/di/`, so a missing dependency fails the build. Hilt is in `app` only; `domain` and `data` stay free of it (a test checks this). The debug APK grew by 0.23% and cold start did not get slower. No visible change. See [ADR 0035](docs/adr/0035-hilt-for-dependency-injection.md) and [Dependency injection](docs/dev/dependency-injection.md).
 - **`MainActivity` is split into state holders and an `AppContent` composable:** the navigation, reminder-permission, settings and refresh state moved into plain classes in `ui/shell` with unit tests, the screen arrangement into `AppContent`, and the ViewModel factories, settings intents and Profile reminder and security sections into their own files. `MainActivity` went from 573 to 255 lines. Developer-facing only; the app behaves as before.
 
 ## [1.6.5] - 2026-11-02
@@ -291,7 +294,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.5...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.6...HEAD
+[1.6.6]: https://github.com/mannetje/health_journal/compare/v1.6.5...v1.6.6
 [1.6.5]: https://github.com/mannetje/health_journal/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/mannetje/health_journal/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/mannetje/health_journal/compare/v1.6.2...v1.6.3

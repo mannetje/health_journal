@@ -22,8 +22,8 @@ android {
         applicationId = "nl.healthjournal"
         minSdk = 26
         targetSdk = 35
-        versionCode = 30
-        versionName = "1.6.5"
+        versionCode = 31
+        versionName = "1.6.6"
         buildConfigField("String", "CHANGELOG_ANCHOR", "\"${changelogAnchor(versionName!!)}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
