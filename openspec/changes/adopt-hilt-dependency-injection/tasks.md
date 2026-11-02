@@ -14,7 +14,7 @@
 
 - [x] 2.1 `ProfileViewModel` (smallest): `@HiltViewModel`, delete its factory, run tests (an `@Inject` secondary constructor takes `MetricDisplayOrderPreference`; the primary one stays for the unit tests; `testDebugUnitTest :app:lintDebug` pass, and the Profile tab loads the stored profile on the emulator)
 - [x] 2.2 `MigraineLogViewModel`, `MedicationViewModel`: `@HiltViewModel`, factories deleted (each keeps its primary constructor for the tests and gets a secondary `@Inject` one; `MedicationViewModel` takes the singleton `ReminderCoordinator`, upcast so the delegation picks the primary constructor; tests and lint pass, Migraine and Pillbox open on the emulator)
-- [ ] 2.3 `LoggingViewModel`, `HistoryViewModel`
+- [x] 2.3 `LoggingViewModel`, `HistoryViewModel`: `@HiltViewModel`, factories deleted (primary constructors stay for the tests, secondary `@Inject` ones take `UnitPreference` and `MetricDisplayOrderPreference`; tests and lint pass, Log and History tabs load on the emulator, weight shown in the chosen unit)
 - [ ] 2.4 `BackupViewModel` and the recovery instance for the lost-key screen
 - [ ] 2.5 Receivers through an `@EntryPoint`
 

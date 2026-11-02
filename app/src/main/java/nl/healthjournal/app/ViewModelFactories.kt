@@ -4,36 +4,10 @@ import android.content.ContentResolver
 import android.content.Context
 import nl.healthjournal.app.ui.backup.BackupViewModel
 import nl.healthjournal.app.ui.backup.ContentResolverBackupFileIo
-import nl.healthjournal.app.ui.history.HistoryViewModel
-import nl.healthjournal.app.ui.logging.LoggingViewModel
 import nl.healthjournal.data.backup.FreshDatabaseBackupSnapshot
 import nl.healthjournal.domain.usecase.RestoreBackupUseCase
 
 // What each ViewModel is built from. They take the Application's objects only, so no ViewModel can capture the Activity.
-
-internal fun HealthJournalApp.loggingViewModelFactory() = LoggingViewModel.Factory(
-    profileRepository,
-    recordWeightUseCase,
-    recordBloodPressureUseCase,
-    recordGlucoseUseCase,
-    recordActivityUseCase,
-    recordWaistCircumferenceUseCase,
-    healthLogRepository,
-    units = { unitPreference.resolve() },
-    metricOrder = metricDisplayOrderPreference.order
-)
-
-internal fun HealthJournalApp.historyViewModelFactory() = HistoryViewModel.Factory(
-    profileRepository,
-    getHealthHistoryUseCase,
-    migraineRepository,
-    dataExportAdapter,
-    dataImportAdapter,
-    migraineExportAdapter,
-    migraineImportAdapter,
-    entryUseCases,
-    metricDisplayOrderPreference.order
-)
 
 internal fun HealthJournalApp.backupViewModelFactory(contentResolver: ContentResolver) = BackupViewModel.Factory(
     create = createBackupUseCase,

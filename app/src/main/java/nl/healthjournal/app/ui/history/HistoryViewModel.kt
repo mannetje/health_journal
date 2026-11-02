@@ -1,7 +1,9 @@
 package nl.healthjournal.app.ui.history
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -109,6 +111,7 @@ data class HistoryUiState(
     val pendingDelete: EntryRef? = null
 )
 
+@HiltViewModel
 class HistoryViewModel(
     private val profileRepository: ProfileRepositoryPort,
     private val getHealthHistoryUseCase: GetHealthHistoryUseCase,
@@ -120,6 +123,23 @@ class HistoryViewModel(
     private val entryUseCases: EntryUseCases,
     private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
 ) : ViewModel() {
+
+    /** The constructor Hilt uses; tests pass the display order directly. */
+    @Inject
+    constructor(
+        profileRepository: ProfileRepositoryPort,
+        getHealthHistoryUseCase: GetHealthHistoryUseCase,
+        migraineRepository: MigraineRepositoryPort,
+        dataExportPort: DataExportPort,
+        dataImportPort: DataImportPort,
+        migraineExportPort: MigraineExportPort,
+        migraineImportPort: MigraineImportPort,
+        entryUseCases: EntryUseCases,
+        metricDisplayOrder: MetricDisplayOrderPreference
+    ) : this(
+        profileRepository, getHealthHistoryUseCase, migraineRepository, dataExportPort, dataImportPort,
+        migraineExportPort, migraineImportPort, entryUseCases, metricDisplayOrder.order
+    )
 
     private val _uiState = MutableStateFlow(HistoryUiState(isLoading = true, orderedMetrics = metricOrder.value))
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
@@ -339,32 +359,5 @@ class HistoryViewModel(
             errorMessage = null,
             infoMessage = null
         )
-    }
-
-    class Factory(
-        private val profileRepository: ProfileRepositoryPort,
-        private val getHealthHistoryUseCase: GetHealthHistoryUseCase,
-        private val migraineRepository: MigraineRepositoryPort,
-        private val dataExportPort: DataExportPort,
-        private val dataImportPort: DataImportPort,
-        private val migraineExportPort: MigraineExportPort,
-        private val migraineImportPort: MigraineImportPort,
-        private val entryUseCases: EntryUseCases,
-        private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return HistoryViewModel(
-                profileRepository,
-                getHealthHistoryUseCase,
-                migraineRepository,
-                dataExportPort,
-                dataImportPort,
-                migraineExportPort,
-                migraineImportPort,
-                entryUseCases,
-                metricOrder
-            ) as T
-        }
     }
 }
