@@ -4,6 +4,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.6.5] - 2026-11-02
+
 ### Fixed
 - **A cancelled backup or restore is no longer reported as a failure:** when the screen was closed while a backup was being created or a restore was running, the cancellation was handled like an error. It now simply stops. Developer-facing and rare; nothing changes in the normal flow.
 - **Encryption migration no longer risks stranding your data:** while the plain database is moved aside for the encrypted one, a failure part-way (for example one of its side files could not be renamed) left the original set aside, and a later start could delete it. A failed swap now puts every file back at once, and the app never creates a new database while the original is still set aside. Only people whose database was not yet encrypted could have been affected; nobody has reported it.
@@ -281,7 +283,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.4...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.5...HEAD
+[1.6.5]: https://github.com/mannetje/health_journal/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/mannetje/health_journal/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/mannetje/health_journal/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/mannetje/health_journal/compare/v1.6.1...v1.6.2
