@@ -21,6 +21,6 @@
 ## 3. Verify
 
 - [x] 3.1 Unit tests and lint pass (re-run from clean test tasks: `:data` and `:app` `testDebugUnitTest` 356 tests, `:domain:test` 300 tests, 0 failures, 0 skipped; `lintDebug` on all modules succeeds)
-- [ ] 3.2 Emulator: backup create and restore, language change, a reminder fires, cold start with the lock on
+- [x] 3.2 Emulator: backup create and restore, language change, a reminder fires, cold start with the lock on (debug build, Pixel_7_Pro: a 509 B backup was created and restored on the Hilt `BackupViewModel`, the deleted weight came back; switching to Nederlands recreated the Activity with the profile intact; a medication due at 23:10 posted its notification from the background with Taken all and Snooze, and Taken all cleared it through `ReminderEntryPoint`; with a device PIN and "Lock the app" on, a force-stopped cold start (`am start -W` 1753 ms) showed the credential prompt and unlocked to the Log tab; no FATAL in logcat in any step)
 - [ ] 3.3 Compare build time, APK size and cold start with 0.2; if out of proportion, stop and use the `AppContainer` fallback
 - [ ] 3.4 Update the architecture and conventions docs and the add-a-metric guide and playbook; accept the ADR
