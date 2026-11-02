@@ -1,6 +1,6 @@
 ## Context
 
-See the proposal. Hexagonal rule from [ADR 0002](../../../docs/adr/0002-hexagonal-architecture.md): `:domain` depends on nothing, `:data` on `:domain`, `:app` wires both. Dependency minimisation from [ADR 0003](../../../docs/adr/0003-dependency-minimization.md) applies: Hilt is a deliberate exception that the new ADR justifies.
+See the proposal. Hexagonal rule from [ADR 0002](../../../../docs/adr/0002-hexagonal-architecture.md): `:domain` depends on nothing, `:data` on `:domain`, `:app` wires both. Dependency minimisation from [ADR 0003](../../../../docs/adr/0003-dependency-minimization.md) applies: Hilt is a deliberate exception that the new ADR justifies.
 
 ## Goals / Non-Goals
 

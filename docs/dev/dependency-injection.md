@@ -48,14 +48,14 @@ flowchart LR
     APPC -->|"starts the graph"| MODS
 ```
 
-`domain` and `data` never import Hilt, Dagger or `javax.inject`. `RepositoryGuardrailsTest.domainAndDataDoNotUseHiltDaggerOrJavaxInject` fails the build if they do (it also checks their build files). That is why use cases, which are plain classes in `domain`, are built by `@Provides` functions in `app/di/` and not annotated themselves.
+`domain` and `data` never import Hilt, Dagger or `javax.inject`. `RepositoryGuardrailsTest.domainAndDataDoNotUseHiltDaggerOrJavaxInject` fails the build if they do (it also checks their build files). That is why use cases, which are plain classes in `domain`, are built by `@Provides` functions in `app/src/main/java/nl/healthjournal/app/di/` and not annotated themselves.
 
 ## The pieces
 
 | Annotation | Where | What it does here |
 |---|---|---|
 | `@HiltAndroidApp` | `HealthJournalApp` | Starts the graph when the process starts. Without it nothing else works. |
-| `@Module` + `@InstallIn(SingletonComponent::class)` | the three files in `app/di/` | A bag of recipes (`@Provides` functions). Installed in the singleton component, so the objects live as long as the process. |
+| `@Module` + `@InstallIn(SingletonComponent::class)` | the three files in `app/src/main/java/nl/healthjournal/app/di/` | A bag of recipes (`@Provides` functions). Installed in the singleton component, so the objects live as long as the process. |
 | `@Provides` | functions in the modules | "To get a `RecordWeightUseCase`, call this with these arguments." The argument types are themselves looked up in the graph. |
 | `@Singleton` | on some `@Provides` functions | One instance for the whole process. Without it Hilt builds a new object each time something asks. |
 | `@ApplicationContext` | a `Context` parameter | The application context, safe to keep. Never an Activity. |

@@ -16,7 +16,7 @@ flowchart LR
     DOMAIN["domain<br/>model, use cases, ports<br/>(pure Kotlin)"]
 ```
 
-**The dependency rule:** `app` and `data` depend on `domain`. `domain` depends on nothing. `app` depends on `data` only in one place: the Hilt modules in `app/di/` build the `DataModule` and wire everything together ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md)). Screens and ViewModels use the domain's interfaces, not Room classes. Hilt, Dagger and `javax.inject` exist in `app` only; a guardrail test fails the build if `domain` or `data` imports them.
+**The dependency rule:** `app` and `data` depend on `domain`. `domain` depends on nothing. `app` depends on `data` only in one place: the Hilt modules in `app/src/main/java/nl/healthjournal/app/di/` build the `DataModule` and wire everything together ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md)). Screens and ViewModels use the domain's interfaces, not Room classes. Hilt, Dagger and `javax.inject` exist in `app` only; a guardrail test fails the build if `domain` or `data` imports them.
 
 If you ever want to import `androidx.*` or `android.*` into `domain`, stop: the logic belongs in `domain` precisely because it does not need them.
 

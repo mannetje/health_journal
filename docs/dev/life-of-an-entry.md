@@ -43,7 +43,7 @@ recordBloodPressureUseCase(profile.id, sys, dia)
 
 If the text is not a number, it throws a `UiTextException` carrying a `UiText.Res(R.string.log_err_systolic)`. The ViewModel never builds a user-facing string itself; the screen resolves the resource id in the current language ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)).
 
-Where does `recordBloodPressureUseCase` come from? Hilt passes it into the ViewModel's `@Inject` constructor. The domain has no annotations, so the object is built by one `@Provides` function in `app/di/UseCaseModule.kt`:
+Where does `recordBloodPressureUseCase` come from? Hilt passes it into the ViewModel's `@Inject` constructor. The domain has no annotations, so the object is built by one `@Provides` function in `app/src/main/java/nl/healthjournal/app/di/UseCaseModule.kt`:
 
 ```kotlin
 @Provides

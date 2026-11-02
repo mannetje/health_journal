@@ -1,6 +1,6 @@
 ## Context
 
-See the proposal. [ADR 0002](../../../docs/adr/0002-hexagonal-architecture.md) keeps `:domain` and `:data` free of Android; this change only reorganises `:app`. The earlier change `app-scoped-lock-and-activity-free-viewmodels` already moved the lock and the restore result out of the Activity; this one moves the screen state.
+See the proposal. [ADR 0002](../../../../docs/adr/0002-hexagonal-architecture.md) keeps `:domain` and `:data` free of Android; this change only reorganises `:app`. The earlier change `app-scoped-lock-and-activity-free-viewmodels` already moved the lock and the restore result out of the Activity; this one moves the screen state.
 
 ## Goals / Non-Goals
 

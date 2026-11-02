@@ -6,7 +6,7 @@ Short rules that keep the code and the docs consistent. When a rule has a reason
 
 - `domain` is pure Kotlin: no Android, no Room, no Compose. Dependencies point inward: `app` and `data` depend on `domain`, never the reverse ([ADR 0002](../adr/0002-hexagonal-architecture.md)).
 - One use case per class, with a single `operator fun invoke`.
-- Wiring is Hilt, in `app` only ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md), [how it works](dependency-injection.md)): `@Provides` functions in `app/di/` build the use cases from their ports, because `domain` and `data` never import Hilt, Dagger or `javax.inject` (a guardrail test checks it). A new use case is one `@Provides` function in `UseCaseModule`.
+- Wiring is Hilt, in `app` only ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md), [how it works](dependency-injection.md)): `@Provides` functions in `app/src/main/java/nl/healthjournal/app/di/` build the use cases from their ports, because `domain` and `data` never import Hilt, Dagger or `javax.inject` (a guardrail test checks it). A new use case is one `@Provides` function in `UseCaseModule`.
 - Prefer the Android SDK, AndroidX and official Kotlinx libraries. A new third-party dependency needs an ADR.
 
 ## Data
