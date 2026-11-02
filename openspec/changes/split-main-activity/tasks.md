@@ -1,7 +1,7 @@
 ## 1. Prepare
 
-- [ ] 1.1 Record the `MainActivity.kt` line count and the longest function, for comparison
-- [ ] 1.2 Emulator baseline: tab, pillbox and Mindfulness survive rotation; a banner survives a language change; a notification tap opens the pillbox on Today
+- [x] 1.1 Record the `MainActivity.kt` line count and the longest function, for comparison: 573 lines; `onCreate` is 307 lines (266-572, the `setContent` lambda alone 280); the next longest function is `restartApp`-sized (under 20 lines), so `onCreate` is the only one over the limit
+- [x] 1.2 Emulator baseline (current code, Pixel_7_Pro, Dutch): the pillbox, Mindfulness and the History tab survive rotation (portrait, landscape, portrait); the Profile "saved" banner survives a language change to English; a notification-tap intent while Mindfulness is open shows the pillbox on Today, and Back then returns to the tab underneath (History)
 
 ## 2. Move one piece at a time (tests after each)
 
