@@ -13,7 +13,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.lifecycle.ViewModelProvider
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +30,7 @@ import nl.healthjournal.app.settings.withAppLocale
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.backup.BackupEvent
 import nl.healthjournal.app.ui.backup.BackupViewModel
+import nl.healthjournal.app.ui.backup.RecoveryBackupViewModel
 import nl.healthjournal.app.ui.history.HistoryViewModel
 import nl.healthjournal.app.ui.lock.DatabaseKeyLostScreen
 import nl.healthjournal.app.ui.lock.LockOverlay
@@ -72,7 +72,7 @@ class MainActivity : FragmentActivity() {
             }
         }
 
-    private val backupViewModel: BackupViewModel by viewModels { app.backupViewModelFactory(contentResolver) }
+    private val backupViewModel: BackupViewModel by viewModels()
     private val profileViewModel: ProfileViewModel by viewModels()
     private val loggingViewModel: LoggingViewModel by viewModels()
     private val migraineViewModel: MigraineLogViewModel by viewModels()
@@ -92,10 +92,8 @@ class MainActivity : FragmentActivity() {
         if (event.preferencesApplied) recreate()
     }
 
-    /** Restore on the lost-key screen. A separate key: viewModels() would hand back the same instance as backupViewModel. */
-    private val recoveryBackupViewModel: BackupViewModel by lazy {
-        ViewModelProvider(this, app.recoveryBackupViewModelFactory(applicationContext))["recovery", BackupViewModel::class.java]
-    }
+    /** Restore on the lost-key screen: a type of its own, so it is not the same instance as backupViewModel. */
+    private val recoveryBackupViewModel: BackupViewModel by viewModels<RecoveryBackupViewModel>()
 
     private fun restartApp() {
         val launch = packageManager.getLaunchIntentForPackage(packageName)
