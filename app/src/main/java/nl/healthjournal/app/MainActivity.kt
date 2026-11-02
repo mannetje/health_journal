@@ -62,6 +62,7 @@ import nl.healthjournal.app.ui.mindfulness.LocalExerciseGate
 import nl.healthjournal.app.ui.mindfulness.MindfulnessArea
 import nl.healthjournal.app.ui.profile.ProfileScreen
 import nl.healthjournal.app.ui.shell.AppNavigationState
+import nl.healthjournal.app.ui.shell.ViewModelRefresher
 import nl.healthjournal.domain.usecase.RestoreBackupUseCase
 import nl.healthjournal.app.ui.profile.ProfileViewModel
 import nl.healthjournal.app.ui.profile.ReminderSettingsSection
@@ -110,13 +111,15 @@ class MainActivity : FragmentActivity() {
         )
     }
 
+    private val refresher by lazy {
+        ViewModelRefresher.of(
+            profileViewModel, loggingViewModel, migraineViewModel, historyViewModel, medicationViewModel,
+            backupViewModel, app.reminders
+        )
+    }
+
     private suspend fun onBackupRestored(event: BackupEvent.Restored) {
-        profileViewModel.loadProfile()
-        loggingViewModel.loadProfile()
-        migraineViewModel.loadProfile()
-        historyViewModel.loadHistory()
-        medicationViewModel.refresh()
-        app.reminders.changed()
+        refresher.onRestored()
         // Language, region, theme and units are read when the screen is built.
         if (event.preferencesApplied) recreate()
     }
@@ -346,26 +349,9 @@ class MainActivity : FragmentActivity() {
                     }
                 }
 
-                // Banners belong to the screen that raised them. Skip the first run so a banner survives the
-                // Activity recreation caused by a language change (ADR 0015).
-                var previousTab by remember { mutableStateOf(navigation.currentTab) }
-                LaunchedEffect(navigation.currentTab) {
-                    if (navigation.currentTab != previousTab) {
-                        previousTab = navigation.currentTab
-                        loggingViewModel.clearMessages()
-                        migraineViewModel.clearMessages()
-                        profileViewModel.clearMessages()
-                        historyViewModel.clearMessages()
-                        medicationViewModel.clearMessages()
-                        backupViewModel.clearMessages()
-                    }
-                }
-                // A profile created on the Profile tab must reach the migraine tab when the Log tab opens.
-                LaunchedEffect(navigation.currentTab) {
-                    if (navigation.currentTab == AppNavDestination.LOG) migraineViewModel.loadProfile()
-                }
+                LaunchedEffect(navigation.currentTab) { refresher.onTabShown(navigation.currentTab) }
                 LaunchedEffect(navigation.showPillbox) {
-                    if (!navigation.showPillbox) medicationViewModel.clearMessages()
+                    if (!navigation.showPillbox) refresher.onPillboxClosed()
                 }
 
                 Scaffold(
