@@ -246,6 +246,58 @@ class PlainToEncryptedMigrationTest {
         verifyStep = fakeVerifyStep
     )
 
+    /** Fails the [failAt]th rename (1-based) and lets all others through. */
+    private fun migrationFailingRename(failAt: Int): PlainToEncryptedMigration {
+        var calls = 0
+        return PlainToEncryptedMigration(
+            context = context,
+            keyProvider = keyProvider,
+            exportStep = fakeExportStep,
+            verifyStep = fakeVerifyStep,
+            rename = { from, to -> ++calls != failAt && from.renameTo(to) }
+        )
+    }
+
+    @Test
+    fun a_failed_rename_at_any_step_restores_every_plain_file_and_the_next_start_migrates() {
+        // Three renames happen: the database, its -wal file, then the encrypted file moving in.
+        for (failAt in 1..3) {
+            context.deleteDatabase(HealthJournalDatabase.DATABASE_NAME)
+            createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }
+            val wal = File(dbFile.parentFile, HealthJournalDatabase.DATABASE_NAME + "-wal").apply { writeText("") }
+
+            val failed = migrationFailingRename(failAt).migrate()
+
+            assertTrue("rename $failAt", failed is PlainToEncryptedMigration.MigrationResult.Failed)
+            assertTrue("rename $failAt: database back", PlainToEncryptedMigration.isPlainSqlite(dbFile))
+            assertTrue("rename $failAt: wal back", wal.exists())
+            assertFalse("rename $failAt: nothing left aside", backupOf(dbFile).exists() || backupOf(wal).exists())
+            assertFalse("rename $failAt", PlainToEncryptedMigration.isSetAside(dbFile))
+
+            val retried = migrationWithFakeSteps().migrate()
+
+            assertTrue("rename $failAt: retry", retried is PlainToEncryptedMigration.MigrationResult.Success)
+            SQLiteDatabase.openDatabase(dbFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY).use {
+                it.rawQuery("SELECT COUNT(*) FROM profiles", null).use { c ->
+                    assertTrue(c.moveToFirst())
+                    assertEquals("rename $failAt: data kept", 1L, c.getLong(0))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun isSetAside_is_true_only_when_the_database_is_missing_and_its_copy_remains() {
+        createPlainDb { }
+        assertFalse(PlainToEncryptedMigration.isSetAside(dbFile))
+
+        check(dbFile.renameTo(backupOf(dbFile)))
+        assertTrue(PlainToEncryptedMigration.isSetAside(dbFile))
+
+        dbFile.writeBytes(ByteArray(64))
+        assertFalse(PlainToEncryptedMigration.isSetAside(dbFile))
+    }
+
     @Test
     fun successful_migration_leaves_no_set_aside_files() {
         createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }

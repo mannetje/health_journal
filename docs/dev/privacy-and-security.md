@@ -126,7 +126,7 @@ sequenceDiagram
     alt Plain DB exists
         Migrator->>Migrator: Verify plain DB & copy to temp encrypted DB
         Migrator->>Migrator: Verify row counts match
-        Migrator->>Migrator: Set plain files aside (.pre-encryption), move encrypted DB in, delete set-aside files
+        Migrator->>Migrator: Set plain files aside (.pre-encryption), move encrypted DB in, delete set-aside files (any failure puts them all back)
     end
     DB-->>App: Room Database Ready (Encrypted at Rest)
 ```

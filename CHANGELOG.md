@@ -4,6 +4,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Fixed
+- **Encryption migration no longer risks stranding your data:** while the plain database is moved aside for the encrypted one, a failure part-way (for example one of its side files could not be renamed) left the original set aside, and a later start could delete it. A failed swap now puts every file back at once, and the app never creates a new database while the original is still set aside. Only people whose database was not yet encrypted could have been affected; nobody has reported it.
+
 ## [1.6.4] - 2026-10-29
 
 ### Added

@@ -18,7 +18,7 @@ import java.io.FileInputStream
  * - Keeps the plain file untouched until verification passes.
  * - Only upon successful verification, moves the encrypted database into place. The plain files are
  *   set aside under [BACKUP_SUFFIX] until the swap is complete, so a crash or failure in between
- *   never loses data: the next [migrate] restores them.
+ *   never loses data: a failed swap puts them back at once, a crash leaves them for the next [migrate].
  * - On any failure, removes temporary files, keeps the plain database intact, and returns [MigrationResult.Failed].
  */
 class PlainToEncryptedMigration(
@@ -26,6 +26,7 @@ class PlainToEncryptedMigration(
     private val keyProvider: DatabaseKeyProvider,
     private val exportStep: (plainPath: String, encPath: String, passphrase: ByteArray, plainVersion: Int) -> Unit = ::defaultExportStep,
     private val verifyStep: (encPath: String, passphrase: ByteArray, expectedCounts: Map<String, Long>, expectedVersion: Int) -> Unit = ::defaultVerifyStep,
+    private val rename: (from: File, to: File) -> Boolean = File::renameTo,
 ) {
 
     sealed class MigrationResult {
@@ -87,20 +88,29 @@ class PlainToEncryptedMigration(
         }
     }
 
-    /** Sets the plain files aside, moves the encrypted file in, and only then drops the set-aside files. */
+    /**
+     * Sets the plain files aside, moves the encrypted file in, and only then drops the set-aside files.
+     * When any step fails, every file already set aside is put back before the failure is reported.
+     */
     private fun swapIn(plainFile: File, tempEncFile: File) {
+        try {
+            setPlainFilesAside(plainFile)
+            check(rename(tempEncFile, plainFile)) { "Could not move the encrypted database into place" }
+        } catch (e: Exception) {
+            restoreBackups(plainFile)
+            throw e
+        }
+        deleteBackups(plainFile)
+    }
+
+    private fun setPlainFilesAside(plainFile: File) {
         val dir = plainFile.parentFile ?: return
         for (suffix in DATABASE_SUFFIXES) {
             val original = File(dir, DATABASE_NAME + suffix)
             if (original.exists()) {
-                check(original.renameTo(backupOf(original))) { "Could not set aside ${original.name}" }
+                check(rename(original, backupOf(original))) { "Could not set aside ${original.name}" }
             }
         }
-        if (!tempEncFile.renameTo(plainFile)) {
-            restoreBackups(plainFile)
-            error("Could not move the encrypted database into place")
-        }
-        deleteBackups(plainFile)
     }
 
     /**
@@ -182,6 +192,10 @@ class PlainToEncryptedMigration(
         private val DATABASE_SUFFIXES = listOf("", "-journal", "-wal", "-shm")
 
         private val SQLITE_HEADER = "SQLite format 3\u0000".toByteArray(Charsets.US_ASCII)
+
+        /** True when the database file is missing but its set-aside copy is still there: nothing may create a new one. */
+        fun isSetAside(databaseFile: File): Boolean =
+            !databaseFile.exists() && File(databaseFile.parentFile, databaseFile.name + BACKUP_SUFFIX).exists()
 
         fun isPlainSqlite(file: File): Boolean {
             if (!file.exists() || file.length() < 16) return false

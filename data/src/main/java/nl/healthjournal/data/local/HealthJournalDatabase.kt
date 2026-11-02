@@ -263,6 +263,15 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 return notEncrypted(builder, reason)
             }
 
+            // A failed swap that could not put the plain database back: a new database here would let the
+            // next start mistake it for a finished migration and delete the set-aside original.
+            if (PlainToEncryptedMigration.isSetAside(dbFile)) {
+                val reason = "the original database is set aside and could not be restored"
+                Log.e(TAG, "Database is NOT available: $reason. Starting with an empty in-memory database.")
+                DatabaseEncryptionStatus.state = EncryptionState.NotActive(reason)
+                return createInMemory(context)
+            }
+
             val passphrase = try {
                 keyProvider.getOrCreatePassphrase()
             } catch (e: DatabaseKeyLostException) {
