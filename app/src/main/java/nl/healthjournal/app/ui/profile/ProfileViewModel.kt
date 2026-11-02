@@ -1,13 +1,14 @@
 package nl.healthjournal.app.ui.profile
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.toUiText
@@ -17,6 +18,7 @@ import nl.healthjournal.domain.model.profile.Sex
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.CreateProfileUseCase
 import java.time.LocalDate
+import javax.inject.Inject
 
 data class ProfileUiState(
     val activeProfile: Profile? = null,
@@ -25,6 +27,7 @@ data class ProfileUiState(
     val successMessage: UiText? = null
 )
 
+@HiltViewModel
 class ProfileViewModel(
     private val profileRepository: ProfileRepositoryPort,
     private val createProfileUseCase: CreateProfileUseCase,
@@ -32,6 +35,14 @@ class ProfileViewModel(
     val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER),
     private val saveMetricOrder: (List<MetricSlot>) -> Unit = {}
 ) : ViewModel() {
+
+    /** The constructor Hilt uses; tests pass the order and the save function directly. */
+    @Inject
+    constructor(
+        profileRepository: ProfileRepositoryPort,
+        createProfileUseCase: CreateProfileUseCase,
+        metricDisplayOrder: MetricDisplayOrderPreference
+    ) : this(profileRepository, createProfileUseCase, metricDisplayOrder.order, metricDisplayOrder::save)
 
     private val _uiState = MutableStateFlow(ProfileUiState(isLoading = true))
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -94,17 +105,5 @@ class ProfileViewModel(
 
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
-    }
-
-    class Factory(
-        private val profileRepository: ProfileRepositoryPort,
-        private val createProfileUseCase: CreateProfileUseCase,
-        private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER),
-        private val saveMetricOrder: (List<MetricSlot>) -> Unit = {}
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ProfileViewModel(profileRepository, createProfileUseCase, metricOrder, saveMetricOrder) as T
-        }
     }
 }

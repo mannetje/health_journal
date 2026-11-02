@@ -1,17 +1,24 @@
 package nl.healthjournal.app.ui.backup
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nl.healthjournal.app.BuildConfig
 import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.BackupPreferenceBridge
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.domain.model.backup.BackupDocument
 import nl.healthjournal.domain.model.backup.BackupException
@@ -20,6 +27,7 @@ import nl.healthjournal.domain.model.backup.BackupPreferences
 import nl.healthjournal.domain.usecase.CreateBackupUseCase
 import nl.healthjournal.domain.usecase.RestoreBackupUseCase
 import java.time.LocalDate
+import javax.inject.Inject
 
 /** Reads and writes the files the user picked. Kept out of the ViewModel so it holds no Android types. */
 interface BackupFileIo {
@@ -53,22 +61,44 @@ data class BackupUiState(
     val error: UiText? = null
 )
 
+/** One-shot results the screen must act on, which the ViewModel cannot do itself without holding the Activity. */
+sealed interface BackupEvent {
+    /** A restore finished: the data on screen is stale, and [preferencesApplied] means the display settings changed. */
+    data class Restored(val preferencesApplied: Boolean) : BackupEvent
+}
+
 /**
  * Drives creating and restoring a `.hjbackup`. Passphrases arrive as char arrays and are cleared as soon as the
  * key has been derived; nothing here stores them. The key derivation is heavy, so it runs off the main thread.
  */
-class BackupViewModel(
+@HiltViewModel
+open class BackupViewModel(
     private val create: CreateBackupUseCase?,
     private val restore: RestoreBackupUseCase,
     private val io: BackupFileIo,
     private val preferences: () -> BackupPreferences?,
     private val applyPreferences: (BackupPreferences) -> Unit,
-    private val appVersion: String,
-    private val onRestored: () -> Unit
+    private val appVersion: String
 ) : ViewModel() {
+
+    /** The constructor Hilt uses: the Application's backup use cases, and file access through its content resolver. */
+    @Inject
+    constructor(
+        create: CreateBackupUseCase,
+        restore: RestoreBackupUseCase,
+        @ApplicationContext context: Context,
+        backupPreferences: BackupPreferenceBridge
+    ) : this(
+        create, restore, ContentResolverBackupFileIo(context.contentResolver),
+        { backupPreferences.collect() }, { backupPreferences.apply(it) }, BuildConfig.VERSION_NAME
+    )
 
     private val _state = MutableStateFlow(BackupUiState())
     val state: StateFlow<BackupUiState> = _state.asStateFlow()
+
+    // Buffered: an event raised while the app is in the background is delivered when it is visible again.
+    private val _events = Channel<BackupEvent>(Channel.BUFFERED)
+    val events: Flow<BackupEvent> = _events.receiveAsFlow()
 
     private var fileToSave: ByteArray? = null
     private var fileToOpen: ByteArray? = null
@@ -206,7 +236,8 @@ class BackupViewModel(
         viewModelScope.launch {
             try {
                 val result = restore.merge(document)
-                if (applySettings) document.preferences?.let(applyPreferences)
+                val preferences = document.preferences.takeIf { applySettings }
+                preferences?.let(applyPreferences)
                 clearOpened()
                 _state.value = BackupUiState(
                     message = if (result.profilesAdded + result.entriesAdded + result.medicationsAdded + result.intakesAdded == 0) {
@@ -219,7 +250,7 @@ class BackupViewModel(
                         )
                     }
                 )
-                onRestored()
+                _events.trySend(BackupEvent.Restored(preferencesApplied = preferences != null))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -259,20 +290,6 @@ class BackupViewModel(
 
     private fun ByteArray.startsWith(prefix: ByteArray): Boolean =
         size >= prefix.size && prefix.indices.all { this[it] == prefix[it] }
-
-    class Factory(
-        private val create: CreateBackupUseCase?,
-        private val restore: RestoreBackupUseCase,
-        private val io: BackupFileIo,
-        private val preferences: () -> BackupPreferences?,
-        private val applyPreferences: (BackupPreferences) -> Unit,
-        private val appVersion: String,
-        private val onRestored: () -> Unit
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            BackupViewModel(create, restore, io, preferences, applyPreferences, appVersion, onRestored) as T
-    }
 
     private companion object {
         val MAGIC = "HJBACKUP".toByteArray(Charsets.US_ASCII)

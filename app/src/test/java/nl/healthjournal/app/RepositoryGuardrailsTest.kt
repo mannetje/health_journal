@@ -94,6 +94,23 @@ class RepositoryGuardrailsTest {
         }
     }
 
+    // --- Dependency injection stays in :app (ADR 0035) ---
+
+    @Test
+    fun domainAndDataDoNotUseHiltDaggerOrJavaxInject() {
+        val forbidden = Regex("""^\s*(import|package)\s+(dagger|javax\.inject|jakarta\.inject)\b""", RegexOption.MULTILINE)
+        listOf("domain", "data").forEach { module ->
+            val sources = file(module).walkTopDown().filter { it.isFile && it.extension in setOf("kt", "java") && "build" !in it.relativeTo(file(module)).path.split(File.separatorChar).first() }
+            sources.forEach {
+                assertFalse("${it.relativeTo(root)}: :$module must not import Hilt, Dagger or javax.inject", forbidden.containsMatchIn(it.readText()))
+            }
+            assertFalse(
+                "$module/build.gradle.kts: :$module must not depend on Hilt or Dagger",
+                Regex("""hilt|dagger|javax\.inject""", RegexOption.IGNORE_CASE).containsMatchIn(text("$module/build.gradle.kts"))
+            )
+        }
+    }
+
     // --- Release artifact ---
 
     @Test

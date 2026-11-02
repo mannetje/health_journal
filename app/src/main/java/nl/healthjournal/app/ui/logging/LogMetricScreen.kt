@@ -66,7 +66,7 @@ fun LogMetricScreen(
             style = MaterialTheme.typography.headlineSmall
         )
 
-        if (state.activeProfile == null) {
+        if (state.profileLoaded && state.activeProfile == null) {
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
             ) {

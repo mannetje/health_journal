@@ -1,7 +1,8 @@
 package nl.healthjournal.app.ui.migraine
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -98,6 +99,7 @@ data class MigraineUiState(
         tags.filter { it.kind == kind && !it.archived }.sortedBy { it.label.lowercase() }
 }
 
+@HiltViewModel
 class MigraineLogViewModel(
     private val profileRepository: ProfileRepositoryPort,
     private val repository: MigraineRepositoryPort,
@@ -109,6 +111,18 @@ class MigraineLogViewModel(
     private val clock: Clock = Clock.systemDefaultZone(),
     private val zone: () -> ZoneId = { ZoneId.systemDefault() }
 ) : ViewModel() {
+
+    /** The constructor Hilt uses; tests pass the use cases and the clock directly. */
+    @Inject
+    constructor(profileRepository: ProfileRepositoryPort, repository: MigraineRepositoryPort) : this(
+        profileRepository,
+        repository,
+        RecordMigraineUseCase(repository),
+        UpdateMigraineUseCase(repository),
+        AddMigraineTagUseCase(repository),
+        RenameMigraineTagUseCase(repository),
+        ArchiveMigraineTagUseCase(repository)
+    )
 
     private val _uiState = MutableStateFlow(MigraineUiState())
     val uiState: StateFlow<MigraineUiState> = _uiState.asStateFlow()
@@ -440,22 +454,6 @@ class MigraineLogViewModel(
 
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
-    }
-
-    class Factory(
-        private val profileRepository: ProfileRepositoryPort,
-        private val repository: MigraineRepositoryPort
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = MigraineLogViewModel(
-            profileRepository,
-            repository,
-            RecordMigraineUseCase(repository),
-            UpdateMigraineUseCase(repository),
-            AddMigraineTagUseCase(repository),
-            RenameMigraineTagUseCase(repository),
-            ArchiveMigraineTagUseCase(repository)
-        ) as T
     }
 
     companion object {

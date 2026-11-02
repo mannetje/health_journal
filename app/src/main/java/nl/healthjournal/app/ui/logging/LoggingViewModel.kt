@@ -1,7 +1,10 @@
 package nl.healthjournal.app.ui.logging
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import nl.healthjournal.app.settings.MetricDisplayOrderPreference
+import nl.healthjournal.app.settings.UnitPreference
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,6 +52,8 @@ enum class LogField { WEIGHT, SYSTOLIC, DIASTOLIC, PULSE, WAIST }
 
 data class LoggingUiState(
     val activeProfile: Profile? = null,
+    /** False until the first read of the profile has finished, so "no profile" is not shown while loading. */
+    val profileLoaded: Boolean = false,
     val selectedMetric: MetricType = MetricType.WEIGHT,
     /** The metrics in the order the person chose, Migraine included. */
     val orderedMetrics: List<MetricSlot> = MetricSlot.DEFAULT_ORDER,
@@ -112,6 +117,7 @@ private const val START_DIASTOLIC = 80
 private const val START_PULSE = 70
 private const val START_WAIST_CM = 90.0
 
+@HiltViewModel
 class LoggingViewModel(
     private val profileRepository: ProfileRepositoryPort,
     private val recordWeightUseCase: RecordWeightUseCase,
@@ -125,6 +131,24 @@ class LoggingViewModel(
     /** The order of the metric tabs; the first tab with a form of its own is the one that opens selected. */
     private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
 ) : ViewModel() {
+
+    /** The constructor Hilt uses; tests pass the unit and order sources directly. */
+    @Inject
+    constructor(
+        profileRepository: ProfileRepositoryPort,
+        recordWeightUseCase: RecordWeightUseCase,
+        recordBloodPressureUseCase: RecordBloodPressureUseCase,
+        recordGlucoseUseCase: RecordGlucoseUseCase,
+        recordActivityUseCase: RecordActivityUseCase,
+        recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
+        healthLogRepository: HealthLogRepositoryPort,
+        unitPreference: UnitPreference,
+        metricDisplayOrder: MetricDisplayOrderPreference
+    ) : this(
+        profileRepository, recordWeightUseCase, recordBloodPressureUseCase, recordGlucoseUseCase,
+        recordActivityUseCase, recordWaistCircumferenceUseCase, healthLogRepository,
+        { unitPreference.resolve() }, metricDisplayOrder.order
+    )
 
     private val _uiState = MutableStateFlow(
         LoggingUiState(
@@ -171,6 +195,7 @@ class LoggingViewModel(
 
             _uiState.value = _uiState.value.copy(
                 activeProfile = profile,
+                profileLoaded = true,
                 weightValue = weightKg,
                 weightInput = formattedWeight,
                 waistValue = waistCm,
@@ -490,32 +515,5 @@ class LoggingViewModel(
 
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
-    }
-
-    class Factory(
-        private val profileRepository: ProfileRepositoryPort,
-        private val recordWeightUseCase: RecordWeightUseCase,
-        private val recordBloodPressureUseCase: RecordBloodPressureUseCase,
-        private val recordGlucoseUseCase: RecordGlucoseUseCase,
-        private val recordActivityUseCase: RecordActivityUseCase,
-        private val recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
-        private val healthLogRepository: HealthLogRepositoryPort? = null,
-        private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT },
-        private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return LoggingViewModel(
-                profileRepository,
-                recordWeightUseCase,
-                recordBloodPressureUseCase,
-                recordGlucoseUseCase,
-                recordActivityUseCase,
-                recordWaistCircumferenceUseCase,
-                healthLogRepository,
-                units,
-                metricOrder
-            ) as T
-        }
     }
 }

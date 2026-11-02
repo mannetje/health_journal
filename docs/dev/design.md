@@ -12,7 +12,7 @@ This page collects the design of Health Journal in one place: the principles, th
 | Store metric, show what the user prefers | conversion happens at the edge only | [ADR 0014](../adr/0014-units-presentation.md) |
 | Derive, do not store | planned and missed doses and adherence are computed from schedule versions and recorded outcomes | [ADR 0020](../adr/0020-medication-model-and-pillbox.md) |
 | Nothing recorded, no advice | Mindfulness stores display choices only, shows counts and lengths as plain numbers and carries a safety note | [change `add-mindfulness`](../../openspec/changes/archive/2026-10-21-add-mindfulness/design.md), [Mindfulness decisions](mindfulness.md) |
-| Few dependencies | first-party Android, Jetpack and Kotlin libraries only | [ADR 0003](../adr/0003-dependency-minimization.md) |
+| Few dependencies | first-party Android, Jetpack and Kotlin libraries, plus Hilt in `app` only | [ADR 0003](../adr/0003-dependency-minimization.md), [ADR 0035](../adr/0035-hilt-for-dependency-injection.md) |
 | Dutch first, English too | layouts are checked in Dutch, with large fonts | [ADR 0010](../adr/0010-responsive-dutch-ui-layout.md) |
 
 ## Quality goals
@@ -69,7 +69,8 @@ Every screen follows the same loop, so a new screen needs no new idea.
 
 ```mermaid
 flowchart LR
-    UC["Use cases (domain)"] -->|"suspend result / Flow"| VM["ViewModel"]
+    DI["Hilt graph (app/di)"] -->|"@Inject constructor"| VM["ViewModel"]
+    UC["Use cases (domain)"] -->|"suspend result / Flow"| VM
     VM -->|"StateFlow of UiState"| SCR["Compose screen"]
     SCR -->|"function calls (events)"| VM
     VM -->|"UiText (resource id + args)"| SCR
@@ -77,6 +78,7 @@ flowchart LR
 ```
 
 - The ViewModel holds data and `UiText`, never a `Context` or translated text ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)).
+- A ViewModel is a `@HiltViewModel`: Hilt hands it its use cases and preferences, and the Activity gets it with `by viewModels()` ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md)).
 - The screen is stateless apart from what is purely visual (focus, a dialog being open).
 - Display units come from `LocalDisplayUnits`; the ViewModel always works in metric.
 

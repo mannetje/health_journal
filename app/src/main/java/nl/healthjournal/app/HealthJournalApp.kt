@@ -1,11 +1,13 @@
 package nl.healthjournal.app
 
 import android.app.Application
-import nl.healthjournal.app.reminder.AlarmReminderScheduler
+import dagger.hilt.android.HiltAndroidApp
+import nl.healthjournal.app.lock.AppLockManager
 import nl.healthjournal.app.reminder.ReminderCoordinator
-import nl.healthjournal.app.reminder.ReminderNotifier
+import nl.healthjournal.app.settings.BackupPreferenceBridge
 import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.ReminderPreference
+import nl.healthjournal.app.settings.UnitPreference
 import nl.healthjournal.app.ui.history.EntryUseCases
 import nl.healthjournal.app.ui.medication.MedicationUseCases
 import nl.healthjournal.data.DataModule
@@ -20,10 +22,16 @@ import nl.healthjournal.domain.port.secondary.MigraineImportPort
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.*
+import javax.inject.Inject
 
+/**
+ * The Hilt application. The object graph lives in `di/`; the properties below still expose it to the code that has not
+ * moved to injection yet (ViewModel factories, receivers, Activity wiring).
+ */
+@HiltAndroidApp
 class HealthJournalApp : Application() {
 
-    private lateinit var dataModule: DataModule
+    @Inject lateinit var dataModule: DataModule
 
     val profileRepository: ProfileRepositoryPort
         get() = dataModule.profileRepository
@@ -56,86 +64,30 @@ class HealthJournalApp : Application() {
         get() = dataModule.backupSnapshotPort
 
     // Use cases
-    lateinit var createProfileUseCase: CreateProfileUseCase
-        private set
-    lateinit var recordWeightUseCase: RecordWeightUseCase
-        private set
-    lateinit var recordBloodPressureUseCase: RecordBloodPressureUseCase
-        private set
-    lateinit var recordGlucoseUseCase: RecordGlucoseUseCase
-        private set
-    lateinit var recordActivityUseCase: RecordActivityUseCase
-        private set
-    lateinit var recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase
-        private set
-    lateinit var entryUseCases: EntryUseCases
-        private set
-    lateinit var getHealthHistoryUseCase: GetHealthHistoryUseCase
-        private set
-    lateinit var medicationUseCases: MedicationUseCases
-        private set
-    lateinit var createBackupUseCase: CreateBackupUseCase
-        private set
-    lateinit var restoreBackupUseCase: RestoreBackupUseCase
-        private set
+    @Inject lateinit var createProfileUseCase: CreateProfileUseCase
+    @Inject lateinit var recordWeightUseCase: RecordWeightUseCase
+    @Inject lateinit var recordBloodPressureUseCase: RecordBloodPressureUseCase
+    @Inject lateinit var recordGlucoseUseCase: RecordGlucoseUseCase
+    @Inject lateinit var recordActivityUseCase: RecordActivityUseCase
+    @Inject lateinit var recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase
+    @Inject lateinit var entryUseCases: EntryUseCases
+    @Inject lateinit var getHealthHistoryUseCase: GetHealthHistoryUseCase
+    @Inject lateinit var medicationUseCases: MedicationUseCases
+    @Inject lateinit var createBackupUseCase: CreateBackupUseCase
+    @Inject lateinit var restoreBackupUseCase: RestoreBackupUseCase
 
-    val metricDisplayOrderPreference: MetricDisplayOrderPreference by lazy { MetricDisplayOrderPreference(this) }
-    val reminderPreference: ReminderPreference by lazy { ReminderPreference(this) }
-    private val reminderScheduler: AlarmReminderScheduler by lazy { AlarmReminderScheduler(this) }
-    lateinit var reminders: ReminderCoordinator
-        private set
+    @Inject lateinit var metricDisplayOrderPreference: MetricDisplayOrderPreference
+    @Inject lateinit var reminderPreference: ReminderPreference
+    @Inject lateinit var unitPreference: UnitPreference
+    @Inject lateinit var backupPreferences: BackupPreferenceBridge
+
+    /** Owned by the process, not the Activity: the lock must survive an Activity being recreated. */
+    @Inject lateinit var appLock: AppLockManager
+    @Inject lateinit var reminders: ReminderCoordinator
 
     override fun onCreate() {
         super.onCreate()
         instance = this
-
-        dataModule = DataModule(this)
-
-        createProfileUseCase = CreateProfileUseCase(profileRepository)
-        recordWeightUseCase = RecordWeightUseCase(healthLogRepository, profileRepository)
-        recordBloodPressureUseCase = RecordBloodPressureUseCase(healthLogRepository)
-        recordGlucoseUseCase = RecordGlucoseUseCase(healthLogRepository)
-        recordActivityUseCase = RecordActivityUseCase(healthLogRepository)
-        recordWaistCircumferenceUseCase = RecordWaistCircumferenceUseCase(healthLogRepository, profileRepository)
-        entryUseCases = EntryUseCases(
-            updateWeight = UpdateWeightUseCase(healthLogRepository, profileRepository),
-            updateBloodPressure = UpdateBloodPressureUseCase(healthLogRepository),
-            updateGlucose = UpdateGlucoseUseCase(healthLogRepository),
-            updateActivity = UpdateActivityUseCase(healthLogRepository),
-            updateWaistCircumference = UpdateWaistCircumferenceUseCase(healthLogRepository, profileRepository),
-            deleteWeight = DeleteWeightUseCase(healthLogRepository),
-            deleteBloodPressure = DeleteBloodPressureUseCase(healthLogRepository),
-            deleteGlucose = DeleteGlucoseUseCase(healthLogRepository),
-            deleteActivity = DeleteActivityUseCase(healthLogRepository),
-            deleteWaistCircumference = DeleteWaistCircumferenceUseCase(healthLogRepository),
-            deleteMigraine = DeleteMigraineUseCase(migraineRepository),
-            endMigraine = EndMigraineUseCase(migraineRepository)
-        )
-        getHealthHistoryUseCase = GetHealthHistoryUseCase(healthLogRepository)
-        val recordIntake = RecordIntakeUseCase(medicationRepository)
-        medicationUseCases = MedicationUseCases(
-            getDay = GetPillboxDayUseCase(medicationRepository),
-            recordIntake = recordIntake,
-            recordSlot = RecordSlotIntakesUseCase(recordIntake),
-            save = SaveMedicationUseCase(medicationRepository),
-            changeSchedule = ChangeMedicationScheduleUseCase(medicationRepository),
-            archive = ArchiveMedicationUseCase(medicationRepository),
-            delete = DeleteMedicationUseCase(medicationRepository),
-            getAdherence = GetAdherenceUseCase(medicationRepository)
-        )
-
-        createBackupUseCase = CreateBackupUseCase(backupSnapshot, backupCodec)
-        restoreBackupUseCase = RestoreBackupUseCase(backupSnapshot, backupCodec)
-
-        reminders = ReminderCoordinator(
-            context = this,
-            profileRepository = profileRepository,
-            rearmReminders = RearmRemindersUseCase(medicationRepository, reminderScheduler),
-            takeAllForSlot = TakeAllForSlotUseCase(medicationUseCases.getDay, medicationUseCases.recordSlot),
-            scheduler = reminderScheduler,
-            notifier = ReminderNotifier(this),
-            preference = reminderPreference
-        )
     }
 
     companion object {

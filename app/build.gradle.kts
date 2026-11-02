@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 // GitHub builds a heading anchor from the whole heading, date included:
@@ -20,8 +22,8 @@ android {
         applicationId = "nl.healthjournal"
         minSdk = 26
         targetSdk = 35
-        versionCode = 30
-        versionName = "1.6.5"
+        versionCode = 31
+        versionName = "1.6.6"
         buildConfigField("String", "CHANGELOG_ANCHOR", "\"${changelogAnchor(versionName!!)}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -67,6 +69,11 @@ kotlin {
     }
 }
 
+// Hilt 2.58 bundles kotlin-metadata-jvm 2.3, which cannot read classes compiled by Kotlin 2.4.
+configurations.configureEach {
+    resolutionStrategy.force("org.jetbrains.kotlin:kotlin-metadata-jvm:${libs.versions.kotlin.get()}")
+}
+
 dependencies {
     implementation(project(":domain"))
     implementation(project(":data"))
@@ -87,6 +94,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.core)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)

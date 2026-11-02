@@ -13,7 +13,7 @@ The dark theme shipped following only the device setting. Users want to pick lig
 - A `ThemeChoice` enum (`SYSTEM`, `LIGHT`, `DARK`) is stored in `ThemePreference` (SharedPreferences `theme_prefs`), the same pattern as `UnitPreference`. Anything unknown reads as `SYSTEM`.
 - `HealthJournalTheme(choice)` resolves the choice with `ThemeChoice.isDark(systemDark)` and provides the result through the `LocalDarkTheme` composition local, then picks the colour scheme.
 - Composables that need to know whether the dark palette is active call `isAppDarkTheme()` (in `ui/theme/Theme.kt`) and **never** `isSystemInDarkTheme()`. The one exception is `HealthJournalTheme` itself, which reads the system value to resolve `SYSTEM`.
-- `MainActivity` keeps the choice in Compose state, so a change applies immediately with no `recreate()`, unlike language and region, which need an activity restart.
+- `AppSettingsState` (built by `MainActivity`) keeps the choice in Compose state, so a change applies immediately with no `recreate()`, unlike language and region, which need an activity restart.
 - The Profile screen shows System, Light and Dark as a segmented button row in English and Dutch.
 
 ```mermaid

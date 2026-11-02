@@ -205,3 +205,36 @@ Code that catches `Exception` around a suspending call SHALL rethrow `Cancellati
 #### Scenario: A backup is cancelled while it is being created
 - **WHEN** the coroutine creating a backup is cancelled
 - **THEN** the system SHALL NOT set a "could not create the backup" error
+
+### Requirement: ViewModels hold no Activity
+A ViewModel SHALL NOT hold a reference to an Activity or to a view, directly or through a lambda, because it outlives the Activity that created it. What a ViewModel needs from the platform SHALL come from the application's own objects, and what it needs the screen to do SHALL leave it as an event the screen collects.
+
+#### Scenario: A restore finishes after the Activity was recreated
+- **WHEN** the screen was rotated or recreated after a restore was started and the restore then finishes
+- **THEN** the current Activity SHALL receive the result and refresh its screens, and the first Activity SHALL NOT be used
+
+#### Scenario: A result arrives while the app is in the background
+- **WHEN** a restore finishes while the app is not visible
+- **THEN** the result SHALL be delivered when the app is visible again and SHALL NOT be lost
+
+### Requirement: The Activity holds framework interactions only
+`MainActivity` SHALL contain only what needs the Android framework: locale and window setup, lifecycle callbacks, Activity Result launchers, system intents and `recreate()`. Navigation state, settings state and the rules that decide which ViewModels refresh SHALL live in classes that hold no Activity and can be tested on the JVM.
+
+#### Scenario: A navigation rule is tested
+- **WHEN** a reminder notification is tapped while Mindfulness is open
+- **THEN** a unit test of the navigation state SHALL show the pillbox open on Today and Mindfulness closed, without starting an Activity
+
+#### Scenario: Behaviour is unchanged
+- **WHEN** the person rotates the device, changes the language or restores a backup
+- **THEN** the current tab, an open pillbox and any banner SHALL behave as before this change
+
+### Requirement: Dependencies are provided by Hilt
+The `:app` module SHALL obtain its dependencies from Hilt, with ViewModels created through `@HiltViewModel` and no hand-written ViewModel factory. The `:domain` and `:data` modules SHALL NOT depend on Hilt, Dagger or `javax.inject`.
+
+#### Scenario: A dependency is missing
+- **WHEN** a ViewModel requires a type that no module provides
+- **THEN** the build SHALL fail, and the app SHALL NOT fail at run time
+
+#### Scenario: The domain stays plain
+- **WHEN** a class in `:domain` or `:data` is added or changed
+- **THEN** it SHALL NOT import Hilt, Dagger or `javax.inject` types

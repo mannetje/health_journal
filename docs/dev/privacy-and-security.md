@@ -109,7 +109,7 @@ flowchart TD
 ```mermaid
 sequenceDiagram
     autonumber
-    participant App as HealthJournalApp
+    participant App as Hilt DataPortsModule
     participant DB as HealthJournalDatabase
     participant Migrator as PlainToEncryptedMigration
     participant Helper as SupportOpenHelperFactory
