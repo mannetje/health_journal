@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
+import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.ViewModelProvider
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +47,7 @@ import nl.healthjournal.data.local.DatabaseEncryptionStatus
 import nl.healthjournal.data.local.DatabaseRecovery
 import nl.healthjournal.data.local.EncryptionState
 
+@AndroidEntryPoint
 class MainActivity : FragmentActivity() {
 
     private val app by lazy { application as HealthJournalApp }

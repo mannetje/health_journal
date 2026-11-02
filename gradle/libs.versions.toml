@@ -3,6 +3,8 @@
 agp = "8.13.2"
 kotlin = "2.4.21"
 ksp = "2.3.12"
+# ADR 0035 dependency (exception to ADR 0003): Hilt, in :app only
+hilt = "2.58"
 
 # First-Party Kotlin Libraries
 coroutines = "1.11.0"
@@ -66,6 +68,10 @@ androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "b
 # ADR 0024 exception to ADR 0003: Bouncy Castle provider, used only for Argon2BytesGenerator (MIT, pure Java, no network code)
 bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
 
+# ADR 0035 exception to ADR 0003: Hilt (Dagger) for dependency injection in :app; the compiler runs through KSP
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+
 # Charting (Vico — see ADR 0003)
 vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }
 vico-compose-m3 = { module = "com.patrykandpatrick.vico:compose-m3", version.ref = "vico" }
@@ -85,3 +91,4 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }

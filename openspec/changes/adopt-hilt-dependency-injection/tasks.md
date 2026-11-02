@@ -5,10 +5,10 @@
 
 ## 1. Set up
 
-- [ ] 1.1 Add Hilt and KSP to the version catalog and the build files
-- [ ] 1.2 `@HiltAndroidApp` and `@AndroidEntryPoint`; `di/` module for the data pieces, preferences and singletons
-- [ ] 1.3 Guardrail test: `:domain` and `:data` do not import Hilt, Dagger or `javax.inject`
-- [ ] 1.4 Check cold start: encrypted, migrating and key-lost databases
+- [x] 1.1 Add Hilt and KSP to the version catalog and the build files (Hilt 2.58: 2.59 and later require AGP 9, the build is on AGP 8.13.2; `testDebugUnitTest :app:lintDebug` passes, 1m 29s)
+- [x] 1.2 `@HiltAndroidApp` and `@AndroidEntryPoint`; `di/` module for the data pieces, preferences and singletons (three modules in `app/di/`; `HealthJournalApp` keeps its properties, now field-injected, so the factories and receivers still work until section 2; `kotlin-metadata-jvm` is forced to the Kotlin version because Hilt 2.58 bundles 2.3)
+- [x] 1.3 Guardrail test: `:domain` and `:data` do not import Hilt, Dagger or `javax.inject` (`RepositoryGuardrailsTest.domainAndDataDoNotUseHiltDaggerOrJavaxInject`, also checks their build files; seen failing on a probe import)
+- [x] 1.4 Check cold start: encrypted, migrating and key-lost databases (debug build on the emulator: fresh install creates the key and an encrypted database; a restart opens it; with the key files removed the recovery screen shows; a plain schema-7 database with a profile and a weight is encrypted at start and the entry shows in History; no crash in any). Warm restarts on the encrypted database took 2079 to 2218 ms, but that is not comparable with the 0.2 baseline (empty database, app lock on); 3.3 repeats the baseline conditions
 
 ## 2. ViewModels, one at a time
 
