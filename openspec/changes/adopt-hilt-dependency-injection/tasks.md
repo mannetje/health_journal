@@ -20,7 +20,7 @@
 
 ## 3. Verify
 
-- [ ] 3.1 Unit tests and lint pass
+- [x] 3.1 Unit tests and lint pass (re-run from clean test tasks: `:data` and `:app` `testDebugUnitTest` 356 tests, `:domain:test` 300 tests, 0 failures, 0 skipped; `lintDebug` on all modules succeeds)
 - [ ] 3.2 Emulator: backup create and restore, language change, a reminder fires, cold start with the lock on
 - [ ] 3.3 Compare build time, APK size and cold start with 0.2; if out of proportion, stop and use the `AppContainer` fallback
 - [ ] 3.4 Update the architecture and conventions docs and the add-a-metric guide and playbook; accept the ADR
