@@ -7,7 +7,7 @@
 
 - [x] 2.1 `AppNavigationState` with its `Saver`, `BackHandler` rules and unit tests
 - [x] 2.2 `ViewModelRefresher` (tab-change clears, Log-tab migraine reload, restore reloads) and unit tests
-- [ ] 2.3 `ReminderPermissionState` (flags and the ask-once rule) and unit tests
+- [x] 2.3 `ReminderPermissionState` (flags and the ask-once rule) and unit tests
 - [ ] 2.4 `AppSettingsState` (write-through to the preferences); `ProfileRoute` replaces the inline `ProfileScreen(...)` call
 - [ ] 2.5 `AppContent.kt`: Scaffold, top bar, tab switch and dialogs; `onCreate` reduced to wiring
 

@@ -62,6 +62,7 @@ import nl.healthjournal.app.ui.mindfulness.LocalExerciseGate
 import nl.healthjournal.app.ui.mindfulness.MindfulnessArea
 import nl.healthjournal.app.ui.profile.ProfileScreen
 import nl.healthjournal.app.ui.shell.AppNavigationState
+import nl.healthjournal.app.ui.shell.ReminderPermissionState
 import nl.healthjournal.app.ui.shell.ViewModelRefresher
 import nl.healthjournal.domain.usecase.RestoreBackupUseCase
 import nl.healthjournal.app.ui.profile.ProfileViewModel
@@ -216,16 +217,18 @@ class MainActivity : FragmentActivity() {
         if (intent.getBooleanExtra(ReminderIntents.EXTRA_OPEN_PILLBOX, false)) pillboxRequested = true
     }
 
-    private var notificationsAllowed by mutableStateOf(true)
-    private var exactAlarmsAllowed by mutableStateOf(true)
+    private val reminderPermissions by lazy {
+        ReminderPermissionState(
+            readNotificationsAllowed = { getSystemService(NotificationManager::class.java).areNotificationsEnabled() },
+            readExactAlarmsAllowed = app.reminders::canScheduleExact,
+            askedBefore = { app.reminderPreference.permissionAsked },
+            markAsked = { app.reminderPreference.permissionAsked = true },
+            needsRuntimePermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+        )
+    }
 
     private val notificationPermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { refreshReminderState() }
-
-    private fun refreshReminderState() {
-        notificationsAllowed = getSystemService(NotificationManager::class.java).areNotificationsEnabled()
-        exactAlarmsAllowed = app.reminders.canScheduleExact()
-    }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { reminderPermissions.refresh() }
 
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -251,7 +254,7 @@ class MainActivity : FragmentActivity() {
     override fun onResume() {
         super.onResume()
         appLockManager.onForegrounded()
-        refreshReminderState()
+        reminderPermissions.refresh()
         lifecycleScope.launch { app.reminders.changed() }
     }
 
@@ -331,16 +334,11 @@ class MainActivity : FragmentActivity() {
 
                 var snoozeMinutes by remember { mutableStateOf(app.reminderPreference.snoozeMinutes) }
                 var showDetails by remember { mutableStateOf(app.reminderPreference.showDetailsOnLockScreen) }
-                var showPermissionDialog by remember { mutableStateOf(false) }
                 val exerciseGate = remember { ExerciseGate() }
                 // Ask once, with an explanation, when the first schedule exists and the pillbox is in view.
                 val hasMedication = medicationViewModel.uiState.collectAsStateWithLifecycle().value.medications.isNotEmpty()
                 LaunchedEffect(hasMedication, navigation.showPillbox) {
-                    if (hasMedication && navigation.showPillbox && !app.reminderPreference.permissionAsked &&
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationsAllowed
-                    ) {
-                        showPermissionDialog = true
-                    }
+                    reminderPermissions.onPillboxState(hasMedication, navigation.showPillbox)
                 }
                 LaunchedEffect(pillboxRequested) {
                     if (pillboxRequested) {
@@ -456,8 +454,8 @@ class MainActivity : FragmentActivity() {
                                         state = ReminderSettingsState(
                                             snoozeMinutes = snoozeMinutes,
                                             showDetailsOnLockScreen = showDetails,
-                                            notificationsAllowed = notificationsAllowed,
-                                            exactAlarmsAllowed = exactAlarmsAllowed
+                                            notificationsAllowed = reminderPermissions.notificationsAllowed,
+                                            exactAlarmsAllowed = reminderPermissions.exactAlarmsAllowed
                                         ),
                                         onSnoozeChange = {
                                             snoozeMinutes = it
@@ -522,17 +520,13 @@ class MainActivity : FragmentActivity() {
                         onConfirm = { showNoticeFromProfile = false }
                     )
                 }
-                if (showPermissionDialog && !exerciseGate.active) {
+                if (reminderPermissions.showDialog && !exerciseGate.active) {
                     ReminderPermissionDialog(
                         onAllow = {
-                            showPermissionDialog = false
-                            app.reminderPreference.permissionAsked = true
+                            reminderPermissions.answered()
                             requestNotificationPermission()
                         },
-                        onLater = {
-                            showPermissionDialog = false
-                            app.reminderPreference.permissionAsked = true
-                        }
+                        onLater = reminderPermissions::answered
                     )
                 }
                 }
