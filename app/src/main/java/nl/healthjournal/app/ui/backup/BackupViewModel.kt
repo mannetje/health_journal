@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -98,6 +99,8 @@ class BackupViewModel(
                 }
                 fileToSave = bytes
                 _state.value = BackupUiState(saveSuggestion = "healthjournal-${LocalDate.now()}.hjbackup")
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _state.value = BackupUiState(error = UiText.Res(R.string.backup_err_create))
             } finally {
@@ -123,6 +126,8 @@ class BackupViewModel(
                     io.write(uri, bytes)
                     // Read it back: a file that was cut short must not be reported as a good backup.
                     io.read(uri).contentEquals(bytes)
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     false
                 }
@@ -143,6 +148,8 @@ class BackupViewModel(
             val bytes = withContext(Dispatchers.IO) {
                 try {
                     io.read(uri)
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     null
                 }
@@ -182,6 +189,8 @@ class BackupViewModel(
             } catch (e: BackupException) {
                 clearOpened()
                 _state.value = BackupUiState(error = e.toUiText())
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 clearOpened()
                 _state.value = BackupUiState(error = UiText.Res(R.string.backup_err_read))
@@ -211,6 +220,8 @@ class BackupViewModel(
                     }
                 )
                 onRestored()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 clearOpened()
                 _state.value = BackupUiState(error = UiText.Res(R.string.backup_err_restore))

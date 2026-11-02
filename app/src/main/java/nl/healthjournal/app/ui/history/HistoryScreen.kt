@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -68,7 +69,7 @@ fun HistoryScreen(
     migraineViewModel: MigraineLogViewModel,
     modifier: Modifier = Modifier
 ) {
-    val migraineState by migraineViewModel.uiState.collectAsState()
+    val migraineState by migraineViewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { migraineViewModel.loadProfile() }
     if (migraineState.open) {
         Column(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
@@ -87,7 +88,7 @@ private fun HistoryList(
     onEditMigraine: (MigraineEntry) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val units = LocalDisplayUnits.current
     var showExportDialog by remember { mutableStateOf(false) }
     var showImportDialog by remember { mutableStateOf(false) }

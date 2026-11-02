@@ -5,7 +5,11 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 ### Fixed
+- **A cancelled backup or restore is no longer reported as a failure:** when the screen was closed while a backup was being created or a restore was running, the cancellation was handled like an error. It now simply stops. Developer-facing and rare; nothing changes in the normal flow.
 - **Encryption migration no longer risks stranding your data:** while the plain database is moved aside for the encrypted one, a failure part-way (for example one of its side files could not be renamed) left the original set aside, and a later start could delete it. A failed swap now puts every file back at once, and the app never creates a new database while the original is still set aside. Only people whose database was not yet encrypted could have been affected; nobody has reported it.
+
+### Changed
+- **Screens stop updating while the app is in the background:** state is now collected with the lifecycle (`collectAsStateWithLifecycle()`), so a screen nobody can see no longer recomposes. No visible change.
 
 ## [1.6.4] - 2026-10-29
 

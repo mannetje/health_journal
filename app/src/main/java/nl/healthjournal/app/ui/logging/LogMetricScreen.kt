@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.CommentField
@@ -44,7 +45,7 @@ fun LogMetricScreen(
     onMigraineTabSelected: (Boolean) -> Unit = {},
     migraineContent: @Composable ColumnScope.() -> Unit = {}
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val units = LocalDisplayUnits.current
 
     LaunchedEffect(units) { viewModel.onUnitsChanged() }

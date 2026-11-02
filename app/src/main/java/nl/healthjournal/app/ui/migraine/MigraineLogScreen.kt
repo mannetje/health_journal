@@ -34,7 +34,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -105,7 +105,7 @@ private fun describeLatest(entry: MigraineEntry): String {
 /** The nine-step form. Shown inside the migraine tab of the Log screen while [MigraineUiState.open]; the screen scrolls it. */
 @Composable
 fun MigraineLogScreen(viewModel: MigraineLogViewModel, modifier: Modifier = Modifier) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val draft = state.draft ?: return
     val last = MigraineStep.entries.last()
 

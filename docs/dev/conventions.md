@@ -29,6 +29,8 @@ Short rules that keep the code and the docs consistent. When a rule has a reason
 - Follow the official Kotlin style and the style of the file you are editing.
 - Name things after the domain, not the technology (`BloodPressureReading`, not `BpDto`).
 - Comment why, not what. Keep comments short.
+- Collect a `StateFlow` in a screen with `collectAsStateWithLifecycle()`, not `collectAsState()`.
+- Around a suspending call, rethrow `CancellationException` before a broad `catch (e: Exception)`, so a cancelled operation stops instead of being reported as a failure.
 
 ## Commits
 

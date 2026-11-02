@@ -58,7 +58,7 @@ Located at `app/src/main/java/nl/healthjournal/app/`.
 - `settings/` holds display preferences: language and region, display units, `MetricDisplayOrderPreference` with the `MetricSlot` enum (the order of the Log tabs and History chips, ADR 0034), and `MindfulnessPreferences` (pattern, length, picture, cues; never anything about sessions). See [ADR 0014](../adr/0014-units-presentation.md).
 - `res/values/strings.xml` and `res/values-nl/strings.xml` hold all user-facing text.
 
-A ViewModel exposes a `StateFlow` of a UI state class. The screen renders that state and sends events back as function calls. ViewModels never hold Android `Context` or resolved strings; they hold a `UiText` that the screen resolves ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)).
+A ViewModel exposes a `StateFlow` of a UI state class. The screen renders that state and sends events back as function calls. ViewModels never hold Android `Context` or resolved strings; they hold a `UiText` that the screen resolves ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)). Screens collect the flow with `collectAsStateWithLifecycle()`, so nothing is collected while the app is in the background.
 
 ## One plan, three consumers
 

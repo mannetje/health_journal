@@ -23,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import nl.healthjournal.app.reminder.ReminderIntents
@@ -299,7 +300,7 @@ class MainActivity : FragmentActivity() {
             // Resolved against the app locale (Locale.getDefault), so the Regional formats setting drives the default.
             val displayUnits = remember(unitSystemChoice, glucoseUnitChoice) { unitPreference.resolve() }
 
-            val lockState by appLockManager.lockState.collectAsState()
+            val lockState by appLockManager.lockState.collectAsStateWithLifecycle()
             var appLockEnabled by remember { mutableStateOf(appLockManager.isEnabled) }
             var lockTimeout by remember { mutableStateOf(appLockManager.timeout) }
             var secureScreenEnabled by remember { mutableStateOf(secureScreenPreference.enabled) }
@@ -324,7 +325,7 @@ class MainActivity : FragmentActivity() {
                 var logMigraineTab by rememberSaveable {
                     mutableStateOf(app.metricDisplayOrderPreference.order.value.first() == MetricSlot.MIGRAINE)
                 }
-                val migraineState by migraineViewModel.uiState.collectAsState()
+                val migraineState by migraineViewModel.uiState.collectAsStateWithLifecycle()
                 BackHandler(enabled = showPillbox) { showPillbox = false }
                 BackHandler(enabled = migraineState.open && (currentTab == AppNavDestination.LOG || currentTab == AppNavDestination.HISTORY)) { migraineViewModel.onBack() }
                 BackHandler(enabled = showMindfulness) { showMindfulness = false }
@@ -334,7 +335,7 @@ class MainActivity : FragmentActivity() {
                 var showPermissionDialog by remember { mutableStateOf(false) }
                 val exerciseGate = remember { ExerciseGate() }
                 // Ask once, with an explanation, when the first schedule exists and the pillbox is in view.
-                val hasMedication = medicationViewModel.uiState.collectAsState().value.medications.isNotEmpty()
+                val hasMedication = medicationViewModel.uiState.collectAsStateWithLifecycle().value.medications.isNotEmpty()
                 LaunchedEffect(hasMedication, showPillbox) {
                     if (hasMedication && showPillbox && !app.reminderPreference.permissionAsked &&
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationsAllowed

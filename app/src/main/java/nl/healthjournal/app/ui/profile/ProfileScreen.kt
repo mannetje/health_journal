@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.AppLanguage
 import nl.healthjournal.app.settings.AppRegion
@@ -57,8 +58,8 @@ fun ProfileScreen(
     versionName: String = "",
     changelogAnchor: String = ""
 ) {
-    val state by viewModel.uiState.collectAsState()
-    val metricOrder by viewModel.metricOrder.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val metricOrder by viewModel.metricOrder.collectAsStateWithLifecycle()
     val units = LocalDisplayUnits.current
 
     var nameInput by remember { mutableStateOf("") }
