@@ -1,7 +1,7 @@
 # health-metrics/oxygen-saturation Specification
 
 ## Purpose
-TBD - created by archiving change add-oxygen-saturation. Update Purpose after archive.
+Records oxygen saturation readings for a profile: a whole percentage from 50 to 100 with an optional pulse, situation, measuring site and oxygen-given note, shown back as plain figures, a trend line and counts, and never assessed or judged.
 
 ## Requirements
 
