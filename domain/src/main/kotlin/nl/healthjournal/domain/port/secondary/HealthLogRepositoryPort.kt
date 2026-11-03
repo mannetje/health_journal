@@ -5,6 +5,7 @@ import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
+import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import kotlinx.coroutines.flow.Flow
@@ -54,4 +55,13 @@ interface HealthLogRepositoryPort {
     suspend fun updateWaistCircumference(entry: WaistCircumferenceEntry): Boolean
     /** Deletes one entry by id; returns false when the id is unknown. */
     suspend fun deleteWaistCircumference(id: MeasurementId): Boolean
+
+    // Oxygen saturation
+    suspend fun saveOxygenSaturation(entry: OxygenSaturationEntry)
+    suspend fun getOxygenSaturationHistory(profileId: ProfileId): List<OxygenSaturationEntry>
+    fun observeOxygenSaturationHistory(profileId: ProfileId): Flow<List<OxygenSaturationEntry>>
+    /** Replaces an existing entry; returns false (and changes nothing) when the id is unknown. */
+    suspend fun updateOxygenSaturation(entry: OxygenSaturationEntry): Boolean
+    /** Deletes one entry by id; returns false when the id is unknown. */
+    suspend fun deleteOxygenSaturation(id: MeasurementId): Boolean
 }

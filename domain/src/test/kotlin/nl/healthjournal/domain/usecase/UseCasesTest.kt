@@ -44,6 +44,20 @@ class FakeHealthLogRepository : HealthLogRepositoryPort {
     val glucoses = mutableListOf<GlucoseEntry>()
     val activities = mutableListOf<ActivitySession>()
     val waistCircumferences = mutableListOf<WaistCircumferenceEntry>()
+    val oxygenSaturations = mutableListOf<OxygenSaturationEntry>()
+
+    override suspend fun saveOxygenSaturation(entry: OxygenSaturationEntry) { oxygenSaturations.add(entry) }
+    override suspend fun updateOxygenSaturation(entry: OxygenSaturationEntry): Boolean {
+        val i = oxygenSaturations.indexOfFirst { it.id == entry.id }
+        if (i < 0) return false
+        oxygenSaturations[i] = entry
+        return true
+    }
+    override suspend fun deleteOxygenSaturation(id: MeasurementId): Boolean = oxygenSaturations.removeAll { it.id == id }
+    override suspend fun getOxygenSaturationHistory(profileId: ProfileId): List<OxygenSaturationEntry> =
+        oxygenSaturations.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
+    override fun observeOxygenSaturationHistory(profileId: ProfileId): Flow<List<OxygenSaturationEntry>> =
+        flow { emit(getOxygenSaturationHistory(profileId)) }
 
     override suspend fun saveWeight(entry: WeightEntry) { weights.add(entry) }
     override suspend fun updateWeight(entry: WeightEntry): Boolean {

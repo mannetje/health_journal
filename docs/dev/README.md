@@ -2,7 +2,7 @@
 
 Welcome. These pages explain how Health Journal is built and how to contribute. They are written in English so contributors from any country can join. The app itself is available in English and Dutch.
 
-Health Journal is an offline-first Android app for logging weight, blood pressure, blood glucose, waist, activity, migraines and medication. It is a personal logging tool, not a medical device: it shows ranges and never gives advice or a diagnosis.
+Health Journal is an offline-first Android app for logging weight, blood pressure, blood glucose, waist, activity, migraines, oxygen saturation and medication. It is a personal logging tool, not a medical device: it shows ranges and never gives advice or a diagnosis.
 
 ## Reading order
 

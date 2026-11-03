@@ -291,7 +291,7 @@
 
     <string name="ranges_about">Over deze waarden</string>
     <string name="ranges_about_title">Over deze waarden</string>
-    <string name="ranges_about_body">De waarden volgen gepubliceerde richtlijnen, vooral de NHG-standaarden. Formuleringen komen ook van Diabetes Fonds, DVN en Hartstichting. De middelomtrekwaarden komen van het Voedingscentrum. Een label is geen diagnose en deze app is geen medisch hulpmiddel. Vragen over je waarden stel je aan je huisarts of apotheker.</string>
+    <string name="ranges_about_body">De waarden volgen gepubliceerde richtlijnen, vooral de NHG-standaarden. Formuleringen komen ook van Diabetes Fonds, DVN en Hartstichting. De middelomtrekwaarden komen van het Voedingscentrum. Zuurstofsaturatie wordt alleen vastgelegd zoals je het invoert; de app beoordeelt het niet. Een label is geen diagnose en deze app is geen medisch hulpmiddel. Vragen over je waarden stel je aan je huisarts of apotheker.</string>
     <string name="ranges_link_nhg">NHG</string>
     <string name="ranges_link_thuisarts">Thuisarts</string>
     <string name="ranges_link_diabetesfonds">Diabetes Fonds</string>
@@ -892,4 +892,36 @@
     <string name="migraine_err_save_failed">Kon de migraine niet opslaan</string>
     <string name="migraine_err_no_profile">Maak eerst je profiel aan.</string>
     <string name="migraine_err_end_before_start">Het einde kan niet voor het begin liggen.</string>
+
+    <!-- Zuurstofsaturatie: gewone cijfers, geen beoordeling (ADR 0026) -->
+    <string name="log_tab_oxygen_saturation">Zuurstof</string>
+    <string name="log_msg_oxygen_saved">Zuurstofsaturatie opgeslagen!</string>
+    <string name="log_oxygen_label">Zuurstofsaturatie (%)</string>
+    <string name="log_oxygen_pulse_label">Hartslag (slagen/min), optioneel</string>
+    <string name="log_oxygen_context_title">Situatie (optioneel)</string>
+    <string name="log_oxygen_site_title">Gemeten op (optioneel)</string>
+    <string name="log_oxygen_given">Zuurstof toegediend</string>
+    <string name="log_oxygen_tip">Veel mensen zitten eerst ongeveer 10 minuten stil.</string>
+    <string name="log_oxygen_tip_dismiss">Begrepen</string>
+    <string name="oxygen_context_at_rest">Rust</string>
+    <string name="oxygen_context_after_activity">Na inspanning</string>
+    <string name="oxygen_context_asleep_or_just_woke">Slapend of net wakker</string>
+    <string name="oxygen_context_other">Anders</string>
+    <string name="oxygen_context_none">Geen situatie genoteerd</string>
+    <string name="oxygen_site_finger">Vinger</string>
+    <string name="oxygen_site_toe">Teen</string>
+    <string name="oxygen_site_earlobe">Oorlel</string>
+    <string name="history_filter_oxygen">Zuurstof</string>
+    <string name="history_oxygen_line">Zuurstofsaturatie: %1$d%%</string>
+    <string name="history_oxygen_pulse">Hartslag %1$d slagen/min</string>
+    <string name="history_oxygen_given">Zuurstof toegediend</string>
+    <string name="history_export_oxygen">Zuurstofsaturatie-CSV exporteren</string>
+    <string name="history_import_type_oxygen">Zuurstofsaturatie</string>
+    <string name="trend_oxygen_title">Zuurstofsaturatie-trend</string>
+    <string name="oxygen_figures_title">Cijfers</string>
+    <string name="oxygen_lowest">Laagste</string>
+    <string name="oxygen_highest">Hoogste</string>
+    <string name="oxygen_average">Gemiddelde</string>
+    <string name="oxygen_count">Metingen</string>
+    <string name="oxygen_per_context_title">Metingen per situatie</string>
 </resources>

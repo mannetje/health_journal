@@ -32,6 +32,7 @@ import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.HeightCm
+import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceCm
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
@@ -53,6 +54,8 @@ import nl.healthjournal.domain.port.secondary.MigraineImportPort
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.usecase.CreateProfileUseCase
 import nl.healthjournal.domain.usecase.DeleteMigraineUseCase
+import nl.healthjournal.domain.usecase.DeleteOxygenSaturationUseCase
+import nl.healthjournal.domain.usecase.UpdateOxygenSaturationUseCase
 import nl.healthjournal.domain.usecase.EndMigraineUseCase
 import nl.healthjournal.domain.usecase.DeleteActivityUseCase
 import nl.healthjournal.domain.usecase.DeleteBloodPressureUseCase
@@ -69,6 +72,10 @@ import nl.healthjournal.domain.usecase.RecordActivityUseCase
 import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
 import nl.healthjournal.domain.usecase.RecordGlucoseUseCase
 import nl.healthjournal.domain.usecase.RecordWaistCircumferenceUseCase
+import nl.healthjournal.domain.usecase.RecordOxygenSaturationUseCase
+import nl.healthjournal.domain.model.metrics.OxygenContext
+import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent
+import nl.healthjournal.domain.model.metrics.OxygenSite
 import nl.healthjournal.domain.usecase.RecordWeightUseCase
 import nl.healthjournal.app.ui.history.charts.TrendDateRange
 import nl.healthjournal.domain.model.metrics.GlucoseLevel
@@ -108,6 +115,19 @@ class ViewModelsTest {
         val glucoses = mutableListOf<GlucoseEntry>()
         val activities = mutableListOf<ActivitySession>()
         val waistCircumferences = mutableListOf<WaistCircumferenceEntry>()
+        val oxygenSaturations = mutableListOf<OxygenSaturationEntry>()
+
+        override suspend fun saveOxygenSaturation(entry: OxygenSaturationEntry) { oxygenSaturations.add(entry) }
+        override suspend fun updateOxygenSaturation(entry: OxygenSaturationEntry): Boolean {
+            val i = oxygenSaturations.indexOfFirst { it.id == entry.id }
+            if (i < 0) return false
+            oxygenSaturations[i] = entry
+            return true
+        }
+        override suspend fun deleteOxygenSaturation(id: MeasurementId): Boolean = oxygenSaturations.removeAll { it.id == id }
+        override suspend fun getOxygenSaturationHistory(profileId: ProfileId): List<OxygenSaturationEntry> =
+            oxygenSaturations.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
+        override fun observeOxygenSaturationHistory(profileId: ProfileId): Flow<List<OxygenSaturationEntry>> = emptyFlow()
 
         override suspend fun saveWeight(entry: WeightEntry) { weights.add(entry) }
         override suspend fun updateWeight(entry: WeightEntry): Boolean {
@@ -172,6 +192,7 @@ class ViewModelsTest {
         override suspend fun exportGlucoseCsv(profileId: ProfileId): String = "timestamp,glucose_mmol_l,context,classification\n"
         override suspend fun exportActivityCsv(profileId: ProfileId): String = "start_timestamp,end_timestamp,distance_m,duration_s\n"
         override suspend fun exportWaistCircumferenceCsv(profileId: ProfileId): String = "timestamp,waist_cm,classification\n"
+        override suspend fun exportOxygenSaturationCsv(profileId: ProfileId): String = "timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n"
     }
 
     private class FakeImportAdapter : DataImportPort {
@@ -270,7 +291,8 @@ class ViewModelsTest {
         RecordWaistCircumferenceUseCase(healthLogRepo, profileRepo),
         healthLogRepo,
         units = { units },
-        metricOrder = metricOrder
+        metricOrder = metricOrder,
+        recordOxygenSaturationUseCase = RecordOxygenSaturationUseCase(healthLogRepo)
     )
 
     @Test
@@ -500,11 +522,13 @@ class ViewModelsTest {
         updateGlucose = UpdateGlucoseUseCase(health),
         updateActivity = UpdateActivityUseCase(health),
         updateWaistCircumference = UpdateWaistCircumferenceUseCase(health, profiles),
+        updateOxygenSaturation = UpdateOxygenSaturationUseCase(health),
         deleteWeight = DeleteWeightUseCase(health),
         deleteBloodPressure = DeleteBloodPressureUseCase(health),
         deleteGlucose = DeleteGlucoseUseCase(health),
         deleteActivity = DeleteActivityUseCase(health),
         deleteWaistCircumference = DeleteWaistCircumferenceUseCase(health),
+        deleteOxygenSaturation = DeleteOxygenSaturationUseCase(health),
         deleteMigraine = DeleteMigraineUseCase(migraines),
         endMigraine = EndMigraineUseCase(migraines)
     )
@@ -901,6 +925,7 @@ class ViewModelsTest {
             "glucose" to "timestamp,glucose_mmol_l,context,classification\n",
             "activity" to "start_timestamp,end_timestamp,distance_m,duration_s\n",
             "waist" to "timestamp,waist_cm,classification\n",
+            "oxygen_saturation" to "timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n",
             "migraine" to "start_timestamp,woke_up_with_it\n",
             "unknown" to ""
         )
@@ -1039,7 +1064,7 @@ class ViewModelsTest {
         vm.moveMetric(from = 3, to = 0)
 
         assertEquals(
-            listOf(MetricSlot.MIGRAINE, MetricSlot.WEIGHT, MetricSlot.BLOOD_PRESSURE, MetricSlot.GLUCOSE, MetricSlot.WAIST_CIRCUMFERENCE, MetricSlot.ACTIVITY),
+            listOf(MetricSlot.MIGRAINE, MetricSlot.WEIGHT, MetricSlot.BLOOD_PRESSURE, MetricSlot.GLUCOSE, MetricSlot.WAIST_CIRCUMFERENCE, MetricSlot.ACTIVITY, MetricSlot.OXYGEN_SATURATION),
             saved.single()
         )
     }
@@ -1057,8 +1082,97 @@ class ViewModelsTest {
 
         vm.moveMetric(from = 2, to = 2)
         vm.moveMetric(from = 0, to = -1)
-        vm.moveMetric(from = 6, to = 0)
+        vm.moveMetric(from = 7, to = 0)
 
         assertEquals(emptyList<List<MetricSlot>>(), saved)
+    }
+
+    @Test
+    fun `LoggingViewModel records oxygen saturation with its notes and then clears them`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val vm = loggingViewModel(profileRepo, healthLogRepo)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.selectMetric(MetricType.OXYGEN_SATURATION)
+        assertFalse("an untouched starting position is not recorded", vm.uiState.value.canSave)
+        vm.onOxygenPercentChanged(94)
+        vm.onOxygenPulseChanged("7a2")
+        vm.onOxygenContextSelected(OxygenContext.AFTER_ACTIVITY)
+        vm.onOxygenSiteSelected(OxygenSite.EARLOBE)
+        vm.onOxygenGivenChanged(true)
+        vm.onCommentChanged("stairs")
+        assertEquals("72", vm.uiState.value.oxygenPulseInput)
+        vm.saveCurrentMetric()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val saved = healthLogRepo.oxygenSaturations.single()
+        assertEquals(94, saved.saturation.value)
+        assertEquals(72, saved.pulse)
+        assertEquals(OxygenContext.AFTER_ACTIVITY, saved.context)
+        assertEquals(OxygenSite.EARLOBE, saved.site)
+        assertTrue(saved.oxygenGiven)
+        assertEquals("stairs", saved.comment?.text)
+        assertEquals(UiText.Res(R.string.log_msg_oxygen_saved, emptyList()), vm.uiState.value.successMessage)
+        with(vm.uiState.value) {
+            assertEquals("", oxygenPulseInput)
+            assertNull(oxygenContext)
+            assertNull(oxygenSite)
+            assertFalse(oxygenGiven)
+        }
+    }
+
+    @Test
+    fun `LoggingViewModel records oxygen saturation without any optional note and toggles a chip off`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepo()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        val vm = loggingViewModel(profileRepo, healthLogRepo)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.selectMetric(MetricType.OXYGEN_SATURATION)
+        vm.onOxygenContextSelected(OxygenContext.OTHER)
+        vm.onOxygenContextSelected(OxygenContext.OTHER)
+        vm.onOxygenSiteSelected(OxygenSite.TOE)
+        vm.onOxygenSiteSelected(OxygenSite.TOE)
+        vm.onOxygenPercentChanged(97)
+        vm.saveCurrentMetric()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val saved = healthLogRepo.oxygenSaturations.single()
+        assertEquals(97, saved.saturation.value)
+        assertNull(saved.pulse)
+        assertNull(saved.context)
+        assertNull(saved.site)
+        assertFalse(saved.oxygenGiven)
+    }
+
+    @Test
+    fun `HistoryViewModel edits and deletes an oxygen saturation entry`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val health = FakeHealthLogRepo()
+        val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val entry = OxygenSaturationEntry(MeasurementId.generate(), profile.id, at, OxygenSaturationPercent(95))
+        health.oxygenSaturations.add(entry)
+        val vm = historyViewModel(profileRepo, health)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, vm.uiState.value.oxygenSaturations.size)
+
+        vm.updateOxygenSaturation(entry, 91, 88, OxygenContext.AT_REST, OxygenSite.FINGER, true, at, "calm")
+        testDispatcher.scheduler.advanceUntilIdle()
+        val edited = vm.uiState.value.oxygenSaturations.single()
+        assertEquals(91, edited.saturation.value)
+        assertEquals(88, edited.pulse)
+        assertEquals(OxygenContext.AT_REST, edited.context)
+        assertTrue(edited.oxygenGiven)
+        assertEquals("calm", edited.comment?.text)
+        assertNull(vm.uiState.value.errorMessage)
+
+        vm.requestDelete(EntryRef.OxygenSaturation(edited))
+        vm.confirmDelete()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertTrue(vm.uiState.value.oxygenSaturations.isEmpty())
     }
 }

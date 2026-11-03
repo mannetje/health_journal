@@ -40,6 +40,9 @@ object UseCaseModule {
         RecordWaistCircumferenceUseCase(log, profile)
 
     @Provides
+    fun recordOxygenSaturation(log: HealthLogRepositoryPort) = RecordOxygenSaturationUseCase(log)
+
+    @Provides
     fun entryUseCases(
         log: HealthLogRepositoryPort,
         profile: ProfileRepositoryPort,
@@ -50,11 +53,13 @@ object UseCaseModule {
         updateGlucose = UpdateGlucoseUseCase(log),
         updateActivity = UpdateActivityUseCase(log),
         updateWaistCircumference = UpdateWaistCircumferenceUseCase(log, profile),
+        updateOxygenSaturation = UpdateOxygenSaturationUseCase(log),
         deleteWeight = DeleteWeightUseCase(log),
         deleteBloodPressure = DeleteBloodPressureUseCase(log),
         deleteGlucose = DeleteGlucoseUseCase(log),
         deleteActivity = DeleteActivityUseCase(log),
         deleteWaistCircumference = DeleteWaistCircumferenceUseCase(log),
+        deleteOxygenSaturation = DeleteOxygenSaturationUseCase(log),
         deleteMigraine = DeleteMigraineUseCase(migraine),
         endMigraine = EndMigraineUseCase(migraine)
     )

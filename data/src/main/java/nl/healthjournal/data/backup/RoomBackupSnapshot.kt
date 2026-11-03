@@ -39,6 +39,7 @@ class RoomBackupSnapshot(
                 activities = db.activityDao().getByProfileId(id).map(HealthLogMapper::toDomain),
                 migraines = db.migraineDao().getByProfileId(id).map(MigraineMapper::toDomain),
                 migraineTags = db.migraineDao().getTags(id).mapNotNull(MigraineMapper::toDomain),
+                oxygenSaturations = db.oxygenSaturationDao().getByProfileId(id).map(HealthLogMapper::toDomain),
                 medications = medications.map { med ->
                     BackupMedication(
                         medication = MedicationMapper.toDomain(med, schedules[med.id].orEmpty(), times[med.id].orEmpty()),
@@ -70,6 +71,7 @@ class RoomBackupSnapshot(
             item.glucoses.forEach { count(db.glucoseDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
             item.waistCircumferences.forEach { count(db.waistCircumferenceDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
             item.activities.forEach { count(db.activityDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
+            item.oxygenSaturations.forEach { count(db.oxygenSaturationDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
 
             val migraineDao = db.migraineDao()
             item.migraines.forEach { count(migraineDao.insertIgnore(MigraineMapper.toEntity(it))) { entriesAdded++ } }

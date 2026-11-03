@@ -4,6 +4,13 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-11-03
+
+### Added
+- **Oxygen saturation:** log a reading as a whole percentage from 50 to 100 on the ruler picker, with an optional pulse, the situation (at rest, after activity, asleep or just woke, other), the measuring site (finger, toe, earlobe), a tick for oxygen given, and a comment. History lists, filters, edits and deletes the readings, and the graph view shows one plain trend line with the lowest, highest and average reading, the count and the count per situation. Unlike weight, blood pressure, glucose and waist it carries no assessment: no bands, no limit lines, no colours and no judging words (see [ADR 0026](docs/adr/0026-oxygen-saturation-without-assessment.md)). A short form tip can be dismissed, and the notice under Profile says the app does not assess readings.
+- **Oxygen saturation in export, import and backup:** a CSV file with the columns `timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment`, and an `oxygenSaturations` list per profile in the `.hjbackup` file. A backup without readings looks as before, an older file restores none, and `schemaVersion` stays 1. `docs/backup-format/` and `hjbackup.py` are updated.
+- **Database version 8:** migration 7 to 8 adds the `oxygen_saturations` table and leaves existing data untouched. Oxygen saturation is last in the default metric order; your own order stays as it is.
+
 ## [1.6.6] - 2026-11-02
 
 ### Fixed
@@ -294,7 +301,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.6.6...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/mannetje/health_journal/compare/v1.6.6...v1.7.0
 [1.6.6]: https://github.com/mannetje/health_journal/compare/v1.6.5...v1.6.6
 [1.6.5]: https://github.com/mannetje/health_journal/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/mannetje/health_journal/compare/v1.6.3...v1.6.4

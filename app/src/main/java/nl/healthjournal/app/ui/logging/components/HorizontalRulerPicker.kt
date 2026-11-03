@@ -33,6 +33,8 @@ fun HorizontalRulerPicker(
     label: String,
     isSet: Boolean,
     step: Double = 0.1,
+    ticksPerLabel: Int = 10,
+    decimals: Int = 1,
     unitLabel: String = "",
     tapeColor: Color = Color(0xFFFFC107), // Yellow Measuring Tape
     tickColor: Color = Color(0xFF212121),  // Dark charcoal ticks & numbers
@@ -73,7 +75,7 @@ fun HorizontalRulerPicker(
         }
     }
 
-    val readout = String.format(java.util.Locale.US, "%.1f", value)
+    val readout = String.format(java.util.Locale.US, "%.${decimals}f", value)
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -161,9 +163,8 @@ fun HorizontalRulerPicker(
             ) {
                 items(totalSteps + 1) { index ->
                     val currentValue = range.start + index * step
-                    val roundedCurrent = (currentValue * 10).roundToInt()
-                    val isWhole = roundedCurrent % 10 == 0
-                    val isHalf = roundedCurrent % 5 == 0 && !isWhole
+                    val isWhole = index % ticksPerLabel == 0
+                    val isHalf = ticksPerLabel % 2 == 0 && index % (ticksPerLabel / 2) == 0 && !isWhole
 
                     val tickHeight = when {
                         isWhole -> 36.dp

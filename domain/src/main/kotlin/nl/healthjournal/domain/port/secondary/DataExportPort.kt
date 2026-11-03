@@ -8,4 +8,5 @@ interface DataExportPort {
     suspend fun exportGlucoseCsv(profileId: ProfileId): String
     suspend fun exportActivityCsv(profileId: ProfileId): String
     suspend fun exportWaistCircumferenceCsv(profileId: ProfileId): String
+    suspend fun exportOxygenSaturationCsv(profileId: ProfileId): String
 }

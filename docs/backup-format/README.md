@@ -91,6 +91,7 @@ erDiagram
     PROFILE ||--o{ MEDICATION : medications
     PROFILE ||--o{ MIGRAINE : migraines
     PROFILE ||--o{ MIGRAINE_TAG : migraineTags
+    PROFILE ||--o{ OXYGEN_SATURATION : oxygenSaturations
     MIGRAINE }o--o{ MIGRAINE_TAG : "customTriggers, customReliefMethods"
     MEDICATION ||--o{ SCHEDULE : "schedules (versions)"
     MEDICATION ||--o{ INTAKE : intakes
@@ -145,6 +146,16 @@ erDiagram
         instant timestamp
         decimal waistCm
         enum category "derived, nullable"
+        string comment "nullable"
+    }
+    OXYGEN_SATURATION {
+        uuid id
+        instant timestamp
+        int percent "50 to 100"
+        int pulse "nullable, 30 to 250"
+        enum context "nullable"
+        enum site "nullable"
+        bool oxygenGiven
         string comment "nullable"
     }
     ACTIVITY {
@@ -234,6 +245,10 @@ erDiagram
 ### Migraine
 
 `migraines` and `migraineTags` are written only when the profile has any; a file without them restores none. An entry needs only `start`; no `end` means it is ongoing. Sets of fixed answers (`areas`, `painCharacters`, `symptoms`, `triggers`, `reliefMethods`) are sorted arrays of upper-case codes. The person's own tags are separate objects in `migraineTags`; an entry refers to them by id in `customTriggers` (kind `TRIGGER`) and `customReliefMethods` (kind `RELIEF`). Archived tags stay in the list so old entries keep their labels. `medicationHelpedMe` and `reliefHelpedMe` are the person's own ticks and are never interpreted. A reader ignores a code it does not know and a tag kind it does not know, and drops a tag id that no longer resolves. On merge, entries and tags are matched on `id` and only added.
+
+### Oxygen saturation
+
+`oxygenSaturations` is written only when the profile has any; a file without it restores none, and an older app version ignores it. An entry needs `id`, `timestamp` and `percent` (a whole number from 50 to 100). `pulse` (30 to 250 bpm), `context` (`AT_REST`, `AFTER_ACTIVITY`, `ASLEEP_OR_JUST_WOKE`, `OTHER`), `site` (`FINGER`, `TOE`, `EARLOBE`) and `comment` are optional. `oxygenGiven` is the person's own tick that oxygen was being given; it is never interpreted. There is no `category`: oxygen saturation is stored without an assessment. A reader ignores a `context` or `site` code it does not know. On merge, entries are matched on `id` and only added. `schemaVersion` stays 1, because a property was only added.
 
 ### Medication
 

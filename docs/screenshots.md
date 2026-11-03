@@ -128,6 +128,16 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 | <img src="screenshots/light-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, light theme"> | <img src="screenshots/dark-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, dark theme"> |
 | <img src="screenshots/light-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, light theme"> | <img src="screenshots/dark-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, dark theme"> |
 
+**Oxygen saturation** (last tab of the Log screen: a whole-number ruler from 50 to 100 %, optional pulse, situation and measuring site, an Oxygen given switch and a dismissible tip; in History the Oxygen chip shows plain entry cards, a trend line, Figures and Readings per situation; no ranges, colours or judging words; sample data)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-oxygen-log.png" width="250" alt="Oxygen tab with the ruler, pulse field and the situation and site chips, light theme"> | <img src="screenshots/dark-oxygen-log.png" width="250" alt="Oxygen tab with the ruler, pulse field and the situation and site chips, dark theme"> |
+| <img src="screenshots/light-oxygen-history.png" width="250" alt="History under the Oxygen filter with three entry cards, light theme"> | <img src="screenshots/dark-oxygen-history.png" width="250" alt="History under the Oxygen filter with three entry cards, dark theme"> |
+| <img src="screenshots/light-oxygen-edit.png" width="250" alt="Edit dialog for an oxygen saturation entry, light theme"> |  |
+| <img src="screenshots/light-oxygen-graph.png" width="250" alt="Oxygen saturation trend line and Figures, light theme"> | <img src="screenshots/dark-oxygen-graph.png" width="250" alt="Oxygen saturation trend line and Figures, dark theme"> |
+| <img src="screenshots/light-oxygen-statistics.png" width="250" alt="Figures and Readings per situation, light theme"> | <img src="screenshots/dark-oxygen-statistics.png" width="250" alt="Figures and Readings per situation, dark theme"> |
+
 **Unencrypted-storage banner** (shown on every tab when encryption could not be set up, with "Open Profile" and a per-session "Dismiss"; captured by forcing the state on a debug build, since a normal device never reaches it; the Dutch text wraps to three lines and still fits at 320 dp):
 
 | Light | Dark | Dutch, light |

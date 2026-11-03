@@ -13,6 +13,8 @@ import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
 import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
 import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -198,6 +200,37 @@ class RoomRepositoriesTest {
         override fun observeByProfileId(profileId: String): Flow<List<WaistCircumferenceEntity>> = flow
     }
 
+    private class FakeOxygenSaturationDao : OxygenSaturationDao {
+        override suspend fun insertIgnore(entry: OxygenSaturationEntity): Long {
+            insert(entry)
+            return 1L
+        }
+        private val list = mutableListOf<OxygenSaturationEntity>()
+        private val flow = MutableStateFlow<List<OxygenSaturationEntity>>(emptyList())
+
+        override suspend fun insert(entry: OxygenSaturationEntity) {
+            list.removeAll { it.id == entry.id }
+            list.add(entry)
+            flow.value = list.sortedByDescending { it.timestamp }
+        }
+        override suspend fun update(entry: OxygenSaturationEntity): Int {
+            val i = list.indexOfFirst { it.id == entry.id }
+            if (i < 0) return 0
+            list[i] = entry
+            flow.value = list.sortedByDescending { it.timestamp }
+            return 1
+        }
+        override suspend fun deleteById(id: String): Int {
+            val removed = list.removeAll { it.id == id }
+            flow.value = list.sortedByDescending { it.timestamp }
+            return if (removed) 1 else 0
+        }
+        override suspend fun getByProfileId(profileId: String): List<OxygenSaturationEntity> =
+            list.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
+
+        override fun observeByProfileId(profileId: String): Flow<List<OxygenSaturationEntity>> = flow
+    }
+
     @Test
     fun `RoomProfileRepository saves and retrieves active profile`() = runBlocking {
         val dao = FakeProfileDao()
@@ -219,6 +252,33 @@ class RoomRepositoriesTest {
     }
 
     @Test
+    fun `RoomHealthLogRepository saves, lists, updates and deletes oxygen saturation`() = runBlocking {
+        val repo = RoomHealthLogRepository(
+            FakeWeightDao(), FakeBloodPressureDao(), FakeGlucoseDao(), FakeActivityDao(), FakeWaistCircumferenceDao(),
+            FakeOxygenSaturationDao()
+        )
+        val profileId = ProfileId.generate()
+        val older = OxygenSaturationEntry(MeasurementId.generate(), profileId, Instant.parse("2026-09-20T08:00:00Z"), OxygenSaturationPercent(95))
+        val newer = OxygenSaturationEntry(
+            MeasurementId.generate(), profileId, Instant.parse("2026-09-21T08:00:00Z"), OxygenSaturationPercent(91), 90,
+            OxygenContext.AT_REST, OxygenSite.FINGER, true
+        )
+        repo.saveOxygenSaturation(older)
+        repo.saveOxygenSaturation(newer)
+        repo.saveOxygenSaturation(OxygenSaturationEntry(MeasurementId.generate(), ProfileId.generate(), Instant.now(), OxygenSaturationPercent(99)))
+
+        assertEquals(listOf(newer, older), repo.getOxygenSaturationHistory(profileId))
+
+        assertTrue(repo.updateOxygenSaturation(older.copy(saturation = OxygenSaturationPercent(96))))
+        assertEquals(96, repo.getOxygenSaturationHistory(profileId).single { it.id == older.id }.saturation.value)
+        assertFalse(repo.updateOxygenSaturation(older.copy(id = MeasurementId.generate())))
+
+        assertTrue(repo.deleteOxygenSaturation(newer.id))
+        assertFalse(repo.deleteOxygenSaturation(newer.id))
+        assertEquals(listOf(older.id), repo.getOxygenSaturationHistory(profileId).map { it.id })
+    }
+
+    @Test
     fun `RoomHealthLogRepository handles all metric operations`() = runBlocking {
         val weightDao = FakeWeightDao()
         val bpDao = FakeBloodPressureDao()
@@ -226,7 +286,7 @@ class RoomRepositoriesTest {
         val activityDao = FakeActivityDao()
         val waistDao = FakeWaistCircumferenceDao()
 
-        val repo = RoomHealthLogRepository(weightDao, bpDao, glucoseDao, activityDao, waistDao)
+        val repo = RoomHealthLogRepository(weightDao, bpDao, glucoseDao, activityDao, waistDao, FakeOxygenSaturationDao())
         val profileId = ProfileId.generate()
 
         // Weight
@@ -324,7 +384,7 @@ class RoomRepositoriesTest {
 
     @Test
     fun `RoomHealthLogRepository keeps comments on save and update for every metric`() = runBlocking {
-        val repo = RoomHealthLogRepository(FakeWeightDao(), FakeBloodPressureDao(), FakeGlucoseDao(), FakeActivityDao(), FakeWaistCircumferenceDao())
+        val repo = RoomHealthLogRepository(FakeWeightDao(), FakeBloodPressureDao(), FakeGlucoseDao(), FakeActivityDao(), FakeWaistCircumferenceDao(), FakeOxygenSaturationDao())
         val profileId = ProfileId.generate()
         val t = Instant.parse("2026-09-27T10:00:00Z")
         val note = EntryComment("note, with comma")

@@ -39,7 +39,8 @@ class DataModule(context: Context) {
         bloodPressureDao = database.bloodPressureDao(),
         glucoseDao = database.glucoseDao(),
         activityDao = database.activityDao(),
-        waistCircumferenceDao = database.waistCircumferenceDao()
+        waistCircumferenceDao = database.waistCircumferenceDao(),
+        oxygenSaturationDao = database.oxygenSaturationDao()
     )
 
     val medicationRepository: MedicationRepositoryPort = RoomMedicationRepository(database.medicationDao())

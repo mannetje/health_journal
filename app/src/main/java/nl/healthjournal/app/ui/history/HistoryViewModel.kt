@@ -12,6 +12,9 @@ import kotlinx.coroutines.launch
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
+import nl.healthjournal.domain.model.metrics.OxygenContext
+import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
+import nl.healthjournal.domain.model.metrics.OxygenSite
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import nl.healthjournal.domain.model.migraine.MigraineEntry
@@ -30,12 +33,14 @@ import nl.healthjournal.domain.usecase.DeleteBloodPressureUseCase
 import nl.healthjournal.domain.usecase.DeleteGlucoseUseCase
 import nl.healthjournal.domain.usecase.DeleteMigraineUseCase
 import nl.healthjournal.domain.usecase.EndMigraineUseCase
+import nl.healthjournal.domain.usecase.DeleteOxygenSaturationUseCase
 import nl.healthjournal.domain.usecase.DeleteWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.DeleteWeightUseCase
 import nl.healthjournal.domain.usecase.GetHealthHistoryUseCase
 import nl.healthjournal.domain.usecase.UpdateActivityUseCase
 import nl.healthjournal.domain.usecase.UpdateBloodPressureUseCase
 import nl.healthjournal.domain.usecase.UpdateGlucoseUseCase
+import nl.healthjournal.domain.usecase.UpdateOxygenSaturationUseCase
 import nl.healthjournal.domain.usecase.UpdateWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.UpdateWeightUseCase
 import java.math.BigDecimal
@@ -54,7 +59,8 @@ enum class HistoryFilter {
     GLUCOSE,
     ACTIVITY,
     WAIST_CIRCUMFERENCE,
-    MIGRAINE
+    MIGRAINE,
+    OXYGEN_SATURATION
 }
 
 /** The update and delete use cases the History screen needs, bundled to keep the constructor small. */
@@ -64,11 +70,13 @@ data class EntryUseCases(
     val updateGlucose: UpdateGlucoseUseCase,
     val updateActivity: UpdateActivityUseCase,
     val updateWaistCircumference: UpdateWaistCircumferenceUseCase,
+    val updateOxygenSaturation: UpdateOxygenSaturationUseCase,
     val deleteWeight: DeleteWeightUseCase,
     val deleteBloodPressure: DeleteBloodPressureUseCase,
     val deleteGlucose: DeleteGlucoseUseCase,
     val deleteActivity: DeleteActivityUseCase,
     val deleteWaistCircumference: DeleteWaistCircumferenceUseCase,
+    val deleteOxygenSaturation: DeleteOxygenSaturationUseCase,
     val deleteMigraine: DeleteMigraineUseCase,
     val endMigraine: EndMigraineUseCase
 )
@@ -81,6 +89,7 @@ sealed interface EntryRef {
     data class Glucose(val entry: GlucoseEntry) : DialogEntryRef { override val id get() = entry.id }
     data class Activity(val session: ActivitySession) : DialogEntryRef { override val id get() = session.id }
     data class WaistCircumference(val entry: WaistCircumferenceEntry) : DialogEntryRef { override val id get() = entry.id }
+    data class OxygenSaturation(val entry: OxygenSaturationEntry) : DialogEntryRef { override val id get() = entry.id }
     data class Migraine(val entry: MigraineEntry) : EntryRef { override val id get() = entry.id }
 }
 
@@ -100,6 +109,7 @@ data class HistoryUiState(
     val glucoses: List<GlucoseEntry> = emptyList(),
     val activities: List<ActivitySession> = emptyList(),
     val waistCircumferences: List<WaistCircumferenceEntry> = emptyList(),
+    val oxygenSaturations: List<OxygenSaturationEntry> = emptyList(),
     val migraines: List<MigraineEntry> = emptyList(),
     val isLoading: Boolean = false,
     val exportedCsvContent: String? = null,
@@ -198,6 +208,7 @@ class HistoryViewModel(
                     glucoses = history.glucoses,
                     activities = history.activities,
                     waistCircumferences = history.waistCircumferences,
+                    oxygenSaturations = history.oxygenSaturations,
                     migraines = migraineRepository.getMigraineHistory(profile.id),
                     isLoading = false
                 )
@@ -220,6 +231,7 @@ class HistoryViewModel(
                     "glucose" -> dataExportPort.exportGlucoseCsv(profile.id)
                     "activity" -> dataExportPort.exportActivityCsv(profile.id)
                     "waist_circumference", "waist" -> dataExportPort.exportWaistCircumferenceCsv(profile.id)
+                    "oxygen_saturation", "oxygen", "spo2" -> dataExportPort.exportOxygenSaturationCsv(profile.id)
                     "migraine" -> migraineExportPort.exportMigraineCsv(profile.id)
                     else -> ""
                 }
@@ -284,6 +296,7 @@ class HistoryViewModel(
                     is EntryRef.Glucose -> entryUseCases.deleteGlucose(target.id)
                     is EntryRef.Activity -> entryUseCases.deleteActivity(target.id)
                     is EntryRef.WaistCircumference -> entryUseCases.deleteWaistCircumference(target.id)
+                    is EntryRef.OxygenSaturation -> entryUseCases.deleteOxygenSaturation(target.id)
                     is EntryRef.Migraine -> entryUseCases.deleteMigraine(target.id)
                 }
                 _uiState.value = _uiState.value.copy(
@@ -308,6 +321,19 @@ class HistoryViewModel(
 
     fun updateWaistCircumference(entry: WaistCircumferenceEntry, waistCm: Double, timestamp: Instant, comment: String?) =
         runUpdate { entryUseCases.updateWaistCircumference(entry.id, entry.profileId, waistCm, timestamp, comment = comment) }
+
+    fun updateOxygenSaturation(
+        entry: OxygenSaturationEntry,
+        percent: Int,
+        pulse: Int?,
+        context: OxygenContext?,
+        site: OxygenSite?,
+        oxygenGiven: Boolean,
+        timestamp: Instant,
+        comment: String?
+    ) = runUpdate {
+        entryUseCases.updateOxygenSaturation(entry.id, entry.profileId, percent, pulse, context, site, oxygenGiven, timestamp, comment)
+    }
 
     fun updateActivity(session: ActivitySession, durationSeconds: Long, distanceInMeters: Double, comment: String?) =
         runUpdate {

@@ -52,6 +52,7 @@
         "bloodPressures": { "type": "array", "items": { "$ref": "#/$defs/bloodPressure" } },
         "glucoses": { "type": "array", "items": { "$ref": "#/$defs/glucose" } },
         "waistCircumferences": { "type": "array", "items": { "$ref": "#/$defs/waist" } },
+        "oxygenSaturations": { "type": "array", "items": { "$ref": "#/$defs/oxygenSaturation" }, "description": "Absent in files written before oxygen saturation existed, or when the profile has none; a reader restores none then." },
         "activities": { "type": "array", "items": { "$ref": "#/$defs/activity" } },
         "medications": { "type": "array", "items": { "$ref": "#/$defs/medication" } },
         "migraines": { "type": "array", "items": { "$ref": "#/$defs/migraine" }, "description": "Absent in files written before the migraine log existed; a reader restores none then." },
@@ -140,6 +141,20 @@
         "timestamp": { "$ref": "#/$defs/instant" },
         "waistCm": { "$ref": "#/$defs/decimal" },
         "category": { "enum": ["HEALTHY", "INCREASED_RISK", "HIGH_RISK", null], "description": "Derived; null when the profile has no sex." },
+        "comment": { "$ref": "#/$defs/comment" }
+      }
+    },
+    "oxygenSaturation": {
+      "type": "object",
+      "required": ["id", "timestamp", "percent"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "timestamp": { "$ref": "#/$defs/instant" },
+        "percent": { "type": "integer", "minimum": 50, "maximum": 100 },
+        "pulse": { "type": ["integer", "null"], "minimum": 30, "maximum": 250 },
+        "context": { "enum": ["AT_REST", "AFTER_ACTIVITY", "ASLEEP_OR_JUST_WOKE", "OTHER", null], "description": "A reader ignores a code it does not know." },
+        "site": { "enum": ["FINGER", "TOE", "EARLOBE", null], "description": "A reader ignores a code it does not know." },
+        "oxygenGiven": { "type": "boolean" },
         "comment": { "$ref": "#/$defs/comment" }
       }
     },

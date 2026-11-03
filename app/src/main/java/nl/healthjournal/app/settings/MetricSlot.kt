@@ -13,7 +13,8 @@ enum class MetricSlot(val metricType: MetricType?, val historyFilter: HistoryFil
     GLUCOSE(MetricType.GLUCOSE, HistoryFilter.GLUCOSE),
     MIGRAINE(null, HistoryFilter.MIGRAINE),
     WAIST_CIRCUMFERENCE(MetricType.WAIST_CIRCUMFERENCE, HistoryFilter.WAIST_CIRCUMFERENCE),
-    ACTIVITY(MetricType.ACTIVITY, HistoryFilter.ACTIVITY);
+    ACTIVITY(MetricType.ACTIVITY, HistoryFilter.ACTIVITY),
+    OXYGEN_SATURATION(MetricType.OXYGEN_SATURATION, HistoryFilter.OXYGEN_SATURATION);
 
     companion object {
         /** The order when the person has not chosen one. */

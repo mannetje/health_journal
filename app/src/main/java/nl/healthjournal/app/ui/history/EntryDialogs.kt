@@ -28,6 +28,8 @@ import nl.healthjournal.app.ui.common.glucoseToMmol
 import nl.healthjournal.app.ui.common.parseDecimal
 import nl.healthjournal.app.ui.common.weightFromKg
 import nl.healthjournal.app.ui.common.weightToKg
+import nl.healthjournal.app.ui.logging.OxygenOptionFields
+import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.common.UnitConversion
 import nl.healthjournal.domain.model.metrics.EntryComment
 import nl.healthjournal.domain.model.metrics.GlucoseContext
@@ -108,6 +110,7 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
         is EntryRef.Glucose -> ref.entry.timestamp
         is EntryRef.Activity -> ref.session.startTime
         is EntryRef.WaistCircumference -> ref.entry.timestamp
+        is EntryRef.OxygenSaturation -> ref.entry.timestamp
     }
     var dateTime by remember { mutableStateOf(LocalDateTime.ofInstant(initialTime, zone)) }
     var invalid by remember { mutableStateOf(false) }
@@ -136,6 +139,12 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
     }
     var distance by remember { mutableStateOf(initialDistance) }
     var waist by remember { mutableStateOf(initialWaist) }
+    val oxygen = (ref as? EntryRef.OxygenSaturation)?.entry
+    var oxygenPercent by remember { mutableStateOf(oxygen?.saturation?.value?.toString().orEmpty()) }
+    var oxygenPulse by remember { mutableStateOf(oxygen?.pulse?.toString().orEmpty()) }
+    var oxygenContext by remember { mutableStateOf(oxygen?.context) }
+    var oxygenSite by remember { mutableStateOf(oxygen?.site) }
+    var oxygenGiven by remember { mutableStateOf(oxygen?.oxygenGiven ?: false) }
     var comment by remember {
         mutableStateOf(
             when (ref) {
@@ -144,6 +153,7 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
                 is EntryRef.Glucose -> ref.entry.comment
                 is EntryRef.Activity -> ref.session.comment
                 is EntryRef.WaistCircumference -> ref.entry.comment
+                is EntryRef.OxygenSaturation -> ref.entry.comment
             }?.text.orEmpty()
         )
     }
@@ -185,6 +195,15 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
                 val cm = waist.toDoubleOrNull()?.takeIf { it in nl.healthjournal.domain.model.metrics.WaistCircumferenceCm.MIN_CM..nl.healthjournal.domain.model.metrics.WaistCircumferenceCm.MAX_CM }
                 if (cm == null) invalid = true
                 else viewModel.updateWaistCircumference(ref.entry, cm, dateTime.atZone(zone).toInstant(), comment)
+            }
+            is EntryRef.OxygenSaturation -> {
+                val percent = oxygenPercent.toIntOrNull()?.takeIf { it in 50..100 }
+                val pulse = oxygenPulse.takeIf { it.isNotBlank() }?.let { it.toIntOrNull() ?: -1 }
+                val pulseOk = pulse == null || pulse in OxygenSaturationEntry.MIN_PULSE..OxygenSaturationEntry.MAX_PULSE
+                if (percent == null || !pulseOk) invalid = true
+                else viewModel.updateOxygenSaturation(
+                    ref.entry, percent, pulse, oxygenContext, oxygenSite, oxygenGiven, dateTime.atZone(zone).toInstant(), comment
+                )
             }
         }
     }
@@ -244,6 +263,26 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    is EntryRef.OxygenSaturation -> {
+                        OutlinedTextField(
+                            value = oxygenPercent,
+                            onValueChange = { oxygenPercent = it.filter(Char::isDigit).take(3) },
+                            label = { Text(stringResource(R.string.log_oxygen_label)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OxygenOptionFields(
+                            pulse = oxygenPulse,
+                            onPulseChange = { oxygenPulse = it.filter(Char::isDigit).take(3) },
+                            context = oxygenContext,
+                            onContextSelected = { oxygenContext = if (oxygenContext == it) null else it },
+                            site = oxygenSite,
+                            onSiteSelected = { oxygenSite = if (oxygenSite == it) null else it },
+                            oxygenGiven = oxygenGiven,
+                            onOxygenGivenChange = { oxygenGiven = it }
                         )
                     }
                 }

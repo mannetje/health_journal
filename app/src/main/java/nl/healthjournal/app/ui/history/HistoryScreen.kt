@@ -18,6 +18,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import nl.healthjournal.app.ui.history.charts.OxygenStatisticsSection
+import nl.healthjournal.app.ui.history.charts.OxygenTrendSection
 import nl.healthjournal.app.ui.history.charts.WaistStatisticsSection
 import nl.healthjournal.app.ui.history.charts.WaistTrendSection
 import nl.healthjournal.app.ui.history.charts.WeightStatisticsSection
@@ -43,6 +45,7 @@ import nl.healthjournal.app.ui.common.formatDistance
 import nl.healthjournal.app.ui.common.formatGlucose
 import nl.healthjournal.app.ui.common.formatMinutes
 import nl.healthjournal.app.ui.common.formatWeight
+import nl.healthjournal.app.ui.logging.labelRes
 import nl.healthjournal.app.ui.history.charts.BloodPressureStatisticsSection
 import nl.healthjournal.app.ui.history.charts.BloodPressureTrendSection
 import nl.healthjournal.app.ui.history.charts.DateRangeSelector
@@ -115,14 +118,16 @@ private fun HistoryList(
     var glucoseGraph by rememberSaveable { mutableStateOf(false) }
     var waistGraph by rememberSaveable { mutableStateOf(false) }
     var migraineGraph by rememberSaveable { mutableStateOf(false) }
+    var oxygenGraph by rememberSaveable { mutableStateOf(false) }
     val filterNow = state.selectedFilter
     val hasChart = filterNow == HistoryFilter.WEIGHT || filterNow == HistoryFilter.BLOOD_PRESSURE || filterNow == HistoryFilter.GLUCOSE ||
-        filterNow == HistoryFilter.WAIST_CIRCUMFERENCE || filterNow == HistoryFilter.MIGRAINE
+        filterNow == HistoryFilter.WAIST_CIRCUMFERENCE || filterNow == HistoryFilter.MIGRAINE || filterNow == HistoryFilter.OXYGEN_SATURATION
     val graphViewNow = hasChart && when (filterNow) {
         HistoryFilter.WEIGHT -> weightGraph
         HistoryFilter.BLOOD_PRESSURE -> bpGraph
         HistoryFilter.WAIST_CIRCUMFERENCE -> waistGraph
         HistoryFilter.MIGRAINE -> migraineGraph
+        HistoryFilter.OXYGEN_SATURATION -> oxygenGraph
         else -> glucoseGraph
     }
     val setGraphView: (HistoryFilter, Boolean) -> Unit = { f, on ->
@@ -131,6 +136,7 @@ private fun HistoryList(
             HistoryFilter.BLOOD_PRESSURE -> bpGraph = on
             HistoryFilter.WAIST_CIRCUMFERENCE -> waistGraph = on
             HistoryFilter.MIGRAINE -> migraineGraph = on
+            HistoryFilter.OXYGEN_SATURATION -> oxygenGraph = on
             else -> glucoseGraph = on
         }
     }
@@ -224,6 +230,7 @@ private fun HistoryList(
         val bloodPressures = if (ranged) state.bloodPressures.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.bloodPressures
         val glucoses = if (ranged) state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.glucoses
         val waists = if (ranged) state.waistCircumferences.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.waistCircumferences
+        val oxygens = if (ranged) state.oxygenSaturations.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.oxygenSaturations
         val migraines = when {
             state.migraineDay != null -> state.migraines.filter { it.startDay(ZoneId.systemDefault()) == state.migraineDay }
             ranged -> {
@@ -306,6 +313,27 @@ private fun HistoryList(
                             wc.category?.let { Text(it.label(state.activeProfile?.sex)) }
                             Text(stringResource(R.string.history_time_line, wc.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             CommentLine(wc.comment)
+                        }
+                    })
+                }
+            }
+            if (filter == HistoryFilter.ALL || filter == HistoryFilter.OXYGEN_SATURATION) {
+                oxygens.forEach { o ->
+                    add(o.timestamp to {
+                        EntryCard(
+                            onEdit = { viewModel.startEdit(EntryRef.OxygenSaturation(o)) },
+                            onDelete = { viewModel.requestDelete(EntryRef.OxygenSaturation(o)) }
+                        ) {
+                            Text(stringResource(R.string.history_oxygen_line, o.saturation.value), style = MaterialTheme.typography.titleMedium)
+                            val notes = listOfNotNull(
+                                o.pulse?.let { stringResource(R.string.history_oxygen_pulse, it) },
+                                o.context?.let { stringResource(it.labelRes) },
+                                o.site?.let { stringResource(it.labelRes) },
+                                if (o.oxygenGiven) stringResource(R.string.history_oxygen_given) else null
+                            )
+                            if (notes.isNotEmpty()) Text(notes.joinToString(" · "), style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.history_time_line, o.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            CommentLine(o.comment)
                         }
                     })
                 }
@@ -394,6 +422,10 @@ private fun HistoryList(
                                         profile = state.activeProfile
                                     )
                                 }
+                                HistoryFilter.OXYGEN_SATURATION -> {
+                                    OxygenTrendSection(entries = oxygens)
+                                    OxygenStatisticsSection(entries = oxygens)
+                                }
                                 HistoryFilter.MIGRAINE -> MigraineGraphSection(
                                     entries = state.migraines,
                                     tags = migraineTags,
@@ -450,6 +482,9 @@ private fun HistoryList(
                     Button(onClick = { viewModel.exportCsv("waist_circumference") }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.history_export_waist))
                     }
+                    Button(onClick = { viewModel.exportCsv("oxygen_saturation") }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.history_export_oxygen))
+                    }
                     Button(onClick = { viewModel.exportCsv("migraine") }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.history_export_migraine))
                     }
@@ -505,6 +540,11 @@ private fun HistoryList(
                             label = { Text(stringResource(R.string.history_import_type_waist)) }
                         )
                         FilterChip(
+                            selected = importMetricType == "oxygen_saturation",
+                            onClick = { importMetricType = "oxygen_saturation" },
+                            label = { Text(stringResource(R.string.history_import_type_oxygen)) }
+                        )
+                        FilterChip(
                             selected = importMetricType == "migraine",
                             onClick = { importMetricType = "migraine" },
                             label = { Text(stringResource(R.string.history_import_type_migraine)) }
@@ -521,6 +561,7 @@ private fun HistoryList(
                             when (importMetricType) {
                                 "libra" -> Text(stringResource(R.string.history_libra_placeholder))
                                 "waist_circumference" -> Text("timestamp,waist_cm\n...")
+                                "oxygen_saturation" -> Text("timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n...")
                                 "migraine" -> Text(stringResource(R.string.history_migraine_placeholder))
                                 else -> Text(stringResource(R.string.history_csv_placeholder))
                             }
@@ -569,4 +610,5 @@ private val MetricSlot.filterLabelRes: Int
         MetricSlot.MIGRAINE -> R.string.history_filter_migraine
         MetricSlot.WAIST_CIRCUMFERENCE -> R.string.history_filter_waist
         MetricSlot.ACTIVITY -> R.string.history_filter_activity
+        MetricSlot.OXYGEN_SATURATION -> R.string.history_filter_oxygen
     }

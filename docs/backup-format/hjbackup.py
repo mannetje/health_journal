@@ -127,6 +127,9 @@ CSV_TABLES = {
 }
 
 
+OXYGEN_HEADER = ["timestamp", "spo2_percent", "pulse_bpm", "context", "site", "oxygen_given", "comment"]
+
+
 MIGRAINE_HEADER = ["start_timestamp", "woke_up_with_it", "end_timestamp", "intensity", "areas", "pain_character",
                    "type", "symptoms", "triggers", "took_something", "medication_text", "second_dose",
                    "intensity_after_2h", "relief_methods", "custom_triggers", "custom_relief_methods",
@@ -173,6 +176,16 @@ def write_csv(document, directory):
             for entry in sorted(profile.get("migraines", []), key=lambda e: e["start"]):
                 writer.writerow(["" if cell is None else cell for cell in _migraine_row(entry, labels)])
         written.append(path)
+        if profile.get("oxygenSaturations"):
+            path = os.path.join(directory, f"profile{index}_oxygen_saturation.csv")
+            with open(path, "w", encoding="utf-8", newline="") as handle:
+                writer = csv.writer(handle, lineterminator="\n")
+                writer.writerow(OXYGEN_HEADER)
+                for e in sorted(profile["oxygenSaturations"], key=lambda e: e["timestamp"]):
+                    writer.writerow(["" if c is None else c for c in
+                                     [e["timestamp"], e["percent"], e.get("pulse"), e.get("context"), e.get("site"),
+                                      "true" if e.get("oxygenGiven") else "false", e.get("comment")]])
+            written.append(path)
     return written
 
 

@@ -19,6 +19,7 @@ erDiagram
     medications ||--o{ intakes : "medicationId (FK, cascade)"
     profiles ||--o{ migraines : "profileId (logical)"
     profiles ||--o{ migraine_tags : "profileId (logical)"
+    profiles ||--o{ oxygen_saturations : "profileId (logical)"
     migraine_tags }o--o{ migraines : "ids in customTriggers and customReliefMethods (logical)"
 
     profiles {
@@ -141,6 +142,17 @@ erDiagram
         INTEGER archived
         INTEGER createdAt "epoch ms"
     }
+    oxygen_saturations {
+        TEXT id PK
+        TEXT profileId
+        INTEGER timestamp "epoch ms"
+        INTEGER percent "whole number, 50 to 100"
+        INTEGER pulse "nullable, 30 to 250"
+        TEXT context "nullable enum code"
+        TEXT site "nullable enum code"
+        INTEGER oxygenGiven "0 or 1"
+        TEXT comment "nullable"
+    }
 ```
 
 ## Naming conventions
@@ -166,6 +178,7 @@ Primary key `id` (TEXT), `profileId` on every per-profile table, times as epoch 
 - **Intake uniqueness.** A unique index on (`medicationId`, `planned`) keeps one outcome per planned intake. As-needed doses have a null `planned`, which SQLite treats as distinct, so several can exist on one day. A second index on (`medicationId`, `takenAt`) serves the as-needed lookups.
 - **Amounts as text.** Strength, dose and actual amount are stored as plain decimal text, so 2.5 stays 2.5. Units are stored as entered and never converted.
 - **Migraine sets.** A migraine keeps its multi-choice answers as comma-separated stable code names in one column each (`areas`, `symptoms`, `triggers` and so on), because they are only read back with the entry and never queried one by one. A personal tag is referenced by its id, so renaming a tag changes every entry that uses it. A tag is never hard-deleted: removing it sets `archived`, and older entries keep showing it. See [ADR 0025](../adr/0025-migraine-log-data-model.md) and the [Migraine page](migraine.md).
+- **Oxygen saturation has no derived column.** There is no category or band, so nothing is stored that a rule could change later (see [ADR 0026](../adr/0026-oxygen-saturation-without-assessment.md)). `context` and `site` are stable code names, and a code the app does not know reads back as not set. `oxygenGiven` is the person's own tick.
 - **Time.** Instants are epoch milliseconds. Planned times are local wall-clock text without a zone, so an 08:00 planned intake stays 08:00 when travelling.
 
 ## Version history
@@ -178,6 +191,7 @@ Primary key `id` (TEXT), `profileId` on every per-profile table, times as epoch 
 | 4 to 5 | `comment` column added to the five entry tables |
 | 5 to 6 | medication tables added: `medications`, `medication_schedules`, `medication_times`, `intakes` |
 | 6 to 7 | migraine tables added: `migraines`, `migraine_tags` |
+| 7 to 8 | `oxygen_saturations` table added |
 
 Every migration is hand-written in `HealthJournalDatabase.kt`. Update this page, the diagram included, whenever an entity changes. `MigrationChainTest` migrates a database from each exported version to the current one and checks the result against the exported schema.
 

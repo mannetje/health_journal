@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.map
 import nl.healthjournal.data.local.dao.ActivityDao
 import nl.healthjournal.data.local.dao.BloodPressureDao
 import nl.healthjournal.data.local.dao.GlucoseDao
+import nl.healthjournal.data.local.dao.OxygenSaturationDao
 import nl.healthjournal.data.local.dao.WaistCircumferenceDao
 import nl.healthjournal.data.local.dao.WeightDao
 import nl.healthjournal.data.local.mapper.HealthLogMapper
@@ -13,6 +14,7 @@ import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
+import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
@@ -22,7 +24,8 @@ class RoomHealthLogRepository(
     private val bloodPressureDao: BloodPressureDao,
     private val glucoseDao: GlucoseDao,
     private val activityDao: ActivityDao,
-    private val waistCircumferenceDao: WaistCircumferenceDao
+    private val waistCircumferenceDao: WaistCircumferenceDao,
+    private val oxygenSaturationDao: OxygenSaturationDao
 ) : HealthLogRepositoryPort {
 
     // Weight
@@ -126,6 +129,27 @@ class RoomHealthLogRepository(
 
     override fun observeWaistCircumferenceHistory(profileId: ProfileId): Flow<List<WaistCircumferenceEntry>> {
         return waistCircumferenceDao.observeByProfileId(profileId.value.toString()).map { list ->
+            list.map { HealthLogMapper.toDomain(it) }
+        }
+    }
+
+    // Oxygen saturation
+    override suspend fun saveOxygenSaturation(entry: OxygenSaturationEntry) {
+        oxygenSaturationDao.insert(HealthLogMapper.toEntity(entry))
+    }
+
+    override suspend fun updateOxygenSaturation(entry: OxygenSaturationEntry): Boolean =
+        oxygenSaturationDao.update(HealthLogMapper.toEntity(entry)) > 0
+
+    override suspend fun deleteOxygenSaturation(id: MeasurementId): Boolean =
+        oxygenSaturationDao.deleteById(id.value.toString()) > 0
+
+    override suspend fun getOxygenSaturationHistory(profileId: ProfileId): List<OxygenSaturationEntry> {
+        return oxygenSaturationDao.getByProfileId(profileId.value.toString()).map { HealthLogMapper.toDomain(it) }
+    }
+
+    override fun observeOxygenSaturationHistory(profileId: ProfileId): Flow<List<OxygenSaturationEntry>> {
+        return oxygenSaturationDao.observeByProfileId(profileId.value.toString()).map { list ->
             list.map { HealthLogMapper.toDomain(it) }
         }
     }

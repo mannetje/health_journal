@@ -28,6 +28,19 @@ class CsvAdaptersTest {
         val glucoses = mutableListOf<GlucoseEntry>()
         val activities = mutableListOf<ActivitySession>()
         val waistCircumferences = mutableListOf<WaistCircumferenceEntry>()
+        val oxygenSaturations = mutableListOf<OxygenSaturationEntry>()
+
+        override suspend fun saveOxygenSaturation(entry: OxygenSaturationEntry) { oxygenSaturations.add(entry) }
+        override suspend fun updateOxygenSaturation(entry: OxygenSaturationEntry): Boolean {
+            val i = oxygenSaturations.indexOfFirst { it.id == entry.id }
+            if (i < 0) return false
+            oxygenSaturations[i] = entry
+            return true
+        }
+        override suspend fun deleteOxygenSaturation(id: MeasurementId): Boolean = oxygenSaturations.removeAll { it.id == id }
+        override suspend fun getOxygenSaturationHistory(profileId: ProfileId): List<OxygenSaturationEntry> =
+            oxygenSaturations.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
+        override fun observeOxygenSaturationHistory(profileId: ProfileId): Flow<List<OxygenSaturationEntry>> = emptyFlow()
 
         override suspend fun saveWeight(entry: WeightEntry) { weights.add(entry) }
         override suspend fun updateWeight(entry: WeightEntry): Boolean {
@@ -541,6 +554,71 @@ class CsvAdaptersTest {
         val result = importAdapter.importCsv(profile.id, "waist_circumference", csv)
         assertEquals(1, result.importedCount)
         assertEquals(NhgWaistCircumferenceCategory.INCREASED_RISK, healthLogRepo.waistCircumferences.single().category)
+    }
+
+    @Test
+    fun `export and import oxygen saturation CSV round-trip`() = runBlocking {
+        val healthLogRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val exportAdapter = CsvDataExportAdapter(healthLogRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, profileRepo)
+
+        assertEquals(
+            "timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n",
+            exportAdapter.exportOxygenSaturationCsv(profile.id)
+        )
+
+        val full = OxygenSaturationEntry(
+            MeasurementId.generate(), profile.id, Instant.parse("2026-09-20T08:00:00Z"),
+            nl.healthjournal.domain.model.metrics.OxygenSaturationPercent(93), 80,
+            nl.healthjournal.domain.model.metrics.OxygenContext.AFTER_ACTIVITY,
+            nl.healthjournal.domain.model.metrics.OxygenSite.TOE, true,
+            nl.healthjournal.domain.model.metrics.EntryComment.ofOrNull("stairs, \"quick\"")
+        )
+        val plain = OxygenSaturationEntry(
+            MeasurementId.generate(), profile.id, Instant.parse("2026-09-21T08:00:00Z"),
+            nl.healthjournal.domain.model.metrics.OxygenSaturationPercent(98)
+        )
+        healthLogRepo.saveOxygenSaturation(full)
+        healthLogRepo.saveOxygenSaturation(plain)
+
+        val csv = exportAdapter.exportOxygenSaturationCsv(profile.id)
+        assertTrue(csv.contains("2026-09-21T08:00:00Z,98,,,,false,"))
+        assertTrue(csv.contains("2026-09-20T08:00:00Z,93,80,AFTER_ACTIVITY,TOE,true,"))
+
+        healthLogRepo.oxygenSaturations.clear()
+        val result = importAdapter.importCsv(profile.id, "oxygen_saturation", csv)
+        assertEquals(2, result.importedCount)
+        assertEquals(0, result.skippedRows.size)
+        val back = healthLogRepo.oxygenSaturations.associateBy { it.timestamp }
+        assertEquals(full.copy(id = back.getValue(full.timestamp).id), back.getValue(full.timestamp))
+        assertEquals(plain.copy(id = back.getValue(plain.timestamp).id), back.getValue(plain.timestamp))
+    }
+
+    @Test
+    fun `oxygen saturation import skips rows with an impossible value, an unknown code or a bad flag`() = runBlocking {
+        val healthLogRepo = InMemoryHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, profileRepo)
+
+        val csv = lines(
+            "timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment",
+            "2026-09-20T08:00:00Z,49,,,,false,",
+            "2026-09-20T09:00:00Z,101,,,,false,",
+            "2026-09-20T10:00:00Z,96,300,,,false,",
+            "2026-09-20T11:00:00Z,96,,RUNNING,,false,",
+            "2026-09-20T12:00:00Z,96,,,HAND,false,",
+            "2026-09-20T13:00:00Z,96,,,,maybe,",
+            "2026-09-20T14:00:00Z,96,,,,,"
+        )
+        val result = importAdapter.importCsv(profile.id, "oxygen_saturation", csv)
+        assertEquals(1, result.importedCount)
+        assertEquals(6, result.skippedRows.size)
+        assertEquals(96, healthLogRepo.oxygenSaturations.single().saturation.value)
     }
 
     // --- Comments ---

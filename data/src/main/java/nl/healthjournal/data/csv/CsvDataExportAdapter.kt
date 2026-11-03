@@ -60,4 +60,15 @@ class CsvDataExportAdapter(
         }
         return sb.toString()
     }
+
+    override suspend fun exportOxygenSaturationCsv(profileId: ProfileId): String {
+        val history = healthLogRepository.getOxygenSaturationHistory(profileId).sortedBy { it.timestamp }
+        val sb = StringBuilder()
+        sb.append("timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n")
+        for (entry in history) {
+            val pulseStr = entry.pulse?.toString() ?: ""
+            sb.append("${entry.timestamp},${entry.saturation.value},$pulseStr,${entry.context?.name ?: ""},${entry.site?.name ?: ""},${entry.oxygenGiven},${CsvQuoting.cell(entry.comment?.text)}\n")
+        }
+        return sb.toString()
+    }
 }

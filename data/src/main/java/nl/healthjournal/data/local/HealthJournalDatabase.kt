@@ -179,6 +179,32 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
     }
 }
 
+/**
+ * Adds the `oxygen_saturations` table. Table only: no existing row is touched.
+ * The SQL mirrors what Room expects for the entity in `OxygenSaturationEntity.kt`.
+ */
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `oxygen_saturations` (
+                `id` TEXT NOT NULL,
+                `profileId` TEXT NOT NULL,
+                `timestamp` INTEGER NOT NULL,
+                `percent` INTEGER NOT NULL,
+                `pulse` INTEGER,
+                `context` TEXT,
+                `site` TEXT,
+                `oxygenGiven` INTEGER NOT NULL,
+                `comment` TEXT,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_oxygen_saturations_profileId_timestamp` ON `oxygen_saturations` (`profileId`, `timestamp`)")
+    }
+}
+
 @Database(
     entities = [
         ProfileEntity::class,
@@ -192,9 +218,10 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         MedicationTimeEntity::class,
         IntakeEntity::class,
         MigraineEntity::class,
-        MigraineTagEntity::class
+        MigraineTagEntity::class,
+        OxygenSaturationEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 abstract class HealthJournalDatabase : RoomDatabase() {
@@ -206,6 +233,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
     abstract fun waistCircumferenceDao(): WaistCircumferenceDao
     abstract fun medicationDao(): MedicationDao
     abstract fun migraineDao(): MigraineDao
+    abstract fun oxygenSaturationDao(): OxygenSaturationDao
 
     companion object {
         const val DATABASE_NAME = "health_journal.db"
@@ -238,7 +266,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 context,
                 HealthJournalDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
 
             if (!hasSqlCipher) {
                 return notEncrypted(builder, "the SQLCipher library could not be loaded")

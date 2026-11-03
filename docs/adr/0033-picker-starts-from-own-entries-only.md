@@ -11,7 +11,7 @@
 ## Decision
 
 - **Start from the person's own latest entry.** Nothing is derived from the profile any more: no BMI-based weight and no waist by sex.
-- **Without an entry the picker only shows a starting position** (weight 75.0 kg, blood pressure 120/80, pulse 70 bpm, waist 90 cm). These are scroll positions, not targets. Glucose has no starting position: its field is empty.
+- **Without an entry the picker only shows a starting position** (weight 75.0 kg, blood pressure 120/80, pulse 70 bpm, waist 90 cm, oxygen saturation 96 %). These are scroll positions, not targets. Glucose has no starting position: its field is empty.
 - **A starting position is not a value.** Until the person moves a picker or types, that value is not chosen: no BMI, blood pressure or waist category is shown for it, and it is never recorded. Save is off, with a short hint, until weight, waist, or both blood pressure numbers are set. Pulse is optional: untouched, the entry is saved without a pulse.
 - **An entry the person made earlier counts as chosen**, so repeating the last value stays one tap.
 

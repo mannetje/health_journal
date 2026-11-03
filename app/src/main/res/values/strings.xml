@@ -291,7 +291,7 @@
 
     <string name="ranges_about">About these ranges</string>
     <string name="ranges_about_title">About these ranges</string>
-    <string name="ranges_about_body">The ranges follow published guidelines, mainly the NHG standards. Wording is also taken from Diabetes Fonds, DVN and Hartstichting. Waist circumference ranges come from Voedingscentrum. A label is not a diagnosis, and this app is not a medical device. Questions about your values go to your doctor or pharmacist.</string>
+    <string name="ranges_about_body">The ranges follow published guidelines, mainly the NHG standards. Wording is also taken from Diabetes Fonds, DVN and Hartstichting. Waist circumference ranges come from Voedingscentrum. Oxygen saturation is only recorded as you enter it; the app does not assess it. A label is not a diagnosis, and this app is not a medical device. Questions about your values go to your doctor or pharmacist.</string>
     <string name="ranges_link_nhg">NHG</string>
     <string name="ranges_link_thuisarts">Thuisarts</string>
     <string name="ranges_link_diabetesfonds">Diabetes Fonds</string>
@@ -892,4 +892,36 @@
     <string name="migraine_err_save_failed">Could not save the migraine</string>
     <string name="migraine_err_no_profile">Set up your profile first.</string>
     <string name="migraine_err_end_before_start">The end cannot be before the start.</string>
+
+    <!-- Oxygen saturation: plain figures, no assessment (ADR 0026) -->
+    <string name="log_tab_oxygen_saturation">Oxygen</string>
+    <string name="log_msg_oxygen_saved">Oxygen saturation recorded!</string>
+    <string name="log_oxygen_label">Oxygen saturation (%)</string>
+    <string name="log_oxygen_pulse_label">Pulse (bpm), optional</string>
+    <string name="log_oxygen_context_title">Situation (optional)</string>
+    <string name="log_oxygen_site_title">Measured on (optional)</string>
+    <string name="log_oxygen_given">Oxygen given</string>
+    <string name="log_oxygen_tip">Many people sit still for about 10 minutes first.</string>
+    <string name="log_oxygen_tip_dismiss">Got it</string>
+    <string name="oxygen_context_at_rest">At rest</string>
+    <string name="oxygen_context_after_activity">After activity</string>
+    <string name="oxygen_context_asleep_or_just_woke">Asleep or just woke</string>
+    <string name="oxygen_context_other">Other</string>
+    <string name="oxygen_context_none">No situation noted</string>
+    <string name="oxygen_site_finger">Finger</string>
+    <string name="oxygen_site_toe">Toe</string>
+    <string name="oxygen_site_earlobe">Earlobe</string>
+    <string name="history_filter_oxygen">Oxygen</string>
+    <string name="history_oxygen_line">Oxygen saturation: %1$d%%</string>
+    <string name="history_oxygen_pulse">Pulse %1$d bpm</string>
+    <string name="history_oxygen_given">Oxygen given</string>
+    <string name="history_export_oxygen">Export Oxygen Saturation CSV</string>
+    <string name="history_import_type_oxygen">Oxygen saturation</string>
+    <string name="trend_oxygen_title">Oxygen Saturation Trend</string>
+    <string name="oxygen_figures_title">Figures</string>
+    <string name="oxygen_lowest">Lowest</string>
+    <string name="oxygen_highest">Highest</string>
+    <string name="oxygen_average">Average</string>
+    <string name="oxygen_count">Readings</string>
+    <string name="oxygen_per_context_title">Readings per situation</string>
 </resources>

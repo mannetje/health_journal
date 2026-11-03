@@ -23,7 +23,7 @@ Health Journal is **a personal tool for logging and reminders, for private use. 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.6.6)](https://github.com/mannetje/health_journal/releases/latest)**  
+👉 **[Download Latest APK (v1.7.0)](https://github.com/mannetje/health_journal/releases/latest)**  
 See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ---
@@ -67,6 +67,7 @@ Questions about your values go to your doctor or pharmacist. The rules behind th
 - **Entry Comments:** Add an optional single-line note (up to 200 characters) to any measurement or activity entry. *([spec](openspec/specs/entry-comments/spec.md), [ADR 0019](docs/adr/0019-entry-comments.md))*
 
 #### 🎛️ Smart Input & User Experience
+- **Oxygen Saturation (SpO2):** Log a whole percentage from 50 to 100 with an optional pulse, situation (at rest, after activity, asleep or just woke, other), measuring site and a tick for oxygen given. Lowest, highest, average and count are shown as plain figures. The app never labels a value, draws a limit line or colours a reading. *([ADR 0026](docs/adr/0026-oxygen-saturation-without-assessment.md), [spec](openspec/changes/archive/2026-11-03-add-oxygen-saturation/proposal.md))*
 - **Interactive Number Pickers:** Tactile horizontal measuring tape ruler pickers for Weight and Waist (0.1 step precision) and stacked color-coded rows for Blood Pressure & Pulse. *([ADR 0018](docs/adr/0018-smart-input-pickers.md))*
 - **Pickers start from your own entries:** the log pickers start at your latest measurement. Without one they show a plain starting position that is not recorded until you set a value. *([ADR 0018](docs/adr/0018-smart-input-pickers.md), [ADR 0033](docs/adr/0033-picker-starts-from-own-entries-only.md))*
 - **Medication Reminders & Adherence:** Scheduled time slot notifications with Taken/Snooze actions, plus 7/30/90-day adherence statistics and streak tracking. *([ADR 0022](docs/adr/0022-medication-reminders.md), [ADR 0021](docs/adr/0021-medication-compliance-and-privacy.md))*
@@ -184,11 +185,11 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.6.6-debug.apk`.
+2. Download `health-journal-v1.7.0-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
-> **Verifying:** each release also has a `.sha256` file. Run `sha256sum health-journal-v1.6.6-debug.apk` (or `Get-FileHash` on Windows) and compare. These are personal, sideloaded builds signed with a public debug key, not store builds ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
+> **Verifying:** each release also has a `.sha256` file. Run `sha256sum health-journal-v1.7.0-debug.apk` (or `Get-FileHash` on Windows) and compare. These are personal, sideloaded builds signed with a public debug key, not store builds ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
 >
 > **Updating:** builds from v1.4.4 onward share one fixed signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)) and install over the previous version. If your installed copy is v1.4.3 or older, Android will report a signature conflict once: export your data as CSV (History → Export) or make an encrypted backup (Profile), uninstall, install the new APK, then import the CSV again.
 
@@ -232,6 +233,7 @@ All data files must be encoded in **UTF-8**.
 | **Blood Pressure** | CSV | `timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification,comment` | `2026-09-09T08:30:00Z,124,78,68,NORMAL,` |
 | **Blood Glucose** | CSV | `timestamp,glucose_mmol_l,context,classification,comment` | `2026-09-09T07:15:00Z,5.4,FASTING,NORMAL,"Felt dizzy, rested"` |
 | **Waist Circumference** | CSV | `timestamp,waist_cm,classification,comment` | `2026-09-09T08:00:00Z,86.5,INCREASED_RISK,` |
+| **Oxygen Saturation** | CSV | `timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment` | `2026-10-20T08:00:00Z,96,72,AT_REST,FINGER,false,` |
 | **Activity Session** | CSV | `start_timestamp,end_timestamp,distance_m,duration_s,comment` | `2026-09-09T18:00:00Z,2026-09-09T18:45:00Z,5200,2700,Evening walk` |
 | **Migraine** | CSV (several values in one cell are joined with a pipe) | `start_timestamp,woke_up_with_it,end_timestamp,intensity,areas,pain_character,type,symptoms,triggers,took_something,medication_text,second_dose,intensity_after_2h,relief_methods,custom_triggers,custom_relief_methods,medication_helped_me,relief_helped_me,activities,comment` | `2026-10-20T06:30:00Z,false,2026-10-20T10:00:00Z,6,LEFT_SIDE\|TEMPLES,THROBBING,WITH_AURA,AURA\|NAUSEA,STRESS,false,,false,,,,,false,false,,` |
 | **Weight (Libra)** | Libra CSV (`net.cachapa.libra`) | `#Units: kg\|lbs`, `#date;weight;...` (semicolon-delimited) | `2026-09-09T08:00:00.000Z;74.5;;;` |

@@ -150,9 +150,9 @@ class RepositoryGuardrailsTest {
     @Test
     fun pickerStartingPositionsAreTheOnesTheAdrNames() {
         val starts = Regex("""private const val START_\w+ = ([\d.]+)""").findAll(text(loggingViewModel)).map { it.groupValues[1] }.toList()
-        assertEquals(listOf("75.0", "120", "80", "70", "90.0"), starts)
+        assertEquals(listOf("75.0", "120", "80", "70", "90.0", "96"), starts)
         val adr = text("docs/adr/0033-picker-starts-from-own-entries-only.md")
-        listOf("weight 75.0 kg", "blood pressure 120/80", "pulse 70 bpm", "waist 90 cm").forEach {
+        listOf("weight 75.0 kg", "blood pressure 120/80", "pulse 70 bpm", "waist 90 cm", "oxygen saturation 96 %").forEach {
             assertTrue("ADR 0033 names the starting position '$it'", adr.contains(it))
         }
         assertTrue("glucose has no starting position", text(loggingViewModel).contains("""val glucoseInput: String = """""))

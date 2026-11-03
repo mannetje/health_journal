@@ -2,6 +2,13 @@ package nl.healthjournal.data.backup
 
 import nl.healthjournal.domain.model.backup.BackupDocument
 import nl.healthjournal.domain.model.backup.BackupException
+import nl.healthjournal.domain.model.common.MeasurementId
+import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.metrics.OxygenContext
+import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
+import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent
+import nl.healthjournal.domain.model.metrics.OxygenSite
+import java.time.Instant
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertArrayEquals
@@ -81,6 +88,34 @@ class BackupFormatTest {
         val doc = HjBackupCodec(fast).decode(vector("sample-fast-nogzip.hjbackup"), passphrase)
         val written = raw(JSONObject(String(BackupJson.write(doc), Charsets.UTF_8)))
         assertEquals(raw(JSONObject(sample())), written)
+    }
+
+    @Test
+    fun `a backup without oxygen readings has no oxygen list and reads back empty`() {
+        val doc = HjBackupCodec(fast).decode(vector("sample-fast-nogzip.hjbackup"), passphrase)
+        assertTrue(doc.profiles.all { it.oxygenSaturations.isEmpty() })
+        assertFalse(String(BackupJson.write(doc), Charsets.UTF_8).contains("oxygenSaturations"))
+    }
+
+    @Test
+    fun `oxygen readings survive writing and reading, schema version stays 1`() {
+        val doc = HjBackupCodec(fast).decode(vector("sample-fast-nogzip.hjbackup"), passphrase)
+        val bp = doc.profiles.single()
+        val id = bp.profile.id
+        val full = OxygenSaturationEntry(
+            MeasurementId.generate(), id, Instant.parse("2026-09-20T08:00:00Z"), OxygenSaturationPercent(93), 80,
+            OxygenContext.AFTER_ACTIVITY, OxygenSite.TOE, true, EntryComment.ofOrNull("stairs ☕")
+        )
+        val plain = OxygenSaturationEntry(MeasurementId.generate(), id, Instant.parse("2026-09-21T08:00:00Z"), OxygenSaturationPercent(98))
+        val withOxygen = doc.copy(profiles = listOf(bp.copy(oxygenSaturations = listOf(full, plain))))
+
+        val json = String(BackupJson.write(withOxygen), Charsets.UTF_8)
+        assertEquals(1, JSONObject(json).getInt("schemaVersion"))
+        val back = BackupJson.read(json.toByteArray(Charsets.UTF_8))
+        assertEquals(listOf(full, plain), back.profiles.single().oxygenSaturations)
+
+        val codec = HjBackupCodec(fast)
+        assertEquals(withOxygen, codec.decode(codec.encode(withOxygen, passphrase), passphrase))
     }
 
     @Test

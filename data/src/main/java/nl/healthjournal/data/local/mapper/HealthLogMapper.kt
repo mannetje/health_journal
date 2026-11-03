@@ -3,6 +3,7 @@ package nl.healthjournal.data.local.mapper
 import nl.healthjournal.data.local.entity.ActivityEntity
 import nl.healthjournal.data.local.entity.BloodPressureEntity
 import nl.healthjournal.data.local.entity.GlucoseEntity
+import nl.healthjournal.data.local.entity.OxygenSaturationEntity
 import nl.healthjournal.data.local.entity.WaistCircumferenceEntity
 import nl.healthjournal.data.local.entity.WeightEntity
 import nl.healthjournal.domain.model.common.MeasurementId
@@ -131,6 +132,36 @@ object HealthLogMapper {
             timestamp = Instant.ofEpochMilli(entity.timestamp),
             waist = WaistCircumferenceCm(entity.waistCm),
             category = entity.category?.let { NhgWaistCircumferenceCategory.valueOf(it) },
+            comment = EntryComment.ofOrNull(entity.comment)
+        )
+    }
+
+    // Oxygen saturation
+    fun toEntity(domain: OxygenSaturationEntry): OxygenSaturationEntity {
+        return OxygenSaturationEntity(
+            id = domain.id.value.toString(),
+            profileId = domain.profileId.value.toString(),
+            timestamp = domain.timestamp.toEpochMilli(),
+            percent = domain.saturation.value,
+            pulse = domain.pulse,
+            context = domain.context?.name,
+            site = domain.site?.name,
+            oxygenGiven = domain.oxygenGiven,
+            comment = domain.comment?.text
+        )
+    }
+
+    /** An unknown context or site code (written by a later version) reads as none. */
+    fun toDomain(entity: OxygenSaturationEntity): OxygenSaturationEntry {
+        return OxygenSaturationEntry(
+            id = MeasurementId.fromString(entity.id),
+            profileId = ProfileId.fromString(entity.profileId),
+            timestamp = Instant.ofEpochMilli(entity.timestamp),
+            saturation = OxygenSaturationPercent(entity.percent),
+            pulse = entity.pulse,
+            context = OxygenContext.fromCode(entity.context),
+            site = OxygenSite.fromCode(entity.site),
+            oxygenGiven = entity.oxygenGiven,
             comment = EntryComment.ofOrNull(entity.comment)
         )
     }

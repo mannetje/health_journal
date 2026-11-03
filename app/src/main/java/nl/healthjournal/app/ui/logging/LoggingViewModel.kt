@@ -33,6 +33,7 @@ import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.RecordActivityUseCase
 import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
 import nl.healthjournal.domain.usecase.RecordGlucoseUseCase
+import nl.healthjournal.domain.usecase.RecordOxygenSaturationUseCase
 import nl.healthjournal.domain.usecase.RecordWaistCircumferenceUseCase
 import nl.healthjournal.domain.usecase.RecordWeightUseCase
 import java.math.BigDecimal
@@ -44,11 +45,12 @@ enum class MetricType {
     BLOOD_PRESSURE,
     GLUCOSE,
     ACTIVITY,
-    WAIST_CIRCUMFERENCE
+    WAIST_CIRCUMFERENCE,
+    OXYGEN_SATURATION
 }
 
 /** The picker values the person has to set themselves when there is no earlier entry to start from. */
-enum class LogField { WEIGHT, SYSTOLIC, DIASTOLIC, PULSE, WAIST }
+enum class LogField { WEIGHT, SYSTOLIC, DIASTOLIC, PULSE, WAIST, OXYGEN }
 
 data class LoggingUiState(
     val activeProfile: Profile? = null,
@@ -86,6 +88,13 @@ data class LoggingUiState(
     val waistInput: String = START_WAIST_CM.toString(),
     val previewWaistCategory: NhgWaistCircumferenceCategory? = null,
 
+    // Oxygen saturation inputs: a value that stays unset until the person picks it
+    val oxygenPercentValue: Int = START_OXYGEN_PERCENT,
+    val oxygenPulseInput: String = "",
+    val oxygenContext: OxygenContext? = null,
+    val oxygenSite: OxygenSite? = null,
+    val oxygenGiven: Boolean = false,
+
     // Optional comment for the entry being logged (one draft, cleared after save and on tab change)
     val commentInput: String = "",
 
@@ -106,6 +115,7 @@ data class LoggingUiState(
             MetricType.WEIGHT -> LogField.WEIGHT in chosen
             MetricType.BLOOD_PRESSURE -> LogField.SYSTOLIC in chosen && LogField.DIASTOLIC in chosen
             MetricType.WAIST_CIRCUMFERENCE -> LogField.WAIST in chosen
+            MetricType.OXYGEN_SATURATION -> LogField.OXYGEN in chosen
             MetricType.GLUCOSE, MetricType.ACTIVITY -> true
         }
 }
@@ -116,6 +126,7 @@ private const val START_SYSTOLIC = 120
 private const val START_DIASTOLIC = 80
 private const val START_PULSE = 70
 private const val START_WAIST_CM = 90.0
+private const val START_OXYGEN_PERCENT = 96
 
 @HiltViewModel
 class LoggingViewModel(
@@ -129,7 +140,8 @@ class LoggingViewModel(
     /** Reads the units currently chosen, so typed values are converted to metric before validation. */
     private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT },
     /** The order of the metric tabs; the first tab with a form of its own is the one that opens selected. */
-    private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
+    private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER),
+    private val recordOxygenSaturationUseCase: RecordOxygenSaturationUseCase? = null
 ) : ViewModel() {
 
     /** The constructor Hilt uses; tests pass the unit and order sources directly. */
@@ -141,13 +153,14 @@ class LoggingViewModel(
         recordGlucoseUseCase: RecordGlucoseUseCase,
         recordActivityUseCase: RecordActivityUseCase,
         recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
+        recordOxygenSaturationUseCase: RecordOxygenSaturationUseCase,
         healthLogRepository: HealthLogRepositoryPort,
         unitPreference: UnitPreference,
         metricDisplayOrder: MetricDisplayOrderPreference
     ) : this(
         profileRepository, recordWeightUseCase, recordBloodPressureUseCase, recordGlucoseUseCase,
         recordActivityUseCase, recordWaistCircumferenceUseCase, healthLogRepository,
-        { unitPreference.resolve() }, metricDisplayOrder.order
+        { unitPreference.resolve() }, metricDisplayOrder.order, recordOxygenSaturationUseCase
     )
 
     private val _uiState = MutableStateFlow(
@@ -380,6 +393,34 @@ class LoggingViewModel(
         }
     }
 
+    fun onOxygenPercentChanged(value: Int) {
+        _uiState.value = _uiState.value.copy(
+            oxygenPercentValue = value,
+            chosen = _uiState.value.chosen + LogField.OXYGEN,
+            errorMessage = null
+        )
+    }
+
+    /** Keeps only digits, so the optional pulse can never hold anything but a number. */
+    fun onOxygenPulseChanged(input: String) {
+        _uiState.value = _uiState.value.copy(oxygenPulseInput = input.filter { it.isDigit() }.take(3), errorMessage = null)
+    }
+
+    /** Choosing the selected context again clears it, since it is optional. */
+    fun onOxygenContextSelected(context: OxygenContext) {
+        val current = _uiState.value.oxygenContext
+        _uiState.value = _uiState.value.copy(oxygenContext = if (current == context) null else context)
+    }
+
+    fun onOxygenSiteSelected(site: OxygenSite) {
+        val current = _uiState.value.oxygenSite
+        _uiState.value = _uiState.value.copy(oxygenSite = if (current == site) null else site)
+    }
+
+    fun onOxygenGivenChanged(given: Boolean) {
+        _uiState.value = _uiState.value.copy(oxygenGiven = given)
+    }
+
     fun setGlucoseContext(context: GlucoseContext) {
         _uiState.value = _uiState.value.copy(glucoseContext = context)
         updateGlucosePreview(_uiState.value.glucoseInput, context)
@@ -495,6 +536,29 @@ class LoggingViewModel(
                         _uiState.value = _uiState.value.copy(
                             previewWaistCategory = null,
                             successMessage = UiText.Res(R.string.log_msg_waist_saved)
+                        )
+                    }
+                    MetricType.OXYGEN_SATURATION -> {
+                        val state = _uiState.value
+                        val useCase = recordOxygenSaturationUseCase
+                            ?: throw UiTextException(UiText.Res(R.string.log_err_save_failed))
+                        val pulse = state.oxygenPulseInput.takeIf { it.isNotEmpty() }?.toIntOrNull()
+                        useCase(
+                            profileId = profile.id,
+                            percent = state.oxygenPercentValue,
+                            pulse = pulse,
+                            context = state.oxygenContext,
+                            site = state.oxygenSite,
+                            oxygenGiven = state.oxygenGiven,
+                            comment = comment
+                        )
+                        _uiState.value = _uiState.value.copy(
+                            oxygenPulseInput = "",
+                            oxygenContext = null,
+                            oxygenSite = null,
+                            oxygenGiven = false,
+                            chosen = _uiState.value.chosen - LogField.OXYGEN,
+                            successMessage = UiText.Res(R.string.log_msg_oxygen_saved)
                         )
                     }
                 }

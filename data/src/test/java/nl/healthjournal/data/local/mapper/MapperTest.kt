@@ -178,6 +178,37 @@ class MapperTest {
     }
 
     @Test
+    fun `OxygenSaturationEntry maps to entity and back`() {
+        val entry = OxygenSaturationEntry(
+            MeasurementId.generate(), ProfileId.generate(), Instant.parse("2026-09-27T10:00:00Z"),
+            OxygenSaturationPercent(92), 76, OxygenContext.ASLEEP_OR_JUST_WOKE, OxygenSite.FINGER, true,
+            EntryComment.ofOrNull("night")
+        )
+        val entity = HealthLogMapper.toEntity(entry)
+        assertEquals(92, entity.percent)
+        assertEquals("ASLEEP_OR_JUST_WOKE", entity.context)
+        assertEquals("FINGER", entity.site)
+        assertEquals(entry, HealthLogMapper.toDomain(entity))
+    }
+
+    @Test
+    fun `OxygenSaturationEntry without notes maps to nulls and an unknown code reads as none`() {
+        val entry = OxygenSaturationEntry(
+            MeasurementId.generate(), ProfileId.generate(), Instant.parse("2026-09-27T10:00:00Z"), OxygenSaturationPercent(97)
+        )
+        val entity = HealthLogMapper.toEntity(entry)
+        assertNull(entity.pulse)
+        assertNull(entity.context)
+        assertNull(entity.site)
+        assertEquals(false, entity.oxygenGiven)
+        assertEquals(entry, HealthLogMapper.toDomain(entity))
+
+        val later = HealthLogMapper.toDomain(entity.copy(context = "FROM_THE_FUTURE", site = "KNEE"))
+        assertNull(later.context)
+        assertNull(later.site)
+    }
+
+    @Test
     fun `WaistCircumferenceEntry maps to entity and back`() {
         val profileId = ProfileId.generate()
         val entry = WaistCircumferenceEntry(

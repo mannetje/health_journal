@@ -52,7 +52,7 @@ class MigrationTest {
         }
 
     @Test
-    fun migrating_5_to_7_keeps_every_existing_row_and_adds_the_medication_and_migraine_tables() {
+    fun migrating_5_to_8_keeps_every_existing_row_and_adds_the_medication_and_migraine_and_oxygen_tables() {
         db = HealthJournalDatabase.create(context)
 
         // Opening runs the migrations and then Room checks the schema against its entities.
@@ -64,8 +64,8 @@ class MigrationTest {
         assertEquals(1, count("waist_circumferences"))
         listOf("medications", "medication_schedules", "medication_times", "intakes")
             .forEach { assertEquals(it, 0, count(it)) }
-        listOf("migraines", "migraine_tags").forEach { assertEquals(it, 0, count(it)) }
-        assertEquals(7, db!!.openHelper.readableDatabase.version)
+        listOf("migraines", "migraine_tags", "oxygen_saturations").forEach { assertEquals(it, 0, count(it)) }
+        assertEquals(8, db!!.openHelper.readableDatabase.version)
     }
 
     @Test
@@ -74,7 +74,7 @@ class MigrationTest {
         db = HealthJournalDatabase.create(context)
         assertTrue(count("medications") == 0)
         assertTrue(count("migraines") == 0)
-        assertEquals(7, db!!.openHelper.readableDatabase.version)
+        assertEquals(8, db!!.openHelper.readableDatabase.version)
     }
 
     private companion object {

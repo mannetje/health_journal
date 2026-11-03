@@ -191,6 +191,38 @@ class CsvDataImportAdapter(
                         healthLogRepository.saveWaistCircumference(entry)
                         importedCount++
                     }
+                    "oxygen_saturation", "oxygen", "spo2" -> {
+                        if (parts.size < 2) {
+                            skippedRows.add(SkippedRow(lineNumber, "Expected at least 2 columns (timestamp, spo2_percent), got ${parts.size}"))
+                            continue
+                        }
+                        val timestamp = parseInstant(parts[0])
+                        val percent = OxygenSaturationPercent(parts[1].trim().toInt())
+                        val pulse = parts.getOrNull(2)?.trim()?.takeIf { it.isNotEmpty() }?.toInt()
+                        val context = parts.getOrNull(3)?.trim()?.takeIf { it.isNotEmpty() }
+                            ?.let { OxygenContext.fromCode(it) ?: throw IllegalArgumentException("Unknown context: $it") }
+                        val site = parts.getOrNull(4)?.trim()?.takeIf { it.isNotEmpty() }
+                            ?.let { OxygenSite.fromCode(it) ?: throw IllegalArgumentException("Unknown site: $it") }
+                        val oxygenGiven = when (parts.getOrNull(5)?.trim()?.lowercase()) {
+                            null, "", "false" -> false
+                            "true" -> true
+                            else -> throw IllegalArgumentException("oxygen_given must be true or false")
+                        }
+                        healthLogRepository.saveOxygenSaturation(
+                            OxygenSaturationEntry(
+                                id = MeasurementId.generate(),
+                                profileId = profileId,
+                                timestamp = timestamp,
+                                saturation = percent,
+                                pulse = pulse,
+                                context = context,
+                                site = site,
+                                oxygenGiven = oxygenGiven,
+                                comment = comment
+                            )
+                        )
+                        importedCount++
+                    }
                     else -> {
                         skippedRows.add(SkippedRow(lineNumber, "Unsupported metric type: $metricType"))
                     }

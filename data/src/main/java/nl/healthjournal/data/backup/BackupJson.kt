@@ -43,6 +43,10 @@ import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.GlucoseLevel
 import nl.healthjournal.domain.model.metrics.HeightCm
+import nl.healthjournal.domain.model.metrics.OxygenContext
+import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
+import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent
+import nl.healthjournal.domain.model.metrics.OxygenSite
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceCm
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
@@ -138,6 +142,15 @@ object BackupJson {
             .also { o ->
                 // Written only when present, so a profile without Migraine data looks like it did before.
                 if (bp.migraines.isNotEmpty()) o.put("migraines", array(bp.migraines.sortedBy { it.start }) { writeMigraine(it) })
+                if (bp.oxygenSaturations.isNotEmpty()) o.put("oxygenSaturations", array(bp.oxygenSaturations.sortedBy { it.timestamp }) { e ->
+                    JSONObject().put("id", e.id.toString()).put("timestamp", e.timestamp.toString())
+                        .put("percent", e.saturation.value)
+                        .put("pulse", nullable(e.pulse))
+                        .put("context", nullable(e.context?.name))
+                        .put("site", nullable(e.site?.name))
+                        .put("oxygenGiven", e.oxygenGiven)
+                        .put("comment", nullable(e.comment?.text))
+                })
                 if (bp.migraineTags.isNotEmpty()) {
                     o.put("migraineTags", array(bp.migraineTags.sortedWith(compareBy({ it.kind.name }, { it.label.lowercase() }, { it.id.toString() }))) { t ->
                         JSONObject().put("id", t.id.toString()).put("kind", t.kind.name).put("label", t.label)
@@ -343,6 +356,17 @@ object BackupJson {
                         MeasurementId.fromString(e.req("id")), pid,
                         Instant.parse(e.req("startTime")), Instant.parse(e.req("endTime")),
                         e.dec("distanceMeters").toDouble(), e.comment()
+                    )
+                }
+            },
+            oxygenSaturations = guard("oxygenSaturations") {
+                readList(o.optJSONArray("oxygenSaturations")) { e ->
+                    OxygenSaturationEntry(
+                        MeasurementId.fromString(e.req("id")), pid, Instant.parse(e.req("timestamp")),
+                        OxygenSaturationPercent(e.getInt("percent")),
+                        if (e.isNull("pulse")) null else e.getInt("pulse"),
+                        OxygenContext.fromCode(e.text("context")), OxygenSite.fromCode(e.text("site")),
+                        e.optBoolean("oxygenGiven", false), e.comment()
                     )
                 }
             },

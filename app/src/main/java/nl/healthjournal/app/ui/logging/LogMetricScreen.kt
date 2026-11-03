@@ -1,5 +1,6 @@
 package nl.healthjournal.app.ui.logging
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -259,6 +261,34 @@ fun LogMetricScreen(
                     )
                 }
 
+                MetricType.OXYGEN_SATURATION -> {
+                    OxygenTip()
+                    HorizontalRulerPicker(
+                        value = state.oxygenPercentValue.toDouble(),
+                        onValueChange = { viewModel.onOxygenPercentChanged(Math.round(it).toInt()) },
+                        range = 50.0..100.0,
+                        label = stringResource(R.string.log_oxygen_label),
+                        isSet = LogField.OXYGEN in state.chosen,
+                        step = 1.0,
+                        ticksPerLabel = 5,
+                        decimals = 0,
+                        unitLabel = "%",
+                        tapeColor = Color(0xFF00ACC1),
+                        tickColor = Color(0xFF212121),
+                        tapeHeight = 75.dp
+                    )
+                    OxygenOptionFields(
+                        pulse = state.oxygenPulseInput,
+                        onPulseChange = { viewModel.onOxygenPulseChanged(it) },
+                        context = state.oxygenContext,
+                        onContextSelected = { viewModel.onOxygenContextSelected(it) },
+                        site = state.oxygenSite,
+                        onSiteSelected = { viewModel.onOxygenSiteSelected(it) },
+                        oxygenGiven = state.oxygenGiven,
+                        onOxygenGivenChange = { viewModel.onOxygenGivenChanged(it) }
+                    )
+                }
+
                 MetricType.WAIST_CIRCUMFERENCE -> {
                     HorizontalRulerPicker(
                         value = state.waistValue,
@@ -291,7 +321,7 @@ fun LogMetricScreen(
                 onValueChange = { viewModel.onCommentChanged(it) }
             )
 
-            if (state.selectedMetric != MetricType.ACTIVITY) {
+            if (state.selectedMetric != MetricType.ACTIVITY && state.selectedMetric != MetricType.OXYGEN_SATURATION) {
                 RangeSourceNote()
             }
 
@@ -328,5 +358,32 @@ fun CategoryBadge(label: String, color: Color) {
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.bodyLarge
         )
+    }
+}
+
+private const val OXYGEN_PREFS = "oxygen_saturation_prefs"
+private const val KEY_TIP_DISMISSED = "tip_dismissed"
+
+/** A short, dismissible note on measuring; the choice to hide it is kept in the app's preferences. */
+@Composable
+private fun OxygenTip() {
+    val prefs = LocalContext.current.getSharedPreferences(OXYGEN_PREFS, Context.MODE_PRIVATE)
+    var dismissed by remember { mutableStateOf(prefs.getBoolean(KEY_TIP_DISMISSED, false)) }
+    if (dismissed) return
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+        Row(
+            modifier = Modifier.padding(start = 12.dp, end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.log_oxygen_tip),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = {
+                prefs.edit().putBoolean(KEY_TIP_DISMISSED, true).apply()
+                dismissed = true
+            }) { Text(stringResource(R.string.log_oxygen_tip_dismiss)) }
+        }
     }
 }
