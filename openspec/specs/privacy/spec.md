@@ -152,3 +152,14 @@ The app lock SHALL track the app being in the background, not the lifetime of an
 #### Scenario: A resume without leaving the app
 - **WHEN** the app was backgrounded and returned within the timeout, and later resumes again without having been backgrounded (a system dialog, a rotation)
 - **THEN** the system SHALL NOT compare that resume with the earlier background time
+
+### Requirement: Oxygen saturation data is protected like all entries
+Oxygen saturation readings, including pulse, context, site, the oxygen-given tick and comment, SHALL be stored only in the encrypted database, SHALL NOT be written to any log, notification, preference file or the Android backup, and SHALL leave the device only through the user's own export or encrypted backup. Screens follow the secure-screen setting.
+
+#### Scenario: No log output
+- **WHEN** a reading is saved, edited or deleted in a release build
+- **THEN** nothing about it appears in the device log
+
+#### Scenario: Stored encrypted
+- **WHEN** the database file is read without the key
+- **THEN** the oxygen table content is not readable
