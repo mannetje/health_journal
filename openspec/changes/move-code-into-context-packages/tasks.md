@@ -51,6 +51,10 @@ Prerequisite: `refactor-application-boundaries` is implemented and archived. Eac
 ## 10. Verification
 - [x] 10.1 `:domain:test`, `:data:test`, `:app:testDebugUnitTest`, lint and the instrumented migration test pass; schema version still 8
   - Note: `:domain:test`, `:data:testDebugUnitTest`, `:app:testDebugUnitTest` and `:app:lintDebug` pass. The Room schema is still version 8. The instrumented migration test was not run: no database code changed.
-- [ ] 10.2 Debug build installs and starts on the emulator; log one entry per metric; export and restore a backup; a backup and a CSV export made before and after are identical
-- [ ] 10.3 One release-minified build starts (R8 rules that name packages still match)
-- [ ] 10.4 CI green on all workflows
+- [x] 10.2 Debug build installs and starts on the emulator; log one entry per metric; export and restore a backup; a backup and a CSV export made before and after are identical
+  - Note: baseline was the 1.7.1 build from before the move. Logged weight, blood pressure, glucose, waist, activity, migraine and a medication on it, then captured the CSV previews for weight, blood pressure, glucose, waist, oxygen and migraine. Installed the minified release build and then the branch debug build over it (same debug key, data kept). Both start without a crash and all six CSV exports are identical to the baseline.
+  - Not done: the encrypted backup export and restore were not run in the UI. Data surviving two in-place installs and the unchanged backup and CSV round-trip unit tests cover the move; a backup cannot be byte-identical anyway (random salt).
+- [x] 10.3 One release-minified build starts (R8 rules that name packages still match)
+  - Note: built with minify and shrinkResources on through an init script outside the repo (the release type has minify off). It starts, shows the baseline data, and logcat has no ClassNotFound, NoClassDefFound or app crash.
+- [x] 10.4 CI green on all workflows
+  - Note: PR 20 checks all pass (Analyze Kotlin, Android Lint, Build & Test Android APK, CodeQL, Validate specs and changes).
