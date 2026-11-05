@@ -32,7 +32,7 @@ File: `app/src/main/java/nl/healthjournal/app/ui/logging/LogMetricScreen.kt`
 
 The screen is a Compose function. It renders a `LoggingUiState` and calls ViewModel functions as the user types: `onSystolicChanged`, `onDiastolicChanged`, and finally `saveCurrentMetric`. It holds no logic of its own.
 
-While the user types, the ViewModel shows a live preview. `updateBpPreview` in `LoggingViewModel.kt` builds a `BloodPressureReading`, asks the domain to classify it, and stores the result in `previewBpCategory`. The screen turns that category into text with `label()` and a colour with `getBpColor()`, both in `ui/nhg/`.
+While the user types, the ViewModel shows a live preview. `bloodPressurePreview` in `ui/logging/LogPreviews.kt` (a pure function the ViewModel calls) builds a `BloodPressureReading`, asks the domain to classify it, and stores the result in `previewBpCategory`. The screen turns that category into text with `label()` and a colour with `getBpColor()`, both in `ui/nhg/`.
 
 ## 2. The ViewModel sends a command
 
@@ -44,7 +44,7 @@ File: `app/src/main/java/nl/healthjournal/app/ui/logging/LoggingViewModel.kt`
 dispatcher.dispatch(RecordBloodPressureCommand(profileId, systolic, diastolic, chosenPulse(), comment = state.commentInput))
 ```
 
-If the text is not a number, it throws a `UiTextException` carrying a `UiText.Res(R.string.log_err_systolic)`. That is a UI-only error. A value that is a number but out of range comes back from the domain as `DomainResult.Failure(DomainError.Invalid(...))`, and the ViewModel maps it with `toUiText()` (`ui/common/DomainErrorUiText.kt`). The ViewModel never builds a user-facing string itself; the screen resolves the resource id in the current language ([ADR 0015](../adr/0015-localized-viewmodel-messages.md), [ADR 0037](../adr/0037-typed-domain-errors-and-single-source-for-rules.md)).
+If the text is not a number, the parser returns `FormResult.Unreadable` carrying a `UiText.Res(R.string.log_err_systolic)` and nothing is dispatched. That is a UI-only error. A value that is a number but out of range comes back from the domain as `DomainResult.Failure(DomainError.Invalid(...))`, and the ViewModel maps it with `toUiText()` (`ui/common/DomainErrorUiText.kt`). The ViewModel never builds a user-facing string itself; the screen resolves the resource id in the current language ([ADR 0015](../adr/0015-localized-viewmodel-messages.md), [ADR 0037](../adr/0037-typed-domain-errors-and-single-source-for-rules.md)).
 
 Where does the dispatcher come from? Hilt passes it into the ViewModel's `@Inject` constructor. `DefaultDispatcher` finds the handler for the command's class in a map. The domain has no annotations, so each handler is registered by one `@Provides @IntoMap` function in `app/src/main/java/nl/healthjournal/app/command/CommandModule.kt`:
 

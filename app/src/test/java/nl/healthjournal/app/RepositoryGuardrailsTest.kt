@@ -145,22 +145,24 @@ class RepositoryGuardrailsTest {
 
     // --- Policy-sensitive defaults (ADR 0033) ---
 
-    private val loggingViewModel = "app/src/main/java/nl/healthjournal/app/ui/logging/LoggingViewModel.kt"
+    private val loggingDir = "app/src/main/java/nl/healthjournal/app/ui/logging"
+    private val loggingState = "$loggingDir/LoggingUiState.kt"
+    private val loggingFiles = listOf("LoggingViewModel.kt", "LoggingUiState.kt", "LogFormParsing.kt", "LogPreviews.kt").map { "$loggingDir/$it" }
 
     @Test
     fun pickerStartingPositionsAreTheOnesTheAdrNames() {
-        val starts = Regex("""private const val START_\w+ = ([\d.]+)""").findAll(text(loggingViewModel)).map { it.groupValues[1] }.toList()
+        val starts = Regex("""private const val START_\w+ = ([\d.]+)""").findAll(text(loggingState)).map { it.groupValues[1] }.toList()
         assertEquals(listOf("75.0", "120", "80", "70", "90.0", "96"), starts)
         val adr = text("docs/adr/0033-picker-starts-from-own-entries-only.md")
         listOf("weight 75.0 kg", "blood pressure 120/80", "pulse 70 bpm", "waist 90 cm", "oxygen saturation 96 %").forEach {
             assertTrue("ADR 0033 names the starting position '$it'", adr.contains(it))
         }
-        assertTrue("glucose has no starting position", text(loggingViewModel).contains("""val glucoseInput: String = """""))
+        assertTrue("glucose has no starting position", text(loggingState).contains("""val glucoseInput: String = """""))
     }
 
     @Test
     fun pickersNeverStartFromTheProfileOrAnIdeal() {
-        val source = text(loggingViewModel)
+        val source = loggingFiles.joinToString("\n") { text(it) }
         assertFalse("a starting value must not depend on the person's sex", Regex("""\bSex\b""").containsMatchIn(source))
         assertFalse("a starting value must not depend on height or an ideal", Regex("""heightCm|ideal""", RegexOption.IGNORE_CASE).containsMatchIn(source))
     }
