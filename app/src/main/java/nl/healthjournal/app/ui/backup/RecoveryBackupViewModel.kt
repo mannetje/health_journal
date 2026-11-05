@@ -4,10 +4,8 @@ import android.content.Context
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import nl.healthjournal.app.BuildConfig
+import nl.healthjournal.app.command.RecoveryDispatcher
 import nl.healthjournal.app.settings.BackupPreferenceBridge
-import nl.healthjournal.data.backup.FreshDatabaseBackupSnapshot
-import nl.healthjournal.domain.port.secondary.BackupCodecPort
-import nl.healthjournal.domain.usecase.RestoreBackupUseCase
 import javax.inject.Inject
 
 /**
@@ -16,12 +14,12 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class RecoveryBackupViewModel @Inject constructor(
-    codec: BackupCodecPort,
+    dispatcher: RecoveryDispatcher,
     @ApplicationContext context: Context,
     backupPreferences: BackupPreferenceBridge
 ) : BackupViewModel(
-    create = null,
-    restore = RestoreBackupUseCase(FreshDatabaseBackupSnapshot(context), codec),
+    dispatcher = dispatcher,
+    canCreate = false,
     io = ContentResolverBackupFileIo(context.contentResolver),
     preferences = { null },
     applyPreferences = { backupPreferences.apply(it) },

@@ -11,7 +11,7 @@ The Mood log follows `docs/dev/how-to/add-a-metric.md` and `openspec/playbooks/a
 
 ### 1. Domain (`:domain`)
 - `MoodEntry(id, profileId, timestamp, level, stressLevel?, feelings, comment?)` with `level` an `Int` 1 to 5 and `stressLevel` an `Int?` 1 to 5, both validated in the constructor or a factory, and `feelings` a set of `MoodFeeling` (CALM, CONTENT, CHEERFUL, ENERGETIC, TIRED, TENSE, RESTLESS, IRRITATED, SAD, WORRIED) of at most three. No `Good` or `Bad` type, no `MoodState` derived from the level.
-- Port methods on `HealthLogRepositoryPort` (record, update, delete, list, list by range) and use cases `RecordMoodEntry`, `UpdateMoodEntry`, `DeleteMoodEntry`.
+- A new `MoodRepositoryPort` (record, update, delete, list, list by range; one port per metric, see ADR 0036 and 0038), the commands `RecordMoodEntryCommand` and `UpdateMoodEntryCommand` with one handler each, a mood branch in `PortEntryGateway` for `DeleteEntryCommand`, and a factory returning a `DomainResult`. Handlers are registered in `CommandModule`.
 - `MoodStatistics` as pure functions: entries, days with entries, average (one decimal), counts per level 1 to 5 and daily means for the chart line, computed for the mood levels and, with the same code, for the stress levels (over the entries that have one). Callers pass the range, the zone and "today"; no clock and no thresholds.
 
 ### 2. Scale and labels

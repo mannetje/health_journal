@@ -29,9 +29,12 @@ import nl.healthjournal.app.ui.common.parseDecimal
 import nl.healthjournal.app.ui.common.weightFromKg
 import nl.healthjournal.app.ui.common.weightToKg
 import nl.healthjournal.app.ui.logging.OxygenOptionFields
+import nl.healthjournal.domain.model.common.WeightKg
+import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent
+import nl.healthjournal.domain.model.metrics.BloodPressureReading
 import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.common.UnitConversion
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseLevel
 import java.math.BigDecimal
@@ -163,15 +166,15 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
         when (ref) {
             is EntryRef.Weight -> {
                 val kg = if (weight == initialWeight) ref.entry.weight.value.toDouble() else weight.parseDecimal()?.let { units.weightToKg(it) }
-                if (kg == null || kg !in 1.0..700.0) invalid = true
+                if (kg == null || kg !in WeightKg.MIN_WEIGHT_KG.toDouble()..WeightKg.MAX_WEIGHT_KG.toDouble()) invalid = true
                 else {
                     val stored = if (weight == initialWeight) ref.entry.weight.value else UnitConversion.toStoredKg(kg)
                     viewModel.updateWeight(ref.entry, stored, dateTime.atZone(zone).toInstant(), comment)
                 }
             }
             is EntryRef.BloodPressure -> {
-                val sys = systolic.toIntOrNull()?.takeIf { it in 40..300 }
-                val dia = diastolic.toIntOrNull()?.takeIf { it in 20..200 }
+                val sys = systolic.toIntOrNull()?.takeIf { it in BloodPressureReading.MIN_SYSTOLIC..BloodPressureReading.MAX_SYSTOLIC }
+                val dia = diastolic.toIntOrNull()?.takeIf { it in BloodPressureReading.MIN_DIASTOLIC..BloodPressureReading.MAX_DIASTOLIC }
                 if (sys == null || dia == null || sys <= dia) invalid = true
                 else viewModel.updateBloodPressure(ref.entry, sys, dia, dateTime.atZone(zone).toInstant(), comment)
             }
@@ -197,7 +200,7 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
                 else viewModel.updateWaistCircumference(ref.entry, cm, dateTime.atZone(zone).toInstant(), comment)
             }
             is EntryRef.OxygenSaturation -> {
-                val percent = oxygenPercent.toIntOrNull()?.takeIf { it in 50..100 }
+                val percent = oxygenPercent.toIntOrNull()?.takeIf { it in OxygenSaturationPercent.MIN..OxygenSaturationPercent.MAX }
                 val pulse = oxygenPulse.takeIf { it.isNotBlank() }?.let { it.toIntOrNull() ?: -1 }
                 val pulseOk = pulse == null || pulse in OxygenSaturationEntry.MIN_PULSE..OxygenSaturationEntry.MAX_PULSE
                 if (percent == null || !pulseOk) invalid = true

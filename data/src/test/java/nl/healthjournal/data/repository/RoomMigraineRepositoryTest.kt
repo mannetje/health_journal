@@ -4,7 +4,7 @@ import kotlinx.coroutines.test.runTest
 import nl.healthjournal.data.local.HealthJournalDatabase
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.migraine.DailyActivities
 import nl.healthjournal.domain.model.migraine.HeadArea
 import nl.healthjournal.domain.model.migraine.MigraineEntry

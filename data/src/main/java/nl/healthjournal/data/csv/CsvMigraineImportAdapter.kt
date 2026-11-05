@@ -2,7 +2,7 @@ package nl.healthjournal.data.csv
 
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.migraine.DailyActivities
 import nl.healthjournal.domain.model.migraine.HeadArea
 import nl.healthjournal.domain.model.migraine.MigraineEntry
@@ -14,11 +14,11 @@ import nl.healthjournal.domain.model.migraine.MigraineTrigger
 import nl.healthjournal.domain.model.migraine.MigraineType
 import nl.healthjournal.domain.model.migraine.PainCharacter
 import nl.healthjournal.domain.model.migraine.ReliefMethod
-import nl.healthjournal.domain.port.secondary.ImportResult
+import nl.healthjournal.domain.model.common.ImportResult
 import nl.healthjournal.domain.port.secondary.MigraineImportPort
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.port.secondary.SkippedRow
+import nl.healthjournal.domain.model.common.SkippedRow
 import nl.healthjournal.domain.usecase.AddMigraineTagUseCase
 import nl.healthjournal.domain.usecase.AddTagResult
 import java.time.Instant

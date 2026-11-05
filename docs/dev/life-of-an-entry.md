@@ -2,25 +2,28 @@
 
 This page follows one blood pressure reading, 150 over 95, from the moment a user taps **Save** until it is stored, shown in the history and exported to CSV. Every other metric follows the same path, so if you understand this page you understand most of the app.
 
-Read [Architecture](architecture.md) first if the words *port*, *use case* or *adapter* are new.
+Read [Architecture](architecture.md) first if the words *port*, *handler* or *adapter* are new.
 
 ```mermaid
 sequenceDiagram
     participant S as LogMetricScreen
     participant V as LoggingViewModel
-    participant U as RecordBloodPressureUseCase
+    participant P as Dispatcher
+    participant U as RecordBloodPressureHandler
     participant D as domain model
     participant R as RoomHealthLogRepository
     participant DB as Room (SQLite)
 
     S->>V: saveCurrentMetric()
-    V->>U: invoke(profileId, 150, 95)
-    U->>D: BloodPressureReading(150, 95) validates
+    V->>P: dispatch(RecordBloodPressureCommand(profileId, 150, 95))
+    P->>U: handle(command)
+    U->>D: BloodPressureReading.of(150, 95) validates
     U->>D: NhgBloodPressureCategory.classify -> HIGH
     U->>R: saveBloodPressure(entry) via the port
     R->>DB: bloodPressureDao.insert(entity)
     DB-->>R: Flow emits the new list
     R-->>V: observeBloodPressureHistory
+    U-->>V: DomainResult.Success(entry)
 ```
 
 ## 1. The screen collects input
@@ -31,40 +34,41 @@ The screen is a Compose function. It renders a `LoggingUiState` and calls ViewMo
 
 While the user types, the ViewModel shows a live preview. `updateBpPreview` in `LoggingViewModel.kt` builds a `BloodPressureReading`, asks the domain to classify it, and stores the result in `previewBpCategory`. The screen turns that category into text with `label()` and a colour with `getBpColor()`, both in `ui/nhg/`.
 
-## 2. The ViewModel calls a use case
+## 2. The ViewModel sends a command
 
 File: `app/src/main/java/nl/healthjournal/app/ui/logging/LoggingViewModel.kt`
 
-`saveCurrentMetric` launches a coroutine in `viewModelScope`, reads the typed numbers and calls the use case:
+`saveCurrentMetric` launches a coroutine in `viewModelScope`, reads the typed numbers and sends a command to the dispatcher:
 
 ```kotlin
-recordBloodPressureUseCase(profile.id, sys, dia)
+dispatcher.dispatch(RecordBloodPressureCommand(profileId, systolic, diastolic, chosenPulse(), comment = state.commentInput))
 ```
 
-If the text is not a number, it throws a `UiTextException` carrying a `UiText.Res(R.string.log_err_systolic)`. The ViewModel never builds a user-facing string itself; the screen resolves the resource id in the current language ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)).
+If the text is not a number, it throws a `UiTextException` carrying a `UiText.Res(R.string.log_err_systolic)`. That is a UI-only error. A value that is a number but out of range comes back from the domain as `DomainResult.Failure(DomainError.Invalid(...))`, and the ViewModel maps it with `toUiText()` (`ui/common/DomainErrorUiText.kt`). The ViewModel never builds a user-facing string itself; the screen resolves the resource id in the current language ([ADR 0015](../adr/0015-localized-viewmodel-messages.md), [ADR 0037](../adr/0037-typed-domain-errors-and-single-source-for-rules.md)).
 
-Where does `recordBloodPressureUseCase` come from? Hilt passes it into the ViewModel's `@Inject` constructor. The domain has no annotations, so the object is built by one `@Provides` function in `app/src/main/java/nl/healthjournal/app/di/UseCaseModule.kt`:
+Where does the dispatcher come from? Hilt passes it into the ViewModel's `@Inject` constructor. `DefaultDispatcher` finds the handler for the command's class in a map. The domain has no annotations, so each handler is registered by one `@Provides @IntoMap` function in `app/src/main/java/nl/healthjournal/app/command/CommandModule.kt`:
 
 ```kotlin
-@Provides
-fun recordBloodPressure(log: HealthLogRepositoryPort) = RecordBloodPressureUseCase(log)
+@Provides @IntoMap @ClassKey(RecordBloodPressureCommand::class)
+fun recordBloodPressure(repository: BloodPressureRepositoryPort, clock: Clock) = RecordBloodPressureHandler(repository, clock)
 ```
 
-`log` is the port; `DataPortsModule` supplies it from the one `DataModule` (the Room adapter). `MainActivity` is an `@AndroidEntryPoint` and gets the ViewModel with `by viewModels()`, so no factory is written ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md)).
+The port is supplied by `DataPortsModule` from the one `DataModule` (the Room adapter). `MainActivity` is an `@AndroidEntryPoint` and gets the ViewModel with `by viewModels()`, so no factory is written ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md), [ADR 0036](../adr/0036-application-boundary-commands-and-queries.md)).
 
-## 3. The use case applies the rules
+## 3. The handler applies the rules
 
-File: `domain/src/main/kotlin/nl/healthjournal/domain/usecase/RecordBloodPressureUseCase.kt`
+File: `domain/src/main/kotlin/nl/healthjournal/domain/metrics/command/BloodPressureCommands.kt`
 
-The use case does three things, in this order:
+The handler does four things, in this order:
 
-1. Creates a `BloodPressureReading(systolic, diastolic, pulse)`. Its `init` block rejects impossible values (systolic must be 40 to 300, diastolic 20 to 200, systolic above diastolic, an optional pulse 30 to 250) by throwing `IllegalArgumentException`. An invalid reading can never exist.
-2. Calls `NhgBloodPressureCategory.classify(reading)`. For 150/95 the answer is `HIGH` (from 140/90).
-3. Builds a `BloodPressureEntry` (id, profile, timestamp, reading, category) and hands it to `healthLogRepository.saveBloodPressure(entry)`.
+1. Creates the reading with `BloodPressureReading.of(systolic, diastolic, pulse)`. The factory rejects impossible values (systolic must be 40 to 300, diastolic 20 to 200, systolic above diastolic, an optional pulse 30 to 250) and returns a `DomainError.Invalid` that names the rule and its bounds. The constructor keeps its own `require` checks, so an invalid reading can never exist, even when Room or a test builds one.
+2. Normalises the comment with `EntryComment.of(comment)`.
+3. Calls `NhgBloodPressureCategory.classify(reading)`. For 150/95 the answer is `HIGH` (from 140/90).
+4. Builds a `BloodPressureEntry` (id, profile, timestamp, reading, category, comment) and hands it to `repository.saveBloodPressure(entry)`. "Now" comes from the injected `Clock`, never from `Instant.now()`. An exception from the port becomes `DomainError.Storage`.
 
-`healthLogRepository` has the type `HealthLogRepositoryPort`, an interface in `domain/src/main/kotlin/nl/healthjournal/domain/port/secondary/HealthLogRepositoryPort.kt`. The use case does not know that Room exists. That is the whole point of the architecture.
+`repository` has the type `BloodPressureRepositoryPort`, an interface in `domain/src/main/kotlin/nl/healthjournal/domain/port/secondary/BloodPressureRepositoryPort.kt`. Each metric has its own port. The handler does not know that Room exists. That is the whole point of the architecture.
 
-The category is **computed once and stored** with the entry, and recomputed when the entry is updated (`UpdateBloodPressureUseCase`).
+The category is **computed once and stored** with the entry, and recomputed when the entry is updated (`UpdateBloodPressureHandler`).
 
 ## 4. The adapter stores it
 
@@ -94,13 +98,13 @@ The same state feeds the trend charts in `ui/history/charts/`. For blood pressur
 
 ## 6. Editing and deleting
 
-The History screen can edit or delete an entry. That goes through `EntryUseCases` (provided by `UseCaseModule`): `UpdateBloodPressureUseCase` and `DeleteBloodPressureUseCase`. The port returns `false` when the id is unknown, so a stale screen cannot silently change nothing ([ADR 0012](../adr/0012-edit-and-delete-entries.md)).
+The History screen can edit or delete an entry. That sends an `UpdateBloodPressureCommand` or a `DeleteEntryCommand(kind, id)` to the dispatcher. The port returns `false` when the id is unknown and the handler turns that into `DomainError.NotFound`, so a stale screen cannot silently change nothing ([ADR 0012](../adr/0012-edit-and-delete-entries.md)).
 
 ## 7. Export and import
 
 File: `data/src/main/java/nl/healthjournal/data/csv/CsvDataExportAdapter.kt`
 
-Export reads the history through the same port and writes one CSV line per entry:
+Export is an `ExportCsvQuery(profileId, kind)`. Its handler reads the history through the export port and writes one CSV line per entry:
 
 ```text
 timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification,comment
@@ -114,8 +118,8 @@ The `comment` cell is quoted per RFC 4180 when it holds a comma, quote or line b
 | Layer | Knows about | Does not know about |
 |-------|-------------|---------------------|
 | Screen | UI state, resources | Room, rules |
-| ViewModel | UI state, use cases | Android `Context`, SQL |
-| Use case | Model, rules, ports | Compose, Room |
+| ViewModel | UI state, the dispatcher | Android `Context`, SQL, ports |
+| Handler | Model, rules, ports, a clock | Compose, Room |
 | Repository | Room, mapper | Compose, UI |
 
 Next: try a change. [Add a metric](how-to/add-a-metric.md) uses exactly the files named on this page.

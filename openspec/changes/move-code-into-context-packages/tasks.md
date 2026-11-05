@@ -32,11 +32,11 @@ Prerequisite: `refactor-application-boundaries` is implemented and archived. Eac
 - [ ] 6.2 Test tasks green
 
 ## 7. metrics (including nhg)
-- [ ] 7.1 Move `model/metrics`, `model/nhg`, the metric use cases or handlers, `OxygenSaturationUseCases`, `GetHealthHistoryUseCase`, the six metric ports, `DataExportPort` and `DataImportPort` with tests
+- [ ] 7.1 Move `model/metrics` (it already contains the NHG classifiers), the metric use cases or handlers, `OxygenSaturationUseCases`, `GetHealthHistoryUseCase`, the six metric ports, `DataExportPort` and `DataImportPort` with tests
 - [ ] 7.2 Test tasks green; classifier and range-label tests unchanged
 
 ## 8. shared
-- [ ] 8.1 Move `model/common` and the shared-kernel types (`EntryComment`, `HeightCm`, `WeightKg`) to `shared/model`
+- [ ] 8.1 Move `model/common` (which already contains the shared-kernel types `EntryComment`, `HeightCm` and `WeightKg`) to `shared/model`
 - [ ] 8.2 Test tasks green
 
 ## 9. Guardrail and documentation

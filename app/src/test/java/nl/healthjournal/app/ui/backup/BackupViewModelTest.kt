@@ -15,6 +15,16 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import nl.healthjournal.app.R
+import nl.healthjournal.app.command.DefaultDispatcher
+import nl.healthjournal.domain.backup.command.CreateBackupCommand
+import nl.healthjournal.domain.backup.command.CreateBackupHandler
+import nl.healthjournal.domain.backup.command.OpenBackupHandler
+import nl.healthjournal.domain.backup.command.OpenBackupQuery
+import nl.healthjournal.domain.backup.command.RestoreBackupCommand
+import nl.healthjournal.domain.backup.command.RestoreBackupHandler
+import nl.healthjournal.domain.command.CommandHandler
+import nl.healthjournal.domain.command.Dispatcher
+import nl.healthjournal.domain.command.QueryHandler
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.domain.model.backup.BackupDocument
 import nl.healthjournal.domain.model.backup.BackupPreferences
@@ -56,11 +66,22 @@ class BackupViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
+    private fun dispatcher(snapshot: BackupSnapshotPort, codec: BackupCodecPort): Dispatcher = DefaultDispatcher(
+        commands = mapOf<Class<*>, CommandHandler<*, *>>(
+            CreateBackupCommand::class.java to CreateBackupHandler(CreateBackupUseCase(snapshot, codec)),
+            RestoreBackupCommand::class.java to RestoreBackupHandler(RestoreBackupUseCase(snapshot, codec))
+        ),
+        queries = mapOf<Class<*>, QueryHandler<*, *>>(
+            OpenBackupQuery::class.java to OpenBackupHandler(RestoreBackupUseCase(snapshot, codec))
+        ),
+        observers = emptyMap()
+    )
+
     private fun viewModel(snapshotFailure: Throwable): BackupViewModel {
         val snapshot = FailingSnapshot(snapshotFailure)
         return BackupViewModel(
-            create = CreateBackupUseCase(snapshot, UnusedCodec),
-            restore = RestoreBackupUseCase(snapshot, UnusedCodec),
+            dispatcher = dispatcher(snapshot, UnusedCodec),
+            canCreate = true,
             io = noIo,
             preferences = { null },
             applyPreferences = {},
@@ -110,8 +131,8 @@ class BackupViewModelTest {
             override fun write(uri: Uri, bytes: ByteArray) = error("not used")
         }
         return BackupViewModel(
-            create = null,
-            restore = RestoreBackupUseCase(snapshot, codec),
+            dispatcher = dispatcher(snapshot, codec),
+            canCreate = false,
             io = io,
             preferences = { null },
             applyPreferences = { applied += it },

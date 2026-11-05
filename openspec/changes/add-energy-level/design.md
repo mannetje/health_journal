@@ -17,7 +17,7 @@ The 0-10 picker is a shared UI component in the shared UI package, with the end 
 
 ### 3. Domain (`:domain`)
 - `EnergyEntry(id, profileId, timestamp, level, comment?)` with validation (whole number 0 to 10).
-- Port methods on `HealthLogRepositoryPort` (record, update, delete, list) and use cases `RecordEnergy`, `UpdateEnergy`, `DeleteEnergy`.
+- A new `EnergyRepositoryPort` (record, update, delete, list; one port per metric, see ADR 0036 and 0038), the commands `RecordEnergyCommand` and `UpdateEnergyCommand` with one handler each, an energy branch in `PortEntryGateway` for `DeleteEntryCommand`, and a factory returning a `DomainResult`. Handlers are registered in `CommandModule`.
 - `EnergyStatistics` pure functions: count, average (one decimal), lowest, highest for a range. Empty range gives no figures. No clock is read.
 
 ### 4. Data (`:data`)

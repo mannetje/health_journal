@@ -13,7 +13,7 @@
 ## 1. Domain (`:domain`) and data (`:data`)
 - [ ] 1.1 `SleepLog`, validation, derived duration; JVM tests
 - [ ] 1.2 `SleepStatistics` including circular mean; JVM tests for empty range, one night, over midnight, daylight saving, two entries on one day
-- [ ] 1.3 Default times function; port methods and use cases
+- [ ] 1.3 Default times function; own port, record and update commands with handlers, delete branch in `PortEntryGateway`, handlers registered in `CommandModule`
 - [ ] 1.4 Entity, DAO, mapper, `MIGRATION_N_(N+1)`, repository; migration test from version N
 - [ ] 1.5 CSV export and import with row rejection; round-trip tests
 - [ ] 1.6 Backup snapshot and restore of `sleepLogs`; older-file test

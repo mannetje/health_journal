@@ -9,11 +9,35 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import nl.healthjournal.app.R
+import nl.healthjournal.app.command.DefaultDispatcher
+import nl.healthjournal.domain.command.CommandHandler
+import nl.healthjournal.domain.command.QueryHandler
+import nl.healthjournal.domain.medication.command.ArchiveMedicationCommand
+import nl.healthjournal.domain.medication.command.ArchiveMedicationHandler
+import nl.healthjournal.domain.medication.command.ChangeMedicationScheduleCommand
+import nl.healthjournal.domain.medication.command.ChangeMedicationScheduleHandler
+import nl.healthjournal.domain.medication.command.DeleteMedicationCommand
+import nl.healthjournal.domain.medication.command.DeleteMedicationHandler
+import nl.healthjournal.domain.medication.command.GetAdherenceHandler
+import nl.healthjournal.domain.medication.command.GetAdherenceQuery
+import nl.healthjournal.domain.medication.command.GetMedicationHandler
+import nl.healthjournal.domain.medication.command.GetMedicationQuery
+import nl.healthjournal.domain.medication.command.GetPillboxDayHandler
+import nl.healthjournal.domain.medication.command.GetPillboxDayQuery
+import nl.healthjournal.domain.medication.command.ListMedicationsHandler
+import nl.healthjournal.domain.medication.command.ListMedicationsQuery
+import nl.healthjournal.domain.medication.command.RecordIntakeCommand
+import nl.healthjournal.domain.medication.command.RecordIntakeHandler
+import nl.healthjournal.domain.medication.command.RecordSlotIntakesCommand
+import nl.healthjournal.domain.medication.command.RecordSlotIntakesHandler
+import nl.healthjournal.domain.medication.command.SaveMedicationCommand
+import nl.healthjournal.domain.medication.command.SaveMedicationHandler
+import nl.healthjournal.domain.profile.command.GetActiveProfileHandler
+import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
 import nl.healthjournal.app.reminder.ReminderHooks
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.medication.DayStatus
 import nl.healthjournal.app.ui.medication.MedicationDraft
-import nl.healthjournal.app.ui.medication.MedicationUseCases
 import nl.healthjournal.app.ui.medication.MedicationViewModel
 import nl.healthjournal.app.ui.medication.TimeOfDay
 import nl.healthjournal.app.ui.medication.sameRhythm
@@ -28,7 +52,7 @@ import nl.healthjournal.domain.model.medication.MedicationId
 import nl.healthjournal.domain.model.medication.PillboxDay
 import nl.healthjournal.domain.model.medication.PlannedStatus
 import nl.healthjournal.domain.model.medication.Schedule
-import nl.healthjournal.domain.model.metrics.HeightCm
+import nl.healthjournal.domain.model.common.HeightCm
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
@@ -104,17 +128,27 @@ class MedicationViewModelTest {
         reminders: ReminderHooks = ReminderHooks.None
     ): MedicationViewModel {
         val recordIntake = RecordIntakeUseCase(repo)
-        val useCases = MedicationUseCases(
-            getDay = GetPillboxDayUseCase(repo, clock),
-            recordIntake = recordIntake,
-            recordSlot = RecordSlotIntakesUseCase(recordIntake),
-            save = SaveMedicationUseCase(repo),
-            changeSchedule = ChangeMedicationScheduleUseCase(repo),
-            archive = ArchiveMedicationUseCase(repo),
-            delete = DeleteMedicationUseCase(repo),
-            getAdherence = GetAdherenceUseCase(repo, clock)
+        val dispatcher = DefaultDispatcher(
+            commands = mapOf<Class<*>, CommandHandler<*, *>>(
+                SaveMedicationCommand::class.java to SaveMedicationHandler(SaveMedicationUseCase(repo), clock),
+                ChangeMedicationScheduleCommand::class.java to
+                    ChangeMedicationScheduleHandler(repo, ChangeMedicationScheduleUseCase(repo), clock),
+                ArchiveMedicationCommand::class.java to ArchiveMedicationHandler(repo, ArchiveMedicationUseCase(repo), clock),
+                DeleteMedicationCommand::class.java to DeleteMedicationHandler(repo, DeleteMedicationUseCase(repo)),
+                RecordIntakeCommand::class.java to RecordIntakeHandler(repo, recordIntake),
+                RecordSlotIntakesCommand::class.java to
+                    RecordSlotIntakesHandler(repo, RecordSlotIntakesUseCase(recordIntake))
+            ),
+            queries = mapOf<Class<*>, QueryHandler<*, *>>(
+                GetActiveProfileQuery::class.java to GetActiveProfileHandler(FakeProfileRepo(profile)),
+                ListMedicationsQuery::class.java to ListMedicationsHandler(repo),
+                GetMedicationQuery::class.java to GetMedicationHandler(repo),
+                GetPillboxDayQuery::class.java to GetPillboxDayHandler(GetPillboxDayUseCase(repo, clock)),
+                GetAdherenceQuery::class.java to GetAdherenceHandler(GetAdherenceUseCase(repo, clock))
+            ),
+            observers = emptyMap()
         )
-        return MedicationViewModel(FakeProfileRepo(profile), repo, useCases, clock, reminders)
+        return MedicationViewModel(dispatcher, clock, reminders)
     }
 
     private fun draft(name: String = "Medication A") = MedicationDraft(name = name)

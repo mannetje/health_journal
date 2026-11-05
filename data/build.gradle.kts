@@ -70,6 +70,7 @@ dependencies {
     // ADR 0024: Argon2id for the portable encrypted backup (MIT, pure Java, no network code)
     implementation(libs.bouncycastle.bcprov)
 
+    testImplementation(testFixtures(project(":domain")))
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric) // real SQLite for the migration test, see ADR 0003

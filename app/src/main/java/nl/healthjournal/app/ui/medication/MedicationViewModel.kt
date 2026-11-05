@@ -1,5 +1,6 @@
 package nl.healthjournal.app.ui.medication
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -12,9 +13,7 @@ import kotlinx.coroutines.launch
 import nl.healthjournal.app.R
 import nl.healthjournal.app.reminder.ReminderHooks
 import nl.healthjournal.app.ui.common.UiText
-import nl.healthjournal.app.ui.common.UiTextException
 import nl.healthjournal.app.ui.common.parseDecimal
-import nl.healthjournal.app.ui.common.toUiText
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.medication.Adherence
 import nl.healthjournal.domain.model.medication.AdherenceReport
@@ -31,34 +30,27 @@ import nl.healthjournal.domain.model.medication.PillboxDay
 import nl.healthjournal.domain.model.medication.PlannedStatus
 import nl.healthjournal.domain.model.medication.Schedule
 import nl.healthjournal.domain.model.medication.StrengthUnit
-import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.usecase.ArchiveMedicationUseCase
-import nl.healthjournal.domain.usecase.ChangeMedicationScheduleUseCase
-import nl.healthjournal.domain.usecase.DeleteMedicationUseCase
-import nl.healthjournal.domain.usecase.GetAdherenceUseCase
-import nl.healthjournal.domain.usecase.GetPillboxDayUseCase
-import nl.healthjournal.domain.usecase.RecordIntakeUseCase
-import nl.healthjournal.domain.usecase.RecordSlotIntakesUseCase
-import nl.healthjournal.domain.usecase.SaveMedicationUseCase
+import nl.healthjournal.app.ui.common.toUiText
+import nl.healthjournal.domain.command.DomainResult
+import nl.healthjournal.domain.command.DomainError
+import nl.healthjournal.domain.command.Dispatcher
+import nl.healthjournal.domain.medication.command.ArchiveMedicationCommand
+import nl.healthjournal.domain.medication.command.ChangeMedicationScheduleCommand
+import nl.healthjournal.domain.medication.command.DeleteMedicationCommand
+import nl.healthjournal.domain.medication.command.GetAdherenceQuery
+import nl.healthjournal.domain.medication.command.GetMedicationQuery
+import nl.healthjournal.domain.medication.command.GetPillboxDayQuery
+import nl.healthjournal.domain.medication.command.ListMedicationsQuery
+import nl.healthjournal.domain.medication.command.RecordIntakeCommand
+import nl.healthjournal.domain.medication.command.RecordSlotIntakesCommand
+import nl.healthjournal.domain.medication.command.SaveMedicationCommand
+import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-
-/** Everything the pillbox can do, bundled so the Factory and the Application stay readable. */
-data class MedicationUseCases(
-    val getDay: GetPillboxDayUseCase,
-    val recordIntake: RecordIntakeUseCase,
-    val recordSlot: RecordSlotIntakesUseCase,
-    val save: SaveMedicationUseCase,
-    val changeSchedule: ChangeMedicationScheduleUseCase,
-    val archive: ArchiveMedicationUseCase,
-    val delete: DeleteMedicationUseCase,
-    val getAdherence: GetAdherenceUseCase
-)
 
 /** How one day of the week strip looks. Days with nothing planned, or nothing due yet, are [EMPTY]. */
 enum class DayStatus { COMPLETE, PARTIAL, MISSED, EMPTY }
@@ -160,9 +152,7 @@ data class MedicationUiState(
 
 @HiltViewModel
 class MedicationViewModel(
-    private val profileRepository: ProfileRepositoryPort,
-    private val medicationRepository: MedicationRepositoryPort,
-    private val useCases: MedicationUseCases,
+    private val dispatcher: Dispatcher,
     private val clock: Clock = Clock.systemDefaultZone(),
     private val reminders: ReminderHooks = ReminderHooks.None
 ) : ViewModel() {
@@ -170,11 +160,9 @@ class MedicationViewModel(
     /** The constructor Hilt uses; tests pass the clock and the reminder hooks directly. */
     @Inject
     constructor(
-        profileRepository: ProfileRepositoryPort,
-        medicationRepository: MedicationRepositoryPort,
-        useCases: MedicationUseCases,
+        dispatcher: Dispatcher,
         reminders: ReminderCoordinator
-    ) : this(profileRepository, medicationRepository, useCases, reminders = reminders as ReminderHooks) // upcast: picks the primary constructor
+    ) : this(dispatcher, reminders = reminders as ReminderHooks) // upcast: picks the primary constructor
 
     private val _uiState = MutableStateFlow(
         MedicationUiState(date = LocalDate.now(clock), today = LocalDate.now(clock), isLoading = true)
@@ -207,16 +195,18 @@ class MedicationViewModel(
         val slot = _uiState.value.day?.slots?.firstOrNull { it.time == planned } ?: return
         val ids = slot.openItems.map { it.medication.id }
         if (ids.isEmpty()) return
-        mutate(R.string.medication_err_save_intake) { useCases.recordSlot(ids, planned) }
+        mutate(R.string.medication_err_save_intake) { dispatcher.dispatch(RecordSlotIntakesCommand(ids, planned)) }
     }
 
     /** Records or corrects one planned intake. */
     fun recordIntake(medicationId: MedicationId, planned: LocalDateTime, status: IntakeStatus) {
-        mutate(R.string.medication_err_save_intake) { useCases.recordIntake(medicationId, planned, status) }
+        mutate(R.string.medication_err_save_intake) { dispatcher.dispatch(RecordIntakeCommand(medicationId, planned, status)) }
     }
 
     fun logAsNeeded(medicationId: MedicationId) {
-        mutate(R.string.medication_err_save_intake) { useCases.recordIntake(medicationId, planned = null, takenAt = clock.instant()) }
+        mutate(R.string.medication_err_save_intake) {
+            dispatcher.dispatch(RecordIntakeCommand(medicationId, planned = null, takenAt = clock.instant()))
+        }
     }
 
     fun saveMedication(draft: MedicationDraft, onDone: () -> Unit = {}) {
@@ -225,12 +215,15 @@ class MedicationViewModel(
             fail(UiText.Res(R.string.medication_err_no_profile))
             return
         }
+        val today = LocalDate.now(clock)
+        val parsed = when (val outcome = validate(draft, today)) {
+            is Validated.Invalid -> return fail(outcome.message)
+            is Validated.Valid -> outcome.parsed
+        }
         viewModelScope.launch {
-            try {
-                val today = LocalDate.now(clock)
-                val parsed = validate(draft, today)
-                val existing = draft.id
-                useCases.save(
+            val existing = draft.id
+            val saved = dispatcher.dispatch(
+                SaveMedicationCommand(
                     profileId = profileId,
                     name = draft.name,
                     form = draft.form,
@@ -244,48 +237,60 @@ class MedicationViewModel(
                     effectiveFrom = today,
                     existingId = existing
                 )
-                if (existing != null) {
-                    val current = medicationRepository.getMedication(existing)?.schedules?.last()?.schedule
-                    if (!sameRhythm(current, parsed.schedule)) {
-                        useCases.changeSchedule(existing, parsed.schedule, draft.applyFrom ?: today)
-                    }
+            )
+            val changed = if (saved is DomainResult.Success && existing != null) {
+                changeScheduleIfNeeded(existing, parsed.schedule, draft.applyFrom ?: today)
+            } else {
+                saved
+            }
+            when (changed) {
+                is DomainResult.Failure -> fail(changed.error.toUiText())
+                is DomainResult.Success -> {
+                    reminders.changed()
+                    _uiState.value = _uiState.value.copy(
+                        successMessage = UiText.Res(R.string.medication_msg_saved), errorMessage = null
+                    )
+                    load()
+                    onDone()
                 }
-                reminders.changed()
-                _uiState.value = _uiState.value.copy(
-                    successMessage = UiText.Res(R.string.medication_msg_saved), errorMessage = null
-                )
-                load()
-                onDone()
-            } catch (e: Exception) {
-                fail(e.toUiText(R.string.medication_err_save_failed))
             }
         }
     }
 
+    /** An edit that keeps the rhythm only changes details; a new rhythm becomes a new schedule version. */
+    private suspend fun changeScheduleIfNeeded(id: MedicationId, schedule: Schedule, from: LocalDate): DomainResult<*> {
+        val current = when (val found = dispatcher.query(GetMedicationQuery(id))) {
+            is DomainResult.Failure -> return found
+            is DomainResult.Success -> found.value?.schedules?.last()?.schedule
+        }
+        if (sameRhythm(current, schedule)) return DomainResult.success(Unit)
+        return dispatcher.dispatch(ChangeMedicationScheduleCommand(id, schedule, from))
+    }
+
     fun archive(id: MedicationId) {
-        mutate(R.string.medication_err_save_failed, R.string.medication_msg_archived) { useCases.archive(id) }
+        mutate(R.string.medication_err_save_failed, R.string.medication_msg_archived) { dispatcher.dispatch(ArchiveMedicationCommand(id)) }
     }
 
     fun delete(id: MedicationId) {
-        mutate(R.string.medication_err_save_failed, R.string.medication_msg_deleted) { useCases.delete(id) }
+        mutate(R.string.medication_err_save_failed, R.string.medication_msg_deleted) { dispatcher.dispatch(DeleteMedicationCommand(id)) }
     }
 
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
     }
 
-    private fun mutate(errorRes: Int, successRes: Int? = null, action: suspend () -> Unit) {
+    private fun mutate(errorRes: Int, successRes: Int? = null, action: suspend () -> DomainResult<*>) {
         viewModelScope.launch {
-            try {
-                action()
-                reminders.changed()
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = null,
-                    successMessage = successRes?.let { UiText.Res(it) }
-                )
-                load()
-            } catch (e: Exception) {
-                fail(e.toUiText(errorRes))
+            when (val result = action()) {
+                is DomainResult.Failure -> fail(result.error.text(errorRes))
+                is DomainResult.Success -> {
+                    reminders.changed()
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = null,
+                        successMessage = successRes?.let { UiText.Res(it) }
+                    )
+                    load()
+                }
             }
         }
     }
@@ -295,30 +300,49 @@ class MedicationViewModel(
     }
 
     private suspend fun load() {
-        try {
-            val profile = profileRepository.getActiveProfile()
-            if (profile == null) {
-                _uiState.value = _uiState.value.copy(profileId = null, day = null, week = emptyList(), medications = emptyList(), adherence = null, isLoading = false)
-                return
-            }
-            val today = LocalDate.now(clock)
-            val date = _uiState.value.date
-            val day = useCases.getDay(profile.id, date)
-            val week = (6 downTo 0).map { back ->
-                val d = today.minusDays(back.toLong())
-                WeekDay(d, if (d == date) weekStatusOf(day) else weekStatusOf(useCases.getDay(profile.id, d)))
-            }
-            val medications = medicationRepository.getMedications(profile.id, includeArchived = true)
-                .sortedBy { it.name.value.lowercase() }
-            val adherence = useCases.getAdherence(profile.id, _uiState.value.adherenceDays)
-            _uiState.value = _uiState.value.copy(
-                profileId = profile.id, today = today, day = day, week = week,
-                medications = medications, adherence = adherence, isLoading = false
-            )
-        } catch (e: Exception) {
-            fail(e.toUiText(R.string.medication_err_load_failed))
+        val profile = when (val result = dispatcher.query(GetActiveProfileQuery)) {
+            is DomainResult.Failure -> return fail(result.error.text(R.string.medication_err_load_failed))
+            is DomainResult.Success -> result.value
         }
+        if (profile == null) {
+            _uiState.value = _uiState.value.copy(profileId = null, day = null, week = emptyList(), medications = emptyList(), adherence = null, isLoading = false)
+            return
+        }
+        val today = LocalDate.now(clock)
+        val date = _uiState.value.date
+        val week = mutableListOf<WeekDay>()
+        val days = mutableMapOf<LocalDate, PillboxDay>()
+        for (back in 6 downTo 0) {
+            val d = today.minusDays(back.toLong())
+            val day = loadDay(profile.id, d) ?: return
+            days[d] = day
+            week += WeekDay(d, weekStatusOf(day))
+        }
+        // The selected day may lie outside the week strip, so it is read on its own
+        val selectedDay = days[date] ?: loadDay(profile.id, date) ?: return
+        val medications = when (val result = dispatcher.query(ListMedicationsQuery(profile.id, includeArchived = true))) {
+            is DomainResult.Failure -> return fail(result.error.text(R.string.medication_err_load_failed))
+            is DomainResult.Success -> result.value.sortedBy { it.name.value.lowercase() }
+        }
+        val adherence = when (val result = dispatcher.query(GetAdherenceQuery(profile.id, _uiState.value.adherenceDays))) {
+            is DomainResult.Failure -> return fail(result.error.text(R.string.medication_err_load_failed))
+            is DomainResult.Success -> result.value
+        }
+        _uiState.value = _uiState.value.copy(
+            profileId = profile.id, today = today, day = selectedDay, week = week,
+            medications = medications, adherence = adherence, isLoading = false
+        )
     }
+
+    /** One day of the pillbox, or null after reporting the failure. */
+    private suspend fun loadDay(profileId: ProfileId, date: LocalDate): PillboxDay? =
+        when (val result = dispatcher.query(GetPillboxDayQuery(profileId, date))) {
+            is DomainResult.Failure -> { fail(result.error.text(R.string.medication_err_load_failed)); null }
+            is DomainResult.Success -> result.value
+        }
+
+    private fun DomainError.text(@StringRes fallback: Int): UiText =
+        if (this is DomainError.Storage) cause?.toUiText(fallback) ?: UiText.Res(fallback) else toUiText()
 
     private class Parsed(
         val strength: BigDecimal?,
@@ -327,34 +351,41 @@ class MedicationViewModel(
         val schedule: Schedule
     )
 
-    private fun validate(draft: MedicationDraft, today: LocalDate): Parsed {
-        if (draft.name.isBlank()) throw UiTextException(UiText.Res(R.string.medication_err_name_required))
+    private sealed interface Validated {
+        class Valid(val parsed: Parsed) : Validated
+        class Invalid(val message: UiText) : Validated
+    }
+
+    private fun invalid(@StringRes res: Int) = Validated.Invalid(UiText.Res(res))
+
+    private fun validate(draft: MedicationDraft, today: LocalDate): Validated {
+        if (draft.name.isBlank()) return invalid(R.string.medication_err_name_required)
         if (draft.name.trim().length > nl.healthjournal.domain.model.medication.MedicationName.MAX_LENGTH) {
-            throw UiTextException(UiText.Res(R.string.medication_err_name_too_long))
+            return invalid(R.string.medication_err_name_too_long)
         }
         val strength = if (draft.strengthText.isBlank()) null else {
             draft.strengthText.parseDecimal()?.let { BigDecimal(it.toString()) }
                 ?.takeIf { it > BigDecimal.ZERO && it <= BigDecimal(100_000) }
-                ?: throw UiTextException(UiText.Res(R.string.medication_err_strength_invalid))
+                ?: return invalid(R.string.medication_err_strength_invalid)
         }
         val dose = draft.doseText.parseDecimal()?.let { BigDecimal(it.toString()) }
             ?.takeIf { it > BigDecimal.ZERO && it <= BigDecimal(1000) }
-            ?: throw UiTextException(UiText.Res(R.string.medication_err_dose_invalid))
+            ?: return invalid(R.string.medication_err_dose_invalid)
         val appearance = if (draft.color != null && draft.shape != null) PillAppearance(draft.color, draft.shape) else null
 
         val schedule = if (draft.asNeeded) Schedule.AsNeeded else {
-            if (draft.times.isEmpty()) throw UiTextException(UiText.Res(R.string.medication_err_time_required))
+            if (draft.times.isEmpty()) return invalid(R.string.medication_err_time_required)
             val days = if (draft.everyNDays) {
                 val n = draft.intervalText.trim().toIntOrNull()
                     ?.takeIf { it in 1..DayPattern.EveryNDays.MAX_INTERVAL }
-                    ?: throw UiTextException(UiText.Res(R.string.medication_err_interval_invalid))
+                    ?: return invalid(R.string.medication_err_interval_invalid)
                 DayPattern.EveryNDays(n)
             } else {
-                if (draft.weekdays.isEmpty()) throw UiTextException(UiText.Res(R.string.medication_err_weekday_required))
+                if (draft.weekdays.isEmpty()) return invalid(R.string.medication_err_weekday_required)
                 DayPattern.Weekdays(draft.weekdays)
             }
             Schedule.Recurring.of(draft.times, days, draft.applyFrom ?: today)
         }
-        return Parsed(strength, dose, appearance, schedule)
+        return Validated.Valid(Parsed(strength, dose, appearance, schedule))
     }
 }

@@ -24,7 +24,7 @@ This page collects the design of Health Journal in one place: the principles, th
 | Accessibility | 48 dp targets, text and icon besides colour, merged TalkBack descriptions, no gestures that are required (the metric order has Move up and Move down buttons next to the drag handle; the Log rulers expose label, value and slider actions through `adjustableValue`) | layout checks at font scale 1.3 and 2.0, Dutch and English |
 | Readability | brand-navy bar, neutral range colours, light and dark | [ADR 0017](../adr/0017-in-app-theme-choice.md) |
 | Updatability | one fixed signing key, additive migrations | [ADR 0008](../adr/0008-fixed-debug-signing-key.md), migration test |
-| Maintainability | small use cases, a convention page, specs that name behaviour | [Conventions](conventions.md), [OpenSpec](../../openspec/specs/README.md) |
+| Maintainability | small handlers, a convention page, specs that name behaviour | [Conventions](conventions.md), [OpenSpec](../../openspec/specs/README.md) |
 
 ## Screen map
 
@@ -70,7 +70,7 @@ Every screen follows the same loop, so a new screen needs no new idea.
 ```mermaid
 flowchart LR
     DI["Hilt graph (app/di)"] -->|"@Inject constructor"| VM["ViewModel"]
-    UC["Use cases (domain)"] -->|"suspend result / Flow"| VM
+    UC["Handlers (domain)"] -->|"DomainResult / Flow"| VM
     VM -->|"StateFlow of UiState"| SCR["Compose screen"]
     SCR -->|"function calls (events)"| VM
     VM -->|"UiText (resource id + args)"| SCR
@@ -78,7 +78,7 @@ flowchart LR
 ```
 
 - The ViewModel holds data and `UiText`, never a `Context` or translated text ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)).
-- A ViewModel is a `@HiltViewModel`: Hilt hands it its use cases and preferences, and the Activity gets it with `by viewModels()` ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md)).
+- A ViewModel is a `@HiltViewModel`: Hilt hands it the dispatcher and preferences, and the Activity gets it with `by viewModels()` ([ADR 0035](../adr/0035-hilt-for-dependency-injection.md)).
 - The screen is stateless apart from what is purely visual (focus, a dialog being open).
 - Display units come from `LocalDisplayUnits`; the ViewModel always works in metric.
 

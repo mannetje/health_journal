@@ -8,6 +8,8 @@ import org.junit.Test
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
+import nl.healthjournal.domain.model.common.HeightCm
+import nl.healthjournal.domain.model.common.WeightKg
 
 class ValueObjectsTest {
 

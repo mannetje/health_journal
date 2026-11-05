@@ -22,7 +22,7 @@ import nl.healthjournal.domain.model.medication.Schedule
 import nl.healthjournal.domain.model.medication.ScheduleVersion
 import nl.healthjournal.domain.model.medication.Strength
 import nl.healthjournal.domain.model.medication.StrengthUnit
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import java.math.BigDecimal
 import java.time.DayOfWeek
 import java.time.Instant

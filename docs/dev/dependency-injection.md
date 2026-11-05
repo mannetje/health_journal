@@ -26,7 +26,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     subgraph domain [":domain (plain Kotlin)"]
-        UC["Use cases, ports"]
+        UC["Handlers, ports"]
     end
     subgraph data [":data (Room, CSV, backup)"]
         DM["DataModule"]
@@ -48,7 +48,7 @@ flowchart LR
     APPC -->|"starts the graph"| MODS
 ```
 
-`domain` and `data` never import Hilt, Dagger or `javax.inject`. `RepositoryGuardrailsTest.domainAndDataDoNotUseHiltDaggerOrJavaxInject` fails the build if they do (it also checks their build files). That is why use cases, which are plain classes in `domain`, are built by `@Provides` functions in `app/src/main/java/nl/healthjournal/app/di/` and not annotated themselves.
+`domain` and `data` never import Hilt, Dagger or `javax.inject`. `RepositoryGuardrailsTest.domainAndDataDoNotUseHiltDaggerOrJavaxInject` fails the build if they do (it also checks their build files). That is why handlers, which are plain classes in `domain`, are built by `@Provides` functions in `app/src/main/java/nl/healthjournal/app/command/CommandModule.kt` and not annotated themselves.
 
 ## The pieces
 
@@ -56,7 +56,7 @@ flowchart LR
 |---|---|---|
 | `@HiltAndroidApp` | `HealthJournalApp` | Starts the graph when the process starts. Without it nothing else works. |
 | `@Module` + `@InstallIn(SingletonComponent::class)` | the three files in `app/src/main/java/nl/healthjournal/app/di/` | A bag of recipes (`@Provides` functions). Installed in the singleton component, so the objects live as long as the process. |
-| `@Provides` | functions in the modules | "To get a `RecordWeightUseCase`, call this with these arguments." The argument types are themselves looked up in the graph. |
+| `@Provides` | functions in the modules | "To get a `RecordWeightHandler`, call this with these arguments." With `@IntoMap @ClassKey(...)` it also registers the handler for its command class. The argument types are themselves looked up in the graph. |
 | `@Singleton` | on some `@Provides` functions | One instance for the whole process. Without it Hilt builds a new object each time something asks. |
 | `@ApplicationContext` | a `Context` parameter | The application context, safe to keep. Never an Activity. |
 | `@HiltViewModel` + `@Inject constructor` | the seven ViewModels | Hilt builds the ViewModel; the Activity's `ViewModelStore` keeps it across rotation. |
@@ -66,7 +66,8 @@ flowchart LR
 ### The three modules (`app/src/main/java/nl/healthjournal/app/di/`)
 
 - **`DataPortsModule`** creates the one `DataModule` (`@Singleton`, so the database opens once) and exposes each port from it: the profile, health log, medication and migraine repositories, the export and import ports, the backup codec and snapshot. A ViewModel asks for the port; it never sees Room.
-- **`UseCaseModule`** has one `@Provides` function per use case, built from the ports. `EntryUseCases` and `MedicationUseCases` are small bundles that keep a ViewModel's constructor short.
+- **`UseCaseModule`** now holds only the shared `Clock` and the few remaining use cases (`GetHealthHistory`, `CreateBackup`, `RestoreBackup`).
+- **`CommandModule`** (in `app/src/main/java/nl/healthjournal/app/command/`) registers one handler per command, query or observe query into the maps that `DefaultDispatcher` reads. `RecoveryDispatcher` is a second, small dispatcher for the lost-key screen: it knows only `RestoreBackupCommand` and `OpenBackupQuery`. A ViewModel takes the `Dispatcher`, not the handlers ([ADR 0036](../adr/0036-application-boundary-commands-and-queries.md)).
 - **`PlatformModule`** has the `@Singleton` preferences (`UnitPreference`, `ReminderPreference`, `MetricDisplayOrderPreference`, `BackupPreferenceBridge`), `AppLockManager`, `AlarmReminderScheduler` and `ReminderCoordinator`. These hold state or are shared with the receivers, so there must be exactly one.
 
 ### What gets built from what
@@ -75,8 +76,9 @@ flowchart LR
 flowchart TD
     CTX["@ApplicationContext"] --> DM["DataModule (singleton)"]
     DM --> PORTS["ports: Profile, HealthLog,<br/>Medication, Migraine, Export, Import,<br/>BackupCodec, BackupSnapshot"]
-    PORTS --> UCS["use cases (UseCaseModule)"]
-    UCS --> VM["@HiltViewModel classes"]
+    PORTS --> UCS["handlers (CommandModule)"]
+    UCS --> DSP["Dispatcher"]
+    DSP --> VM["@HiltViewModel classes"]
     CTX --> PREFS["preferences (singletons)"]
     PREFS --> VM
     CTX --> LOCK["AppLockManager (singleton)"]
@@ -100,7 +102,7 @@ sequenceDiagram
     participant G as Graph (singletons)
     participant V as ProfileViewModel
     A->>H: profileViewModel by viewModels()
-    H->>G: ProfileRepositoryPort, CreateProfileUseCase, MetricDisplayOrderPreference
+    H->>G: Dispatcher, MetricDisplayOrderPreference
     G-->>H: the shared objects (built on first use)
     H->>V: @Inject constructor(...)
     V-->>A: the same instance until the Activity is finished
@@ -111,18 +113,16 @@ Each ViewModel has **two constructors**:
 ```kotlin
 @HiltViewModel
 class ProfileViewModel(
-    private val profileRepository: ProfileRepositoryPort,
-    private val createProfileUseCase: CreateProfileUseCase,
+    private val dispatcher: Dispatcher,
     val metricOrder: StateFlow<List<MetricSlot>> = ...,
     private val saveMetricOrder: (List<MetricSlot>) -> Unit = {}
 ) : ViewModel() {
 
     @Inject
     constructor(
-        profileRepository: ProfileRepositoryPort,
-        createProfileUseCase: CreateProfileUseCase,
+        dispatcher: Dispatcher,
         metricDisplayOrder: MetricDisplayOrderPreference
-    ) : this(profileRepository, createProfileUseCase, metricDisplayOrder.order, metricDisplayOrder::save)
+    ) : this(dispatcher, metricDisplayOrder.order, metricDisplayOrder::save)
 ```
 
 The primary constructor takes plain values and functions, so a JVM unit test passes fakes with no Hilt and no Android. The secondary `@Inject` constructor is the one Hilt calls; it adapts graph objects to the primary one. If the argument types fit both, upcast one argument (`reminders as ReminderHooks`) so Kotlin does not pick the secondary constructor and delegate to itself.
@@ -177,7 +177,7 @@ Hilt stays on 2.58 because 2.59 and later need AGP 9, and the build is on AGP 8.
 
 | You want to | Do this |
 |---|---|
-| a new use case | one `@Provides` function in `UseCaseModule` (see [Add a metric](how-to/add-a-metric.md)) |
+| a new command, query or handler | one `@Provides @IntoMap @ClassKey(...)` function in `CommandModule`; `HandlerRegistryTest` fails if you forget (see [Add a metric](how-to/add-a-metric.md)) |
 | a new port adapter | expose it from `DataModule`, then one `@Provides` function in `DataPortsModule` |
 | a new preference or process-wide object | a `@Singleton` `@Provides` function in `PlatformModule` |
 | a new ViewModel | `@HiltViewModel`, keep the primary constructor for tests, add a secondary `@Inject constructor`, get it in the Activity with `by viewModels()` |
@@ -197,4 +197,4 @@ Errors come from the generated code and look long. Read the first `error:` line.
 
 ## Testing
 
-Unit tests do not use Hilt. They construct the ViewModel with the primary constructor and fakes (see [Testing](testing.md)). The graph itself is verified by the build (a missing binding fails compilation) and by running the app; the guardrail test keeps Hilt out of `domain` and `data`.
+Unit tests do not use Hilt. They construct the ViewModel with the primary constructor and a real `DefaultDispatcher` over the shared fakes (see [Testing](testing.md)). The graph itself is verified by the build (a missing binding fails compilation) and by running the app; the guardrail test keeps Hilt out of `domain` and `data`.

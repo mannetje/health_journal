@@ -17,7 +17,12 @@ import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
+import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
+import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
+import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
+import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
+import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
 
 class RoomHealthLogRepository(
     private val weightDao: WeightDao,
@@ -26,7 +31,7 @@ class RoomHealthLogRepository(
     private val activityDao: ActivityDao,
     private val waistCircumferenceDao: WaistCircumferenceDao,
     private val oxygenSaturationDao: OxygenSaturationDao
-) : HealthLogRepositoryPort {
+) : WeightRepositoryPort, BloodPressureRepositoryPort, GlucoseRepositoryPort, ActivityRepositoryPort, WaistCircumferenceRepositoryPort, OxygenSaturationRepositoryPort {
 
     // Weight
     override suspend fun saveWeight(entry: WeightEntry) {

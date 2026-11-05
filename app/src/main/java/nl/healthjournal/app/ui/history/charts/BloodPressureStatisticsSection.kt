@@ -28,7 +28,7 @@ import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.formatDecimal
 import nl.healthjournal.app.ui.nhg.getBpColor
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
 import kotlin.math.ceil
 
 /**

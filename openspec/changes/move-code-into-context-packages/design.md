@@ -12,9 +12,9 @@ After `refactor-application-boundaries`, the contexts are defined, enforced by a
 
 | Context | From |
 |---|---|
-| `shared` | `model/common` (`ProfileId`, `MeasurementId`, `MeasurementUnit`, `UnitConversion`), plus `EntryComment`, `HeightCm`, `WeightKg` after the refactor moved them |
+| `shared` | `model/common` (`ProfileId`, `MeasurementId`, `MeasurementUnit`, `UnitConversion`), which already holds `EntryComment`, `HeightCm` and `WeightKg` (moved by the refactor) |
 | `profile` | `model/profile`; `CreateProfileUseCase`; `ProfileRepositoryPort` |
-| `metrics` | `model/metrics`, `model/nhg`; Record, Update and Delete use cases of the six metrics (or their handlers if the refactor already replaced them), `OxygenSaturationUseCases`, `GetHealthHistoryUseCase`; the six metric ports; `DataExportPort`, `DataImportPort` (CSV of the metrics) |
+| `metrics` | `model/metrics` (the `Nhg*` classifiers and `WaistCircumferenceClassifier` already live there); Record, Update and Delete use cases of the six metrics (or their handlers if the refactor already replaced them), `OxygenSaturationUseCases`, `GetHealthHistoryUseCase`; the six metric ports; `DataExportPort`, `DataImportPort` (CSV of the metrics) |
 | `medication` | `model/medication`; Archive, ChangeSchedule, Delete, Save, RecordIntake, RecordSlotIntakes, TakeAllForSlot, GetAdherence, GetPillboxDay, RearmReminders; `MedicationRepositoryPort`, `MedicationDataPorts`, `ReminderSchedulerPort` |
 | `migraine` | `model/migraine`; `MigraineUseCases`; `MigraineRepositoryPort`, `MigraineDataPorts` |
 | `mindfulness` | `model/mindfulness` (no ports, no use cases) |

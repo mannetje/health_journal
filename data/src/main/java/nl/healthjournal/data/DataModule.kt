@@ -26,7 +26,12 @@ import nl.healthjournal.domain.port.secondary.MigraineImportPort
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
+import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
+import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
+import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
+import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
+import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 
 class DataModule(context: Context) {
@@ -34,7 +39,7 @@ class DataModule(context: Context) {
 
     val profileRepository: ProfileRepositoryPort = RoomProfileRepository(database.profileDao())
 
-    val healthLogRepository: HealthLogRepositoryPort = RoomHealthLogRepository(
+    private val healthLog = RoomHealthLogRepository(
         weightDao = database.weightDao(),
         bloodPressureDao = database.bloodPressureDao(),
         glucoseDao = database.glucoseDao(),
@@ -43,13 +48,25 @@ class DataModule(context: Context) {
         oxygenSaturationDao = database.oxygenSaturationDao()
     )
 
+    val weightRepository: WeightRepositoryPort = healthLog
+
+    val bloodPressureRepository: BloodPressureRepositoryPort = healthLog
+
+    val glucoseRepository: GlucoseRepositoryPort = healthLog
+
+    val activityRepository: ActivityRepositoryPort = healthLog
+
+    val waistCircumferenceRepository: WaistCircumferenceRepositoryPort = healthLog
+
+    val oxygenSaturationRepository: OxygenSaturationRepositoryPort = healthLog
+
     val medicationRepository: MedicationRepositoryPort = RoomMedicationRepository(database.medicationDao())
 
     val migraineRepository: MigraineRepositoryPort = RoomMigraineRepository(database.migraineDao())
 
-    val dataExportPort: DataExportPort = CsvDataExportAdapter(healthLogRepository)
+    val dataExportPort: DataExportPort = CsvDataExportAdapter(weightRepository, bloodPressureRepository, glucoseRepository, activityRepository, waistCircumferenceRepository, oxygenSaturationRepository)
 
-    val dataImportPort: DataImportPort = CsvDataImportAdapter(healthLogRepository, profileRepository)
+    val dataImportPort: DataImportPort = CsvDataImportAdapter(weightRepository, bloodPressureRepository, glucoseRepository, activityRepository, waistCircumferenceRepository, oxygenSaturationRepository, profileRepository)
 
     val medicationExportPort: MedicationExportPort = CsvMedicationExportAdapter(medicationRepository)
 

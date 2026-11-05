@@ -26,7 +26,7 @@ import nl.healthjournal.app.ui.nhg.getGlucoseColor
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
 
 @Composable
 fun GlucoseTrendSection(entries: List<GlucoseEntry>, modifier: Modifier = Modifier) {

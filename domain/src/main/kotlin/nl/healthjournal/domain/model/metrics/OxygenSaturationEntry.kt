@@ -1,8 +1,10 @@
 package nl.healthjournal.domain.model.metrics
 
+import nl.healthjournal.domain.command.*
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import java.time.Instant
+import nl.healthjournal.domain.model.common.EntryComment
 
 /**
  * One oxygen saturation reading. There is no category: the app records what is entered and does not assess it
@@ -26,6 +28,9 @@ data class OxygenSaturationEntry(
     }
 
     companion object {
+        /** Null when [pulse] is a valid heart rate in bpm; the same rule as for blood pressure. */
+        fun pulseError(pulse: Int): DomainError.Invalid? = BloodPressureReading.pulseError(pulse)
+
         const val MIN_PULSE = BloodPressureReading.MIN_PULSE
         const val MAX_PULSE = BloodPressureReading.MAX_PULSE
     }

@@ -15,7 +15,7 @@ Use Hilt in `:app` only, with the compiler running through KSP. `:domain` and `:
 As built:
 
 - `HealthJournalApp` is the `@HiltAndroidApp`; `MainActivity` is an `@AndroidEntryPoint` that gets each ViewModel with `by viewModels()` (no `hilt-navigation-compose`).
-- Three modules in `app/di/`, all in the singleton component: `DataPortsModule` creates the one `DataModule` and exposes each port from it, `UseCaseModule` builds every use case from its ports, `PlatformModule` provides the preferences, `AppLockManager`, `AlarmReminderScheduler` and `ReminderCoordinator` as singletons.
+- Three modules in `app/di/`, all in the singleton component: `DataPortsModule` creates the one `DataModule` and exposes each port from it, `UseCaseModule` builds the use cases that remain from their ports, and `CommandModule` registers every command and query handler in a map that `DefaultDispatcher` reads ([ADR 0036](0036-application-boundary-commands-and-queries.md)), `PlatformModule` provides the preferences, `AppLockManager`, `AlarmReminderScheduler` and `ReminderCoordinator` as singletons.
 - All six ViewModels and `RecoveryBackupViewModel` are `@HiltViewModel`. Each keeps its plain primary constructor for the JVM unit tests and adds a secondary `@Inject` one. The lost-key screen gets `RecoveryBackupViewModel`, a subclass of the open `BackupViewModel`, so the two never share an instance.
 - `ReminderEntryPoint` (`@EntryPoint`) gives the three broadcast receivers the `ReminderCoordinator` through `EntryPointAccessors.fromApplication`; if the graph cannot be read they return without doing anything.
 - The database stays behind the single `DataModule` singleton, so a restore never swaps it under a live graph.
@@ -53,11 +53,11 @@ Preferences, `AppLockManager` and `ReminderCoordinator` are now created when the
 
 ### Positive
 - A missing or mistyped dependency fails the build.
-- No factory boilerplate; a new use case is one `@Provides` function in `UseCaseModule`.
+- No factory boilerplate; a new handler is one `@Provides @IntoMap` function in `CommandModule`.
 - A test can replace a binding.
 
 ### Negative / Trade-offs
 - A new dependency, a Gradle plugin and KSP, so more build time and a slightly larger APK (small, see above). This is an exception to [ADR 0003](0003-dependency-minimization.md) for `:app` only.
 - Generated code and annotation errors are harder to read.
 - Each ViewModel carries two constructors (one for tests, one for Hilt), and a secondary constructor that delegates to the primary one needs an upcast so it does not delegate to itself.
-- The domain stays annotation-free, so every use case needs a hand-written `@Provides` function.
+- The domain stays annotation-free, so every handler needs a hand-written `@Provides` function. The handler map lives in `:app`, so the no-Hilt-in-`:domain` rule still holds.

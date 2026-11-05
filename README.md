@@ -124,7 +124,11 @@ flowchart TD
 
     subgraph Domain["Hexagonal Core (:domain - Pure Kotlin)"]
         subgraph PrimaryPorts["Driving / Primary Ports"]
-            UC["Use Cases (Record, Update, Delete per metric)"]
+            DSP["Dispatcher: dispatch, query, observe (ADR 0036)"]
+            HND["Handlers: one per command or query, results are DomainResult (ADR 0037)"]
+            UC["Use cases with real logic (pillbox, adherence, history, backup)"]
+            DSP --> HND
+            HND --> UC
         end
 
         subgraph DomainModel["Domain Model"]
@@ -141,7 +145,7 @@ flowchart TD
 
         subgraph SecondaryPorts["Driven / Secondary Ports"]
             PRP["ProfileRepositoryPort (interface)"]
-            HLP["HealthLogRepositoryPort (save, update, delete, history)"]
+            HLP["One repository port per metric (save, update, delete, history)"]
             MRP["MedicationRepositoryPort (medications, schedule versions, intakes)"]
             MGP["MigraineRepositoryPort (migraines, personal tags)"]
             RSP["ReminderSchedulerPort (one alarm for the next slot)"]
@@ -149,7 +153,8 @@ flowchart TD
             DEP["DataExportPort / DataImportPort (interface)"]
         end
 
-        UC --> AR
+        HND --> AR
+        HND --> SecondaryPorts
         UC --> SecondaryPorts
     end
 
@@ -167,14 +172,14 @@ flowchart TD
         end
     end
 
-    VM -->|"Invokes Use Cases"| UC
+    VM -->|"Sends commands and queries"| DSP
     Mappers -->|"Implements"| PRP
     Mappers -->|"Implements"| HLP
     Mappers -->|"Implements"| MRP
     Mappers -->|"Implements"| MGP
     LOCK -->|"Implements"| ALP
     REM -->|"Implements"| RSP
-    REM -->|"Invokes Use Cases"| UC
+    REM -->|"Invokes use cases and ports"| UC
     Parser -->|"Implements"| DEP
 ```
 
@@ -296,6 +301,9 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0033: Pickers Start from the Person's Own Entries Only](docs/adr/0033-picker-starts-from-own-entries-only.md)
 - [ADR 0034: User-Configurable Metric Display Order](docs/adr/0034-metric-display-order-preference.md)
 - [ADR 0035: Hilt for Dependency Injection](docs/adr/0035-hilt-for-dependency-injection.md)
+- [ADR 0036: Application boundary: commands and queries](docs/adr/0036-application-boundary-commands-and-queries.md)
+- [ADR 0037: Typed domain errors and a single source for rules](docs/adr/0037-typed-domain-errors-and-single-source-for-rules.md)
+- [ADR 0038: Bounded contexts and tactical roles](docs/adr/0038-bounded-contexts-and-tactical-roles.md)
 
 ---
 

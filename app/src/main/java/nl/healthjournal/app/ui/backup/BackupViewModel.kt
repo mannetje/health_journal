@@ -20,12 +20,16 @@ import nl.healthjournal.app.BuildConfig
 import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.BackupPreferenceBridge
 import nl.healthjournal.app.ui.common.UiText
+import nl.healthjournal.app.ui.common.toUiText
+import nl.healthjournal.domain.backup.command.CreateBackupCommand
+import nl.healthjournal.domain.backup.command.OpenBackupQuery
+import nl.healthjournal.domain.backup.command.RestoreBackupCommand
+import nl.healthjournal.domain.command.BackupProblem
+import nl.healthjournal.domain.command.Dispatcher
+import nl.healthjournal.domain.command.DomainError
+import nl.healthjournal.domain.command.DomainResult
 import nl.healthjournal.domain.model.backup.BackupDocument
-import nl.healthjournal.domain.model.backup.BackupException
-import nl.healthjournal.domain.model.backup.BackupPassphrase
 import nl.healthjournal.domain.model.backup.BackupPreferences
-import nl.healthjournal.domain.usecase.CreateBackupUseCase
-import nl.healthjournal.domain.usecase.RestoreBackupUseCase
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -73,23 +77,23 @@ sealed interface BackupEvent {
  */
 @HiltViewModel
 open class BackupViewModel(
-    private val create: CreateBackupUseCase?,
-    private val restore: RestoreBackupUseCase,
+    private val dispatcher: Dispatcher,
+    /** False on the lost-key screen, where there is no data to back up. */
+    private val canCreate: Boolean,
     private val io: BackupFileIo,
     private val preferences: () -> BackupPreferences?,
     private val applyPreferences: (BackupPreferences) -> Unit,
     private val appVersion: String
 ) : ViewModel() {
 
-    /** The constructor Hilt uses: the Application's backup use cases, and file access through its content resolver. */
+    /** The constructor Hilt uses: the application's dispatcher, and file access through its content resolver. */
     @Inject
     constructor(
-        create: CreateBackupUseCase,
-        restore: RestoreBackupUseCase,
+        dispatcher: Dispatcher,
         @ApplicationContext context: Context,
         backupPreferences: BackupPreferenceBridge
     ) : this(
-        create, restore, ContentResolverBackupFileIo(context.contentResolver),
+        dispatcher, true, ContentResolverBackupFileIo(context.contentResolver),
         { backupPreferences.collect() }, { backupPreferences.apply(it) }, BuildConfig.VERSION_NAME
     )
 
@@ -111,28 +115,24 @@ open class BackupViewModel(
     }
 
     fun submitCreate(passphrase: CharArray, confirmation: CharArray) {
-        val useCase = create ?: return
-        val problem = when (BackupPassphrase.check(passphrase, confirmation)) {
-            BackupPassphrase.Check.OK -> null
-            BackupPassphrase.Check.TOO_SHORT -> UiText.Res(R.string.backup_err_too_short, BackupPassphrase.MIN_LENGTH)
-            BackupPassphrase.Check.MISMATCH -> UiText.Res(R.string.backup_err_mismatch)
-        }
-        if (problem != null) {
-            _state.value = _state.value.copy(passphraseError = problem)
-            return
-        }
+        if (!canCreate) return
         _state.value = _state.value.copy(busy = true, passphraseError = null)
         viewModelScope.launch {
             try {
-                val bytes = withContext(Dispatchers.Default) {
-                    useCase(passphrase, confirmation, preferences(), appVersion)
+                // The key derivation is heavy, so it runs off the main thread. The command checks the passphrase.
+                val result = withContext(Dispatchers.Default) {
+                    dispatcher.dispatch(CreateBackupCommand(passphrase, confirmation, preferences(), appVersion))
                 }
-                fileToSave = bytes
-                _state.value = BackupUiState(saveSuggestion = "healthjournal-${LocalDate.now()}.hjbackup")
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _state.value = BackupUiState(error = UiText.Res(R.string.backup_err_create))
+                when (result) {
+                    is DomainResult.Success -> {
+                        fileToSave = result.value
+                        _state.value = BackupUiState(saveSuggestion = "healthjournal-${LocalDate.now()}.hjbackup")
+                    }
+                    is DomainResult.Failure -> _state.value = when (result.error) {
+                        is DomainError.Invalid -> _state.value.copy(busy = false, passphraseError = result.error.toUiText())
+                        else -> BackupUiState(error = UiText.Res(R.string.backup_err_create))
+                    }
+                }
             } finally {
                 passphrase.fill('\u0000')
                 confirmation.fill('\u0000')
@@ -158,7 +158,9 @@ open class BackupViewModel(
                     io.read(uri).contentEquals(bytes)
                 } catch (e: CancellationException) {
                     throw e
-                } catch (e: Exception) {
+                } catch (e: RuntimeException) {
+                    false // the picked document can fail in many ways (security, provider, storage)
+                } catch (e: java.io.IOException) {
                     false
                 }
             }
@@ -180,7 +182,9 @@ open class BackupViewModel(
                     io.read(uri)
                 } catch (e: CancellationException) {
                     throw e
-                } catch (e: Exception) {
+                } catch (e: RuntimeException) {
+                    null
+                } catch (e: java.io.IOException) {
                     null
                 }
             }
@@ -200,62 +204,70 @@ open class BackupViewModel(
         _state.value = _state.value.copy(busy = true, passphraseError = null)
         viewModelScope.launch {
             try {
-                val document = withContext(Dispatchers.Default) { restore.open(bytes, passphrase) }
-                opened = document
-                _state.value = BackupUiState(
-                    step = BackupStep.RestoreConfirm,
-                    preview = RestorePreview(
-                        profiles = document.profiles.size,
-                        entries = document.profiles.sumOf { it.entryCount },
-                        medications = document.profiles.sumOf { it.medications.size },
-                        intakes = document.profiles.sumOf { it.intakeCount },
-                        hasPreferences = document.preferences != null,
-                        unreadableItems = document.unreadableItems
-                    )
-                )
-            } catch (e: BackupException.WrongPassphraseOrCorrupt) {
-                // Stay in the dialog so the user can try again.
-                _state.value = _state.value.copy(busy = false, passphraseError = UiText.Res(R.string.backup_err_wrong_passphrase))
-            } catch (e: BackupException) {
-                clearOpened()
-                _state.value = BackupUiState(error = e.toUiText())
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                clearOpened()
-                _state.value = BackupUiState(error = UiText.Res(R.string.backup_err_read))
+                val result = withContext(Dispatchers.Default) { dispatcher.query(OpenBackupQuery(bytes, passphrase)) }
+                when (result) {
+                    is DomainResult.Success -> {
+                        val document = result.value
+                        opened = document
+                        _state.value = BackupUiState(
+                            step = BackupStep.RestoreConfirm,
+                            preview = RestorePreview(
+                                profiles = document.profiles.size,
+                                entries = document.profiles.sumOf { it.entryCount },
+                                medications = document.profiles.sumOf { it.medications.size },
+                                intakes = document.profiles.sumOf { it.intakeCount },
+                                hasPreferences = document.preferences != null,
+                                unreadableItems = document.unreadableItems
+                            )
+                        )
+                    }
+                    is DomainResult.Failure -> openFailed(result.error)
+                }
             } finally {
                 passphrase.fill('\u0000')
             }
         }
     }
 
+    private fun openFailed(error: DomainError) {
+        if (error is DomainError.Backup && error.problem == BackupProblem.WRONG_PASSPHRASE_OR_CORRUPT) {
+            // Stay in the dialog so the user can try again.
+            _state.value = _state.value.copy(busy = false, passphraseError = error.toUiText())
+            return
+        }
+        clearOpened()
+        _state.value = BackupUiState(
+            error = if (error is DomainError.Backup) error.toUiText() else UiText.Res(R.string.backup_err_read)
+        )
+    }
+
     fun confirmRestore(applySettings: Boolean) {
         val document = opened ?: return
         _state.value = _state.value.copy(busy = true)
         viewModelScope.launch {
-            try {
-                val result = restore.merge(document)
-                val preferences = document.preferences.takeIf { applySettings }
-                preferences?.let(applyPreferences)
-                clearOpened()
-                _state.value = BackupUiState(
-                    message = if (result.profilesAdded + result.entriesAdded + result.medicationsAdded + result.intakesAdded == 0) {
-                        UiText.Res(R.string.backup_msg_nothing_new)
-                    } else {
-                        UiText.Res(
-                            R.string.backup_msg_restored,
-                            result.profilesAdded, result.entriesAdded, result.medicationsAdded, result.intakesAdded,
-                            result.alreadyPresent
-                        )
-                    }
-                )
-                _events.trySend(BackupEvent.Restored(preferencesApplied = preferences != null))
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                clearOpened()
-                _state.value = BackupUiState(error = UiText.Res(R.string.backup_err_restore))
+            when (val result = dispatcher.dispatch(RestoreBackupCommand(document))) {
+                is DomainResult.Success -> {
+                    val merged = result.value
+                    val preferences = document.preferences.takeIf { applySettings }
+                    preferences?.let(applyPreferences)
+                    clearOpened()
+                    _state.value = BackupUiState(
+                        message = if (merged.profilesAdded + merged.entriesAdded + merged.medicationsAdded + merged.intakesAdded == 0) {
+                            UiText.Res(R.string.backup_msg_nothing_new)
+                        } else {
+                            UiText.Res(
+                                R.string.backup_msg_restored,
+                                merged.profilesAdded, merged.entriesAdded, merged.medicationsAdded, merged.intakesAdded,
+                                merged.alreadyPresent
+                            )
+                        }
+                    )
+                    _events.trySend(BackupEvent.Restored(preferencesApplied = preferences != null))
+                }
+                is DomainResult.Failure -> {
+                    clearOpened()
+                    _state.value = BackupUiState(error = UiText.Res(R.string.backup_err_restore))
+                }
             }
         }
     }
@@ -279,13 +291,6 @@ open class BackupViewModel(
         fileToOpen?.fill(0)
         fileToOpen = null
         opened = null
-    }
-
-    private fun BackupException.toUiText(): UiText = when (this) {
-        is BackupException.NotABackup -> UiText.Res(R.string.backup_err_not_backup)
-        is BackupException.Unsupported -> UiText.Res(R.string.backup_err_unsupported)
-        is BackupException.Malformed -> UiText.Res(R.string.backup_err_malformed)
-        is BackupException.WrongPassphraseOrCorrupt -> UiText.Res(R.string.backup_err_wrong_passphrase)
     }
 
     private fun ByteArray.startsWith(prefix: ByteArray): Boolean =

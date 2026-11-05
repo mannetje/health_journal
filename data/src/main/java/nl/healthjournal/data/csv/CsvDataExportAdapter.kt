@@ -2,14 +2,24 @@ package nl.healthjournal.data.csv
 
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.port.secondary.DataExportPort
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
+import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
+import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
+import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
+import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
+import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
 
 class CsvDataExportAdapter(
-    private val healthLogRepository: HealthLogRepositoryPort
+    private val weightRepository: WeightRepositoryPort,
+    private val bloodPressureRepository: BloodPressureRepositoryPort,
+    private val glucoseRepository: GlucoseRepositoryPort,
+    private val activityRepository: ActivityRepositoryPort,
+    private val waistCircumferenceRepository: WaistCircumferenceRepositoryPort,
+    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort
 ) : DataExportPort {
 
     override suspend fun exportWeightCsv(profileId: ProfileId): String {
-        val history = healthLogRepository.getWeightHistory(profileId).sortedBy { it.timestamp }
+        val history = weightRepository.getWeightHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
         sb.append("timestamp,weight_kg,bmi,comment\n")
         for (entry in history) {
@@ -20,7 +30,7 @@ class CsvDataExportAdapter(
     }
 
     override suspend fun exportBloodPressureCsv(profileId: ProfileId): String {
-        val history = healthLogRepository.getBloodPressureHistory(profileId).sortedBy { it.timestamp }
+        val history = bloodPressureRepository.getBloodPressureHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
         sb.append("timestamp,systolic_mmhg,diastolic_mmhg,pulse_bpm,classification,comment\n")
         for (entry in history) {
@@ -31,7 +41,7 @@ class CsvDataExportAdapter(
     }
 
     override suspend fun exportGlucoseCsv(profileId: ProfileId): String {
-        val history = healthLogRepository.getGlucoseHistory(profileId).sortedBy { it.timestamp }
+        val history = glucoseRepository.getGlucoseHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
         sb.append("timestamp,glucose_mmol_l,context,classification,comment\n")
         for (entry in history) {
@@ -41,7 +51,7 @@ class CsvDataExportAdapter(
     }
 
     override suspend fun exportActivityCsv(profileId: ProfileId): String {
-        val history = healthLogRepository.getActivityHistory(profileId).sortedBy { it.startTime }
+        val history = activityRepository.getActivityHistory(profileId).sortedBy { it.startTime }
         val sb = StringBuilder()
         sb.append("start_timestamp,end_timestamp,distance_m,duration_s,comment\n")
         for (session in history) {
@@ -51,7 +61,7 @@ class CsvDataExportAdapter(
     }
 
     override suspend fun exportWaistCircumferenceCsv(profileId: ProfileId): String {
-        val history = healthLogRepository.getWaistCircumferenceHistory(profileId).sortedBy { it.timestamp }
+        val history = waistCircumferenceRepository.getWaistCircumferenceHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
         sb.append("timestamp,waist_cm,classification,comment\n")
         for (entry in history) {
@@ -62,7 +72,7 @@ class CsvDataExportAdapter(
     }
 
     override suspend fun exportOxygenSaturationCsv(profileId: ProfileId): String {
-        val history = healthLogRepository.getOxygenSaturationHistory(profileId).sortedBy { it.timestamp }
+        val history = oxygenSaturationRepository.getOxygenSaturationHistory(profileId).sortedBy { it.timestamp }
         val sb = StringBuilder()
         sb.append("timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n")
         for (entry in history) {

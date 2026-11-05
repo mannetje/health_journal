@@ -1,6 +1,6 @@
 package nl.healthjournal.domain.model.medication
 
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime

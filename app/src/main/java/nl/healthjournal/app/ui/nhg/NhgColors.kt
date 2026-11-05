@@ -13,10 +13,10 @@ import nl.healthjournal.app.ui.theme.RangeStep3
 import nl.healthjournal.app.ui.theme.RangeStep3Dark
 import nl.healthjournal.app.ui.theme.RangeStep4
 import nl.healthjournal.app.ui.theme.RangeStep4Dark
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.nhg.NhgBmiCategory
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
-import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgBmiCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
 
 /** Position on the neutral ramp: a higher step is a higher band, not a warning. */
 internal fun NhgBmiCategory.rampStep(): Int = when (this) {

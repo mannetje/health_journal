@@ -3,7 +3,7 @@ package nl.healthjournal.data.backup
 import nl.healthjournal.domain.model.backup.BackupDocument
 import nl.healthjournal.domain.model.backup.BackupException
 import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.metrics.OxygenContext
 import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent

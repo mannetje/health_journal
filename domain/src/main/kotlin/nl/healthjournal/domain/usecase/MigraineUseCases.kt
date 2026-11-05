@@ -7,6 +7,7 @@ import nl.healthjournal.domain.model.migraine.MigraineTag
 import nl.healthjournal.domain.model.migraine.MigraineTagId
 import nl.healthjournal.domain.model.migraine.MigraineTagKind
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
+import java.time.Clock
 import java.time.Instant
 
 class RecordMigraineUseCase(private val repository: MigraineRepositoryPort) {
@@ -27,11 +28,14 @@ class DeleteMigraineUseCase(private val repository: MigraineRepositoryPort) {
 }
 
 /** Sets the end time of an ongoing migraine. Null when the id is unknown, it already has an end, or [end] is before the start. */
-class EndMigraineUseCase(private val repository: MigraineRepositoryPort) {
-    suspend operator fun invoke(id: MeasurementId, end: Instant = Instant.now()): MigraineEntry? {
+class EndMigraineUseCase(
+    private val repository: MigraineRepositoryPort,
+    private val clock: Clock = Clock.systemUTC()
+) {
+    suspend operator fun invoke(id: MeasurementId, end: Instant? = null): MigraineEntry? {
+        val endAt = end ?: clock.instant()
         val entry = repository.getMigraine(id) ?: return null
-        if (!entry.ongoing || end.isBefore(entry.start)) return null
-        val ended = entry.copy(end = end)
+        val ended = entry.endedAt(endAt) ?: return null
         return ended.takeIf { repository.updateMigraine(it) }
     }
 }

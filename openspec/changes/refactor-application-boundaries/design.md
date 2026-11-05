@@ -73,6 +73,14 @@ One port per metric in `domain/port/secondary/`: `WeightRepositoryPort`, `BloodP
 - Alternative considered: grouped application services per area (`EntryService`, `ExchangeService`, `PillboxService`) injected directly, no dispatcher. Smaller and easier to read, but the dispatcher was the stated choice. This is decided last (task 4.4): ports, typed errors, the clock and the guardrails land first and do not depend on it, so the fallback costs only sections 5 and 6, not the earlier work.
 - Existing use cases that carry real logic and are not CRUD (`GetHealthHistoryUseCase`, `GetPillboxDayUseCase`, `GetAdherenceUseCase`, `RearmRemindersUseCase`, the backup use cases) stay as classes, wrapped by a query handler only where a ViewModel needs them. They are not rewritten.
 
+
+**Spike result (task 4.4).** `DefaultDispatcher` (one file, `app/command/`) plus `CommandModule` with one real handler (`DeleteEntryHandler`) compile under KSP and Hilt, and `DefaultDispatcherTest` and `HandlerRegistryTest` pass. Measured wiring cost:
+- Per handler: one `@Provides @IntoMap @ClassKey(X::class)` function, two lines including the constructor call. No reflection, no keep rules expected (checked once with a minified build in 8.x).
+- Unchecked casts: three, one in each of `dispatch`, `query` and `observe`, all in `DefaultDispatcher`, each guarded by the class-keyed lookup and covered by a test. This is above the "more than one" line written in 4.4 only because there are three request kinds; the count does not grow with handlers.
+- Registration is checked at build time by `HandlerRegistryTest` (reads the sources), so a forgotten handler fails the unit tests, not a user.
+- Decision: keep the dispatcher; the grouped-service fallback is not needed, so sections 5 and 6 stand as written.
+- The spike's `DeleteEntryHandler` depends on `EntryGateway` (one interface over the seven stores, implemented by `PortEntryGateway`) instead of seven ports; task 5.2 builds on it.
+
 ### 3. Consolidation
 - `DeleteEntryCommand(kind: EntryKind, id)` and `UpdateEntryCommand` replace the seven `Delete*` and six `Update*` classes. The handler reaches the ports through a small `EntryGateway` (a map from `EntryKind` to the narrow port operations), not seven constructor parameters. `EntryKind` covers the six metrics and migraine.
 - `RecordEntryCommand` is a sealed hierarchy (`RecordWeight`, `RecordBloodPressure`, ...) so each keeps its own typed fields. Handlers share validation and clock handling. Adding a metric then means one command, one handler, one port.
@@ -86,6 +94,14 @@ One port per metric in `domain/port/secondary/`: `WeightRepositoryPort`, `BloodP
 
 ### 5. Time
 Handlers take a `java.time.Clock` (already used by `TakeAllForSlotUseCase`). Commands carry the timestamp the user chose, or `null` for "now", resolved in the handler. No `Instant.now()` default remains in command classes.
+
+**Handler details settled while writing section 5:**
+- **Backup errors are typed.** `DomainError.Backup(BackupProblem)` carries the four reasons a file can fail to open (`NOT_A_BACKUP`, `UNSUPPORTED`, `WRONG_PASSPHRASE_OR_CORRUPT`, `MALFORMED`). `OpenBackupHandler` maps `BackupException`, so the UI no longer needs its own `BackupException.toUiText`. The passphrase rules (too short, mismatch) are `Invalid(PASSPHRASE, TOO_SHORT | MISMATCH)` and are checked in `CreateBackupHandler`, not in the ViewModel. `CreateBackupCommand` and `OpenBackupQuery` are plain classes so the secrets stay out of `equals` and `toString`.
+- **Existence is pre-checked, not caught.** The medication use cases throw `requireNotNull` and `IllegalArgumentException` for an unknown id. The handlers ask `MedicationRepositoryPort.firstProblem(ids)` first and return `NotFound("MEDICATION", id)`; any other exception becomes `Storage`. The use cases keep their behaviour.
+- **Tag outcomes stay success values.** `AddTagResult.LimitReached` and `RenameTagResult.LabelTaken` or `UnknownTag` are results the picker shows, not failures. Only a blank label (`Invalid(NAME, REQUIRED)`) and archiving an unknown tag (`NotFound("MIGRAINE_TAG", id)`) are errors.
+- **Local time for medication dates.** The injected `Clock` is UTC. Handlers that default a date to "today" get `localClock(clock)`, the same instant source in the device zone. The pillbox, adherence and take-all use cases take the system default clock because they need the person's local day.
+- **The end-of-migraine rule lives on the model.** `MigraineEntry.endedAt(at)` returns null when the entry already ended or `at` is before the start. `EndMigraineUseCase` and `EndMigraineHandler` both use it; the handler turns null into `Invalid(TIME_RANGE, END_NOT_AFTER_START)`.
+- **Shared in-memory fakes.** `FakeProfileRepository`, `FakeMigraineRepository` and `FakeMedicationRepository` moved to `domain/src/testFixtures`, next to `FakeHealthLogRepository`, so the handler tests and the ViewModel tests use the same ones.
 
 ### 6. ViewModels
 All six ViewModels depend on the dispatcher plus preferences and display state only. Nullable test-only parameters and second constructors go away; tests pass a fake `Dispatcher` or real handlers over in-memory fakes.

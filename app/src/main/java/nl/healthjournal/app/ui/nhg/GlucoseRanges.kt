@@ -1,7 +1,7 @@
 package nl.healthjournal.app.ui.nhg
 
 import nl.healthjournal.domain.model.metrics.GlucoseContext
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
 
 enum class RangeShape { BELOW, BETWEEN, BETWEEN_BELOW, ABOVE_TO, ABOVE }
 

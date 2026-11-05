@@ -2,7 +2,7 @@ package nl.healthjournal.data.local.mapper
 
 import nl.healthjournal.data.local.entity.ProfileEntity
 import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.HeightCm
+import nl.healthjournal.domain.model.common.HeightCm
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.model.profile.Sex
 import java.time.LocalDate

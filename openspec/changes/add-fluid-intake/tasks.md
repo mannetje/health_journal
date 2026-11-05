@@ -13,11 +13,11 @@
 ## 1. Domain (`:domain`) and data (`:data`)
 - [ ] 1.1 `FluidIntake`, validation, `QuickAddSizes`; JVM tests
 - [ ] 1.2 `FluidDayTotals` and `FluidStatistics` with injected zone and clock; JVM tests for empty range, one entry, midnight boundary, time zone, rounding, unlogged days
-- [ ] 1.3 Port methods and use cases (record, update, delete, list, range)
+- [ ] 1.3 Own port (record, update, delete, list, range), record and update commands with handlers, delete branch in `PortEntryGateway`, handlers registered in `CommandModule`
 - [ ] 1.4 Entity, DAO, mapper, `fluid_settings`, one migration from the current version N to N+1, repository; migration test from version N
 - [ ] 1.5 CSV export and import (`timestamp,ml,comment`) with row rejection; round-trip tests
 - [ ] 1.6 Backup snapshot and restore of `fluidEntries` and `fluidDailyLimitMl`; older-file and null-limit tests
-- [ ] 1.6a Limit use cases (set, change, clear) with validation 100 to 10000; JVM tests that entries stay unchanged
+- [ ] 1.6a Limit commands and handlers (set, change, clear) with validation 100 to 10000; JVM tests that entries stay unchanged
 - [ ] 1.7 Preferences for quick-add sizes with defaults and validation; test that no entry data is stored in preferences
 
 ## 2. App (`:app`)

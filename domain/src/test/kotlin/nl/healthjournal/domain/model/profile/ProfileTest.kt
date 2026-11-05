@@ -1,8 +1,8 @@
 package nl.healthjournal.domain.model.profile
 
 import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.HeightCm
-import nl.healthjournal.domain.model.metrics.WeightKg
+import nl.healthjournal.domain.model.common.HeightCm
+import nl.healthjournal.domain.model.common.WeightKg
 import org.junit.Assert.*
 import org.junit.Test
 import java.math.BigDecimal

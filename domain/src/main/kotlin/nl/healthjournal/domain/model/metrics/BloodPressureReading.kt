@@ -1,5 +1,7 @@
 package nl.healthjournal.domain.model.metrics
 
+import nl.healthjournal.domain.command.*
+
 data class BloodPressureReading(
     val systolic: Int,
     val diastolic: Int,
@@ -23,6 +25,18 @@ data class BloodPressureReading(
     }
 
     companion object {
+        /** Checked factory: the first broken rule comes back as a typed error instead of an exception. */
+        fun of(systolic: Int, diastolic: Int, pulse: Int? = null): DomainResult<BloodPressureReading> = validated(
+            rangeError(ValidationField.SYSTOLIC, systolic, MIN_SYSTOLIC, MAX_SYSTOLIC),
+            rangeError(ValidationField.DIASTOLIC, diastolic, MIN_DIASTOLIC, MAX_DIASTOLIC),
+            if (systolic > diastolic) null
+            else DomainError.Invalid(ValidationField.SYSTOLIC, ValidationRule.SYSTOLIC_NOT_ABOVE_DIASTOLIC),
+            pulse?.let { pulseError(it) }
+        ) { BloodPressureReading(systolic, diastolic, pulse) }
+
+        /** Null when [pulse] is a valid heart rate in bpm. */
+        fun pulseError(pulse: Int): DomainError.Invalid? = rangeError(ValidationField.PULSE, pulse, MIN_PULSE, MAX_PULSE)
+
         const val MIN_SYSTOLIC = 40
         const val MAX_SYSTOLIC = 300
         const val MIN_DIASTOLIC = 20

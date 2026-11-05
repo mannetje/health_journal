@@ -11,7 +11,7 @@ The Sleep log follows `docs/dev/how-to/add-a-metric.md` and `openspec/playbooks/
 
 ### 1. Domain (`:domain`)
 - `SleepLog(id, profileId, bedTime, wakeTime, quality?, timesWoken?, comment?)` with validation (wake after bed, at most 24 hours, quality 1 to 5, times woken 0 to 30) and derived `duration` (`Duration` between the instants). Duration is never stored.
-- Port methods on `HealthLogRepositoryPort` (record, update, delete, list) and use cases `RecordSleepLog`, `UpdateSleepLog`, `DeleteSleepLog`.
+- A new `SleepRepositoryPort` (record, update, delete, list; one port per metric, see ADR 0036 and 0038), the commands `RecordSleepLogCommand` and `UpdateSleepLogCommand` with one handler each, a sleep branch in `PortEntryGateway` for `DeleteEntryCommand`, and a factory returning a `DomainResult` (end after start is `END_NOT_AFTER_START`). Handlers are registered in `CommandModule`.
 - `SleepStatistics` as pure functions taking the entries, a range and a `ZoneId`: nights per day of waking, average, shortest, longest, count, circular mean of bed and wake clock times. No thresholds, no clock read. The circular mean uses the unit vector sum of the minutes of the day; a zero resultant gives no mean.
 - Day assignment is by the wake time in the given zone. Default form times (23:00 yesterday, 07:00 today) are computed by a small function taking today's date and a zone, for tests.
 

@@ -7,7 +7,12 @@ import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
+import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
+import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
+import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
+import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
+import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
 
 data class HealthHistory(
     val weights: List<WeightEntry>,
@@ -19,16 +24,21 @@ data class HealthHistory(
 )
 
 class GetHealthHistoryUseCase(
-    private val healthLogRepository: HealthLogRepositoryPort
+    private val weightRepository: WeightRepositoryPort,
+    private val bloodPressureRepository: BloodPressureRepositoryPort,
+    private val glucoseRepository: GlucoseRepositoryPort,
+    private val activityRepository: ActivityRepositoryPort,
+    private val waistCircumferenceRepository: WaistCircumferenceRepositoryPort,
+    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort
 ) {
     suspend operator fun invoke(profileId: ProfileId): HealthHistory {
         return HealthHistory(
-            weights = healthLogRepository.getWeightHistory(profileId),
-            bloodPressures = healthLogRepository.getBloodPressureHistory(profileId),
-            glucoses = healthLogRepository.getGlucoseHistory(profileId),
-            activities = healthLogRepository.getActivityHistory(profileId),
-            waistCircumferences = healthLogRepository.getWaistCircumferenceHistory(profileId),
-            oxygenSaturations = healthLogRepository.getOxygenSaturationHistory(profileId)
+            weights = weightRepository.getWeightHistory(profileId),
+            bloodPressures = bloodPressureRepository.getBloodPressureHistory(profileId),
+            glucoses = glucoseRepository.getGlucoseHistory(profileId),
+            activities = activityRepository.getActivityHistory(profileId),
+            waistCircumferences = waistCircumferenceRepository.getWaistCircumferenceHistory(profileId),
+            oxygenSaturations = oxygenSaturationRepository.getOxygenSaturationHistory(profileId)
         )
     }
 }
