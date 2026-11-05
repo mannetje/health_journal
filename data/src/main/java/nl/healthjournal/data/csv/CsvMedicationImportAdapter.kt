@@ -18,13 +18,13 @@ import nl.healthjournal.domain.model.medication.Schedule
 import nl.healthjournal.domain.model.medication.ScheduleVersion
 import nl.healthjournal.domain.model.medication.Strength
 import nl.healthjournal.domain.model.medication.StrengthUnit
-import nl.healthjournal.domain.model.metrics.EntryComment
-import nl.healthjournal.domain.port.secondary.ImportResult
+import nl.healthjournal.domain.model.common.EntryComment
+import nl.healthjournal.domain.model.common.ImportResult
 import nl.healthjournal.domain.port.secondary.MedicationCsvFiles
 import nl.healthjournal.domain.port.secondary.MedicationImportPort
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.port.secondary.SkippedRow
+import nl.healthjournal.domain.model.common.SkippedRow
 import java.math.BigDecimal
 import java.time.DayOfWeek
 import java.time.Instant

@@ -8,20 +8,16 @@ import nl.healthjournal.app.settings.BackupPreferenceBridge
 import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.settings.UnitPreference
-import nl.healthjournal.app.ui.history.EntryUseCases
-import nl.healthjournal.app.ui.medication.MedicationUseCases
 import nl.healthjournal.data.DataModule
 import nl.healthjournal.domain.port.secondary.BackupCodecPort
 import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
 import nl.healthjournal.domain.port.secondary.MigraineExportPort
 import nl.healthjournal.domain.port.secondary.MigraineImportPort
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.usecase.*
 import javax.inject.Inject
 
 /**
@@ -35,9 +31,6 @@ class HealthJournalApp : Application() {
 
     val profileRepository: ProfileRepositoryPort
         get() = dataModule.profileRepository
-
-    val healthLogRepository: HealthLogRepositoryPort
-        get() = dataModule.healthLogRepository
 
     val medicationRepository: MedicationRepositoryPort
         get() = dataModule.medicationRepository
@@ -63,18 +56,7 @@ class HealthJournalApp : Application() {
     val backupSnapshot: BackupSnapshotPort
         get() = dataModule.backupSnapshotPort
 
-    // Use cases
-    @Inject lateinit var createProfileUseCase: CreateProfileUseCase
-    @Inject lateinit var recordWeightUseCase: RecordWeightUseCase
-    @Inject lateinit var recordBloodPressureUseCase: RecordBloodPressureUseCase
-    @Inject lateinit var recordGlucoseUseCase: RecordGlucoseUseCase
-    @Inject lateinit var recordActivityUseCase: RecordActivityUseCase
-    @Inject lateinit var recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase
-    @Inject lateinit var entryUseCases: EntryUseCases
-    @Inject lateinit var getHealthHistoryUseCase: GetHealthHistoryUseCase
-    @Inject lateinit var medicationUseCases: MedicationUseCases
-    @Inject lateinit var createBackupUseCase: CreateBackupUseCase
-    @Inject lateinit var restoreBackupUseCase: RestoreBackupUseCase
+    // Preferences
 
     @Inject lateinit var metricDisplayOrderPreference: MetricDisplayOrderPreference
     @Inject lateinit var reminderPreference: ReminderPreference

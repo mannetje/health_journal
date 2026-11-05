@@ -56,7 +56,7 @@ import nl.healthjournal.domain.model.medication.PillAppearance
 import nl.healthjournal.domain.model.medication.PillColor
 import nl.healthjournal.domain.model.medication.PillShape
 import nl.healthjournal.domain.model.medication.StrengthUnit
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate

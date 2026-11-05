@@ -24,7 +24,7 @@ import nl.healthjournal.app.ui.common.weightFromKg
 import nl.healthjournal.app.ui.nhg.getBmiColor
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.domain.model.metrics.WeightEntry
-import nl.healthjournal.domain.model.nhg.NhgBmiCategory
+import nl.healthjournal.domain.model.metrics.NhgBmiCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

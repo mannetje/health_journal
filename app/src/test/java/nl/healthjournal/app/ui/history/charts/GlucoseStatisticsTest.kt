@@ -1,7 +1,7 @@
 package nl.healthjournal.app.ui.history.charts
 
 import nl.healthjournal.domain.model.metrics.GlucoseContext
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull

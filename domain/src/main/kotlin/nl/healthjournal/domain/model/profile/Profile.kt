@@ -1,8 +1,8 @@
 package nl.healthjournal.domain.model.profile
 
+import nl.healthjournal.domain.model.common.HeightCm
 import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.HeightCm
-import nl.healthjournal.domain.model.metrics.WeightKg
+import nl.healthjournal.domain.model.common.WeightKg
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -51,15 +51,6 @@ class Profile private constructor(
         val heightSquared = heightInMeters.multiply(heightInMeters)
         val bmiValue = weight.value.divide(heightSquared, 1, RoundingMode.HALF_UP)
         return BmiResult(bmiValue)
-    }
-
-    /**
-     * Classifies waist circumference against Voedingscentrum NHG categories based on sex.
-     * Returns null if sex is not set.
-     */
-    fun classifyWaistCircumference(waist: nl.healthjournal.domain.model.metrics.WaistCircumferenceCm): nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory? {
-        val s = sex ?: return null
-        return nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory.classify(waist, s)
     }
 
     override fun equals(other: Any?): Boolean {

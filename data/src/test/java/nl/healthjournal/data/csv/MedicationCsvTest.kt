@@ -19,8 +19,8 @@ import nl.healthjournal.domain.model.medication.Schedule
 import nl.healthjournal.domain.model.medication.ScheduleVersion
 import nl.healthjournal.domain.model.medication.Strength
 import nl.healthjournal.domain.model.medication.StrengthUnit
-import nl.healthjournal.domain.model.metrics.EntryComment
-import nl.healthjournal.domain.model.metrics.HeightCm
+import nl.healthjournal.domain.model.common.EntryComment
+import nl.healthjournal.domain.model.common.HeightCm
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.port.secondary.MedicationCsvFiles
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort

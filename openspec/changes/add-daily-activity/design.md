@@ -11,7 +11,7 @@ Daily activity follows `docs/dev/how-to/add-a-metric.md` and `openspec/playbooks
 
 ### 1. Domain (`:domain`)
 - `ActivityDay(id, profileId, date: LocalDate, steps?, activeMinutes?, type?, comment?)` with validation (at least one number; steps 0 to 100000; minutes 0 to 1440; date not after today, with the clock passed in) and `ActivityType` (WALKING, CYCLING, SWIMMING, SPORT, HOUSEWORK_GARDEN, OTHER) with stable codes.
-- Port methods on `HealthLogRepositoryPort` (find by date, save, update, delete, list) and use cases `SaveActivityDay` (insert or update by date), `UpdateActivityDay`, `DeleteActivityDay`.
+- A new `ActivityRepositoryPort` (find by date, save, update, delete, list; one port per metric, see ADR 0036 and 0038), the commands `SaveActivityDayCommand` (insert or update by date) and `UpdateActivityDayCommand` with one handler each, an activity branch in `PortEntryGateway` for `DeleteEntryCommand`, and `ActivityDay.of(...)` returning a `DomainResult`. Handlers are registered in `CommandModule`.
 - `ActivityStatistics` per measure: average per day logged (rounded whole), highest day and its date, days logged, total. Days without the measure are skipped, never zero. No thresholds, no clock.
 
 ### 2. Data (`:data`)

@@ -4,8 +4,8 @@ import nl.healthjournal.data.local.entity.*
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.*
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.model.profile.Sex
 import org.junit.Assert.assertEquals
@@ -14,6 +14,9 @@ import org.junit.Test
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
+import nl.healthjournal.domain.model.common.EntryComment
+import nl.healthjournal.domain.model.common.HeightCm
+import nl.healthjournal.domain.model.common.WeightKg
 
 class MapperTest {
 
@@ -216,7 +219,7 @@ class MapperTest {
             profileId = profileId,
             timestamp = Instant.parse("2026-09-27T10:00:00Z"),
             waist = WaistCircumferenceCm(85.0),
-            category = nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory.HEALTHY
+            category = nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory.HEALTHY
         )
 
         val entity = HealthLogMapper.toEntity(entry)
@@ -226,7 +229,7 @@ class MapperTest {
         val reconstructed = HealthLogMapper.toDomain(entity)
         assertEquals(entry.id, reconstructed.id)
         assertEquals(entry.waist.value, reconstructed.waist.value, 0.01)
-        assertEquals(nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory.HEALTHY, reconstructed.category)
+        assertEquals(nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory.HEALTHY, reconstructed.category)
     }
 
     @Test

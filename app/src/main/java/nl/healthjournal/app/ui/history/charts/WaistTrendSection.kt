@@ -10,7 +10,7 @@ import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.formatDecimal
 import nl.healthjournal.app.ui.nhg.getWaistColor
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
-import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
 
 /** The waist trend in cm. With a sex in the profile the NHG limits are drawn as lines and the points take their band colour. */

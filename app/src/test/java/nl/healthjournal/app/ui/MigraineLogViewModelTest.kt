@@ -29,9 +29,28 @@ import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.AddMigraineTagUseCase
 import nl.healthjournal.domain.usecase.ArchiveMigraineTagUseCase
-import nl.healthjournal.domain.usecase.RecordMigraineUseCase
+import nl.healthjournal.app.command.DefaultDispatcher
+import nl.healthjournal.domain.command.CommandHandler
+import nl.healthjournal.domain.command.Dispatcher
+import nl.healthjournal.domain.command.ObserveQueryHandler
+import nl.healthjournal.domain.command.QueryHandler
+import nl.healthjournal.domain.migraine.command.AddMigraineTagCommand
+import nl.healthjournal.domain.migraine.command.AddMigraineTagHandler
+import nl.healthjournal.domain.migraine.command.ArchiveMigraineTagCommand
+import nl.healthjournal.domain.migraine.command.ArchiveMigraineTagHandler
+import nl.healthjournal.domain.migraine.command.ObserveMigraineHistoryHandler
+import nl.healthjournal.domain.migraine.command.ObserveMigraineHistoryQuery
+import nl.healthjournal.domain.migraine.command.ObserveMigraineTagsHandler
+import nl.healthjournal.domain.migraine.command.ObserveMigraineTagsQuery
+import nl.healthjournal.domain.migraine.command.RecordMigraineCommand
+import nl.healthjournal.domain.migraine.command.RecordMigraineHandler
+import nl.healthjournal.domain.migraine.command.RenameMigraineTagCommand
+import nl.healthjournal.domain.migraine.command.RenameMigraineTagHandler
+import nl.healthjournal.domain.migraine.command.UpdateMigraineCommand
+import nl.healthjournal.domain.migraine.command.UpdateMigraineHandler
+import nl.healthjournal.domain.profile.command.GetActiveProfileHandler
+import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
 import nl.healthjournal.domain.usecase.RenameMigraineTagUseCase
-import nl.healthjournal.domain.usecase.UpdateMigraineUseCase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -72,11 +91,26 @@ class MigraineLogViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun viewModel(withProfile: Boolean = true) = MigraineLogViewModel(
-        FakeProfiles(profile.takeIf { withProfile }), repo,
-        RecordMigraineUseCase(repo), UpdateMigraineUseCase(repo),
-        AddMigraineTagUseCase(repo), RenameMigraineTagUseCase(repo), ArchiveMigraineTagUseCase(repo),
-        clock, { ZoneOffset.UTC }
+        migraineDispatcher(FakeProfiles(profile.takeIf { withProfile }), repo), clock, { ZoneOffset.UTC }
     )
+
+    private fun migraineDispatcher(profiles: ProfileRepositoryPort, migraines: MigraineRepositoryPort): Dispatcher =
+        DefaultDispatcher(
+            commands = mapOf<Class<*>, CommandHandler<*, *>>(
+                RecordMigraineCommand::class.java to RecordMigraineHandler(migraines),
+                UpdateMigraineCommand::class.java to UpdateMigraineHandler(migraines),
+                AddMigraineTagCommand::class.java to AddMigraineTagHandler(AddMigraineTagUseCase(migraines)),
+                RenameMigraineTagCommand::class.java to RenameMigraineTagHandler(RenameMigraineTagUseCase(migraines)),
+                ArchiveMigraineTagCommand::class.java to ArchiveMigraineTagHandler(ArchiveMigraineTagUseCase(migraines))
+            ),
+            queries = mapOf<Class<*>, QueryHandler<*, *>>(
+                GetActiveProfileQuery::class.java to GetActiveProfileHandler(profiles)
+            ),
+            observers = mapOf<Class<*>, ObserveQueryHandler<*, *>>(
+                ObserveMigraineHistoryQuery::class.java to ObserveMigraineHistoryHandler(migraines),
+                ObserveMigraineTagsQuery::class.java to ObserveMigraineTagsHandler(migraines)
+            )
+        )
 
     @Test
     fun `starting a new entry opens at the first step with the start set to now`() = runTest(dispatcher) {

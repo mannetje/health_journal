@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.annotation.StringRes
 import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.MetricSlot
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.migraine.MigraineEntry
 import nl.healthjournal.domain.model.migraine.MigraineTag
 import androidx.compose.ui.text.style.TextOverflow

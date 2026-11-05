@@ -38,6 +38,17 @@ class MigraineEntryTest {
         medicationText = medicationText
     )
 
+    @Test fun `endedAt sets the end of an ongoing entry, at or after the start`() {
+        val e = entry()
+        assertEquals(start.plusSeconds(60), e.endedAt(start.plusSeconds(60))?.end)
+        assertEquals(start, e.endedAt(start)?.end)
+    }
+
+    @Test fun `endedAt refuses an end before the start and an entry that already ended`() {
+        assertNull(entry().endedAt(start.minusSeconds(1)))
+        assertNull(entry(end = start.plusSeconds(60)).endedAt(start.plusSeconds(120)))
+    }
+
     @Test fun `minimal entry has only a start and is ongoing`() {
         val e = entry()
         assertTrue(e.ongoing)

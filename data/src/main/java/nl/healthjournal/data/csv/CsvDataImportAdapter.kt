@@ -3,20 +3,27 @@ package nl.healthjournal.data.csv
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.*
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
-import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
-import nl.healthjournal.domain.port.secondary.ImportResult
+import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
+import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
+import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
+import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
+import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.model.common.ImportResult
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.port.secondary.SkippedRow
+import nl.healthjournal.domain.model.common.SkippedRow
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import nl.healthjournal.domain.model.common.EntryComment
+import nl.healthjournal.domain.model.common.WeightKg
 
 /** Factor for converting pounds to kilograms (1 lb = 0.45359237 kg). */
 private val LBS_TO_KG = BigDecimal("0.45359237")
@@ -43,7 +50,12 @@ private fun isLibraFormat(lines: List<String>): Boolean {
 }
 
 class CsvDataImportAdapter(
-    private val healthLogRepository: HealthLogRepositoryPort,
+    private val weightRepository: WeightRepositoryPort,
+    private val bloodPressureRepository: BloodPressureRepositoryPort,
+    private val glucoseRepository: GlucoseRepositoryPort,
+    private val activityRepository: ActivityRepositoryPort,
+    private val waistCircumferenceRepository: WaistCircumferenceRepositoryPort,
+    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort,
     private val profileRepository: ProfileRepositoryPort
 ) : DataImportPort {
 
@@ -106,7 +118,7 @@ class CsvDataImportAdapter(
                             bmi = bmi,
                             comment = comment
                         )
-                        healthLogRepository.saveWeight(entry)
+                        weightRepository.saveWeight(entry)
                         importedCount++
                     }
                     "blood_pressure", "bloodpressure", "bp" -> {
@@ -128,7 +140,7 @@ class CsvDataImportAdapter(
                             category = category,
                             comment = comment
                         )
-                        healthLogRepository.saveBloodPressure(entry)
+                        bloodPressureRepository.saveBloodPressure(entry)
                         importedCount++
                     }
                     "glucose" -> {
@@ -149,7 +161,7 @@ class CsvDataImportAdapter(
                             category = category,
                             comment = comment
                         )
-                        healthLogRepository.saveGlucose(entry)
+                        glucoseRepository.saveGlucose(entry)
                         importedCount++
                     }
                     "activity" -> {
@@ -168,7 +180,7 @@ class CsvDataImportAdapter(
                             distanceInMeters = distanceMeters,
                             comment = comment
                         )
-                        healthLogRepository.saveActivity(session)
+                        activityRepository.saveActivity(session)
                         importedCount++
                     }
                     "waist_circumference", "waist" -> {
@@ -188,7 +200,7 @@ class CsvDataImportAdapter(
                             category = category,
                             comment = comment
                         )
-                        healthLogRepository.saveWaistCircumference(entry)
+                        waistCircumferenceRepository.saveWaistCircumference(entry)
                         importedCount++
                     }
                     "oxygen_saturation", "oxygen", "spo2" -> {
@@ -208,7 +220,7 @@ class CsvDataImportAdapter(
                             "true" -> true
                             else -> throw IllegalArgumentException("oxygen_given must be true or false")
                         }
-                        healthLogRepository.saveOxygenSaturation(
+                        oxygenSaturationRepository.saveOxygenSaturation(
                             OxygenSaturationEntry(
                                 id = MeasurementId.generate(),
                                 profileId = profileId,
@@ -337,7 +349,7 @@ class CsvDataImportAdapter(
                     bmi = bmi,
                     comment = parseComment(parts, LIBRA_COMMENT_COLUMN, clip = true)
                 )
-                healthLogRepository.saveWeight(entry)
+                weightRepository.saveWeight(entry)
                 importedCount++
             } catch (e: Exception) {
                 skippedRows.add(SkippedRow(currentLineNumber, e.message ?: "Invalid data format"))

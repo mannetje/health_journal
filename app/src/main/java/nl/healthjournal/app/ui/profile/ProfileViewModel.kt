@@ -12,11 +12,13 @@ import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.toUiText
-import nl.healthjournal.domain.model.metrics.HeightCm
+import nl.healthjournal.domain.command.DomainError
+import nl.healthjournal.domain.command.DomainResult
+import nl.healthjournal.domain.command.Dispatcher
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.model.profile.Sex
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.usecase.CreateProfileUseCase
+import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
+import nl.healthjournal.domain.profile.command.SaveProfileCommand
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -29,8 +31,7 @@ data class ProfileUiState(
 
 @HiltViewModel
 class ProfileViewModel(
-    private val profileRepository: ProfileRepositoryPort,
-    private val createProfileUseCase: CreateProfileUseCase,
+    private val dispatcher: Dispatcher,
     /** The order of the metrics on the Log tabs and History chips. */
     val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER),
     private val saveMetricOrder: (List<MetricSlot>) -> Unit = {}
@@ -39,10 +40,9 @@ class ProfileViewModel(
     /** The constructor Hilt uses; tests pass the order and the save function directly. */
     @Inject
     constructor(
-        profileRepository: ProfileRepositoryPort,
-        createProfileUseCase: CreateProfileUseCase,
+        dispatcher: Dispatcher,
         metricDisplayOrder: MetricDisplayOrderPreference
-    ) : this(profileRepository, createProfileUseCase, metricDisplayOrder.order, metricDisplayOrder::save)
+    ) : this(dispatcher, metricDisplayOrder.order, metricDisplayOrder::save)
 
     private val _uiState = MutableStateFlow(ProfileUiState(isLoading = true))
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -62,16 +62,10 @@ class ProfileViewModel(
     fun loadProfile() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            try {
-                val profile = profileRepository.getActiveProfile()
-                _uiState.value = _uiState.value.copy(
-                    activeProfile = profile,
-                    isLoading = false
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = e.toUiText(R.string.profile_err_load_failed)
+            _uiState.value = when (val result = dispatcher.query(GetActiveProfileQuery)) {
+                is DomainResult.Success -> _uiState.value.copy(activeProfile = result.value, isLoading = false)
+                is DomainResult.Failure -> _uiState.value.copy(
+                    isLoading = false, errorMessage = UiText.Res(R.string.profile_err_load_failed)
                 )
             }
         }
@@ -80,24 +74,18 @@ class ProfileViewModel(
     fun saveProfile(name: String, birthDate: LocalDate, heightCm: Int?, sex: Sex? = null) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null, successMessage = null)
-            try {
-                val existing = profileRepository.getActiveProfile()
-                if (existing != null) {
-                    // Editing: keep the id (and active flag) so the update replaces the profile instead of adding one.
-                    profileRepository.save(Profile.reconstruct(existing.id, name, birthDate, heightCm?.let { HeightCm(it) }, sex))
-                } else {
-                    createProfileUseCase(name = name, dateOfBirth = birthDate, heightCm = heightCm, sex = sex)
-                }
-                val updatedProfile = profileRepository.getActiveProfile()
-                _uiState.value = _uiState.value.copy(
-                    activeProfile = updatedProfile,
+            _uiState.value = when (val result = dispatcher.dispatch(SaveProfileCommand(name, birthDate, heightCm, sex))) {
+                is DomainResult.Success -> _uiState.value.copy(
+                    activeProfile = result.value,
                     isLoading = false,
                     successMessage = UiText.Res(R.string.profile_msg_saved)
                 )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
+                is DomainResult.Failure -> _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = e.toUiText(R.string.profile_err_save_failed)
+                    errorMessage = when (result.error) {
+                        is DomainError.Storage -> UiText.Res(R.string.profile_err_save_failed)
+                        else -> result.error.toUiText()
+                    }
                 )
             }
         }

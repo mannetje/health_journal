@@ -13,7 +13,7 @@
 ## 1. Domain (`:domain`) and data (`:data`)
 - [ ] 1.1 `EnergyEntry` and validation; JVM tests (0 and 10 accepted, -1 and 11 and fractions refused)
 - [ ] 1.2 `EnergyStatistics`; JVM tests for empty range, one entry, ties, rounding
-- [ ] 1.3 Port methods and use cases
+- [ ] 1.3 Own port, record and update commands with handlers, delete branch in `PortEntryGateway`, handlers registered in `CommandModule`
 - [ ] 1.4 Entity, DAO, mapper, migration to current version + 1, repository; migration test from the previous version
 - [ ] 1.5 CSV export and import with row rejection; round-trip tests
 - [ ] 1.6 Backup snapshot and restore of `energyEntries`; older-file test

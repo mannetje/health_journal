@@ -11,7 +11,12 @@ import nl.healthjournal.domain.port.secondary.BackupCodecPort
 import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
+import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
+import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
+import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
+import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
+import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
 import nl.healthjournal.domain.port.secondary.MigraineExportPort
 import nl.healthjournal.domain.port.secondary.MigraineImportPort
@@ -32,7 +37,22 @@ object DataPortsModule {
     fun profileRepository(data: DataModule): ProfileRepositoryPort = data.profileRepository
 
     @Provides
-    fun healthLogRepository(data: DataModule): HealthLogRepositoryPort = data.healthLogRepository
+    fun weightRepository(data: DataModule): WeightRepositoryPort = data.weightRepository
+
+    @Provides
+    fun bloodPressureRepository(data: DataModule): BloodPressureRepositoryPort = data.bloodPressureRepository
+
+    @Provides
+    fun glucoseRepository(data: DataModule): GlucoseRepositoryPort = data.glucoseRepository
+
+    @Provides
+    fun activityRepository(data: DataModule): ActivityRepositoryPort = data.activityRepository
+
+    @Provides
+    fun waistCircumferenceRepository(data: DataModule): WaistCircumferenceRepositoryPort = data.waistCircumferenceRepository
+
+    @Provides
+    fun oxygenSaturationRepository(data: DataModule): OxygenSaturationRepositoryPort = data.oxygenSaturationRepository
 
     @Provides
     fun medicationRepository(data: DataModule): MedicationRepositoryPort = data.medicationRepository

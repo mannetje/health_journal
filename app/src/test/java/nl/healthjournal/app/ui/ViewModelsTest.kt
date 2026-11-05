@@ -14,7 +14,6 @@ import nl.healthjournal.app.settings.DisplayUnits
 import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.history.EntryRef
-import nl.healthjournal.app.ui.history.EntryUseCases
 import nl.healthjournal.app.ui.history.HistoryFilter
 import nl.healthjournal.app.ui.history.HistoryViewModel
 import nl.healthjournal.app.ui.logging.LogField
@@ -28,55 +27,42 @@ import nl.healthjournal.domain.model.common.UnitSystem
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.BloodPressureReading
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
-import nl.healthjournal.domain.model.metrics.HeightCm
+import nl.healthjournal.domain.model.common.HeightCm
 import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceCm
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
-import nl.healthjournal.domain.model.metrics.WeightKg
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.nhg.NhgBmiCategory
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
-import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.model.common.WeightKg
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgBmiCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.model.profile.Sex
 import nl.healthjournal.domain.port.secondary.DataExportPort
 import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
-import nl.healthjournal.domain.port.secondary.ImportResult
+import nl.healthjournal.domain.testing.FakeHealthLogRepository
+import nl.healthjournal.domain.model.common.ImportResult
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.model.migraine.MigraineEntry
 import nl.healthjournal.domain.port.secondary.MigraineExportPort
 import nl.healthjournal.domain.port.secondary.MigraineImportPort
 import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
-import nl.healthjournal.domain.usecase.CreateProfileUseCase
-import nl.healthjournal.domain.usecase.DeleteMigraineUseCase
-import nl.healthjournal.domain.usecase.DeleteOxygenSaturationUseCase
-import nl.healthjournal.domain.usecase.UpdateOxygenSaturationUseCase
-import nl.healthjournal.domain.usecase.EndMigraineUseCase
-import nl.healthjournal.domain.usecase.DeleteActivityUseCase
-import nl.healthjournal.domain.usecase.DeleteBloodPressureUseCase
-import nl.healthjournal.domain.usecase.DeleteGlucoseUseCase
-import nl.healthjournal.domain.usecase.DeleteWaistCircumferenceUseCase
-import nl.healthjournal.domain.usecase.DeleteWeightUseCase
-import nl.healthjournal.domain.usecase.GetHealthHistoryUseCase
-import nl.healthjournal.domain.usecase.UpdateActivityUseCase
-import nl.healthjournal.domain.usecase.UpdateBloodPressureUseCase
-import nl.healthjournal.domain.usecase.UpdateGlucoseUseCase
-import nl.healthjournal.domain.usecase.UpdateWaistCircumferenceUseCase
-import nl.healthjournal.domain.usecase.UpdateWeightUseCase
-import nl.healthjournal.domain.usecase.RecordActivityUseCase
-import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
-import nl.healthjournal.domain.usecase.RecordGlucoseUseCase
-import nl.healthjournal.domain.usecase.RecordWaistCircumferenceUseCase
-import nl.healthjournal.domain.usecase.RecordOxygenSaturationUseCase
+import nl.healthjournal.app.command.DefaultDispatcher
+import nl.healthjournal.domain.command.CommandHandler
+import nl.healthjournal.domain.command.Dispatcher
+import nl.healthjournal.domain.command.QueryHandler
+import nl.healthjournal.domain.profile.command.GetActiveProfileHandler
+import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
+import nl.healthjournal.domain.profile.command.SaveProfileCommand
+import nl.healthjournal.domain.profile.command.SaveProfileHandler
+import java.time.Clock
 import nl.healthjournal.domain.model.metrics.OxygenContext
 import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent
 import nl.healthjournal.domain.model.metrics.OxygenSite
-import nl.healthjournal.domain.usecase.RecordWeightUseCase
 import nl.healthjournal.app.ui.history.charts.TrendDateRange
 import nl.healthjournal.domain.model.metrics.GlucoseLevel
 import org.junit.Assert.assertTrue
@@ -109,83 +95,6 @@ class ViewModelsTest {
         override suspend fun setActiveProfile(id: ProfileId) { activeId = id }
     }
 
-    private class FakeHealthLogRepo : HealthLogRepositoryPort {
-        val weights = mutableListOf<WeightEntry>()
-        val bps = mutableListOf<BloodPressureEntry>()
-        val glucoses = mutableListOf<GlucoseEntry>()
-        val activities = mutableListOf<ActivitySession>()
-        val waistCircumferences = mutableListOf<WaistCircumferenceEntry>()
-        val oxygenSaturations = mutableListOf<OxygenSaturationEntry>()
-
-        override suspend fun saveOxygenSaturation(entry: OxygenSaturationEntry) { oxygenSaturations.add(entry) }
-        override suspend fun updateOxygenSaturation(entry: OxygenSaturationEntry): Boolean {
-            val i = oxygenSaturations.indexOfFirst { it.id == entry.id }
-            if (i < 0) return false
-            oxygenSaturations[i] = entry
-            return true
-        }
-        override suspend fun deleteOxygenSaturation(id: MeasurementId): Boolean = oxygenSaturations.removeAll { it.id == id }
-        override suspend fun getOxygenSaturationHistory(profileId: ProfileId): List<OxygenSaturationEntry> =
-            oxygenSaturations.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
-        override fun observeOxygenSaturationHistory(profileId: ProfileId): Flow<List<OxygenSaturationEntry>> = emptyFlow()
-
-        override suspend fun saveWeight(entry: WeightEntry) { weights.add(entry) }
-        override suspend fun updateWeight(entry: WeightEntry): Boolean {
-            val i = weights.indexOfFirst { it.id == entry.id }
-            if (i < 0) return false
-            weights[i] = entry
-            return true
-        }
-        override suspend fun deleteWeight(id: MeasurementId): Boolean = weights.removeAll { it.id == id }
-        override suspend fun getWeightHistory(profileId: ProfileId): List<WeightEntry> = weights.filter { it.profileId == profileId }
-        override fun observeWeightHistory(profileId: ProfileId): Flow<List<WeightEntry>> = emptyFlow()
-
-        override suspend fun saveBloodPressure(entry: BloodPressureEntry) { bps.add(entry) }
-        override suspend fun updateBloodPressure(entry: BloodPressureEntry): Boolean {
-            val i = bps.indexOfFirst { it.id == entry.id }
-            if (i < 0) return false
-            bps[i] = entry
-            return true
-        }
-        override suspend fun deleteBloodPressure(id: MeasurementId): Boolean = bps.removeAll { it.id == id }
-        override suspend fun getBloodPressureHistory(profileId: ProfileId): List<BloodPressureEntry> = bps.filter { it.profileId == profileId }
-        override fun observeBloodPressureHistory(profileId: ProfileId): Flow<List<BloodPressureEntry>> = emptyFlow()
-
-        override suspend fun saveGlucose(entry: GlucoseEntry) { glucoses.add(entry) }
-        override suspend fun updateGlucose(entry: GlucoseEntry): Boolean {
-            val i = glucoses.indexOfFirst { it.id == entry.id }
-            if (i < 0) return false
-            glucoses[i] = entry
-            return true
-        }
-        override suspend fun deleteGlucose(id: MeasurementId): Boolean = glucoses.removeAll { it.id == id }
-        override suspend fun getGlucoseHistory(profileId: ProfileId): List<GlucoseEntry> = glucoses.filter { it.profileId == profileId }
-        override fun observeGlucoseHistory(profileId: ProfileId): Flow<List<GlucoseEntry>> = emptyFlow()
-
-        override suspend fun saveActivity(session: ActivitySession) { activities.add(session) }
-        override suspend fun updateActivity(session: ActivitySession): Boolean {
-            val i = activities.indexOfFirst { it.id == session.id }
-            if (i < 0) return false
-            activities[i] = session
-            return true
-        }
-        override suspend fun deleteActivity(id: MeasurementId): Boolean = activities.removeAll { it.id == id }
-        override suspend fun getActivityHistory(profileId: ProfileId): List<ActivitySession> = activities.filter { it.profileId == profileId }
-        override fun observeActivityHistory(profileId: ProfileId): Flow<List<ActivitySession>> = emptyFlow()
-
-        override suspend fun saveWaistCircumference(entry: WaistCircumferenceEntry) { waistCircumferences.add(entry) }
-        override suspend fun updateWaistCircumference(entry: WaistCircumferenceEntry): Boolean {
-            val i = waistCircumferences.indexOfFirst { it.id == entry.id }
-            if (i < 0) return false
-            waistCircumferences[i] = entry
-            return true
-        }
-        override suspend fun deleteWaistCircumference(id: MeasurementId): Boolean = waistCircumferences.removeAll { it.id == id }
-        override suspend fun getWaistCircumferenceHistory(profileId: ProfileId): List<WaistCircumferenceEntry> =
-            waistCircumferences.filter { it.profileId == profileId }
-        override fun observeWaistCircumferenceHistory(profileId: ProfileId): Flow<List<WaistCircumferenceEntry>> = emptyFlow()
-    }
-
     private class FakeExportAdapter : DataExportPort {
         override suspend fun exportWeightCsv(profileId: ProfileId): String = "timestamp,weight_kg,bmi\n"
         override suspend fun exportBloodPressureCsv(profileId: ProfileId): String = "timestamp,systolic_mmhg,diastolic_mmhg,classification\n"
@@ -209,6 +118,16 @@ class ViewModelsTest {
             ImportResult(importedCount = 2, skippedRows = emptyList())
     }
 
+    private fun profileDispatcher(profiles: ProfileRepositoryPort): Dispatcher = DefaultDispatcher(
+        commands = mapOf<Class<*>, CommandHandler<*, *>>(
+            SaveProfileCommand::class.java to SaveProfileHandler(profiles, Clock.systemUTC())
+        ),
+        queries = mapOf<Class<*>, QueryHandler<*, *>>(
+            GetActiveProfileQuery::class.java to GetActiveProfileHandler(profiles)
+        ),
+        observers = emptyMap()
+    )
+
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
@@ -222,8 +141,7 @@ class ViewModelsTest {
     @Test
     fun `ProfileViewModel creates and loads active profile`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val createUseCase = CreateProfileUseCase(profileRepo)
-        val vm = ProfileViewModel(profileRepo, createUseCase)
+        val vm = ProfileViewModel(profileDispatcher(profileRepo))
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.saveProfile("John Doe", LocalDate.of(1985, 4, 12), 182)
@@ -238,7 +156,7 @@ class ViewModelsTest {
     @Test
     fun `ProfileViewModel update edits the active profile instead of adding another`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val vm = ProfileViewModel(profileRepo, CreateProfileUseCase(profileRepo))
+        val vm = ProfileViewModel(profileDispatcher(profileRepo))
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.saveProfile("John Doe", LocalDate.of(1985, 4, 12), 178)
@@ -260,7 +178,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel reports success and validation errors as resources, not English text`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
         val vm = loggingViewModel(profileRepo, healthLogRepo, DisplayUnits.DEFAULT)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -279,26 +197,22 @@ class ViewModelsTest {
 
     private fun loggingViewModel(
         profileRepo: FakeProfileRepo,
-        healthLogRepo: FakeHealthLogRepo,
+        healthLogRepo: FakeHealthLogRepository,
         units: DisplayUnits = DisplayUnits.DEFAULT,
         metricOrder: MutableStateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
     ) = LoggingViewModel(
-        profileRepo,
-        RecordWeightUseCase(healthLogRepo, profileRepo),
-        RecordBloodPressureUseCase(healthLogRepo),
-        RecordGlucoseUseCase(healthLogRepo),
-        RecordActivityUseCase(healthLogRepo),
-        RecordWaistCircumferenceUseCase(healthLogRepo, profileRepo),
-        healthLogRepo,
+        historyDispatcher(
+            profileRepo, healthLogRepo, FakeMigraines(), FakeExportAdapter(), FakeImportAdapter(),
+            FakeMigraineExport(), FakeMigraineImport()
+        ),
         units = { units },
-        metricOrder = metricOrder,
-        recordOxygenSaturationUseCase = RecordOxygenSaturationUseCase(healthLogRepo)
+        metricOrder = metricOrder
     )
 
     @Test
     fun `LoggingViewModel starts from the latest entry and never from a value derived from the profile`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
 
         // No history: the pickers only show their starting positions and none of them counts as a value
         val profile = Profile.create("Bob", LocalDate.of(1990, 1, 1), height = HeightCm(180), sex = Sex.FEMALE)
@@ -335,7 +249,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel cannot record a starting position until the person sets the value`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1), HeightCm(170)))
         val vm = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -347,7 +261,7 @@ class ViewModelsTest {
             testDispatcher.scheduler.advanceUntilIdle()
             assertEquals(UiText.Res(R.string.log_err_choose_value, emptyList()), vm.uiState.value.errorMessage)
         }
-        assertTrue(healthLogRepo.weights.isEmpty() && healthLogRepo.bps.isEmpty() && healthLogRepo.waistCircumferences.isEmpty())
+        assertTrue(healthLogRepo.weights.isEmpty() && healthLogRepo.bloodPressures.isEmpty() && healthLogRepo.waistCircumferences.isEmpty())
 
         vm.selectMetric(MetricType.WEIGHT)
         vm.onWeightValueChanged(75.0)
@@ -364,7 +278,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel records no pulse when the person did not set one`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
         val vm = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -374,18 +288,18 @@ class ViewModelsTest {
         vm.onDiastolicValueChanged(76)
         vm.saveCurrentMetric()
         testDispatcher.scheduler.advanceUntilIdle()
-        assertNull(healthLogRepo.bps.single().reading.pulse)
+        assertNull(healthLogRepo.bloodPressures.single().reading.pulse)
 
         vm.onPulseValueChanged(64)
         vm.saveCurrentMetric()
         testDispatcher.scheduler.advanceUntilIdle()
-        assertEquals(64, healthLogRepo.bps.last().reading.pulse)
+        assertEquals(64, healthLogRepo.bloodPressures.last().reading.pulse)
     }
 
     @Test
     fun `LoggingViewModel previews and records weight with BMI`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1), HeightCm(170))
         profileRepo.save(profile)
 
@@ -408,7 +322,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel previews and records blood pressure with NHG category`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
@@ -424,14 +338,14 @@ class ViewModelsTest {
         vm.saveCurrentMetric()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(1, healthLogRepo.bps.size)
-        assertEquals(120, healthLogRepo.bps[0].reading.systolic)
+        assertEquals(1, healthLogRepo.bloodPressures.size)
+        assertEquals(120, healthLogRepo.bloodPressures[0].reading.systolic)
     }
 
     @Test
     fun `LoggingViewModel previews and records glucose with conversion`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
@@ -456,7 +370,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel stores imperial weight as metric kilograms`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1), HeightCm(170)))
         val vm = loggingViewModel(profileRepo, healthLogRepo, imperialUnits)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -473,7 +387,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel stores mg per dL glucose as mmol per L`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
         val vm = loggingViewModel(profileRepo, healthLogRepo, imperialUnits)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -491,7 +405,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel stores miles as metric meters and kilometres as meters`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
 
         for ((units, input, expectedMeters) in listOf(
@@ -512,31 +426,10 @@ class ViewModelsTest {
         }
     }
 
-    private fun entryUseCases(
-        health: HealthLogRepositoryPort,
-        profiles: ProfileRepositoryPort,
-        migraines: MigraineRepositoryPort = FakeMigraines()
-    ) = EntryUseCases(
-        updateWeight = UpdateWeightUseCase(health, profiles),
-        updateBloodPressure = UpdateBloodPressureUseCase(health),
-        updateGlucose = UpdateGlucoseUseCase(health),
-        updateActivity = UpdateActivityUseCase(health),
-        updateWaistCircumference = UpdateWaistCircumferenceUseCase(health, profiles),
-        updateOxygenSaturation = UpdateOxygenSaturationUseCase(health),
-        deleteWeight = DeleteWeightUseCase(health),
-        deleteBloodPressure = DeleteBloodPressureUseCase(health),
-        deleteGlucose = DeleteGlucoseUseCase(health),
-        deleteActivity = DeleteActivityUseCase(health),
-        deleteWaistCircumference = DeleteWaistCircumferenceUseCase(health),
-        deleteOxygenSaturation = DeleteOxygenSaturationUseCase(health),
-        deleteMigraine = DeleteMigraineUseCase(migraines),
-        endMigraine = EndMigraineUseCase(migraines)
-    )
-
     @Test
     fun `HistoryViewModel refreshes state after editing and deleting an entry`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
         val older = WeightEntry(MeasurementId.generate(), profile.id, Instant.parse("2026-01-01T08:00:00Z"), WeightKg(BigDecimal("80.0")), null)
@@ -544,14 +437,10 @@ class ViewModelsTest {
         healthLogRepo.weights.addAll(listOf(older, newest))
 
         val vm = HistoryViewModel(
-            profileRepo,
-            GetHealthHistoryUseCase(healthLogRepo),
-            FakeMigraines(),
-            FakeExportAdapter(),
-            FakeImportAdapter(),
-            FakeMigraineExport(),
-            FakeMigraineImport(),
-            entryUseCases(healthLogRepo, profileRepo)
+            historyDispatcher(
+                profileRepo, healthLogRepo, FakeMigraines(), FakeExportAdapter(), FakeImportAdapter(),
+                FakeMigraineExport(), FakeMigraineImport()
+            )
         )
         testDispatcher.scheduler.advanceUntilIdle()
         assertEquals(2, vm.uiState.value.weights.size)
@@ -577,20 +466,16 @@ class ViewModelsTest {
     @Test
     fun `HistoryViewModel keeps the edit dialog open with an error when the update fails`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
         val entry = WeightEntry(MeasurementId.generate(), profile.id, Instant.parse("2026-01-01T08:00:00Z"), WeightKg(BigDecimal("80.0")), null)
         healthLogRepo.weights.add(entry)
         val vm = HistoryViewModel(
-            profileRepo,
-            GetHealthHistoryUseCase(healthLogRepo),
-            FakeMigraines(),
-            FakeExportAdapter(),
-            FakeImportAdapter(),
-            FakeMigraineExport(),
-            FakeMigraineImport(),
-            entryUseCases(healthLogRepo, profileRepo)
+            historyDispatcher(
+                profileRepo, healthLogRepo, FakeMigraines(), FakeExportAdapter(), FakeImportAdapter(),
+                FakeMigraineExport(), FakeMigraineImport()
+            )
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -606,19 +491,15 @@ class ViewModelsTest {
     @Test
     fun `HistoryViewModel filters and triggers CSV export and import`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
         val vm = HistoryViewModel(
-            profileRepo,
-            GetHealthHistoryUseCase(healthLogRepo),
-            FakeMigraines(),
-            FakeExportAdapter(),
-            FakeImportAdapter(),
-            FakeMigraineExport(),
-            FakeMigraineImport(),
-            entryUseCases(healthLogRepo, profileRepo)
+            historyDispatcher(
+                profileRepo, healthLogRepo, FakeMigraines(), FakeExportAdapter(), FakeImportAdapter(),
+                FakeMigraineExport(), FakeMigraineImport()
+            )
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -637,7 +518,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel saves the comment on every entry type and clears it afterwards`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
         val vm = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -659,7 +540,7 @@ class ViewModelsTest {
         vm.onDiastolicValueChanged(76)
         vm.onCommentChanged("stressed")
         save()
-        assertEquals("stressed", healthLogRepo.bps.single().comment?.text)
+        assertEquals("stressed", healthLogRepo.bloodPressures.single().comment?.text)
 
         vm.selectMetric(MetricType.GLUCOSE)
         vm.onGlucoseChanged("5.5")
@@ -684,7 +565,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel saves without a comment and caps the input at 200 single-line characters`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
         val vm = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -704,7 +585,7 @@ class ViewModelsTest {
     @Test
     fun `HistoryViewModel edit sets and clears the comment`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
         val entry = WeightEntry(
@@ -713,14 +594,10 @@ class ViewModelsTest {
         )
         healthLogRepo.weights.add(entry)
         val vm = HistoryViewModel(
-            profileRepo,
-            GetHealthHistoryUseCase(healthLogRepo),
-            FakeMigraines(),
-            FakeExportAdapter(),
-            FakeImportAdapter(),
-            FakeMigraineExport(),
-            FakeMigraineImport(),
-            entryUseCases(healthLogRepo, profileRepo)
+            historyDispatcher(
+                profileRepo, healthLogRepo, FakeMigraines(), FakeExportAdapter(), FakeImportAdapter(),
+                FakeMigraineExport(), FakeMigraineImport()
+            )
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -737,13 +614,12 @@ class ViewModelsTest {
 
     private fun historyViewModel(
         profileRepo: ProfileRepositoryPort,
-        health: FakeHealthLogRepo,
+        health: FakeHealthLogRepository,
         export: DataExportPort = FakeExportAdapter(),
         import: DataImportPort = FakeImportAdapter(),
         migraines: FakeMigraines = FakeMigraines()
     ) = HistoryViewModel(
-        profileRepo, GetHealthHistoryUseCase(health), migraines, export, import,
-        FakeMigraineExport(), FakeMigraineImport(), entryUseCases(health, profileRepo, migraines)
+        historyDispatcher(profileRepo, health, migraines, export, import, FakeMigraineExport(), FakeMigraineImport())
     )
 
     private val at = Instant.parse("2026-03-01T08:00:00Z")
@@ -751,7 +627,7 @@ class ViewModelsTest {
     @Test
     fun `HistoryViewModel lists migraines, deletes one and ends an ongoing one`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val health = FakeHealthLogRepo()
+        val health = FakeHealthLogRepository()
         val migraines = FakeMigraines()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
@@ -777,7 +653,7 @@ class ViewModelsTest {
     @Test
     fun `HistoryViewModel edits and deletes every entry type`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val health = FakeHealthLogRepo()
+        val health = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
         val bp = BloodPressureEntry(MeasurementId.generate(), profile.id, at, BloodPressureReading(130, 85), NhgBloodPressureCategory.NORMAL)
@@ -787,7 +663,7 @@ class ViewModelsTest {
         )
         val waist = WaistCircumferenceEntry(MeasurementId.generate(), profile.id, at, WaistCircumferenceCm(90.0))
         val activity = ActivitySession(MeasurementId.generate(), profile.id, at, at.plusSeconds(600), 1000.0)
-        health.bps.add(bp)
+        health.bloodPressures.add(bp)
         health.glucoses.add(glucose)
         health.waistCircumferences.add(waist)
         health.activities.add(activity)
@@ -828,7 +704,7 @@ class ViewModelsTest {
     @Test
     fun `HistoryViewModel reports an entry that no longer exists`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val health = FakeHealthLogRepo()
+        val health = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
         val gone = WeightEntry(MeasurementId.generate(), profile.id, at, WeightKg(BigDecimal("80.0")), null)
@@ -851,7 +727,7 @@ class ViewModelsTest {
 
     @Test
     fun `HistoryViewModel without a profile shows nothing and ignores export and import`() = runTest {
-        val vm = historyViewModel(FakeProfileRepo(), FakeHealthLogRepo())
+        val vm = historyViewModel(FakeProfileRepo(), FakeHealthLogRepository())
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.exportCsv("weight")
@@ -871,7 +747,7 @@ class ViewModelsTest {
         val broken = object : ProfileRepositoryPort by FakeProfileRepo() {
             override suspend fun getActiveProfile(): Profile? = error("disk")
         }
-        val vm = historyViewModel(broken, FakeHealthLogRepo())
+        val vm = historyViewModel(broken, FakeHealthLogRepository())
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertNotNull(vm.uiState.value.errorMessage)
@@ -882,7 +758,7 @@ class ViewModelsTest {
     fun `HistoryViewModel opens a calendar day on the Migraine filter with all dates and leaves it again`() = runTest {
         val profileRepo = FakeProfileRepo()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
-        val vm = historyViewModel(profileRepo, FakeHealthLogRepo())
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepository())
         testDispatcher.scheduler.advanceUntilIdle()
         val day = LocalDate.of(2026, 3, 1)
 
@@ -904,7 +780,7 @@ class ViewModelsTest {
     fun `HistoryViewModel imports a migraine file through the migraine port`() = runTest {
         val profileRepo = FakeProfileRepo()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
-        val vm = historyViewModel(profileRepo, FakeHealthLogRepo())
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepository())
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.importCsv("migraine", "start_timestamp,woke_up_with_it\n2026-03-01T08:00:00Z,false")
@@ -917,7 +793,7 @@ class ViewModelsTest {
     fun `HistoryViewModel exports each metric and an unknown one as empty`() = runTest {
         val profileRepo = FakeProfileRepo()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
-        val vm = historyViewModel(profileRepo, FakeHealthLogRepo())
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepository())
         testDispatcher.scheduler.advanceUntilIdle()
 
         val expected = mapOf(
@@ -947,7 +823,7 @@ class ViewModelsTest {
             override suspend fun importCsv(profileId: ProfileId, metricType: String, csvContent: String): ImportResult =
                 error("bad file")
         }
-        val vm = historyViewModel(profileRepo, FakeHealthLogRepo(), failingExport, failingImport)
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepository(), failingExport, failingImport)
         testDispatcher.scheduler.advanceUntilIdle()
 
         vm.exportCsv("weight")
@@ -967,7 +843,7 @@ class ViewModelsTest {
     fun `HistoryViewModel clears its messages and tracks the date range`() = runTest {
         val profileRepo = FakeProfileRepo()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
-        val vm = historyViewModel(profileRepo, FakeHealthLogRepo())
+        val vm = historyViewModel(profileRepo, FakeHealthLogRepository())
         testDispatcher.scheduler.advanceUntilIdle()
         vm.exportCsv("weight")
         testDispatcher.scheduler.advanceUntilIdle()
@@ -984,7 +860,7 @@ class ViewModelsTest {
 
     @Test
     fun `LoggingViewModel lists the metrics in the default order when none is saved`() = runTest {
-        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepo())
+        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepository())
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(MetricSlot.DEFAULT_ORDER, vm.uiState.value.orderedMetrics)
@@ -994,7 +870,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel opens on the first metric of a saved order`() = runTest {
         val order = MutableStateFlow(listOf(MetricSlot.GLUCOSE) + (MetricSlot.DEFAULT_ORDER - MetricSlot.GLUCOSE))
-        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepo(), metricOrder = order)
+        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepository(), metricOrder = order)
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(MetricType.GLUCOSE, vm.uiState.value.selectedMetric)
@@ -1003,7 +879,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel starts on the first metric with its own form when Migraine comes first`() = runTest {
         val order = MutableStateFlow(listOf(MetricSlot.MIGRAINE, MetricSlot.ACTIVITY, MetricSlot.WEIGHT, MetricSlot.BLOOD_PRESSURE, MetricSlot.GLUCOSE, MetricSlot.WAIST_CIRCUMFERENCE))
-        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepo(), metricOrder = order)
+        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepository(), metricOrder = order)
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(MetricType.ACTIVITY, vm.uiState.value.selectedMetric)
@@ -1012,7 +888,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel follows a new order without changing the selected metric`() = runTest {
         val order = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
-        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepo(), metricOrder = order)
+        val vm = loggingViewModel(FakeProfileRepo(), FakeHealthLogRepository(), metricOrder = order)
         testDispatcher.scheduler.advanceUntilIdle()
         vm.selectMetric(MetricType.GLUCOSE)
 
@@ -1026,17 +902,13 @@ class ViewModelsTest {
     @Test
     fun `HistoryViewModel follows the metric order and keeps the selected filter`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         val order = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
         val vm = HistoryViewModel(
-            profileRepo,
-            GetHealthHistoryUseCase(healthLogRepo),
-            FakeMigraines(),
-            FakeExportAdapter(),
-            FakeImportAdapter(),
-            FakeMigraineExport(),
-            FakeMigraineImport(),
-            entryUseCases(healthLogRepo, profileRepo),
+            historyDispatcher(
+                profileRepo, healthLogRepo, FakeMigraines(), FakeExportAdapter(), FakeImportAdapter(),
+                FakeMigraineExport(), FakeMigraineImport()
+            ),
             order
         )
         testDispatcher.scheduler.advanceUntilIdle()
@@ -1055,8 +927,7 @@ class ViewModelsTest {
         val saved = mutableListOf<List<MetricSlot>>()
         val profileRepo = FakeProfileRepo()
         val vm = ProfileViewModel(
-            profileRepo,
-            CreateProfileUseCase(profileRepo),
+            profileDispatcher(profileRepo),
             MutableStateFlow(MetricSlot.DEFAULT_ORDER),
             saved::add
         )
@@ -1074,8 +945,7 @@ class ViewModelsTest {
         val saved = mutableListOf<List<MetricSlot>>()
         val profileRepo = FakeProfileRepo()
         val vm = ProfileViewModel(
-            profileRepo,
-            CreateProfileUseCase(profileRepo),
+            profileDispatcher(profileRepo),
             MutableStateFlow(MetricSlot.DEFAULT_ORDER),
             saved::add
         )
@@ -1090,7 +960,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel records oxygen saturation with its notes and then clears them`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
         val vm = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -1126,7 +996,7 @@ class ViewModelsTest {
     @Test
     fun `LoggingViewModel records oxygen saturation without any optional note and toggles a chip off`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val healthLogRepo = FakeHealthLogRepo()
+        val healthLogRepo = FakeHealthLogRepository()
         profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
         val vm = loggingViewModel(profileRepo, healthLogRepo)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -1151,7 +1021,7 @@ class ViewModelsTest {
     @Test
     fun `HistoryViewModel edits and deletes an oxygen saturation entry`() = runTest {
         val profileRepo = FakeProfileRepo()
-        val health = FakeHealthLogRepo()
+        val health = FakeHealthLogRepository()
         val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
         val entry = OxygenSaturationEntry(MeasurementId.generate(), profile.id, at, OxygenSaturationPercent(95))

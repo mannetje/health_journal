@@ -9,11 +9,13 @@ import nl.healthjournal.data.local.entity.WeightEntity
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
 import nl.healthjournal.domain.model.metrics.*
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
-import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
 import java.math.BigDecimal
 import java.time.Instant
+import nl.healthjournal.domain.model.common.EntryComment
+import nl.healthjournal.domain.model.common.WeightKg
 
 object HealthLogMapper {
 

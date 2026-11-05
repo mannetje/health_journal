@@ -4,6 +4,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Changed
+- **Internal structure, no behaviour change:** the screens no longer call use cases and ports directly. They send commands and queries to one `Dispatcher`, and each is carried out by one handler that returns a typed result. Metrics now have one storage port each instead of one shared port. Validation limits are defined once in the value objects, and the messages shown for invalid input come from typed errors mapped to the existing English and Dutch strings. The domain is divided into bounded contexts with an import rule that a test checks. See [ADR 0036](docs/adr/0036-application-boundary-commands-and-queries.md), [ADR 0037](docs/adr/0037-typed-domain-errors-and-single-source-for-rules.md), [ADR 0038](docs/adr/0038-bounded-contexts-and-tactical-roles.md) and the [context map](docs/dev/context-map.md).
+
 ## [1.7.1] - 2026-11-05
 
 ### Changed

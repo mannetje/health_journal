@@ -13,7 +13,7 @@
 ## 1. Domain (`:domain`) and data (`:data`)
 - [ ] 1.1 `ActivityDay`, `ActivityType`, validation (at least one number, ranges, date not in the future); JVM tests
 - [ ] 1.2 `ActivityStatistics`; JVM tests for empty range, one day, gaps not counted as zero, ties, rounding
-- [ ] 1.3 Port methods and use cases (`SaveActivityDay` upserts by date)
+- [ ] 1.3 Own port, save (upserts by date) and update commands with handlers, delete branch in `PortEntryGateway`, handlers registered in `CommandModule`
 - [ ] 1.4 Entity, DAO, mapper, unique index, next-free-number migration, repository; migration test from the previous version
 - [ ] 1.5 CSV export and import with row rejection (duplicates, unknown code); round-trip tests
 - [ ] 1.6 Backup snapshot and restore of `activityDays`; older-file test; duplicate-date test

@@ -4,9 +4,10 @@ import nl.healthjournal.domain.model.medication.Intake
 import nl.healthjournal.domain.model.medication.IntakeId
 import nl.healthjournal.domain.model.medication.IntakeStatus
 import nl.healthjournal.domain.model.medication.MedicationId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -15,13 +16,14 @@ import java.time.LocalDateTime
  * Recording again for the same planned intake replaces the earlier outcome.
  */
 class RecordIntakeUseCase(
-    private val medicationRepository: MedicationRepositoryPort
+    private val medicationRepository: MedicationRepositoryPort,
+    private val clock: Clock = Clock.systemUTC()
 ) {
     suspend operator fun invoke(
         medicationId: MedicationId,
         planned: LocalDateTime?,
         status: IntakeStatus = IntakeStatus.TAKEN,
-        takenAt: Instant = Instant.now(),
+        takenAt: Instant? = null,
         actualAmount: BigDecimal? = null,
         comment: String? = null
     ): Intake {
@@ -33,7 +35,7 @@ class RecordIntakeUseCase(
             medicationId = medicationId,
             planned = planned,
             status = status,
-            takenAt = if (status == IntakeStatus.TAKEN) takenAt else null,
+            takenAt = if (status == IntakeStatus.TAKEN) takenAt ?: clock.instant() else null,
             actualAmount = if (status == IntakeStatus.TAKEN) actualAmount else null,
             comment = EntryComment.ofOrNull(comment)
         )

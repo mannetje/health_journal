@@ -8,10 +8,10 @@ import nl.healthjournal.app.ui.common.formatDecimal
 import nl.healthjournal.app.ui.common.glucoseDigits
 import nl.healthjournal.app.ui.common.glucoseFromMmol
 import nl.healthjournal.domain.model.metrics.GlucoseContext
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.nhg.NhgBmiCategory
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
-import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgBmiCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Sex
 
 // Every label is "name · range" and never names a condition (range-labels).

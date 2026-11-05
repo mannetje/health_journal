@@ -1,9 +1,10 @@
 package nl.healthjournal.domain.usecase
 
+import nl.healthjournal.domain.testing.FakeHealthLogRepository
 import kotlinx.coroutines.runBlocking
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.metrics.OxygenContext
 import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent

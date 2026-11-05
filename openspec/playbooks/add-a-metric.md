@@ -9,9 +9,9 @@ Detail: [How to add a metric](../../docs/dev/how-to/add-a-metric.md).
 
 ## Steps
 1. Propose an OpenSpec change naming the capability, limits, unit and labels.
-2. Domain: value object, entry, classifier (if any), port methods, use cases, tests.
+2. Domain: value object with an `of(...)` factory and its bounds once, entry, classifier (if any), one port for the metric (never a method on another metric's port), a record and an update command with one handler each, a branch in `PortEntryGateway` for delete, tests over the shared fakes.
 3. Data: entity, DAO, migration ([change-the-database](change-the-database.md)), mapper, repository, CSV export and import, tests.
-4. App: wire use cases, logging form, history, optional trend chart, strings in EN and NL ([add-a-translation](add-a-translation.md)), tests.
+4. App: register the handlers in `CommandModule`, one string per validation rule in `DomainErrorUiText`, logging form (it talks to the `Dispatcher` only), history, optional trend chart, strings in EN and NL ([add-a-translation](add-a-translation.md)), tests.
 5. Docs: README, CHANGELOG (Unreleased), spec, ADR if a decision was made.
 
 ## Done when

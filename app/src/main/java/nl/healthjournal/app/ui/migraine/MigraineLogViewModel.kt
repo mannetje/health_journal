@@ -13,7 +13,7 @@ import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.toUiText
 import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.migraine.DailyActivities
 import nl.healthjournal.domain.model.migraine.HeadArea
 import nl.healthjournal.domain.model.migraine.MigraineEntry
@@ -26,15 +26,20 @@ import nl.healthjournal.domain.model.migraine.MigraineType
 import nl.healthjournal.domain.model.migraine.PainCharacter
 import nl.healthjournal.domain.model.migraine.ReliefMethod
 import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.usecase.AddMigraineTagUseCase
+import nl.healthjournal.domain.command.DomainError
+import nl.healthjournal.domain.command.DomainResult
+import nl.healthjournal.domain.command.Dispatcher
+import nl.healthjournal.domain.command.ValidationRule
+import nl.healthjournal.domain.migraine.command.AddMigraineTagCommand
+import nl.healthjournal.domain.migraine.command.ArchiveMigraineTagCommand
+import nl.healthjournal.domain.migraine.command.ObserveMigraineHistoryQuery
+import nl.healthjournal.domain.migraine.command.ObserveMigraineTagsQuery
+import nl.healthjournal.domain.migraine.command.RecordMigraineCommand
+import nl.healthjournal.domain.migraine.command.RenameMigraineTagCommand
+import nl.healthjournal.domain.migraine.command.UpdateMigraineCommand
+import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
 import nl.healthjournal.domain.usecase.AddTagResult
-import nl.healthjournal.domain.usecase.ArchiveMigraineTagUseCase
-import nl.healthjournal.domain.usecase.RecordMigraineUseCase
-import nl.healthjournal.domain.usecase.RenameMigraineTagUseCase
 import nl.healthjournal.domain.usecase.RenameTagResult
-import nl.healthjournal.domain.usecase.UpdateMigraineUseCase
 import java.time.Clock
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -101,28 +106,14 @@ data class MigraineUiState(
 
 @HiltViewModel
 class MigraineLogViewModel(
-    private val profileRepository: ProfileRepositoryPort,
-    private val repository: MigraineRepositoryPort,
-    private val recordMigraine: RecordMigraineUseCase,
-    private val updateMigraine: UpdateMigraineUseCase,
-    private val addTag: AddMigraineTagUseCase,
-    private val renameTag: RenameMigraineTagUseCase,
-    private val archiveTag: ArchiveMigraineTagUseCase,
-    private val clock: Clock = Clock.systemDefaultZone(),
-    private val zone: () -> ZoneId = { ZoneId.systemDefault() }
+    private val dispatcher: Dispatcher,
+    private val clock: Clock,
+    private val zone: () -> ZoneId
 ) : ViewModel() {
 
-    /** The constructor Hilt uses; tests pass the use cases and the clock directly. */
+    /** The constructor Hilt uses; tests pass the clock and the zone directly. */
     @Inject
-    constructor(profileRepository: ProfileRepositoryPort, repository: MigraineRepositoryPort) : this(
-        profileRepository,
-        repository,
-        RecordMigraineUseCase(repository),
-        UpdateMigraineUseCase(repository),
-        AddMigraineTagUseCase(repository),
-        RenameMigraineTagUseCase(repository),
-        ArchiveMigraineTagUseCase(repository)
-    )
+    constructor(dispatcher: Dispatcher) : this(dispatcher, Clock.systemDefaultZone(), { ZoneId.systemDefault() })
 
     private val _uiState = MutableStateFlow(MigraineUiState())
     val uiState: StateFlow<MigraineUiState> = _uiState.asStateFlow()
@@ -136,7 +127,7 @@ class MigraineLogViewModel(
     /** Also called after a backup restore or a profile switch, so the card and the tag list follow the profile. */
     fun loadProfile() {
         viewModelScope.launch {
-            val profile = profileRepository.getActiveProfile()
+            val profile = dispatcher.query(GetActiveProfileQuery).getOrNull()
             _uiState.value = _uiState.value.copy(activeProfile = profile)
             observing?.cancel()
             if (profile == null) {
@@ -145,13 +136,15 @@ class MigraineLogViewModel(
             }
             observing = launch {
                 launch {
-                    repository.observeMigraineHistory(profile.id).collect { list ->
-                        _uiState.value = _uiState.value.copy(latest = list.maxByOrNull { it.start })
+                    dispatcher.observe(ObserveMigraineHistoryQuery(profile.id)).collect { result ->
+                        result.getOrNull()?.let { list ->
+                            _uiState.value = _uiState.value.copy(latest = list.maxByOrNull { it.start })
+                        }
                     }
                 }
                 launch {
-                    repository.observeMigraineTags(profile.id).collect { tags ->
-                        _uiState.value = _uiState.value.copy(tags = tags)
+                    dispatcher.observe(ObserveMigraineTagsQuery(profile.id)).collect { result ->
+                        result.getOrNull()?.let { tags -> _uiState.value = _uiState.value.copy(tags = tags) }
                     }
                 }
             }
@@ -324,26 +317,28 @@ class MigraineLogViewModel(
         if (s.saving) return
         _uiState.value = s.copy(saving = true, errorMessage = null)
         viewModelScope.launch {
-            try {
-                val entry = toEntry(draft, profile)
-                if (draft.editingId != null) {
-                    updateMigraine(entry) ?: error("Unknown entry")
-                } else {
-                    recordMigraine(entry)
-                }
-                _uiState.value = _uiState.value.copy(
+            val entry = toEntry(draft, profile)
+            val result: DomainResult<*> = if (draft.editingId != null) {
+                dispatcher.dispatch(UpdateMigraineCommand(entry))
+            } else {
+                dispatcher.dispatch(RecordMigraineCommand(entry))
+            }
+            _uiState.value = when (result) {
+                is DomainResult.Success -> _uiState.value.copy(
                     open = false, draft = null, step = MigraineStep.TIME, saving = false, tagDialog = null,
                     successMessage = UiText.Res(
                         if (draft.editingId != null) R.string.migraine_msg_updated else R.string.migraine_msg_saved
                     )
                 )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    saving = false, errorMessage = e.toUiText(R.string.migraine_err_save_failed)
-                )
+                is DomainResult.Failure -> _uiState.value.copy(saving = false, errorMessage = result.error.saveText())
             }
         }
     }
+
+    /** The end-before-start rule has its own text; anything else is a failed save. */
+    private fun DomainError.saveText(): UiText =
+        if (this is DomainError.Invalid && rule == ValidationRule.END_NOT_AFTER_START) toUiText()
+        else UiText.Res(R.string.migraine_err_save_failed)
 
     private fun toEntry(d: MigraineDraft, profile: Profile): MigraineEntry {
         val z = zone()
@@ -413,41 +408,54 @@ class MigraineLogViewModel(
         viewModelScope.launch {
             val existing = dialog.tag
             if (existing == null) {
-                when (val result = addTag(profile.id, dialog.kind, label)) {
-                    is AddTagResult.Added -> {
-                        val id = result.tag.id
-                        _uiState.value = _uiState.value.copy(tagDialog = null)
-                        edit {
-                            if (dialog.kind == MigraineTagKind.TRIGGER) it.copy(customTriggerIds = it.customTriggerIds + id)
-                            else fixRelief(it.copy(customReliefIds = it.customReliefIds + id))
+                when (val result = dispatcher.dispatch(AddMigraineTagCommand(profile.id, dialog.kind, label))) {
+                    is DomainResult.Success -> when (val added = result.value) {
+                        is AddTagResult.Added -> {
+                            val id = added.tag.id
+                            _uiState.value = _uiState.value.copy(tagDialog = null)
+                            edit {
+                                if (dialog.kind == MigraineTagKind.TRIGGER) it.copy(customTriggerIds = it.customTriggerIds + id)
+                                else fixRelief(it.copy(customReliefIds = it.customReliefIds + id))
+                            }
                         }
+                        AddTagResult.LimitReached -> showTagError(
+                            dialog, UiText.Res(R.string.migraine_tag_err_limit, MigraineTag.MAX_ACTIVE_PER_KIND)
+                        )
                     }
-                    AddTagResult.LimitReached -> _uiState.value = _uiState.value.copy(
-                        tagDialog = dialog.copy(error = UiText.Res(R.string.migraine_tag_err_limit, MigraineTag.MAX_ACTIVE_PER_KIND))
-                    )
+                    is DomainResult.Failure -> showTagError(dialog, result.error.toUiText())
                 }
             } else {
-                when (renameTag(existing.id, label)) {
-                    is RenameTagResult.Renamed, RenameTagResult.UnknownTag ->
-                        _uiState.value = _uiState.value.copy(tagDialog = null)
-                    RenameTagResult.LabelTaken -> _uiState.value = _uiState.value.copy(
-                        tagDialog = dialog.copy(error = UiText.Res(R.string.migraine_tag_err_taken))
-                    )
+                when (val result = dispatcher.dispatch(RenameMigraineTagCommand(existing.id, label))) {
+                    is DomainResult.Success -> when (result.value) {
+                        is RenameTagResult.Renamed, RenameTagResult.UnknownTag ->
+                            _uiState.value = _uiState.value.copy(tagDialog = null)
+                        RenameTagResult.LabelTaken -> showTagError(dialog, UiText.Res(R.string.migraine_tag_err_taken))
+                    }
+                    is DomainResult.Failure -> showTagError(dialog, result.error.toUiText())
                 }
             }
         }
     }
 
+    private fun showTagError(dialog: TagDialogState, error: UiText) {
+        _uiState.value = _uiState.value.copy(tagDialog = dialog.copy(error = error))
+    }
+
     /** Removes the tag from the pick list. Older entries keep it, and it is dropped from the draft. */
     fun removeTag() {
         val s = _uiState.value
-        val tag = s.tagDialog?.tag ?: return
+        val dialog = s.tagDialog ?: return
+        val tag = dialog.tag ?: return
         viewModelScope.launch {
-            archiveTag(tag.id)
-            _uiState.value = _uiState.value.copy(tagDialog = null)
-            edit {
-                if (tag.kind == MigraineTagKind.TRIGGER) it.copy(customTriggerIds = it.customTriggerIds - tag.id)
-                else fixRelief(it.copy(customReliefIds = it.customReliefIds - tag.id))
+            when (val result = dispatcher.dispatch(ArchiveMigraineTagCommand(tag.id))) {
+                is DomainResult.Success -> {
+                    _uiState.value = _uiState.value.copy(tagDialog = null)
+                    edit {
+                        if (tag.kind == MigraineTagKind.TRIGGER) it.copy(customTriggerIds = it.customTriggerIds - tag.id)
+                        else fixRelief(it.copy(customReliefIds = it.customReliefIds - tag.id))
+                    }
+                }
+                is DomainResult.Failure -> showTagError(dialog, result.error.toUiText())
             }
         }
     }

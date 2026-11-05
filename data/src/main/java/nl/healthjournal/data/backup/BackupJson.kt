@@ -38,11 +38,11 @@ import nl.healthjournal.domain.model.migraine.ReliefMethod
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.BloodPressureReading
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.GlucoseLevel
-import nl.healthjournal.domain.model.metrics.HeightCm
+import nl.healthjournal.domain.model.common.HeightCm
 import nl.healthjournal.domain.model.metrics.OxygenContext
 import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent
@@ -50,9 +50,9 @@ import nl.healthjournal.domain.model.metrics.OxygenSite
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceCm
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
-import nl.healthjournal.domain.model.metrics.WeightKg
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
+import nl.healthjournal.domain.model.common.WeightKg
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
 import nl.healthjournal.domain.model.profile.Profile
 import nl.healthjournal.domain.model.profile.Sex
 import org.json.JSONArray
@@ -63,6 +63,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import nl.healthjournal.domain.model.metrics.WaistCircumferenceClassifier
 
 /**
  * The JSON document inside a backup, exactly as `docs/backup-format/README.md` describes it.
@@ -346,7 +347,7 @@ object BackupJson {
                     val waist = WaistCircumferenceCm(e.dec("waistCm").toDouble())
                     WaistCircumferenceEntry(
                         MeasurementId.fromString(e.req("id")), pid, Instant.parse(e.req("timestamp")), waist,
-                        profile.classifyWaistCircumference(waist), e.comment()
+                        WaistCircumferenceClassifier.classify(profile.sex, waist), e.comment()
                     )
                 }
             },

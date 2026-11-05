@@ -1,7 +1,7 @@
 package nl.healthjournal.app.ui.history.charts
 
 import nl.healthjournal.domain.model.metrics.WaistCircumferenceCm
-import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Sex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

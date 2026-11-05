@@ -1,7 +1,7 @@
 package nl.healthjournal.domain.model.medication
 
 import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId

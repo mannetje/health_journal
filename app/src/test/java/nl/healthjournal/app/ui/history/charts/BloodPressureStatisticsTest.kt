@@ -1,7 +1,7 @@
 package nl.healthjournal.app.ui.history.charts
 
 import nl.healthjournal.domain.model.metrics.BloodPressureReading
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull

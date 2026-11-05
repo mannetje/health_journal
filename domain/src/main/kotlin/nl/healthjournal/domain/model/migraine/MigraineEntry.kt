@@ -2,7 +2,7 @@ package nl.healthjournal.domain.model.migraine
 
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.Instant
@@ -58,6 +58,9 @@ data class MigraineEntry(
     }
 
     val ongoing: Boolean get() = end == null
+
+    /** This migraine ended at [at], or null when it already has an end or [at] is before the start. */
+    fun endedAt(at: Instant): MigraineEntry? = if (!ongoing || at.isBefore(start)) null else copy(end = at)
 
     /** Null while ongoing. */
     val duration: Duration? get() = end?.let { Duration.between(start, it) }

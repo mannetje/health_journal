@@ -12,7 +12,7 @@ Body temperature is a plain metric and follows `docs/dev/how-to/add-a-metric.md`
 ### 1. Domain (`:domain`)
 - `BodyTemperature(id, profileId, timestamp, tenthsCelsius, site?, comment?)`. The value is kept as an integer number of tenths of a degree (370 means 37.0), so there is no floating-point drift in storage, CSV or averages. Validation: 300 to 450 tenths; input with more than one decimal is refused, not rounded.
 - `TemperatureSite` (EAR, MOUTH, ARMPIT, FOREHEAD, RECTAL) with stable codes.
-- Port methods on `HealthLogRepositoryPort` and use cases `RecordBodyTemperature`, `UpdateBodyTemperature`, `DeleteBodyTemperature`.
+- A new `BodyTemperatureRepositoryPort` (one port per metric, see ADR 0036 and 0038) and the commands `RecordBodyTemperatureCommand` and `UpdateBodyTemperatureCommand` with one handler each, a `BodyTemperature` branch in `PortEntryGateway` for `DeleteEntryCommand`, and `BodyTemperature.of(...)` returning a `DomainResult`. Handlers are registered in `CommandModule`.
 - `TemperatureStatistics`: lowest, highest, average (one decimal, half up on the tenths sum) and count for a range. No thresholds, no clock, no per-site split.
 
 ### 2. Data (`:data`)

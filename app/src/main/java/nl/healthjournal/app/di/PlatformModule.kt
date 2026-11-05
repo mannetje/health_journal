@@ -15,7 +15,10 @@ import nl.healthjournal.app.settings.BackupPreferenceBridge
 import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.settings.UnitPreference
-import nl.healthjournal.app.ui.medication.MedicationUseCases
+import java.time.Clock
+import nl.healthjournal.domain.usecase.GetPillboxDayUseCase
+import nl.healthjournal.domain.usecase.RecordIntakeUseCase
+import nl.healthjournal.domain.usecase.RecordSlotIntakesUseCase
 import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
 import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
 import nl.healthjournal.domain.usecase.RearmRemindersUseCase
@@ -58,14 +61,17 @@ object PlatformModule {
         @ApplicationContext context: Context,
         profile: ProfileRepositoryPort,
         medication: MedicationRepositoryPort,
-        medicationUseCases: MedicationUseCases,
+        clock: Clock,
         scheduler: AlarmReminderScheduler,
         preference: ReminderPreference
     ) = ReminderCoordinator(
         context = context,
         profileRepository = profile,
         rearmReminders = RearmRemindersUseCase(medication, scheduler),
-        takeAllForSlot = TakeAllForSlotUseCase(medicationUseCases.getDay, medicationUseCases.recordSlot),
+        takeAllForSlot = TakeAllForSlotUseCase(
+            GetPillboxDayUseCase(medication),
+            RecordSlotIntakesUseCase(RecordIntakeUseCase(medication, clock), clock)
+        ),
         scheduler = scheduler,
         notifier = ReminderNotifier(context),
         preference = preference

@@ -18,6 +18,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import nl.healthjournal.domain.testing.FakeMedicationRepository
 
 private class FakeScheduler : ReminderSchedulerPort {
     var armed: LocalDateTime? = null

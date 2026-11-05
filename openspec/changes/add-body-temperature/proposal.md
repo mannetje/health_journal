@@ -27,7 +27,7 @@ People take their temperature with an ear, forehead or other thermometer and wan
 ## Impact
 - **Database:** one Room migration, numbered as the next free number at implementation time (current database version + 1), so this change does not depend on the order in which features are built; it creates one table `body_temperatures` (id, profile id, timestamp, temperature in tenths of a degree Celsius as an integer, nullable site code, nullable comment). Existing tables are untouched; an upgrade only adds an empty table. A migration test opens a database of the previous version with data.
 - **Stored data shape:** the backup document gains a `bodyTemperatures` list per profile; `schemaVersion` stays 1. `docs/backup-format/` (README, JSON schema, `hjbackup.py`, test vectors, recovery page) is updated.
-- **Affected code:** `BodyTemperature` and `TemperatureSite` in `:domain` with validation, statistics and use cases (JVM tests including empty range and a single reading); entity, DAO, mapper, migration, repository methods and CSV adapters in `:data`; Log card, form, History row and edit dialog and the graph view in `:app`.
+- **Affected code:** `BodyTemperature` and `TemperatureSite` in `:domain` with validation, statistics and commands with handlers (JVM tests including empty range and a single reading); entity, DAO, mapper, migration, repository methods and CSV adapters in `:data`; Log card, form, History row and edit dialog and the graph view in `:app`.
 - **Dependencies and permissions:** none.
 - **Docs:** README, CHANGELOG, `docs/dev/` pages, `docs/dev/zib-mapping.md` (row proposed in the drafting report), screenshots (English and Dutch, light and dark), `docs/backup-format/`.
 

@@ -13,7 +13,7 @@
 ## 1. Domain (`:domain`) and data (`:data`)
 - [ ] 1.1 `MoodEntry`, `MoodFeeling`, validation (level 1 to 5, optional stress level 1 to 5, at most three distinct words); JVM tests
 - [ ] 1.2 `MoodStatistics` (counts, average, daily means, for mood and for stress); JVM tests for empty range, one entry, several per day, rounding half up, day boundaries
-- [ ] 1.3 Port methods and use cases
+- [ ] 1.3 Own port, record and update commands with handlers, delete branch in `PortEntryGateway`, handlers registered in `CommandModule`
 - [ ] 1.4 Entity (with the nullable `stressLevel` column), DAO, mapper, the new migration, repository; migration test from the previous version; unknown code ignored on read
 - [ ] 1.5 CSV export and import with the `stress_level` column and row rejection (stress outside 1 to 5 or not a whole number); round-trip tests
 - [ ] 1.6 Backup snapshot and restore of `moodEntries` including `stressLevel`; older-file and unknown-code tests

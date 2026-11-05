@@ -2,16 +2,18 @@ package nl.healthjournal.domain.usecase
 
 import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.metrics.OxygenContext
 import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
 import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent
 import nl.healthjournal.domain.model.metrics.OxygenSite
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
+import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
+import java.time.Clock
 import java.time.Instant
 
 class RecordOxygenSaturationUseCase(
-    private val healthLogRepository: HealthLogRepositoryPort
+    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort,
+    private val clock: Clock = Clock.systemUTC()
 ) {
     suspend operator fun invoke(
         profileId: ProfileId,
@@ -20,14 +22,14 @@ class RecordOxygenSaturationUseCase(
         context: OxygenContext? = null,
         site: OxygenSite? = null,
         oxygenGiven: Boolean = false,
-        timestamp: Instant = Instant.now(),
+        timestamp: Instant? = null,
         measurementId: MeasurementId = MeasurementId.generate(),
         comment: String? = null
     ): OxygenSaturationEntry {
         val entry = OxygenSaturationEntry(
             id = measurementId,
             profileId = profileId,
-            timestamp = timestamp,
+            timestamp = timestamp ?: clock.instant(),
             saturation = OxygenSaturationPercent(percent),
             pulse = pulse,
             context = context,
@@ -35,14 +37,14 @@ class RecordOxygenSaturationUseCase(
             oxygenGiven = oxygenGiven,
             comment = EntryComment.ofOrNull(comment)
         )
-        healthLogRepository.saveOxygenSaturation(entry)
+        oxygenSaturationRepository.saveOxygenSaturation(entry)
         return entry
     }
 }
 
 /** Replaces an existing oxygen saturation entry (same id and profile). Returns null when the id is unknown. */
 class UpdateOxygenSaturationUseCase(
-    private val healthLogRepository: HealthLogRepositoryPort
+    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort
 ) {
     suspend operator fun invoke(
         id: MeasurementId,
@@ -66,13 +68,13 @@ class UpdateOxygenSaturationUseCase(
             oxygenGiven = oxygenGiven,
             comment = EntryComment.ofOrNull(comment)
         )
-        return entry.takeIf { healthLogRepository.updateOxygenSaturation(it) }
+        return entry.takeIf { oxygenSaturationRepository.updateOxygenSaturation(it) }
     }
 }
 
 /** Permanently deletes one oxygen saturation entry by id. Returns false when the id is unknown. */
 class DeleteOxygenSaturationUseCase(
-    private val healthLogRepository: HealthLogRepositoryPort
+    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort
 ) {
-    suspend operator fun invoke(id: MeasurementId): Boolean = healthLogRepository.deleteOxygenSaturation(id)
+    suspend operator fun invoke(id: MeasurementId): Boolean = oxygenSaturationRepository.deleteOxygenSaturation(id)
 }

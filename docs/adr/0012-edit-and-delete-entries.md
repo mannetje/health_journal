@@ -10,7 +10,7 @@ Entries could only be created (Log screen) or bulk-imported (CSV). A mistyped we
 
 ## Decision
 
-- **Domain:** `HealthLogRepositoryPort` gains `updateX(entry): Boolean` and `deleteX(id: MeasurementId): Boolean` for Weight, Blood Pressure, Glucose and Activity. `false` means the id does not exist. New use cases `UpdateXUseCase` and `DeleteXUseCase` re-validate through the existing value objects and recompute derived data (BMI for weight, NHG categories for blood pressure and glucose). An update keeps the entry's id and profile. Updates return `null` for an unknown id.
+- **Domain:** The metric repository ports gain (originally one `HealthLogRepositoryPort`, since split into one port per metric) `updateX(entry): Boolean` and `deleteX(id: MeasurementId): Boolean` for Weight, Blood Pressure, Glucose and Activity. `false` means the id does not exist. New use cases `UpdateXUseCase` and `DeleteXUseCase` re-validate through the existing value objects and recompute derived data (BMI for weight, NHG categories for blood pressure and glucose). An update keeps the entry's id and profile. Updates return `null` for an unknown id.
 - **Explicit update instead of `insert(REPLACE)`:** the existing insert already replaces on the primary key, but an edit of a missing id would silently create a new row. Room `@Update` returns the affected row count, so a missing id is an error. No schema change: the database stays at version 2 and needs no migration.
 - **State:** `HistoryViewModel` exposes `startEdit`/`cancelEdit`, `requestDelete`/`cancelDelete`/`confirmDelete` and `updateX`. Which entry is being edited or deleted (`EntryRef`) lives in `HistoryUiState`, so dialogs survive rotation. After a successful update or delete the view model calls `loadHistory()`, which is how the list, trend charts and stat chips refresh (the screen does not observe Room flows). A failed update keeps the dialog open and sets `editError`.
 - **Icon buttons, no swipe:** each History entry card has an Edit and a Delete `IconButton`. Swipe-to-delete is easy to trigger while scrolling a long list and is not discoverable. Following Android/Material guidelines: `IconButton` gives the 48 dp minimum touch target, the icons are the standard `Icons.Filled.Edit` and `Icons.Filled.Delete`, and both have localized (English/Dutch) content descriptions for TalkBack. The delete icon uses the error colour.
@@ -22,7 +22,7 @@ Entries could only be created (Log screen) or bulk-imported (CSV). A mistyped we
 flowchart LR
     UI["EntryCard icons<br/>EntryDialogs"] --> VM["HistoryViewModel<br/>(EntryRef, editError)"]
     VM --> UC["Update/Delete use cases"]
-    UC --> PORT["HealthLogRepositoryPort<br/>updateX / deleteX"]
+    UC --> PORT["Metric repository ports<br/>updateX / deleteX"]
     PORT --> ROOM["RoomHealthLogRepository<br/>@Update, DELETE WHERE id"]
     VM -->|"loadHistory() on success"| UI
 ```

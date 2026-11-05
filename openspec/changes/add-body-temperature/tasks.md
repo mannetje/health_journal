@@ -13,7 +13,7 @@
 ## 1. Domain (`:domain`) and data (`:data`)
 - [ ] 1.1 `BodyTemperature`, `TemperatureSite`, validation; JVM tests (bounds 30.0 and 45.0, 29.9, 45.1, two decimals refused)
 - [ ] 1.2 `TemperatureStatistics`; JVM tests for empty range, one reading, ties, rounding
-- [ ] 1.3 Port methods and use cases
+- [ ] 1.3 Own port, record and update commands with handlers, delete branch in `PortEntryGateway`, handlers registered in `CommandModule`
 - [ ] 1.3a `TemperatureUnit`, region default, C/F conversion functions; JVM tests (98.6 F stores 370, 86.0 and 113.0 F bounds, 85.9 and 113.1 refused, half-up rounding)
 - [ ] 1.4 Entity, DAO, mapper, migration (next free number), repository; migration test from the previous version
 - [ ] 1.5 CSV export and import with row rejection; round-trip tests

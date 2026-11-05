@@ -23,7 +23,7 @@ import nl.healthjournal.app.ui.nhg.getBpColor
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
 import nl.healthjournal.domain.model.metrics.BloodPressureReading
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
 
 private const val GAUGE_SYSTOLIC_MIN = 80f
 private const val GAUGE_SYSTOLIC_MAX = 200f

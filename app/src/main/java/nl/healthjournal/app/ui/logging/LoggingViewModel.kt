@@ -14,7 +14,6 @@ import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.DisplayUnits
 import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.UiText
-import nl.healthjournal.app.ui.common.UiTextException
 import nl.healthjournal.app.ui.common.toUiText
 import nl.healthjournal.app.ui.common.distanceToMeters
 import nl.healthjournal.app.ui.common.glucoseToMmol
@@ -23,22 +22,27 @@ import nl.healthjournal.app.ui.common.weightToKg
 import nl.healthjournal.domain.model.common.GlucoseUnit
 import nl.healthjournal.domain.model.common.UnitConversion
 import nl.healthjournal.domain.model.metrics.*
-import nl.healthjournal.domain.model.nhg.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.nhg.NhgBmiCategory
-import nl.healthjournal.domain.model.nhg.NhgGlucoseCategory
-import nl.healthjournal.domain.model.nhg.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
+import nl.healthjournal.domain.model.metrics.NhgBmiCategory
+import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
+import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
 import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.port.secondary.HealthLogRepositoryPort
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.usecase.RecordActivityUseCase
-import nl.healthjournal.domain.usecase.RecordBloodPressureUseCase
-import nl.healthjournal.domain.usecase.RecordGlucoseUseCase
-import nl.healthjournal.domain.usecase.RecordOxygenSaturationUseCase
-import nl.healthjournal.domain.usecase.RecordWaistCircumferenceUseCase
-import nl.healthjournal.domain.usecase.RecordWeightUseCase
+import nl.healthjournal.domain.command.DomainResult
+import nl.healthjournal.domain.command.Dispatcher
+import nl.healthjournal.domain.command.GetHistoryQuery
+import nl.healthjournal.domain.metrics.command.RecordActivityCommand
+import nl.healthjournal.domain.metrics.command.RecordBloodPressureCommand
+import nl.healthjournal.domain.metrics.command.RecordGlucoseCommand
+import nl.healthjournal.domain.metrics.command.RecordOxygenSaturationCommand
+import nl.healthjournal.domain.metrics.command.RecordWaistCircumferenceCommand
+import nl.healthjournal.domain.metrics.command.RecordWeightCommand
+import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
+import nl.healthjournal.domain.model.common.ProfileId
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.Locale
+import nl.healthjournal.domain.model.common.EntryComment
+import nl.healthjournal.domain.model.common.WeightKg
 
 enum class MetricType {
     WEIGHT,
@@ -130,38 +134,20 @@ private const val START_OXYGEN_PERCENT = 96
 
 @HiltViewModel
 class LoggingViewModel(
-    private val profileRepository: ProfileRepositoryPort,
-    private val recordWeightUseCase: RecordWeightUseCase,
-    private val recordBloodPressureUseCase: RecordBloodPressureUseCase,
-    private val recordGlucoseUseCase: RecordGlucoseUseCase,
-    private val recordActivityUseCase: RecordActivityUseCase,
-    private val recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
-    private val healthLogRepository: HealthLogRepositoryPort? = null,
+    private val dispatcher: Dispatcher,
     /** Reads the units currently chosen, so typed values are converted to metric before validation. */
     private val units: () -> DisplayUnits = { DisplayUnits.DEFAULT },
     /** The order of the metric tabs; the first tab with a form of its own is the one that opens selected. */
-    private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER),
-    private val recordOxygenSaturationUseCase: RecordOxygenSaturationUseCase? = null
+    private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
 ) : ViewModel() {
 
     /** The constructor Hilt uses; tests pass the unit and order sources directly. */
     @Inject
     constructor(
-        profileRepository: ProfileRepositoryPort,
-        recordWeightUseCase: RecordWeightUseCase,
-        recordBloodPressureUseCase: RecordBloodPressureUseCase,
-        recordGlucoseUseCase: RecordGlucoseUseCase,
-        recordActivityUseCase: RecordActivityUseCase,
-        recordWaistCircumferenceUseCase: RecordWaistCircumferenceUseCase,
-        recordOxygenSaturationUseCase: RecordOxygenSaturationUseCase,
-        healthLogRepository: HealthLogRepositoryPort,
+        dispatcher: Dispatcher,
         unitPreference: UnitPreference,
         metricDisplayOrder: MetricDisplayOrderPreference
-    ) : this(
-        profileRepository, recordWeightUseCase, recordBloodPressureUseCase, recordGlucoseUseCase,
-        recordActivityUseCase, recordWaistCircumferenceUseCase, healthLogRepository,
-        { unitPreference.resolve() }, metricDisplayOrder.order, recordOxygenSaturationUseCase
-    )
+    ) : this(dispatcher, { unitPreference.resolve() }, metricDisplayOrder.order)
 
     private val _uiState = MutableStateFlow(
         LoggingUiState(
@@ -184,17 +170,14 @@ class LoggingViewModel(
 
     fun loadProfile() {
         viewModelScope.launch {
-            val profile = profileRepository.getActiveProfile()
-            val history = profile?.let { healthLogRepository?.getWeightHistory(it.id) }
-            val bpHistory = profile?.let { healthLogRepository?.getBloodPressureHistory(it.id) }
-            val glucoseHistory = profile?.let { healthLogRepository?.getGlucoseHistory(it.id) }
-            val waistHistory = profile?.let { healthLogRepository?.getWaistCircumferenceHistory(it.id) }
+            val profile = dispatcher.query(GetActiveProfileQuery).getOrNull()
+            val history = profile?.let { dispatcher.query(GetHistoryQuery(it.id)).getOrNull() }
 
             // Start from the person's own latest entries; without one the picker keeps its starting position
-            val latestWeight = history?.maxByOrNull { it.timestamp }
-            val latestWaist = waistHistory?.maxByOrNull { it.timestamp }
-            val latestBp = bpHistory?.maxByOrNull { it.timestamp }
-            val latestGlucose = glucoseHistory?.maxByOrNull { it.timestamp }
+            val latestWeight = history?.health?.weights?.maxByOrNull { it.timestamp }
+            val latestWaist = history?.health?.waistCircumferences?.maxByOrNull { it.timestamp }
+            val latestBp = history?.health?.bloodPressures?.maxByOrNull { it.timestamp }
+            val latestGlucose = history?.health?.glucoses?.maxByOrNull { it.timestamp }
 
             val start = LoggingUiState()
             val weightKg = latestWeight?.weight?.value?.toDouble() ?: start.weightValue
@@ -262,7 +245,7 @@ class LoggingViewModel(
     private fun updateWeightPreview(input: String) {
         val weightVal = input.parseDecimal()?.let { units().weightToKg(it) }
         val profile = _uiState.value.activeProfile
-        if (weightVal != null && weightVal in 1.0..700.0 && profile != null && LogField.WEIGHT in _uiState.value.chosen) {
+        if (weightVal != null && weightVal in WeightKg.MIN_WEIGHT_KG.toDouble()..WeightKg.MAX_WEIGHT_KG.toDouble() && profile != null && LogField.WEIGHT in _uiState.value.chosen) {
             val weight = WeightKg(UnitConversion.toStoredKg(weightVal))
             val bmiResult = profile.calculateBmi(weight)
             if (bmiResult != null) {
@@ -329,7 +312,8 @@ class LoggingViewModel(
         val sys = sysStr.toIntOrNull()
         val dia = diaStr.toIntOrNull()
         val chosen = _uiState.value.chosen
-        if (sys != null && dia != null && sys in 40..300 && dia in 20..200 && sys > dia &&
+        if (sys != null && dia != null && sys in BloodPressureReading.MIN_SYSTOLIC..BloodPressureReading.MAX_SYSTOLIC &&
+            dia in BloodPressureReading.MIN_DIASTOLIC..BloodPressureReading.MAX_DIASTOLIC && sys > dia &&
             LogField.SYSTOLIC in chosen && LogField.DIASTOLIC in chosen
         ) {
             val reading = BloodPressureReading(systolic = sys, diastolic = dia, pulse = chosenPulse())
@@ -386,7 +370,7 @@ class LoggingViewModel(
         ) {
             val waist = WaistCircumferenceCm(cm)
             _uiState.value = _uiState.value.copy(
-                previewWaistCategory = profile.classifyWaistCircumference(waist)
+                previewWaistCategory = WaistCircumferenceClassifier.classify(profile.sex, waist)
             )
         } else {
             _uiState.value = _uiState.value.copy(previewWaistCategory = null)
@@ -427,17 +411,14 @@ class LoggingViewModel(
     }
 
     private fun updateGlucosePreview(input: String, context: GlucoseContext) {
-        val value = input.parseDecimal()
-        if (value != null && value > 0) {
-            try {
-                val level = if (units().glucose == GlucoseUnit.MG_PER_DL) GlucoseLevel.fromMgDl(value) else GlucoseLevel(value)
-                _uiState.value = _uiState.value.copy(
-                    previewGlucoseCategory = NhgGlucoseCategory.classify(level, context)
-                )
-                return
-            } catch (e: Exception) {
-                // Ignore out-of-range for live preview
-            }
+        val value = input.parseDecimal()?.takeIf { it > 0 }
+        // A value outside the physical range has no category; the preview just stays empty
+        val level = value?.let {
+            runCatching { if (units().glucose == GlucoseUnit.MG_PER_DL) GlucoseLevel.fromMgDl(it) else GlucoseLevel(it) }.getOrNull()
+        }
+        if (level != null) {
+            _uiState.value = _uiState.value.copy(previewGlucoseCategory = NhgGlucoseCategory.classify(level, context))
+            return
         }
         _uiState.value = _uiState.value.copy(previewGlucoseCategory = null)
     }
@@ -456,119 +437,129 @@ class LoggingViewModel(
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSaving = true, errorMessage = null, successMessage = null)
-            val comment = _uiState.value.commentInput
-            try {
-                when (_uiState.value.selectedMetric) {
-                    MetricType.WEIGHT -> {
-                        val current = units()
-                        val weightKg = _uiState.value.weightInput.parseDecimal()?.let { current.weightToKg(it) }
-                            ?: throw UiTextException(UiText.Res(R.string.log_err_weight, current.weightSymbol))
-                        val timestamp = Instant.now()
-                        recordWeightUseCase(profile.id, UnitConversion.toStoredKg(weightKg), timestamp, comment = comment)
-                        _uiState.value = _uiState.value.copy(
-                            previewBmi = null,
-                            previewBmiCategory = null,
-                            successMessage = UiText.Res(R.string.log_msg_weight_saved)
-                        )
-                    }
-                    MetricType.BLOOD_PRESSURE -> {
-                        val sys = _uiState.value.systolicInput.toIntOrNull()
-                            ?: throw UiTextException(UiText.Res(R.string.log_err_systolic))
-                        val dia = _uiState.value.diastolicInput.toIntOrNull()
-                            ?: throw UiTextException(UiText.Res(R.string.log_err_diastolic))
-                        val pulse = chosenPulse()
-                        recordBloodPressureUseCase(profile.id, sys, dia, pulse, comment = comment)
-                        _uiState.value = _uiState.value.copy(
-                            successMessage = UiText.Res(R.string.log_msg_bp_saved)
-                        )
-                    }
-                    MetricType.GLUCOSE -> {
-                        val gVal = _uiState.value.glucoseInput.parseDecimal()
-                            ?: throw UiTextException(UiText.Res(R.string.log_err_glucose))
-                        if (units().glucose == GlucoseUnit.MG_PER_DL) {
-                            recordGlucoseUseCase(
-                                profileId = profile.id,
-                                context = _uiState.value.glucoseContext,
-                                valueInMgDl = BigDecimal.valueOf(gVal),
-                                comment = comment
-                            )
-                        } else {
-                            recordGlucoseUseCase(
-                                profileId = profile.id,
-                                context = _uiState.value.glucoseContext,
-                                valueInMmolL = BigDecimal.valueOf(gVal),
-                                comment = comment
-                            )
-                        }
-                        _uiState.value = _uiState.value.copy(
-                            previewGlucoseCategory = null,
-                            successMessage = UiText.Res(R.string.log_msg_glucose_saved)
-                        )
-                    }
-                    MetricType.ACTIVITY -> {
-                        val durationMinutes = _uiState.value.activityDurationInput.parseDecimal()
-                            ?.takeIf { it > 0 }
-                            ?: throw UiTextException(UiText.Res(R.string.log_err_duration))
-                        val distanceMeters = _uiState.value.activityDistanceInput.parseDecimal()
-                            ?.takeIf { it >= 0 }
-                            ?.let { units().distanceToMeters(it) }
-                            ?: throw UiTextException(UiText.Res(R.string.log_err_distance, units().distanceSymbol))
-                        val endTime = Instant.now()
-                        val startTime = endTime.minusSeconds((durationMinutes * 60).toLong())
-                        recordActivityUseCase(
-                            profileId = profile.id,
-                            startTime = startTime,
-                            endTime = endTime,
-                            distanceInMeters = distanceMeters,
-                            comment = comment
-                        )
-                        _uiState.value = _uiState.value.copy(
-                            activityDurationInput = "",
-                            activityDistanceInput = "",
-                            successMessage = UiText.Res(R.string.log_msg_activity_saved)
-                        )
-                    }
-                    MetricType.WAIST_CIRCUMFERENCE -> {
-                        val cm = _uiState.value.waistInput.toDoubleOrNull()
-                            ?.takeIf { it in WaistCircumferenceCm.MIN_CM..WaistCircumferenceCm.MAX_CM }
-                            ?: throw UiTextException(UiText.Res(R.string.log_err_waist))
-                        recordWaistCircumferenceUseCase(profile.id, cm, comment = comment)
-                        _uiState.value = _uiState.value.copy(
-                            previewWaistCategory = null,
-                            successMessage = UiText.Res(R.string.log_msg_waist_saved)
-                        )
-                    }
-                    MetricType.OXYGEN_SATURATION -> {
-                        val state = _uiState.value
-                        val useCase = recordOxygenSaturationUseCase
-                            ?: throw UiTextException(UiText.Res(R.string.log_err_save_failed))
-                        val pulse = state.oxygenPulseInput.takeIf { it.isNotEmpty() }?.toIntOrNull()
-                        useCase(
-                            profileId = profile.id,
-                            percent = state.oxygenPercentValue,
-                            pulse = pulse,
-                            context = state.oxygenContext,
-                            site = state.oxygenSite,
-                            oxygenGiven = state.oxygenGiven,
-                            comment = comment
-                        )
-                        _uiState.value = _uiState.value.copy(
-                            oxygenPulseInput = "",
-                            oxygenContext = null,
-                            oxygenSite = null,
-                            oxygenGiven = false,
-                            chosen = _uiState.value.chosen - LogField.OXYGEN,
-                            successMessage = UiText.Res(R.string.log_msg_oxygen_saved)
-                        )
-                    }
-                }
-                _uiState.value = _uiState.value.copy(commentInput = "")
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(errorMessage = e.toUiText(R.string.log_err_save_failed))
-            } finally {
-                _uiState.value = _uiState.value.copy(isSaving = false)
+            val state = _uiState.value
+            val error = when (state.selectedMetric) {
+                MetricType.WEIGHT -> saveWeight(profile.id, state)
+                MetricType.BLOOD_PRESSURE -> saveBloodPressure(profile.id, state)
+                MetricType.GLUCOSE -> saveGlucose(profile.id, state)
+                MetricType.ACTIVITY -> saveActivity(profile.id, state)
+                MetricType.WAIST_CIRCUMFERENCE -> saveWaist(profile.id, state)
+                MetricType.OXYGEN_SATURATION -> saveOxygen(profile.id, state)
+            }
+            _uiState.value = if (error == null) {
+                _uiState.value.copy(commentInput = "", isSaving = false)
+            } else {
+                _uiState.value.copy(errorMessage = error, isSaving = false)
             }
         }
+    }
+
+    // Each saver parses its own inputs, dispatches the record command and returns the error to show, or null.
+    // The rules (ranges, comment length) are the domain's; only unparsable text is rejected here.
+
+    private suspend fun saveWeight(profileId: ProfileId, state: LoggingUiState): UiText? {
+        val current = units()
+        val weightKg = state.weightInput.parseDecimal()?.let { current.weightToKg(it) }
+            ?: return UiText.Res(R.string.log_err_weight, current.weightSymbol)
+        val result = dispatcher.dispatch(
+            RecordWeightCommand(profileId, UnitConversion.toStoredKg(weightKg), comment = state.commentInput)
+        )
+        return result.reportOr {
+            _uiState.value = _uiState.value.copy(
+                previewBmi = null,
+                previewBmiCategory = null,
+                successMessage = UiText.Res(R.string.log_msg_weight_saved)
+            )
+        }
+    }
+
+    private suspend fun saveBloodPressure(profileId: ProfileId, state: LoggingUiState): UiText? {
+        val systolic = state.systolicInput.toIntOrNull() ?: return UiText.Res(R.string.log_err_systolic)
+        val diastolic = state.diastolicInput.toIntOrNull() ?: return UiText.Res(R.string.log_err_diastolic)
+        val result = dispatcher.dispatch(
+            RecordBloodPressureCommand(profileId, systolic, diastolic, chosenPulse(), comment = state.commentInput)
+        )
+        return result.reportOr {
+            _uiState.value = _uiState.value.copy(successMessage = UiText.Res(R.string.log_msg_bp_saved))
+        }
+    }
+
+    private suspend fun saveGlucose(profileId: ProfileId, state: LoggingUiState): UiText? {
+        val value = state.glucoseInput.parseDecimal()?.let { BigDecimal.valueOf(it) }
+            ?: return UiText.Res(R.string.log_err_glucose)
+        val command = if (units().glucose == GlucoseUnit.MG_PER_DL) {
+            RecordGlucoseCommand(profileId, state.glucoseContext, valueInMgDl = value, comment = state.commentInput)
+        } else {
+            RecordGlucoseCommand(profileId, state.glucoseContext, valueInMmolL = value, comment = state.commentInput)
+        }
+        return dispatcher.dispatch(command).reportOr {
+            _uiState.value = _uiState.value.copy(
+                previewGlucoseCategory = null,
+                successMessage = UiText.Res(R.string.log_msg_glucose_saved)
+            )
+        }
+    }
+
+    private suspend fun saveActivity(profileId: ProfileId, state: LoggingUiState): UiText? {
+        val durationMinutes = state.activityDurationInput.parseDecimal()?.takeIf { it > 0 }
+            ?: return UiText.Res(R.string.log_err_duration)
+        val distanceMeters = state.activityDistanceInput.parseDecimal()
+            ?.takeIf { it >= 0 }
+            ?.let { units().distanceToMeters(it) }
+            ?: return UiText.Res(R.string.log_err_distance, units().distanceSymbol)
+        val endTime = Instant.now()
+        val startTime = endTime.minusSeconds((durationMinutes * 60).toLong())
+        val result = dispatcher.dispatch(
+            RecordActivityCommand(profileId, startTime, endTime, distanceMeters, comment = state.commentInput)
+        )
+        return result.reportOr {
+            _uiState.value = _uiState.value.copy(
+                activityDurationInput = "",
+                activityDistanceInput = "",
+                successMessage = UiText.Res(R.string.log_msg_activity_saved)
+            )
+        }
+    }
+
+    private suspend fun saveWaist(profileId: ProfileId, state: LoggingUiState): UiText? {
+        val cm = state.waistInput.toDoubleOrNull() ?: return UiText.Res(R.string.log_err_waist)
+        val result = dispatcher.dispatch(RecordWaistCircumferenceCommand(profileId, cm, comment = state.commentInput))
+        return result.reportOr {
+            _uiState.value = _uiState.value.copy(
+                previewWaistCategory = null,
+                successMessage = UiText.Res(R.string.log_msg_waist_saved)
+            )
+        }
+    }
+
+    private suspend fun saveOxygen(profileId: ProfileId, state: LoggingUiState): UiText? {
+        val result = dispatcher.dispatch(
+            RecordOxygenSaturationCommand(
+                profileId = profileId,
+                percent = state.oxygenPercentValue,
+                pulse = state.oxygenPulseInput.takeIf { it.isNotEmpty() }?.toIntOrNull(),
+                context = state.oxygenContext,
+                site = state.oxygenSite,
+                oxygenGiven = state.oxygenGiven,
+                comment = state.commentInput
+            )
+        )
+        return result.reportOr {
+            _uiState.value = _uiState.value.copy(
+                oxygenPulseInput = "",
+                oxygenContext = null,
+                oxygenSite = null,
+                oxygenGiven = false,
+                chosen = _uiState.value.chosen - LogField.OXYGEN,
+                successMessage = UiText.Res(R.string.log_msg_oxygen_saved)
+            )
+        }
+    }
+
+    /** Runs [onSuccess] for a success and returns null; for a failure returns the text to show. */
+    private inline fun DomainResult<*>.reportOr(onSuccess: () -> Unit): UiText? {
+        val error = errorOrNull() ?: return run { onSuccess(); null }
+        return error.toUiText(units())
     }
 
     /** Keeps the draft comment single-line and within the limit, so the field can never hold an invalid value. */

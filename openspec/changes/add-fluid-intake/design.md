@@ -12,7 +12,7 @@ Fluid intake follows `docs/dev/how-to/add-a-metric.md` and `openspec/playbooks/a
 ### 1. Domain (`:domain`)
 - `FluidIntake(id, profileId, timestamp, ml, comment?)` with validation (whole ml 10 to 5000; constants in one place).
 - `QuickAddSizes` value object (three slots: name, ml) with the same validation and the defaults 150, 250, 500; pure, no Android.
-- Port methods on `HealthLogRepositoryPort` (record, update, delete, list, list in range) and use cases `RecordFluidIntake`, `UpdateFluidIntake`, `DeleteFluidIntake`. Undo calls delete with the id returned by record.
+- A new `FluidRepositoryPort` (record, update, delete, list, list in range; one port per metric, see ADR 0036 and 0038), the commands `RecordFluidIntakeCommand` and `UpdateFluidIntakeCommand` with one handler each, and a fluid branch in `PortEntryGateway` for `DeleteEntryCommand`. Undo dispatches `DeleteEntryCommand` with the id returned by record. Handlers are registered in `CommandModule`.
 - `FluidDayTotals`: groups entries by local calendar day using an injected `ZoneId` and `Clock` (no `ZoneId.systemDefault()` inside domain), returns per-day totals for a range, and `FluidStatistics`: average per logged day (whole ml, round half up), highest day and date, days logged. Empty range yields none. No thresholds.
 
 ### 2. Data (`:data`)

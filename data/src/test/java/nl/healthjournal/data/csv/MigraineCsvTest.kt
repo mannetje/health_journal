@@ -5,7 +5,7 @@ import nl.healthjournal.data.local.HealthJournalDatabase
 import nl.healthjournal.data.repository.RoomMigraineRepository
 import nl.healthjournal.data.repository.RoomProfileRepository
 import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.metrics.EntryComment
+import nl.healthjournal.domain.model.common.EntryComment
 import nl.healthjournal.domain.model.migraine.DailyActivities
 import nl.healthjournal.domain.model.migraine.HeadArea
 import nl.healthjournal.domain.model.migraine.MigraineEntry

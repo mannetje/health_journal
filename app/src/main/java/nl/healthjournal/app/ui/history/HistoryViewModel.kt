@@ -1,16 +1,40 @@
 package nl.healthjournal.app.ui.history
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.MetricDisplayOrderPreference
+import nl.healthjournal.app.settings.MetricSlot
+import nl.healthjournal.app.ui.common.UiText
+import nl.healthjournal.app.ui.common.toUiText
+import nl.healthjournal.app.ui.history.charts.TrendDateRange
+import nl.healthjournal.domain.command.DeleteEntryCommand
+import nl.healthjournal.domain.command.Dispatcher
+import nl.healthjournal.domain.command.DomainError
+import nl.healthjournal.domain.command.DomainResult
+import nl.healthjournal.domain.command.EntryKind
+import nl.healthjournal.domain.command.ExportCsvQuery
+import nl.healthjournal.domain.command.GetHistoryQuery
+import nl.healthjournal.domain.command.ImportCsvCommand
+import nl.healthjournal.domain.command.entryKindFromKey
+import nl.healthjournal.domain.command.isLibraKey
+import nl.healthjournal.domain.metrics.command.UpdateActivityCommand
+import nl.healthjournal.domain.metrics.command.UpdateBloodPressureCommand
+import nl.healthjournal.domain.metrics.command.UpdateGlucoseCommand
+import nl.healthjournal.domain.metrics.command.UpdateOxygenSaturationCommand
+import nl.healthjournal.domain.metrics.command.UpdateWaistCircumferenceCommand
+import nl.healthjournal.domain.metrics.command.UpdateWeightCommand
+import nl.healthjournal.domain.migraine.command.EndMigraineCommand
+import nl.healthjournal.domain.model.common.MeasurementId
 import nl.healthjournal.domain.model.metrics.ActivitySession
 import nl.healthjournal.domain.model.metrics.BloodPressureEntry
+import nl.healthjournal.domain.model.metrics.GlucoseContext
 import nl.healthjournal.domain.model.metrics.GlucoseEntry
 import nl.healthjournal.domain.model.metrics.OxygenContext
 import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
@@ -19,38 +43,12 @@ import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
 import nl.healthjournal.domain.model.metrics.WeightEntry
 import nl.healthjournal.domain.model.migraine.MigraineEntry
 import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.port.secondary.DataExportPort
-import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.ImportResult
-import nl.healthjournal.domain.port.secondary.MigraineExportPort
-import nl.healthjournal.domain.port.secondary.MigraineImportPort
-import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.metrics.GlucoseContext
-import nl.healthjournal.domain.usecase.DeleteActivityUseCase
-import nl.healthjournal.domain.usecase.DeleteBloodPressureUseCase
-import nl.healthjournal.domain.usecase.DeleteGlucoseUseCase
-import nl.healthjournal.domain.usecase.DeleteMigraineUseCase
-import nl.healthjournal.domain.usecase.EndMigraineUseCase
-import nl.healthjournal.domain.usecase.DeleteOxygenSaturationUseCase
-import nl.healthjournal.domain.usecase.DeleteWaistCircumferenceUseCase
-import nl.healthjournal.domain.usecase.DeleteWeightUseCase
-import nl.healthjournal.domain.usecase.GetHealthHistoryUseCase
-import nl.healthjournal.domain.usecase.UpdateActivityUseCase
-import nl.healthjournal.domain.usecase.UpdateBloodPressureUseCase
-import nl.healthjournal.domain.usecase.UpdateGlucoseUseCase
-import nl.healthjournal.domain.usecase.UpdateOxygenSaturationUseCase
-import nl.healthjournal.domain.usecase.UpdateWaistCircumferenceUseCase
-import nl.healthjournal.domain.usecase.UpdateWeightUseCase
+import nl.healthjournal.domain.model.common.ImportResult
+import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
-import nl.healthjournal.app.R
-import nl.healthjournal.app.settings.MetricSlot
-import nl.healthjournal.app.ui.common.UiText
-import nl.healthjournal.app.ui.common.toUiText
-import nl.healthjournal.app.ui.history.charts.TrendDateRange
+import javax.inject.Inject
 
 enum class HistoryFilter {
     ALL,
@@ -62,24 +60,6 @@ enum class HistoryFilter {
     MIGRAINE,
     OXYGEN_SATURATION
 }
-
-/** The update and delete use cases the History screen needs, bundled to keep the constructor small. */
-data class EntryUseCases(
-    val updateWeight: UpdateWeightUseCase,
-    val updateBloodPressure: UpdateBloodPressureUseCase,
-    val updateGlucose: UpdateGlucoseUseCase,
-    val updateActivity: UpdateActivityUseCase,
-    val updateWaistCircumference: UpdateWaistCircumferenceUseCase,
-    val updateOxygenSaturation: UpdateOxygenSaturationUseCase,
-    val deleteWeight: DeleteWeightUseCase,
-    val deleteBloodPressure: DeleteBloodPressureUseCase,
-    val deleteGlucose: DeleteGlucoseUseCase,
-    val deleteActivity: DeleteActivityUseCase,
-    val deleteWaistCircumference: DeleteWaistCircumferenceUseCase,
-    val deleteOxygenSaturation: DeleteOxygenSaturationUseCase,
-    val deleteMigraine: DeleteMigraineUseCase,
-    val endMigraine: EndMigraineUseCase
-)
 
 /** A reference to one History entry, used to track which entry is being edited or deleted. */
 sealed interface EntryRef {
@@ -123,33 +103,14 @@ data class HistoryUiState(
 
 @HiltViewModel
 class HistoryViewModel(
-    private val profileRepository: ProfileRepositoryPort,
-    private val getHealthHistoryUseCase: GetHealthHistoryUseCase,
-    private val migraineRepository: MigraineRepositoryPort,
-    private val dataExportPort: DataExportPort,
-    private val dataImportPort: DataImportPort,
-    private val migraineExportPort: MigraineExportPort,
-    private val migraineImportPort: MigraineImportPort,
-    private val entryUseCases: EntryUseCases,
+    private val dispatcher: Dispatcher,
     private val metricOrder: StateFlow<List<MetricSlot>> = MutableStateFlow(MetricSlot.DEFAULT_ORDER)
 ) : ViewModel() {
 
     /** The constructor Hilt uses; tests pass the display order directly. */
     @Inject
-    constructor(
-        profileRepository: ProfileRepositoryPort,
-        getHealthHistoryUseCase: GetHealthHistoryUseCase,
-        migraineRepository: MigraineRepositoryPort,
-        dataExportPort: DataExportPort,
-        dataImportPort: DataImportPort,
-        migraineExportPort: MigraineExportPort,
-        migraineImportPort: MigraineImportPort,
-        entryUseCases: EntryUseCases,
-        metricDisplayOrder: MetricDisplayOrderPreference
-    ) : this(
-        profileRepository, getHealthHistoryUseCase, migraineRepository, dataExportPort, dataImportPort,
-        migraineExportPort, migraineImportPort, entryUseCases, metricDisplayOrder.order
-    )
+    constructor(dispatcher: Dispatcher, metricDisplayOrder: MetricDisplayOrderPreference) :
+        this(dispatcher, metricDisplayOrder.order)
 
     private val _uiState = MutableStateFlow(HistoryUiState(isLoading = true, orderedMetrics = metricOrder.value))
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
@@ -189,83 +150,95 @@ class HistoryViewModel(
     /** [clearError] is false when the caller has just set an error that the reload must not wipe. */
     fun loadHistory(clearError: Boolean = true) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = if (clearError) null else _uiState.value.errorMessage)
-            try {
-                val profile = profileRepository.getActiveProfile()
-                if (profile == null) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessage = if (clearError) null else _uiState.value.errorMessage
+            )
+            val profile = when (val result = dispatcher.query(GetActiveProfileQuery)) {
+                is DomainResult.Success -> result.value
+                is DomainResult.Failure -> return@launch loadFailed(result.error)
+            }
+            if (profile == null) {
+                _uiState.value = _uiState.value.copy(activeProfile = null, isLoading = false)
+                return@launch
+            }
+            when (val result = dispatcher.query(GetHistoryQuery(profile.id))) {
+                is DomainResult.Success -> {
+                    val history = result.value.health
                     _uiState.value = _uiState.value.copy(
-                        activeProfile = null,
+                        activeProfile = profile,
+                        weights = history.weights,
+                        bloodPressures = history.bloodPressures,
+                        glucoses = history.glucoses,
+                        activities = history.activities,
+                        waistCircumferences = history.waistCircumferences,
+                        oxygenSaturations = history.oxygenSaturations,
+                        migraines = result.value.migraines,
                         isLoading = false
                     )
-                    return@launch
                 }
-
-                val history = getHealthHistoryUseCase(profile.id)
-                _uiState.value = _uiState.value.copy(
-                    activeProfile = profile,
-                    weights = history.weights,
-                    bloodPressures = history.bloodPressures,
-                    glucoses = history.glucoses,
-                    activities = history.activities,
-                    waistCircumferences = history.waistCircumferences,
-                    oxygenSaturations = history.oxygenSaturations,
-                    migraines = migraineRepository.getMigraineHistory(profile.id),
-                    isLoading = false
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = e.toUiText(R.string.history_err_load_failed)
-                )
+                is DomainResult.Failure -> loadFailed(result.error)
             }
         }
     }
 
+    private fun loadFailed(error: DomainError) {
+        _uiState.value = _uiState.value.copy(
+            isLoading = false,
+            errorMessage = error.text(R.string.history_err_load_failed)
+        )
+    }
+
     fun exportCsv(metric: String) {
         val profile = _uiState.value.activeProfile ?: return
+        val kind = entryKindFromKey(metric)
         viewModelScope.launch {
-            try {
-                val csv = when (metric.lowercase()) {
-                    "weight" -> dataExportPort.exportWeightCsv(profile.id)
-                    "blood_pressure", "bp" -> dataExportPort.exportBloodPressureCsv(profile.id)
-                    "glucose" -> dataExportPort.exportGlucoseCsv(profile.id)
-                    "activity" -> dataExportPort.exportActivityCsv(profile.id)
-                    "waist_circumference", "waist" -> dataExportPort.exportWaistCircumferenceCsv(profile.id)
-                    "oxygen_saturation", "oxygen", "spo2" -> dataExportPort.exportOxygenSaturationCsv(profile.id)
-                    "migraine" -> migraineExportPort.exportMigraineCsv(profile.id)
-                    else -> ""
-                }
-                _uiState.value = _uiState.value.copy(
-                    exportedCsvContent = csv,
+            // An unknown key exports an empty file, as it always has.
+            val result = if (kind == null) {
+                DomainResult.success("")
+            } else {
+                dispatcher.query(ExportCsvQuery(profile.id, kind))
+            }
+            _uiState.value = when (result) {
+                is DomainResult.Success -> _uiState.value.copy(
+                    exportedCsvContent = result.value,
                     infoMessage = UiText.Res(R.string.history_msg_export_done, metric)
                 )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(errorMessage = UiText.Res(R.string.history_err_export, e.message.orEmpty()))
+                is DomainResult.Failure -> _uiState.value.copy(
+                    errorMessage = UiText.Res(R.string.history_err_export, result.error.detail())
+                )
             }
         }
     }
 
     fun importCsv(metricType: String, csvContent: String) {
         val profile = _uiState.value.activeProfile ?: return
+        val kind = entryKindFromKey(metricType)
         viewModelScope.launch {
-            try {
-                val result = if (metricType.lowercase() == "migraine") {
-                    migraineImportPort.importMigraineCsv(profile.id, csvContent)
-                } else {
-                    dataImportPort.importCsv(profile.id, metricType, csvContent)
+            if (kind == null) {
+                _uiState.value = _uiState.value.copy(errorMessage = UiText.Res(R.string.history_err_import, metricType))
+                return@launch
+            }
+            val libra = isLibraKey(metricType)
+            when (val result = dispatcher.dispatch(ImportCsvCommand(profile.id, kind, csvContent, libra))) {
+                is DomainResult.Success -> {
+                    val imported = result.value
+                    _uiState.value = _uiState.value.copy(
+                        importResult = imported,
+                        infoMessage = UiText.Res(
+                            R.string.history_msg_import_done, imported.importedCount, imported.skippedRows.size
+                        )
+                    )
+                    loadHistory()
                 }
-                _uiState.value = _uiState.value.copy(
-                    importResult = result,
-                    infoMessage = UiText.Res(R.string.history_msg_import_done, result.importedCount, result.skippedRows.size)
-                )
-                loadHistory()
-            } catch (e: Exception) {
-                val errorMessage = if (metricType.lowercase() == "libra") {
-                    UiText.Res(R.string.history_err_import_libra, e.toUiText(R.string.history_err_unknown))
-                } else {
-                    UiText.Res(R.string.history_err_import, e.message.orEmpty())
+                is DomainResult.Failure -> {
+                    val message = if (libra) {
+                        UiText.Res(R.string.history_err_import_libra, result.error.text(R.string.history_err_unknown))
+                    } else {
+                        UiText.Res(R.string.history_err_import, result.error.detail())
+                    }
+                    _uiState.value = _uiState.value.copy(errorMessage = message)
                 }
-                _uiState.value = _uiState.value.copy(errorMessage = errorMessage)
             }
         }
     }
@@ -289,38 +262,45 @@ class HistoryViewModel(
     fun confirmDelete() {
         val target = _uiState.value.pendingDelete ?: return
         viewModelScope.launch {
-            try {
-                val deleted = when (target) {
-                    is EntryRef.Weight -> entryUseCases.deleteWeight(target.id)
-                    is EntryRef.BloodPressure -> entryUseCases.deleteBloodPressure(target.id)
-                    is EntryRef.Glucose -> entryUseCases.deleteGlucose(target.id)
-                    is EntryRef.Activity -> entryUseCases.deleteActivity(target.id)
-                    is EntryRef.WaistCircumference -> entryUseCases.deleteWaistCircumference(target.id)
-                    is EntryRef.OxygenSaturation -> entryUseCases.deleteOxygenSaturation(target.id)
-                    is EntryRef.Migraine -> entryUseCases.deleteMigraine(target.id)
+            when (val result = dispatcher.dispatch(DeleteEntryCommand(target.kind(), target.id))) {
+                is DomainResult.Success -> {
+                    _uiState.value = _uiState.value.copy(pendingDelete = null, errorMessage = null)
+                    loadHistory()
                 }
-                _uiState.value = _uiState.value.copy(
-                    pendingDelete = null,
-                    errorMessage = if (deleted) null else UiText.Res(R.string.history_err_not_found)
-                )
-                loadHistory(clearError = deleted)
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(pendingDelete = null, errorMessage = UiText.Res(R.string.history_err_delete, e.message.orEmpty()))
+                is DomainResult.Failure -> {
+                    val error = result.error
+                    val message = if (error is DomainError.Storage) {
+                        UiText.Res(R.string.history_err_delete, error.detail())
+                    } else {
+                        error.toUiText()
+                    }
+                    _uiState.value = _uiState.value.copy(pendingDelete = null, errorMessage = message)
+                    // The entry may be gone already: reload the list, but keep the message.
+                    if (error is DomainError.NotFound) loadHistory(clearError = false)
+                }
             }
         }
     }
 
     fun updateWeight(entry: WeightEntry, weightKg: BigDecimal, timestamp: Instant, comment: String?) =
-        runUpdate { entryUseCases.updateWeight(entry.id, entry.profileId, weightKg, timestamp, comment = comment) }
+        runUpdate { dispatcher.dispatch(UpdateWeightCommand(entry.id, entry.profileId, weightKg, timestamp, comment)) }
 
     fun updateBloodPressure(entry: BloodPressureEntry, systolic: Int, diastolic: Int, timestamp: Instant, comment: String?) =
-        runUpdate { entryUseCases.updateBloodPressure(entry.id, entry.profileId, systolic, diastolic, timestamp, comment = comment) }
+        runUpdate {
+            dispatcher.dispatch(
+                UpdateBloodPressureCommand(entry.id, entry.profileId, systolic, diastolic, timestamp, comment = comment)
+            )
+        }
 
     fun updateGlucose(entry: GlucoseEntry, context: GlucoseContext, valueInMmolL: BigDecimal, timestamp: Instant, comment: String?) =
-        runUpdate { entryUseCases.updateGlucose(entry.id, entry.profileId, context, valueInMmolL, timestamp, comment = comment) }
+        runUpdate {
+            dispatcher.dispatch(UpdateGlucoseCommand(entry.id, entry.profileId, context, valueInMmolL, timestamp, comment))
+        }
 
     fun updateWaistCircumference(entry: WaistCircumferenceEntry, waistCm: Double, timestamp: Instant, comment: String?) =
-        runUpdate { entryUseCases.updateWaistCircumference(entry.id, entry.profileId, waistCm, timestamp, comment = comment) }
+        runUpdate {
+            dispatcher.dispatch(UpdateWaistCircumferenceCommand(entry.id, entry.profileId, waistCm, timestamp, comment))
+        }
 
     fun updateOxygenSaturation(
         entry: OxygenSaturationEntry,
@@ -332,48 +312,48 @@ class HistoryViewModel(
         timestamp: Instant,
         comment: String?
     ) = runUpdate {
-        entryUseCases.updateOxygenSaturation(entry.id, entry.profileId, percent, pulse, context, site, oxygenGiven, timestamp, comment)
+        dispatcher.dispatch(
+            UpdateOxygenSaturationCommand(
+                entry.id, entry.profileId, percent, pulse, context, site, oxygenGiven, timestamp, comment
+            )
+        )
     }
 
     fun updateActivity(session: ActivitySession, durationSeconds: Long, distanceInMeters: Double, comment: String?) =
         runUpdate {
-            entryUseCases.updateActivity(
-                session.id,
-                session.profileId,
-                session.startTime,
-                session.startTime.plusSeconds(durationSeconds),
-                distanceInMeters,
-                comment = comment
+            dispatcher.dispatch(
+                UpdateActivityCommand(
+                    session.id,
+                    session.profileId,
+                    session.startTime,
+                    session.startTime.plusSeconds(durationSeconds),
+                    distanceInMeters,
+                    comment
+                )
             )
         }
 
     /** Ends an ongoing migraine now; the form's end field is the way to give another time. */
     fun endMigraine(entry: MigraineEntry) {
         viewModelScope.launch {
-            try {
-                if (entryUseCases.endMigraine(entry.id) == null) {
-                    _uiState.value = _uiState.value.copy(errorMessage = UiText.Res(R.string.history_err_update_failed))
-                    return@launch
-                }
-                loadHistory()
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(errorMessage = e.toUiText(R.string.history_err_update_failed))
+            when (val result = dispatcher.dispatch(EndMigraineCommand(entry.id))) {
+                is DomainResult.Success -> loadHistory()
+                is DomainResult.Failure -> _uiState.value =
+                    _uiState.value.copy(errorMessage = result.error.text(R.string.history_err_update_failed))
             }
         }
     }
 
     /** Runs an update; on success closes the edit dialog and reloads so list and charts refresh. */
-    private fun runUpdate(block: suspend () -> Any?) {
+    private fun runUpdate(block: suspend () -> DomainResult<*>) {
         viewModelScope.launch {
-            try {
-                if (block() == null) {
-                    _uiState.value = _uiState.value.copy(editError = UiText.Res(R.string.history_err_not_found))
-                    return@launch
+            when (val result = block()) {
+                is DomainResult.Success -> {
+                    _uiState.value = _uiState.value.copy(editing = null, editError = null)
+                    loadHistory()
                 }
-                _uiState.value = _uiState.value.copy(editing = null, editError = null)
-                loadHistory()
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(editError = e.toUiText(R.string.history_err_update_failed))
+                is DomainResult.Failure -> _uiState.value =
+                    _uiState.value.copy(editError = result.error.text(R.string.history_err_update_failed))
             }
         }
     }
@@ -387,3 +367,19 @@ class HistoryViewModel(
         )
     }
 }
+
+private fun EntryRef.kind(): EntryKind = when (this) {
+    is EntryRef.Weight -> EntryKind.WEIGHT
+    is EntryRef.BloodPressure -> EntryKind.BLOOD_PRESSURE
+    is EntryRef.Glucose -> EntryKind.GLUCOSE
+    is EntryRef.Activity -> EntryKind.ACTIVITY
+    is EntryRef.WaistCircumference -> EntryKind.WAIST_CIRCUMFERENCE
+    is EntryRef.OxygenSaturation -> EntryKind.OXYGEN_SATURATION
+    is EntryRef.Migraine -> EntryKind.MIGRAINE
+}
+
+/** A storage failure keeps the exception's own message, else the screen's fallback; other errors have their own text. */
+private fun DomainError.text(@StringRes fallback: Int): UiText =
+    if (this is DomainError.Storage) cause?.toUiText(fallback) ?: UiText.Res(fallback) else toUiText()
+
+private fun DomainError.detail(): String = (this as? DomainError.Storage)?.cause?.message.orEmpty()
