@@ -4,8 +4,11 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.7.2] - 2026-11-05
+
 ### Changed
 - **Internal structure, no behaviour change:** the screens no longer call use cases and ports directly. They send commands and queries to one `Dispatcher`, and each is carried out by one handler that returns a typed result. Metrics now have one storage port each instead of one shared port. Validation limits are defined once in the value objects, and the messages shown for invalid input come from typed errors mapped to the existing English and Dutch strings. The domain is divided into bounded contexts with an import rule that a test checks. See [ADR 0036](docs/adr/0036-application-boundary-commands-and-queries.md), [ADR 0037](docs/adr/0037-typed-domain-errors-and-single-source-for-rules.md), [ADR 0038](docs/adr/0038-bounded-contexts-and-tactical-roles.md) and the [context map](docs/dev/context-map.md).
+- **Code layout, no behaviour change:** the `:domain` code now lives in one package per context (`shared`, `profile`, `metrics`, `medication`, `migraine`, `mindfulness`, `lock`, `backup`), each split into `model`, `usecase`, `port` and `command`. A test checks that every file sits in its context and that the folder matches the package. The Room schema is unchanged, and CSV exports from before and after the move are identical.
 
 ## [1.7.1] - 2026-11-05
 
@@ -309,7 +312,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.1...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.2...HEAD
+[1.7.2]: https://github.com/mannetje/health_journal/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/mannetje/health_journal/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/mannetje/health_journal/compare/v1.6.6...v1.7.0
 [1.6.6]: https://github.com/mannetje/health_journal/compare/v1.6.5...v1.6.6
