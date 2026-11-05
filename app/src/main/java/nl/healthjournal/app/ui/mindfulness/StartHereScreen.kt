@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.BreathingPatterns
-import nl.healthjournal.domain.model.mindfulness.StartHere
-import nl.healthjournal.domain.model.mindfulness.StartHereStep
+import nl.healthjournal.domain.mindfulness.model.BreathingPatterns
+import nl.healthjournal.domain.mindfulness.model.StartHere
+import nl.healthjournal.domain.mindfulness.model.StartHereStep
 
 /**
  * The short ladder for a first time: the steps in order, each opening its exercise with the settings filled in.

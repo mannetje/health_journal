@@ -1,8 +1,8 @@
 package nl.healthjournal.app.ui.nhg
 
-import nl.healthjournal.domain.model.metrics.GlucoseContext
-import nl.healthjournal.domain.model.metrics.GlucoseLevel
-import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
+import nl.healthjournal.domain.metrics.model.GlucoseContext
+import nl.healthjournal.domain.metrics.model.GlucoseLevel
+import nl.healthjournal.domain.metrics.model.NhgGlucoseCategory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

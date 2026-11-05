@@ -17,7 +17,7 @@ import nl.healthjournal.app.settings.ThemePreference
 import nl.healthjournal.app.settings.UnitPreference
 import nl.healthjournal.app.settings.UnitSystemChoice
 import nl.healthjournal.app.settings.resolveDisplayUnits
-import nl.healthjournal.domain.model.lock.LockTimeout
+import nl.healthjournal.domain.lock.model.LockTimeout
 import java.util.Locale
 
 /** The saved settings the shell shows, read and written one value at a time. */

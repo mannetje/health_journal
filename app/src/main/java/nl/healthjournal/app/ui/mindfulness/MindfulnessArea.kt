@@ -10,12 +10,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import nl.healthjournal.app.settings.MindfulnessPreferences
-import nl.healthjournal.domain.model.mindfulness.BreathingPatterns
-import nl.healthjournal.domain.model.mindfulness.BreathingTimer
-import nl.healthjournal.domain.model.mindfulness.CueChoices
-import nl.healthjournal.domain.model.mindfulness.GuidedExerciseCatalogue
-import nl.healthjournal.domain.model.mindfulness.MeditationTimer
-import nl.healthjournal.domain.model.mindfulness.StartHereStep
+import nl.healthjournal.domain.mindfulness.model.BreathingPatterns
+import nl.healthjournal.domain.mindfulness.model.BreathingTimer
+import nl.healthjournal.domain.mindfulness.model.CueChoices
+import nl.healthjournal.domain.mindfulness.model.GuidedExerciseCatalogue
+import nl.healthjournal.domain.mindfulness.model.MeditationTimer
+import nl.healthjournal.domain.mindfulness.model.StartHereStep
 
 private enum class MindfulnessRoute { SAFETY_NOTE, ABOUT, CREDITS, HOME, START_HERE, BREATHE_SETUP, BREATHE_RUN, MEDITATE_SETUP, MEDITATE_RUN, GUIDED_LIST, GUIDED_PLAY }
 

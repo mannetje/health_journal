@@ -20,11 +20,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.BreathingDuration
-import nl.healthjournal.domain.model.mindfulness.BreathingPattern
-import nl.healthjournal.domain.model.mindfulness.BreathingPatternId
-import nl.healthjournal.domain.model.mindfulness.BreathingPatterns
-import nl.healthjournal.domain.model.mindfulness.CueChoices
+import nl.healthjournal.domain.mindfulness.model.BreathingDuration
+import nl.healthjournal.domain.mindfulness.model.BreathingPattern
+import nl.healthjournal.domain.mindfulness.model.BreathingPatternId
+import nl.healthjournal.domain.mindfulness.model.BreathingPatterns
+import nl.healthjournal.domain.mindfulness.model.CueChoices
 
 /** Choices for a breathing exercise: pattern, length and how it is drawn. */
 @OptIn(ExperimentalLayoutApi::class)

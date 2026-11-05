@@ -1,7 +1,7 @@
 package nl.healthjournal.app.settings
 
-import nl.healthjournal.domain.model.common.GlucoseUnit
-import nl.healthjournal.domain.model.common.UnitSystem
+import nl.healthjournal.domain.shared.model.GlucoseUnit
+import nl.healthjournal.domain.shared.model.UnitSystem
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.Locale

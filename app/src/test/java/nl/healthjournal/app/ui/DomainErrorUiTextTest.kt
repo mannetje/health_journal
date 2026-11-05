@@ -4,12 +4,12 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.DisplayUnits
-import nl.healthjournal.domain.model.common.UnitSystem
+import nl.healthjournal.domain.shared.model.UnitSystem
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.toUiText
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.ValidationField
-import nl.healthjournal.domain.command.ValidationRule
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.ValidationField
+import nl.healthjournal.domain.shared.command.ValidationRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

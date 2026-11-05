@@ -18,12 +18,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import java.util.Locale
-import nl.healthjournal.domain.model.mindfulness.BellKind
-import nl.healthjournal.domain.model.mindfulness.BreathingPhaseKind
-import nl.healthjournal.domain.model.mindfulness.CueChoices
-import nl.healthjournal.domain.model.mindfulness.ContentLanguage
-import nl.healthjournal.domain.model.mindfulness.ExerciseSession
-import nl.healthjournal.domain.model.mindfulness.ToneSynth
+import nl.healthjournal.domain.mindfulness.model.BellKind
+import nl.healthjournal.domain.mindfulness.model.BreathingPhaseKind
+import nl.healthjournal.domain.mindfulness.model.CueChoices
+import nl.healthjournal.domain.mindfulness.model.ContentLanguage
+import nl.healthjournal.domain.mindfulness.model.ExerciseSession
+import nl.healthjournal.domain.mindfulness.model.ToneSynth
 
 private val toneAttributes: AudioAttributes = AudioAttributes.Builder()
     .setUsage(AudioAttributes.USAGE_MEDIA)

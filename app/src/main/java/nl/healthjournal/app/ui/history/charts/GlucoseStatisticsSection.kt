@@ -25,8 +25,8 @@ import nl.healthjournal.app.ui.common.glucoseDigits
 import nl.healthjournal.app.ui.common.glucoseFromMmol
 import nl.healthjournal.app.ui.nhg.getGlucoseColor
 import nl.healthjournal.app.ui.nhg.label
-import nl.healthjournal.domain.model.metrics.GlucoseContext
-import nl.healthjournal.domain.model.metrics.GlucoseEntry
+import nl.healthjournal.domain.metrics.model.GlucoseContext
+import nl.healthjournal.domain.metrics.model.GlucoseEntry
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

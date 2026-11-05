@@ -18,4 +18,4 @@ Licence: [Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported](ht
 
 The texts (English and Dutch), the pictures and animations, and the tones and bells (generated in code) are made for this app and are under the licence of the project.
 
-The data lives in `GuidedExerciseCatalogue` ([`GuidedExercise.kt`](../domain/src/main/kotlin/nl/healthjournal/domain/model/mindfulness/GuidedExercise.kt)); a new recording is added there with its credit and to this file in the same change.
+The data lives in `GuidedExerciseCatalogue` ([`GuidedExercise.kt`](../domain/src/main/kotlin/nl/healthjournal/domain/mindfulness/model/GuidedExercise.kt)); a new recording is added there with its credit and to this file in the same change.

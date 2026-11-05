@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.GuidedExerciseCatalogue
+import nl.healthjournal.domain.mindfulness.model.GuidedExerciseCatalogue
 
 /**
  * Where the outside material of the area comes from: each recording with its teacher, source and licence, and links

@@ -21,9 +21,9 @@ import kotlin.math.roundToInt
 import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.nhg.getBpColor
 import nl.healthjournal.app.ui.nhg.label
-import nl.healthjournal.domain.model.metrics.BloodPressureEntry
-import nl.healthjournal.domain.model.metrics.BloodPressureReading
-import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
+import nl.healthjournal.domain.metrics.model.BloodPressureEntry
+import nl.healthjournal.domain.metrics.model.BloodPressureReading
+import nl.healthjournal.domain.metrics.model.NhgBloodPressureCategory
 
 private const val GAUGE_SYSTOLIC_MIN = 80f
 private const val GAUGE_SYSTOLIC_MAX = 200f

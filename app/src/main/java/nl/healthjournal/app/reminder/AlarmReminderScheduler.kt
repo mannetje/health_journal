@@ -5,8 +5,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import nl.healthjournal.domain.model.medication.resolveIn
-import nl.healthjournal.domain.port.secondary.ReminderSchedulerPort
+import nl.healthjournal.domain.medication.model.resolveIn
+import nl.healthjournal.domain.medication.port.ReminderSchedulerPort
 import java.time.LocalDateTime
 import java.time.ZoneId
 

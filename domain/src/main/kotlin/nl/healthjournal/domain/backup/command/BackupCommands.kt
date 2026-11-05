@@ -1,22 +1,22 @@
 package nl.healthjournal.domain.backup.command
 
-import nl.healthjournal.domain.command.BackupProblem
-import nl.healthjournal.domain.command.Command
-import nl.healthjournal.domain.command.CommandHandler
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.command.Query
-import nl.healthjournal.domain.command.QueryHandler
-import nl.healthjournal.domain.command.ValidationField
-import nl.healthjournal.domain.command.ValidationRule
-import nl.healthjournal.domain.command.domainCatching
-import nl.healthjournal.domain.model.backup.BackupDocument
-import nl.healthjournal.domain.model.backup.BackupException
-import nl.healthjournal.domain.model.backup.BackupPassphrase
-import nl.healthjournal.domain.model.backup.BackupPreferences
-import nl.healthjournal.domain.model.backup.MergeResult
-import nl.healthjournal.domain.usecase.CreateBackupUseCase
-import nl.healthjournal.domain.usecase.RestoreBackupUseCase
+import nl.healthjournal.domain.shared.command.BackupProblem
+import nl.healthjournal.domain.shared.command.Command
+import nl.healthjournal.domain.shared.command.CommandHandler
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.shared.command.Query
+import nl.healthjournal.domain.shared.command.QueryHandler
+import nl.healthjournal.domain.shared.command.ValidationField
+import nl.healthjournal.domain.shared.command.ValidationRule
+import nl.healthjournal.domain.shared.command.domainCatching
+import nl.healthjournal.domain.backup.model.BackupDocument
+import nl.healthjournal.domain.backup.model.BackupException
+import nl.healthjournal.domain.backup.model.BackupPassphrase
+import nl.healthjournal.domain.backup.model.BackupPreferences
+import nl.healthjournal.domain.backup.model.MergeResult
+import nl.healthjournal.domain.backup.usecase.CreateBackupUseCase
+import nl.healthjournal.domain.backup.usecase.RestoreBackupUseCase
 import kotlin.coroutines.cancellation.CancellationException
 
 /**

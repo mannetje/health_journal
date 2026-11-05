@@ -23,8 +23,8 @@ import nl.healthjournal.app.ui.common.formatDecimal
 import nl.healthjournal.app.ui.common.weightFromKg
 import nl.healthjournal.app.ui.nhg.getBmiColor
 import nl.healthjournal.app.ui.nhg.label
-import nl.healthjournal.domain.model.metrics.WeightEntry
-import nl.healthjournal.domain.model.metrics.NhgBmiCategory
+import nl.healthjournal.domain.metrics.model.WeightEntry
+import nl.healthjournal.domain.metrics.model.NhgBmiCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

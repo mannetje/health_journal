@@ -2,8 +2,8 @@ package nl.healthjournal.app.ui.common
 
 import androidx.compose.runtime.compositionLocalOf
 import nl.healthjournal.app.settings.DisplayUnits
-import nl.healthjournal.domain.model.common.GlucoseUnit
-import nl.healthjournal.domain.model.common.UnitConversion
+import nl.healthjournal.domain.shared.model.GlucoseUnit
+import nl.healthjournal.domain.shared.model.UnitConversion
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormatSymbols

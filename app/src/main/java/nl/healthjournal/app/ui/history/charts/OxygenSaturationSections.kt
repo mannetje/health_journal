@@ -15,8 +15,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.logging.labelRes
-import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
-import nl.healthjournal.domain.model.metrics.OxygenStatistics
+import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
+import nl.healthjournal.domain.metrics.model.OxygenStatistics
 
 /** The oxygen saturation trend in percent. One plain line: no limit lines and no colours that judge a value (ADR 0026). */
 @Composable

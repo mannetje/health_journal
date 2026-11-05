@@ -31,11 +31,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.CueChoices
-import nl.healthjournal.domain.model.mindfulness.ExerciseSession
-import nl.healthjournal.domain.model.mindfulness.MeditationTimer
-import nl.healthjournal.domain.model.mindfulness.SessionEnd
-import nl.healthjournal.domain.model.mindfulness.ToneSynth
+import nl.healthjournal.domain.mindfulness.model.CueChoices
+import nl.healthjournal.domain.mindfulness.model.ExerciseSession
+import nl.healthjournal.domain.mindfulness.model.MeditationTimer
+import nl.healthjournal.domain.mindfulness.model.SessionEnd
+import nl.healthjournal.domain.mindfulness.model.ToneSynth
 
 /**
  * Runs one silent sitting. The remaining time counts down; bells that come due sound once each

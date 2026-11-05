@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.lock.LockTimeout
+import nl.healthjournal.domain.lock.model.LockTimeout
 
 data class SecuritySettingsState(
     val appLockEnabled: Boolean,

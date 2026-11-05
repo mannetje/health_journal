@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import nl.healthjournal.domain.model.medication.PillAppearance
-import nl.healthjournal.domain.model.medication.PillColor
-import nl.healthjournal.domain.model.medication.PillShape
+import nl.healthjournal.domain.medication.model.PillAppearance
+import nl.healthjournal.domain.medication.model.PillColor
+import nl.healthjournal.domain.medication.model.PillShape
 
 fun PillColor.toColor(): Color = when (this) {
     PillColor.WHITE -> Color(0xFFF5F5F5)

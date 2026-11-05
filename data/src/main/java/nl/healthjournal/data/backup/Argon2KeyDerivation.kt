@@ -1,6 +1,6 @@
 package nl.healthjournal.data.backup
 
-import nl.healthjournal.domain.port.secondary.BackupKeyDerivationPort
+import nl.healthjournal.domain.backup.port.BackupKeyDerivationPort
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator
 import org.bouncycastle.crypto.params.Argon2Parameters
 

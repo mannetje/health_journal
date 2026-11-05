@@ -2,12 +2,12 @@ package nl.healthjournal.domain.testing
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.migraine.MigraineEntry
-import nl.healthjournal.domain.model.migraine.MigraineTag
-import nl.healthjournal.domain.model.migraine.MigraineTagId
-import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.migraine.model.MigraineEntry
+import nl.healthjournal.domain.migraine.model.MigraineTag
+import nl.healthjournal.domain.migraine.model.MigraineTagId
+import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
 
 /** In-memory migraines and tags; the observers emit once. */
 class FakeMigraineRepository : MigraineRepositoryPort {

@@ -20,8 +20,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Column
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.metrics.OxygenContext
-import nl.healthjournal.domain.model.metrics.OxygenSite
+import nl.healthjournal.domain.metrics.model.OxygenContext
+import nl.healthjournal.domain.metrics.model.OxygenSite
 
 @get:StringRes
 val OxygenContext.labelRes: Int

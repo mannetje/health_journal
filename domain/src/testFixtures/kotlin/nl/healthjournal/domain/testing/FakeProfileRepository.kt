@@ -1,8 +1,8 @@
 package nl.healthjournal.domain.testing
 
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.profile.model.Profile
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
 
 /** In-memory profiles for the domain and app tests. */
 class FakeProfileRepository : ProfileRepositoryPort {

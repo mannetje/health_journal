@@ -1,6 +1,6 @@
 package nl.healthjournal.app.ui.history.charts
 
-import nl.healthjournal.domain.model.profile.Sex
+import nl.healthjournal.domain.profile.model.Sex
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.math.abs

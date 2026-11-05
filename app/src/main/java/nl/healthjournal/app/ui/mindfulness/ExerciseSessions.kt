@@ -17,8 +17,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import nl.healthjournal.domain.model.mindfulness.ExerciseSession
-import nl.healthjournal.domain.model.mindfulness.SessionEnd
+import nl.healthjournal.domain.mindfulness.model.ExerciseSession
+import nl.healthjournal.domain.mindfulness.model.SessionEnd
 
 /**
  * Tells the rest of the app that an exercise, timer or recording is running, so spontaneous dialogs wait

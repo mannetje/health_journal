@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.CueChoices
+import nl.healthjournal.domain.mindfulness.model.CueChoices
 
 /**
  * The optional cues of an exercise: sound, vibration and, when [showSpeech] is set, spoken words. Spoken cues

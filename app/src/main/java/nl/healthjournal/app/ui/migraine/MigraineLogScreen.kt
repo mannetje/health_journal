@@ -53,16 +53,16 @@ import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.CommentField
 import nl.healthjournal.app.ui.common.asString
 import nl.healthjournal.app.ui.history.DateTimeFields
-import nl.healthjournal.domain.model.migraine.DailyActivities
-import nl.healthjournal.domain.model.migraine.HeadArea
-import nl.healthjournal.domain.model.migraine.MigraineEntry
-import nl.healthjournal.domain.model.migraine.MigraineSymptom
-import nl.healthjournal.domain.model.migraine.MigraineTag
-import nl.healthjournal.domain.model.migraine.MigraineTagKind
-import nl.healthjournal.domain.model.migraine.MigraineTrigger
-import nl.healthjournal.domain.model.migraine.MigraineType
-import nl.healthjournal.domain.model.migraine.PainCharacter
-import nl.healthjournal.domain.model.migraine.ReliefMethod
+import nl.healthjournal.domain.migraine.model.DailyActivities
+import nl.healthjournal.domain.migraine.model.HeadArea
+import nl.healthjournal.domain.migraine.model.MigraineEntry
+import nl.healthjournal.domain.migraine.model.MigraineSymptom
+import nl.healthjournal.domain.migraine.model.MigraineTag
+import nl.healthjournal.domain.migraine.model.MigraineTagKind
+import nl.healthjournal.domain.migraine.model.MigraineTrigger
+import nl.healthjournal.domain.migraine.model.MigraineType
+import nl.healthjournal.domain.migraine.model.PainCharacter
+import nl.healthjournal.domain.migraine.model.ReliefMethod
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -330,10 +330,10 @@ private fun CommentStep(d: MigraineDraft, vm: MigraineLogViewModel) {
 @Composable
 private fun PersonalTags(
     kind: MigraineTagKind,
-    selected: Set<nl.healthjournal.domain.model.migraine.MigraineTagId>,
+    selected: Set<nl.healthjournal.domain.migraine.model.MigraineTagId>,
     state: MigraineUiState,
     vm: MigraineLogViewModel,
-    onToggle: (nl.healthjournal.domain.model.migraine.MigraineTagId) -> Unit
+    onToggle: (nl.healthjournal.domain.migraine.model.MigraineTagId) -> Unit
 ) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         state.activeTags(kind).forEach { tag ->

@@ -14,7 +14,7 @@ The domain was already split into folders by subject (`profile`, `metrics`, `med
 
 | Context | Holds | May import |
 |---|---|---|
-| `shared` (`model/common`) | ids, units, `EntryComment`, `HeightCm`, `WeightKg` | nothing |
+| `shared` (`shared/model`) | ids, units, `EntryComment`, `HeightCm`, `WeightKg` | nothing |
 | `profile` | `Profile`, `Sex` | `shared` |
 | `metrics` (with `nhg`) | readings, entries, range classifiers | `shared`, `profile` |
 | `medication` | `Medication`, `Pillbox`, adherence | `shared`, `profile` |
@@ -51,7 +51,7 @@ flowchart BT
 
 ### Where new code goes
 
-New commands, queries and handlers live in their context: `domain/<context>/command` (for example `metrics/command/WeightCommands.kt`). Secondary ports stay together in `domain/port/secondary` for now, one file per port. Existing models and use cases stay where they are too. Moving them, ports included, is the follow-up change `move-code-into-context-packages`, so nothing is moved twice and this refactor stays behaviour-preserving.
+New code lives in its context: `domain/<context>/{model,usecase,port,command}` (for example `metrics/command/WeightCommands.kt`, `metrics/port/WeightRepositoryPort.kt`). The framework types (`Dispatcher`, `DomainResult`, `DomainError`, `Rules`) and the delete and CSV commands are in `shared/command`. The move into this layout was made by the change `move-code-into-context-packages`, with no behaviour change.
 
 ### Language
 
@@ -65,6 +65,5 @@ The glossary in `docs/dev` fixes the words: slot, intake, pillbox, range label (
 - The `Medication` aggregate and `Pillbox` are untouched.
 
 ### Negative
-- Two layouts exist until the follow-up change lands: `domain/model/<context>` and `domain/usecase` for old code, `domain/<context>/command` for new.
 - There is no Gradle module per context. The boundary is enforced by a test, not the compiler.
 - No domain events: contexts do not react to each other.

@@ -1,6 +1,6 @@
 package nl.healthjournal.app.ui.history.charts
 
-import nl.healthjournal.domain.model.metrics.BloodPressureReading
+import nl.healthjournal.domain.metrics.model.BloodPressureReading
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

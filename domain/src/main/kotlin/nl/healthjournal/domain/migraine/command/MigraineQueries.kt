@@ -2,13 +2,13 @@ package nl.healthjournal.domain.migraine.command
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.command.ObserveQuery
-import nl.healthjournal.domain.command.ObserveQueryHandler
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.migraine.MigraineEntry
-import nl.healthjournal.domain.model.migraine.MigraineTag
-import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.shared.command.ObserveQuery
+import nl.healthjournal.domain.shared.command.ObserveQueryHandler
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.migraine.model.MigraineEntry
+import nl.healthjournal.domain.migraine.model.MigraineTag
+import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
 
 /** The migraines of a profile, newest changes included; emits again when one is saved, changed or deleted. */
 data class ObserveMigraineHistoryQuery(val profileId: ProfileId) : ObserveQuery<List<MigraineEntry>>

@@ -12,11 +12,11 @@ import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.toUiText
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.command.Dispatcher
-import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.model.profile.Sex
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.shared.command.Dispatcher
+import nl.healthjournal.domain.profile.model.Profile
+import nl.healthjournal.domain.profile.model.Sex
 import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
 import nl.healthjournal.domain.profile.command.SaveProfileCommand
 import java.time.LocalDate

@@ -14,26 +14,26 @@ import nl.healthjournal.app.R
 import nl.healthjournal.app.reminder.ReminderHooks
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.parseDecimal
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.medication.Adherence
-import nl.healthjournal.domain.model.medication.AdherenceReport
-import nl.healthjournal.domain.model.medication.DayPattern
-import nl.healthjournal.domain.model.medication.DoseUnit
-import nl.healthjournal.domain.model.medication.IntakeStatus
-import nl.healthjournal.domain.model.medication.Medication
-import nl.healthjournal.domain.model.medication.MedicationForm
-import nl.healthjournal.domain.model.medication.MedicationId
-import nl.healthjournal.domain.model.medication.PillAppearance
-import nl.healthjournal.domain.model.medication.PillColor
-import nl.healthjournal.domain.model.medication.PillShape
-import nl.healthjournal.domain.model.medication.PillboxDay
-import nl.healthjournal.domain.model.medication.PlannedStatus
-import nl.healthjournal.domain.model.medication.Schedule
-import nl.healthjournal.domain.model.medication.StrengthUnit
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.medication.model.Adherence
+import nl.healthjournal.domain.medication.model.AdherenceReport
+import nl.healthjournal.domain.medication.model.DayPattern
+import nl.healthjournal.domain.medication.model.DoseUnit
+import nl.healthjournal.domain.medication.model.IntakeStatus
+import nl.healthjournal.domain.medication.model.Medication
+import nl.healthjournal.domain.medication.model.MedicationForm
+import nl.healthjournal.domain.medication.model.MedicationId
+import nl.healthjournal.domain.medication.model.PillAppearance
+import nl.healthjournal.domain.medication.model.PillColor
+import nl.healthjournal.domain.medication.model.PillShape
+import nl.healthjournal.domain.medication.model.PillboxDay
+import nl.healthjournal.domain.medication.model.PlannedStatus
+import nl.healthjournal.domain.medication.model.Schedule
+import nl.healthjournal.domain.medication.model.StrengthUnit
 import nl.healthjournal.app.ui.common.toUiText
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.Dispatcher
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.Dispatcher
 import nl.healthjournal.domain.medication.command.ArchiveMedicationCommand
 import nl.healthjournal.domain.medication.command.ChangeMedicationScheduleCommand
 import nl.healthjournal.domain.medication.command.DeleteMedicationCommand
@@ -360,7 +360,7 @@ class MedicationViewModel(
 
     private fun validate(draft: MedicationDraft, today: LocalDate): Validated {
         if (draft.name.isBlank()) return invalid(R.string.medication_err_name_required)
-        if (draft.name.trim().length > nl.healthjournal.domain.model.medication.MedicationName.MAX_LENGTH) {
+        if (draft.name.trim().length > nl.healthjournal.domain.medication.model.MedicationName.MAX_LENGTH) {
             return invalid(R.string.medication_err_name_too_long)
         }
         val strength = if (draft.strengthText.isBlank()) null else {

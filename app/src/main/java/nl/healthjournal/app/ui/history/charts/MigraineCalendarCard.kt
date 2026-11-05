@@ -35,8 +35,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.migraine.MigraineEntry
-import nl.healthjournal.domain.model.migraine.MigraineStatistics
+import nl.healthjournal.domain.migraine.model.MigraineEntry
+import nl.healthjournal.domain.migraine.model.MigraineStatistics
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth

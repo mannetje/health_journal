@@ -2,9 +2,9 @@ package nl.healthjournal.data.repository
 
 import nl.healthjournal.data.local.dao.ProfileDao
 import nl.healthjournal.data.local.mapper.ProfileMapper
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.profile.model.Profile
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
 
 class RoomProfileRepository(
     private val profileDao: ProfileDao

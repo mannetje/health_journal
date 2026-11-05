@@ -1,12 +1,12 @@
 # Context map and glossary
 
-The domain is divided into bounded contexts, one folder each under `domain/src/main/kotlin/nl/healthjournal/domain/model/`. [ADR 0038](../adr/0038-bounded-contexts-and-tactical-roles.md) records the decision. This page is the working copy: what may import what, and what the words mean.
+The domain is divided into bounded contexts, one folder each under `domain/src/main/kotlin/nl/healthjournal/domain/`, each with `model/`, `usecase/`, `port/` and `command/` as it needs. [ADR 0038](../adr/0038-bounded-contexts-and-tactical-roles.md) records the decision. This page is the working copy: what may import what, and what the words mean.
 
 ## Context map
 
 ```mermaid
 flowchart BT
-    SHARED["shared (model/common)<br/>ids, units, EntryComment, HeightCm, WeightKg"]
+    SHARED["shared (shared/model)<br/>ids, units, EntryComment, HeightCm, WeightKg"]
     PROFILE["profile<br/>Profile, Sex"]
     METRICS["metrics (includes NHG)<br/>readings, entries, range classifiers"]
     MED["medication<br/>Medication, Pillbox, Adherence"]
@@ -32,13 +32,13 @@ flowchart BT
 | `backup` | every context |
 | `mindfulness`, `lock` | nothing |
 
-`ArchitectureGuardrailsTest.domainModelContextsOnlyImportWhatTheContextMapAllows` scans the imports in `model/` and fails with the file name and the forbidden edge. If a coupling is ever accepted, it goes in `knownCouplings` in that test with the reason beside it. The list is empty now.
+`ArchitectureGuardrailsTest.domainModelContextsOnlyImportWhatTheContextMapAllows` scans the imports in each context's `model/` folder and fails with the file name and the forbidden edge. If a coupling is ever accepted, it goes in `knownCouplings` in that test with the reason beside it. The list is empty now.
 
 ## Where new code goes
 
-- **A new value object, entry or classifier:** the context folder under `model/`.
-- **A new command, query or handler:** `<context>/command/` (for example `metrics/command/WeightCommands.kt`). The `Dispatcher` and the shared types are in `command/`.
-- **A new port:** `port/secondary/`, one file per port. (A later change moves ports and old use cases into the contexts.)
+- **A new value object, entry or classifier:** `<context>/model/`.
+- **A new command, query or handler:** `<context>/command/` (for example `metrics/command/WeightCommands.kt`). The `Dispatcher` and the shared types are in `shared/command/`.
+- **A new port:** `<context>/port/`, one file per port. **A new use case:** `<context>/usecase/`.
 
 ## Roles
 

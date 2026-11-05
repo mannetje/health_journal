@@ -16,23 +16,23 @@ import nl.healthjournal.data.repository.RoomHealthLogRepository
 import nl.healthjournal.data.repository.RoomMedicationRepository
 import nl.healthjournal.data.repository.RoomMigraineRepository
 import nl.healthjournal.data.repository.RoomProfileRepository
-import nl.healthjournal.domain.port.secondary.BackupCodecPort
-import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
-import nl.healthjournal.domain.port.secondary.MedicationExportPort
-import nl.healthjournal.domain.port.secondary.MedicationImportPort
-import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
-import nl.healthjournal.domain.port.secondary.MigraineExportPort
-import nl.healthjournal.domain.port.secondary.MigraineImportPort
-import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
-import nl.healthjournal.domain.port.secondary.DataExportPort
-import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
-import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
-import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
-import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
-import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
-import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.backup.port.BackupCodecPort
+import nl.healthjournal.domain.backup.port.BackupSnapshotPort
+import nl.healthjournal.domain.medication.port.MedicationExportPort
+import nl.healthjournal.domain.medication.port.MedicationImportPort
+import nl.healthjournal.domain.medication.port.MedicationRepositoryPort
+import nl.healthjournal.domain.migraine.port.MigraineExportPort
+import nl.healthjournal.domain.migraine.port.MigraineImportPort
+import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
+import nl.healthjournal.domain.metrics.port.DataExportPort
+import nl.healthjournal.domain.metrics.port.DataImportPort
+import nl.healthjournal.domain.metrics.port.WeightRepositoryPort
+import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
+import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
+import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
+import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
 
 class DataModule(context: Context) {
     private val database: HealthJournalDatabase = HealthJournalDatabase.create(context)

@@ -27,9 +27,9 @@ import nl.healthjournal.app.ui.common.asString
 import nl.healthjournal.app.ui.common.formatHeight
 import nl.healthjournal.app.ui.theme.onSuccessContainerColor
 import nl.healthjournal.app.ui.theme.successContainerColor
-import nl.healthjournal.domain.model.common.UnitConversion
-import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.model.profile.Sex
+import nl.healthjournal.domain.shared.model.UnitConversion
+import nl.healthjournal.domain.profile.model.Profile
+import nl.healthjournal.domain.profile.model.Sex
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset

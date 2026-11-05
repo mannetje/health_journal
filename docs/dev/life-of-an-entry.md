@@ -66,7 +66,7 @@ The handler does four things, in this order:
 3. Calls `NhgBloodPressureCategory.classify(reading)`. For 150/95 the answer is `HIGH` (from 140/90).
 4. Builds a `BloodPressureEntry` (id, profile, timestamp, reading, category, comment) and hands it to `repository.saveBloodPressure(entry)`. "Now" comes from the injected `Clock`, never from `Instant.now()`. An exception from the port becomes `DomainError.Storage`.
 
-`repository` has the type `BloodPressureRepositoryPort`, an interface in `domain/src/main/kotlin/nl/healthjournal/domain/port/secondary/BloodPressureRepositoryPort.kt`. Each metric has its own port. The handler does not know that Room exists. That is the whole point of the architecture.
+`repository` has the type `BloodPressureRepositoryPort`, an interface in `domain/src/main/kotlin/nl/healthjournal/domain/metrics/port/BloodPressureRepositoryPort.kt`. Each metric has its own port. The handler does not know that Room exists. That is the whole point of the architecture.
 
 The category is **computed once and stored** with the entry, and recomputed when the entry is updated (`UpdateBloodPressureHandler`).
 

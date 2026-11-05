@@ -4,15 +4,17 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import nl.healthjournal.domain.port.secondary.BackupCodecPort
-import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
-import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
-import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
-import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
-import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
-import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
-import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
-import nl.healthjournal.domain.usecase.*
+import nl.healthjournal.domain.backup.port.BackupCodecPort
+import nl.healthjournal.domain.backup.port.BackupSnapshotPort
+import nl.healthjournal.domain.metrics.port.WeightRepositoryPort
+import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
+import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
+import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
+import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.backup.usecase.CreateBackupUseCase
+import nl.healthjournal.domain.backup.usecase.RestoreBackupUseCase
+import nl.healthjournal.domain.metrics.usecase.GetHealthHistoryUseCase
 import java.time.Clock
 
 /** The domain has no DI annotations, so each use case is built here from its ports. */

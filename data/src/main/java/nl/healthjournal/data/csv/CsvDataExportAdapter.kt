@@ -1,13 +1,13 @@
 package nl.healthjournal.data.csv
 
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.port.secondary.DataExportPort
-import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
-import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
-import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
-import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
-import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
-import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.metrics.port.DataExportPort
+import nl.healthjournal.domain.metrics.port.WeightRepositoryPort
+import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
+import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
+import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
+import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
 
 class CsvDataExportAdapter(
     private val weightRepository: WeightRepositoryPort,

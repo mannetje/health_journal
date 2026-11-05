@@ -74,7 +74,7 @@ flowchart LR
     KDF -. implements .-> P3
 ```
 
-- `:domain` (`model/backup`, `port/secondary/BackupPorts.kt`, `usecase/BackupUseCases.kt`) knows the document as plain Kotlin data, the rules (passphrase length, merge counts) and three ports. It has no crypto library, no JSON library and no Android type.
+- `:domain` (`backup/model`, `backup/port/BackupPorts.kt`, `backup/usecase/BackupUseCases.kt`) knows the document as plain Kotlin data, the rules (passphrase length, merge counts) and three ports. It has no crypto library, no JSON library and no Android type.
 - `:data` implements the ports: Room read and merge, the container and JSON codec, and Argon2id. Argon2id comes from the one new library, Bouncy Castle `bcprov-jdk18on` ([ADR 0024](../adr/0024-portable-encrypted-backup.md)); AES-GCM, gzip, `SecureRandom` and `org.json` are platform classes.
 - `:app` (`ui/backup/`) shows the dialogs and owns the system picker. `BackupHost` holds the pickers and dialogs and is shared by the Profile tab and the lost-key screen; each screen has its own `BackupViewModel` instance (the recovery one is created with the key `recovery`). `settings/BackupPreferenceBridge.kt` maps the display preferences to and from the file. The file bytes pass through `ContentResolver` streams; the app never needs a storage permission.
 

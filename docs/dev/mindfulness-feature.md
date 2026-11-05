@@ -156,13 +156,13 @@ classDiagram
     GuidedExercise --> ContentCredit
 ```
 
-| File in `domain/src/main/kotlin/nl/healthjournal/domain/model/mindfulness` | Holds |
+| File in `domain/src/main/kotlin/nl/healthjournal/domain/mindfulness/model` | Holds |
 |---|---|
-| [`BreathingPattern.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/model/mindfulness/BreathingPattern.kt) | phases, the four built-in patterns, durations, custom counts and their validation |
-| [`BreathingTimer.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/model/mindfulness/BreathingTimer.kt) | maps elapsed time to Ready, Running or Done |
-| [`MeditationTimer.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/model/mindfulness/MeditationTimer.kt) | start, interval and end bell times for the timer |
-| [`StartHere.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/model/mindfulness/StartHere.kt) | the three steps of the first-time ladder |
-| [`GuidedExercise.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/model/mindfulness/GuidedExercise.kt) | the catalogue of recordings, languages, credits and ordering |
+| [`BreathingPattern.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/mindfulness/model/BreathingPattern.kt) | phases, the four built-in patterns, durations, custom counts and their validation |
+| [`BreathingTimer.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/mindfulness/model/BreathingTimer.kt) | maps elapsed time to Ready, Running or Done |
+| [`MeditationTimer.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/mindfulness/model/MeditationTimer.kt) | start, interval and end bell times for the timer |
+| [`StartHere.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/mindfulness/model/StartHere.kt) | the three steps of the first-time ladder |
+| [`GuidedExercise.kt`](../../domain/src/main/kotlin/nl/healthjournal/domain/mindfulness/model/GuidedExercise.kt) | the catalogue of recordings, languages, credits and ordering |
 
 ### How the breathing timer turns time into a picture
 
@@ -266,13 +266,13 @@ While a session runs, an `ExerciseGate` tells `MainActivity` so the notification
 
 | What | Where |
 |------|-------|
-| Patterns, custom count validation | [`BreathingPatternTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/BreathingPatternTest.kt) |
-| Phase boundaries, fill, sigh, end of exercise | [`BreathingTimerTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/BreathingTimerTest.kt) |
-| Bell times, late ticks, limits | [`MeditationTimerTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/MeditationTimerTest.kt) |
-| Catalogue entries, credits, ordering by language | [`GuidedExerciseCatalogueTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/GuidedExerciseCatalogueTest.kt) |
-| Session registry, tones | [`ExerciseSessionTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/ExerciseSessionTest.kt), [`ToneSynthTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/ToneSynthTest.kt) |
+| Patterns, custom count validation | [`BreathingPatternTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/mindfulness/model/BreathingPatternTest.kt) |
+| Phase boundaries, fill, sigh, end of exercise | [`BreathingTimerTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/mindfulness/model/BreathingTimerTest.kt) |
+| Bell times, late ticks, limits | [`MeditationTimerTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/mindfulness/model/MeditationTimerTest.kt) |
+| Catalogue entries, credits, ordering by language | [`GuidedExerciseCatalogueTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/mindfulness/model/GuidedExerciseCatalogueTest.kt) |
+| Session registry, tones | [`ExerciseSessionTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/mindfulness/model/ExerciseSessionTest.kt), [`ToneSynthTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/mindfulness/model/ToneSynthTest.kt) |
 | Saved choices | [`MindfulnessPreferencesTest.kt`](../../app/src/test/java/nl/healthjournal/app/settings/MindfulnessPreferencesTest.kt) |
-| The first-time ladder | [`StartHereTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/model/mindfulness/StartHereTest.kt) |
+| The first-time ladder | [`StartHereTest.kt`](../../domain/src/test/kotlin/nl/healthjournal/domain/mindfulness/model/StartHereTest.kt) |
 
 Run them with `./gradlew :domain:test`. The screens were checked by hand on the emulator (task 2.10): every screen in English and Dutch, light and dark, system animations off and a 320 dp wide phone. Audible tones, speech, vibration and TalkBack need a real device.
 

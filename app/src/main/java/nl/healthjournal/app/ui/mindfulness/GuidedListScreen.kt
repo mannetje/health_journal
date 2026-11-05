@@ -15,9 +15,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.ContentLanguage
-import nl.healthjournal.domain.model.mindfulness.GuidedExercise
-import nl.healthjournal.domain.model.mindfulness.GuidedExerciseCatalogue
+import nl.healthjournal.domain.mindfulness.model.ContentLanguage
+import nl.healthjournal.domain.mindfulness.model.GuidedExercise
+import nl.healthjournal.domain.mindfulness.model.GuidedExerciseCatalogue
 
 /** The recorded exercises, the ones in the app language first. Opening one does not record anything. */
 @Composable

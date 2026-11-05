@@ -29,14 +29,14 @@ import nl.healthjournal.app.ui.common.parseDecimal
 import nl.healthjournal.app.ui.common.weightFromKg
 import nl.healthjournal.app.ui.common.weightToKg
 import nl.healthjournal.app.ui.logging.OxygenOptionFields
-import nl.healthjournal.domain.model.common.WeightKg
-import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent
-import nl.healthjournal.domain.model.metrics.BloodPressureReading
-import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
-import nl.healthjournal.domain.model.common.UnitConversion
-import nl.healthjournal.domain.model.common.EntryComment
-import nl.healthjournal.domain.model.metrics.GlucoseContext
-import nl.healthjournal.domain.model.metrics.GlucoseLevel
+import nl.healthjournal.domain.shared.model.WeightKg
+import nl.healthjournal.domain.metrics.model.OxygenSaturationPercent
+import nl.healthjournal.domain.metrics.model.BloodPressureReading
+import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
+import nl.healthjournal.domain.shared.model.UnitConversion
+import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.metrics.model.GlucoseContext
+import nl.healthjournal.domain.metrics.model.GlucoseLevel
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -195,7 +195,7 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
                 else viewModel.updateActivity(ref.session, Math.round(minutes * 60), meters, comment)
             }
             is EntryRef.WaistCircumference -> {
-                val cm = waist.toDoubleOrNull()?.takeIf { it in nl.healthjournal.domain.model.metrics.WaistCircumferenceCm.MIN_CM..nl.healthjournal.domain.model.metrics.WaistCircumferenceCm.MAX_CM }
+                val cm = waist.toDoubleOrNull()?.takeIf { it in nl.healthjournal.domain.metrics.model.WaistCircumferenceCm.MIN_CM..nl.healthjournal.domain.metrics.model.WaistCircumferenceCm.MAX_CM }
                 if (cm == null) invalid = true
                 else viewModel.updateWaistCircumference(ref.entry, cm, dateTime.atZone(zone).toInstant(), comment)
             }

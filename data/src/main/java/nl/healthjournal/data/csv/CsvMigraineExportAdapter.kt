@@ -1,9 +1,9 @@
 package nl.healthjournal.data.csv
 
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.migraine.MigraineTagId
-import nl.healthjournal.domain.port.secondary.MigraineExportPort
-import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.migraine.model.MigraineTagId
+import nl.healthjournal.domain.migraine.port.MigraineExportPort
+import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
 
 internal const val MIGRAINES_HEADER =
     "start_timestamp,woke_up_with_it,end_timestamp,intensity,areas,pain_character,type,symptoms,triggers," +

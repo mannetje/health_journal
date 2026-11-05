@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.common.EntryComment
+import nl.healthjournal.domain.shared.model.EntryComment
 
 /**
  * The optional single-line comment field shared by the logging form and the edit dialog.

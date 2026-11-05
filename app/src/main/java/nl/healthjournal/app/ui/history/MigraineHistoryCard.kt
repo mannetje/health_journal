@@ -14,9 +14,9 @@ import nl.healthjournal.app.ui.migraine.reliefLabel
 import nl.healthjournal.app.ui.migraine.symptomLabel
 import nl.healthjournal.app.ui.migraine.triggerLabel
 import nl.healthjournal.app.ui.migraine.typeLabel
-import nl.healthjournal.domain.model.migraine.DailyActivities
-import nl.healthjournal.domain.model.migraine.MigraineEntry
-import nl.healthjournal.domain.model.migraine.MigraineTag
+import nl.healthjournal.domain.migraine.model.DailyActivities
+import nl.healthjournal.domain.migraine.model.MigraineEntry
+import nl.healthjournal.domain.migraine.model.MigraineTag
 
 /**
  * One migraine in History, in the same card as the other entry types. Everything that was filled
