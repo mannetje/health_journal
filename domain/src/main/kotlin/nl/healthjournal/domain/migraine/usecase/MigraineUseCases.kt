@@ -1,44 +1,10 @@
 package nl.healthjournal.domain.migraine.usecase
 
-import nl.healthjournal.domain.shared.model.MeasurementId
 import nl.healthjournal.domain.shared.model.ProfileId
-import nl.healthjournal.domain.migraine.model.MigraineEntry
 import nl.healthjournal.domain.migraine.model.MigraineTag
 import nl.healthjournal.domain.migraine.model.MigraineTagId
 import nl.healthjournal.domain.migraine.model.MigraineTagKind
 import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
-import java.time.Clock
-import java.time.Instant
-
-class RecordMigraineUseCase(private val repository: MigraineRepositoryPort) {
-    suspend operator fun invoke(entry: MigraineEntry): MigraineEntry {
-        repository.saveMigraine(entry)
-        return entry
-    }
-}
-
-/** Replaces an existing migraine (same id and profile). Returns null when the id is unknown. */
-class UpdateMigraineUseCase(private val repository: MigraineRepositoryPort) {
-    suspend operator fun invoke(entry: MigraineEntry): MigraineEntry? =
-        entry.takeIf { repository.updateMigraine(it) }
-}
-
-class DeleteMigraineUseCase(private val repository: MigraineRepositoryPort) {
-    suspend operator fun invoke(id: MeasurementId): Boolean = repository.deleteMigraine(id)
-}
-
-/** Sets the end time of an ongoing migraine. Null when the id is unknown, it already has an end, or [end] is before the start. */
-class EndMigraineUseCase(
-    private val repository: MigraineRepositoryPort,
-    private val clock: Clock = Clock.systemUTC()
-) {
-    suspend operator fun invoke(id: MeasurementId, end: Instant? = null): MigraineEntry? {
-        val endAt = end ?: clock.instant()
-        val entry = repository.getMigraine(id) ?: return null
-        val ended = entry.endedAt(endAt) ?: return null
-        return ended.takeIf { repository.updateMigraine(it) }
-    }
-}
 
 sealed interface AddTagResult {
     /** The tag now exists: new, or the existing tag with the same label (ignoring case). */

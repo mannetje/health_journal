@@ -4,17 +4,14 @@ import nl.healthjournal.domain.testing.FakeHealthLogRepository
 import kotlinx.coroutines.runBlocking
 import nl.healthjournal.domain.shared.model.MeasurementId
 import nl.healthjournal.domain.shared.model.ProfileId
-import nl.healthjournal.domain.shared.model.EntryComment
 import nl.healthjournal.domain.metrics.model.OxygenContext
 import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
 import nl.healthjournal.domain.metrics.model.OxygenSaturationPercent
 import nl.healthjournal.domain.metrics.model.OxygenSite
 import nl.healthjournal.domain.metrics.model.OxygenStatistics
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.math.BigDecimal
 import java.time.Instant
@@ -58,65 +55,10 @@ class OxygenSaturationTest {
     }
 
     @Test
-    fun `record stores the reading with its notes and comment`() = runBlocking {
-        val saved = RecordOxygenSaturationUseCase(repo)(
-            profileId, 96, pulse = 68, context = OxygenContext.AT_REST, site = OxygenSite.FINGER,
-            oxygenGiven = true, comment = "  after the stairs "
-        )
-        assertEquals(listOf(saved), repo.oxygenSaturations)
-        assertEquals(96, saved.saturation.value)
-        assertEquals(68, saved.pulse)
-        assertEquals(OxygenContext.AT_REST, saved.context)
-        assertEquals(OxygenSite.FINGER, saved.site)
-        assertTrue(saved.oxygenGiven)
-        assertEquals(EntryComment("after the stairs"), saved.comment)
-    }
-
-    @Test
-    fun `record without notes stores none`() = runBlocking {
-        val saved = RecordOxygenSaturationUseCase(repo)(profileId, 97)
-        assertNull(saved.pulse)
-        assertNull(saved.context)
-        assertNull(saved.site)
-        assertFalse(saved.oxygenGiven)
-        assertNull(saved.comment)
-    }
-
-    @Test
-    fun `record refuses an invalid value and stores nothing`() = runBlocking {
-        val record = RecordOxygenSaturationUseCase(repo)
-        assertFailsWithIllegalArgument { record(profileId, 101) }
-        assertFailsWithIllegalArgument { record(profileId, 97, pulse = 20) }
-        assertTrue(repo.oxygenSaturations.isEmpty())
-    }
-
-    @Test
-    fun `update replaces the entry and returns null for an unknown id`() = runBlocking {
-        val saved = RecordOxygenSaturationUseCase(repo)(profileId, 97)
-        val update = UpdateOxygenSaturationUseCase(repo)
-        val changed = update(saved.id, profileId, 93, null, OxygenContext.OTHER, OxygenSite.TOE, false, saved.timestamp)
-        assertEquals(93, changed?.saturation?.value)
-        assertEquals(93, repo.oxygenSaturations.single().saturation.value)
-        assertNull(update(MeasurementId.generate(), profileId, 93, null, null, null, false, saved.timestamp))
-        assertFailsWithIllegalArgument { update(saved.id, profileId, 101, null, null, null, false, saved.timestamp) }
-        assertEquals(93, repo.oxygenSaturations.single().saturation.value)
-    }
-
-    @Test
-    fun `delete removes the entry and returns false for an unknown id`() = runBlocking {
-        val saved = RecordOxygenSaturationUseCase(repo)(profileId, 97)
-        val delete = DeleteOxygenSaturationUseCase(repo)
-        assertFalse(delete(MeasurementId.generate()))
-        assertTrue(delete(saved.id))
-        assertTrue(repo.oxygenSaturations.isEmpty())
-    }
-
-    @Test
     fun `history is newest first`() = runBlocking {
-        val record = RecordOxygenSaturationUseCase(repo)
-        record(profileId, 95, timestamp = Instant.ofEpochSecond(10))
-        record(profileId, 97, timestamp = Instant.ofEpochSecond(30))
-        record(profileId, 96, timestamp = Instant.ofEpochSecond(20))
+        repo.saveOxygenSaturation(entry(95, at = 10))
+        repo.saveOxygenSaturation(entry(97, at = 30))
+        repo.saveOxygenSaturation(entry(96, at = 20))
         assertEquals(listOf(97, 96, 95), repo.getOxygenSaturationHistory(profileId).map { it.saturation.value })
     }
 

@@ -304,6 +304,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0036: Application boundary: commands and queries](docs/adr/0036-application-boundary-commands-and-queries.md)
 - [ADR 0037: Typed domain errors and a single source for rules](docs/adr/0037-typed-domain-errors-and-single-source-for-rules.md)
 - [ADR 0038: Bounded contexts and tactical roles](docs/adr/0038-bounded-contexts-and-tactical-roles.md)
+- [ADR 0039: Use case or handler](docs/adr/0039-use-case-or-handler.md)
 
 ---
 
