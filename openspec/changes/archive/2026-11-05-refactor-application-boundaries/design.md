@@ -1,6 +1,6 @@
 ## Context
 
-The hexagon is sound at the module level: `:domain` has no framework dependency, DI stays in `:app` ([ADR 0035](../../../docs/adr/0035-hilt-for-dependency-injection.md)) and `RepositoryGuardrailsTest` already enforces that. The friction is inside the application layer ([ADR 0002](../../../docs/adr/0002-hexagonal-architecture.md) names Use Cases but never defined a primary boundary). Messages shown to the user must stay localized ([ADR 0015](../../../docs/adr/0015-localized-viewmodel-messages.md)); metrics stay plain, with no assessment ([ADR 0026](../../../docs/adr/0026-oxygen-saturation-without-assessment.md) and the later ones).
+The hexagon is sound at the module level: `:domain` has no framework dependency, DI stays in `:app` ([ADR 0035](../../../../docs/adr/0035-hilt-for-dependency-injection.md)) and `RepositoryGuardrailsTest` already enforces that. The friction is inside the application layer ([ADR 0002](../../../../docs/adr/0002-hexagonal-architecture.md) names Use Cases but never defined a primary boundary). Messages shown to the user must stay localized ([ADR 0015](../../../../docs/adr/0015-localized-viewmodel-messages.md)); metrics stay plain, with no assessment ([ADR 0026](../../../../docs/adr/0026-oxygen-saturation-without-assessment.md) and the later ones).
 
 ## Target architecture
 

@@ -14,7 +14,7 @@ This is one change because the pieces depend on each other: the new ports are wh
 - **Segregated secondary ports:** `HealthLogRepositoryPort` is replaced by one port per metric (weight, blood pressure, glucose, activity, waist circumference, oxygen saturation). Migraine, medication and profile ports stay as they are.
 - **Application boundary:** typed commands and queries with handlers in `:domain`, a small in-process dispatcher in `:app` (Hilt map multibinding). ViewModels depend on the dispatcher, not on use case classes or secondary ports.
 - **Consolidated handlers:** one delete, one update and one record path across entry types instead of one class per metric; CSV export and import become typed queries and commands keyed by a `MetricKind` enum instead of strings.
-- **Typed validation errors:** `DomainError` with a code and parameters (never display text). Safe factories on the value objects return a result; the validating constructors stay as a last line of defence. The UI maps error codes to existing string resources in English and Dutch ([ADR 0015](../../../docs/adr/0015-localized-viewmodel-messages.md)).
+- **Typed validation errors:** `DomainError` with a code and parameters (never display text). Safe factories on the value objects return a result; the validating constructors stay as a last line of defence. The UI maps error codes to existing string resources in English and Dutch ([ADR 0015](../../../../docs/adr/0015-localized-viewmodel-messages.md)).
 - **Single source for ranges:** the UI reads bounds from the domain constants and no longer repeats them.
 - **Time through a clock:** commands take a `Clock`-derived instant from the handler, not `Instant.now()` defaults.
 - **All ViewModels migrated:** Logging, History, Medication, MigraineLog, Profile and RecoveryBackup.
@@ -33,7 +33,7 @@ No behaviour spec changes: `health-metrics/*`, `entry-management`, `data-export`
 - **Medical thresholds:** none touched.
 - **User-visible behaviour:** none. Error messages keep their current wording in both languages; where a validation failure now reaches the UI with its own code, it shows the specific existing message instead of the generic "could not save" one (a deliberate improvement, listed in the design).
 - **Affected code:** `:domain` (ports, new `command/` package, value object factories, use case removal), `:data` (`RoomHealthLogRepository` implements six ports, CSV adapters take the narrow ports), `:app` (Hilt modules, dispatcher, six ViewModels, error mapping, tests).
-- **Dependencies and permissions:** none. Hilt stays in `:app` only ([ADR 0035](../../../docs/adr/0035-hilt-for-dependency-injection.md)).
+- **Dependencies and permissions:** none. Hilt stays in `:app` only ([ADR 0035](../../../../docs/adr/0035-hilt-for-dependency-injection.md)).
 - **In-flight changes:** the six `add-*` metric changes name `HealthLogRepositoryPort` and per-metric use cases. See design decision 9 for the order.
 
 ## Sources
