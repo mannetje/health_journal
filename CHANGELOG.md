@@ -4,6 +4,11 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-11-05
+
+### Changed
+- **Version bump only:** no change to the app. The repository gained an OpenSpec proposal for a later internal refactor of the application layer (`openspec/changes/refactor-application-boundaries`).
+
 ## [1.7.0] - 2026-11-03
 
 ### Added
@@ -301,7 +306,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.1...HEAD
+[1.7.1]: https://github.com/mannetje/health_journal/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/mannetje/health_journal/compare/v1.6.6...v1.7.0
 [1.6.6]: https://github.com/mannetje/health_journal/compare/v1.6.5...v1.6.6
 [1.6.5]: https://github.com/mannetje/health_journal/compare/v1.6.4...v1.6.5
