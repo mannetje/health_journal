@@ -24,12 +24,12 @@ import nl.healthjournal.app.ui.common.toUiText
 import nl.healthjournal.domain.backup.command.CreateBackupCommand
 import nl.healthjournal.domain.backup.command.OpenBackupQuery
 import nl.healthjournal.domain.backup.command.RestoreBackupCommand
-import nl.healthjournal.domain.command.BackupProblem
-import nl.healthjournal.domain.command.Dispatcher
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.model.backup.BackupDocument
-import nl.healthjournal.domain.model.backup.BackupPreferences
+import nl.healthjournal.domain.shared.command.BackupProblem
+import nl.healthjournal.domain.shared.command.Dispatcher
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.backup.model.BackupDocument
+import nl.healthjournal.domain.backup.model.BackupPreferences
 import java.time.LocalDate
 import javax.inject.Inject
 

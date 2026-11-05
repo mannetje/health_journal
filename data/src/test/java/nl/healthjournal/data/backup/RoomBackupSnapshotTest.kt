@@ -4,11 +4,11 @@ import kotlinx.coroutines.test.runTest
 import nl.healthjournal.data.local.HealthJournalDatabase
 import nl.healthjournal.data.local.mapper.HealthLogMapper
 import nl.healthjournal.data.local.mapper.ProfileMapper
-import nl.healthjournal.domain.model.backup.BackupDocument
-import nl.healthjournal.domain.model.backup.BackupProfile
-import nl.healthjournal.domain.model.medication.IntakeId
-import nl.healthjournal.domain.model.medication.MedicationId
-import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.backup.model.BackupDocument
+import nl.healthjournal.domain.backup.model.BackupProfile
+import nl.healthjournal.domain.medication.model.IntakeId
+import nl.healthjournal.domain.medication.model.MedicationId
+import nl.healthjournal.domain.profile.model.Profile
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -115,12 +115,12 @@ class RoomBackupSnapshotTest {
     @Test
     fun `migraines and their tags are merged once and read back`() = runTest {
         val p = sample.profiles.single()
-        val tag = nl.healthjournal.domain.model.migraine.MigraineTag(
-            nl.healthjournal.domain.model.migraine.MigraineTagId.generate(), p.profile.id,
-            nl.healthjournal.domain.model.migraine.MigraineTagKind.RELIEF, "walk", archived = true
+        val tag = nl.healthjournal.domain.migraine.model.MigraineTag(
+            nl.healthjournal.domain.migraine.model.MigraineTagId.generate(), p.profile.id,
+            nl.healthjournal.domain.migraine.model.MigraineTagKind.RELIEF, "walk", archived = true
         )
-        val entry = nl.healthjournal.domain.model.migraine.MigraineEntry(
-            id = nl.healthjournal.domain.model.common.MeasurementId.generate(), profileId = p.profile.id,
+        val entry = nl.healthjournal.domain.migraine.model.MigraineEntry(
+            id = nl.healthjournal.domain.shared.model.MeasurementId.generate(), profileId = p.profile.id,
             start = java.time.Instant.parse("2026-10-20T06:30:00Z"), customReliefIds = setOf(tag.id)
         )
         val withMigraine = p.copy(migraines = listOf(entry), migraineTags = listOf(tag))

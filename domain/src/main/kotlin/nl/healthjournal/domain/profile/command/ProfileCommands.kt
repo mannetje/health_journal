@@ -1,18 +1,18 @@
 package nl.healthjournal.domain.profile.command
 
-import nl.healthjournal.domain.command.Command
-import nl.healthjournal.domain.command.CommandHandler
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.command.Query
-import nl.healthjournal.domain.command.QueryHandler
-import nl.healthjournal.domain.command.ValidationField
-import nl.healthjournal.domain.command.ValidationRule
-import nl.healthjournal.domain.command.domainCatching
-import nl.healthjournal.domain.model.common.HeightCm
-import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.model.profile.Sex
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.shared.command.Command
+import nl.healthjournal.domain.shared.command.CommandHandler
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.shared.command.Query
+import nl.healthjournal.domain.shared.command.QueryHandler
+import nl.healthjournal.domain.shared.command.ValidationField
+import nl.healthjournal.domain.shared.command.ValidationRule
+import nl.healthjournal.domain.shared.command.domainCatching
+import nl.healthjournal.domain.shared.model.HeightCm
+import nl.healthjournal.domain.profile.model.Profile
+import nl.healthjournal.domain.profile.model.Sex
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
 import java.time.Clock
 import java.time.LocalDate
 

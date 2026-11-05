@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.medication.Medication
+import nl.healthjournal.domain.medication.model.Medication
 
 /** All medications of the active profile, archived ones included and marked. */
 @Composable

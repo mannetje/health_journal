@@ -5,7 +5,7 @@ import nl.healthjournal.app.settings.AppRegion
 import nl.healthjournal.app.settings.GlucoseUnitChoice
 import nl.healthjournal.app.settings.ThemeChoice
 import nl.healthjournal.app.settings.UnitSystemChoice
-import nl.healthjournal.domain.model.lock.LockTimeout
+import nl.healthjournal.domain.lock.model.LockTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

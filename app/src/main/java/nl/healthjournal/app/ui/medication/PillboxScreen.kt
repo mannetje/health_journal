@@ -49,11 +49,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.asString
-import nl.healthjournal.domain.model.medication.IntakeStatus
-import nl.healthjournal.domain.model.medication.Medication
-import nl.healthjournal.domain.model.medication.PlannedStatus
-import nl.healthjournal.domain.model.medication.Slot
-import nl.healthjournal.domain.model.medication.SlotItem
+import nl.healthjournal.domain.medication.model.IntakeStatus
+import nl.healthjournal.domain.medication.model.Medication
+import nl.healthjournal.domain.medication.model.PlannedStatus
+import nl.healthjournal.domain.medication.model.Slot
+import nl.healthjournal.domain.medication.model.SlotItem
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -369,7 +369,7 @@ private fun AsNeededRow(medication: Medication, onLog: () -> Unit) {
 }
 
 @Composable
-private fun LoggedRow(medication: Medication, intake: nl.healthjournal.domain.model.medication.Intake) {
+private fun LoggedRow(medication: Medication, intake: nl.healthjournal.domain.medication.model.Intake) {
     val time = (intake.takenAt?.atZone(ZoneId.systemDefault())?.toLocalTime() ?: intake.planned?.toLocalTime() ?: LocalTime.MIDNIGHT).format(TIME_FORMAT)
     val status = stringResource(
         if (intake.status == IntakeStatus.TAKEN) R.string.medication_status_taken else R.string.medication_status_skipped

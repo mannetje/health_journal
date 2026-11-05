@@ -1,29 +1,29 @@
 package nl.healthjournal.data.csv
 
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.*
-import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
-import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
-import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
-import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
-import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
-import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
-import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
-import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
-import nl.healthjournal.domain.model.common.ImportResult
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.model.common.SkippedRow
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.metrics.model.*
+import nl.healthjournal.domain.metrics.model.NhgBloodPressureCategory
+import nl.healthjournal.domain.metrics.model.NhgGlucoseCategory
+import nl.healthjournal.domain.metrics.model.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.metrics.port.DataImportPort
+import nl.healthjournal.domain.metrics.port.WeightRepositoryPort
+import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
+import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
+import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
+import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.shared.model.ImportResult
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
+import nl.healthjournal.domain.shared.model.SkippedRow
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import nl.healthjournal.domain.model.common.EntryComment
-import nl.healthjournal.domain.model.common.WeightKg
+import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.shared.model.WeightKg
 
 /** Factor for converting pounds to kilograms (1 lb = 0.45359237 kg). */
 private val LBS_TO_KG = BigDecimal("0.45359237")

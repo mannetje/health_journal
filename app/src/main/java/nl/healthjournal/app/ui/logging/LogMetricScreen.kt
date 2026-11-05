@@ -23,8 +23,8 @@ import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.CommentField
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.asString
-import nl.healthjournal.domain.model.common.GlucoseUnit
-import nl.healthjournal.domain.model.metrics.GlucoseContext
+import nl.healthjournal.domain.shared.model.GlucoseUnit
+import nl.healthjournal.domain.metrics.model.GlucoseContext
 import nl.healthjournal.app.ui.logging.components.HorizontalRulerPicker
 import nl.healthjournal.app.ui.logging.components.StackedBpPulsePicker
 import nl.healthjournal.app.ui.nhg.RangeSourceNote

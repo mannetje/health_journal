@@ -2,10 +2,10 @@ package nl.healthjournal.app.ui.common
 
 import nl.healthjournal.app.R
 import nl.healthjournal.app.settings.DisplayUnits
-import nl.healthjournal.domain.command.BackupProblem
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.ValidationField
-import nl.healthjournal.domain.command.ValidationRule
+import nl.healthjournal.domain.shared.command.BackupProblem
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.ValidationField
+import nl.healthjournal.domain.shared.command.ValidationRule
 
 /**
  * The message for a domain error. The domain carries no display text, so every rule maps to a string

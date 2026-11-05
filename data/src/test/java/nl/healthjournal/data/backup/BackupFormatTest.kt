@@ -1,13 +1,13 @@
 package nl.healthjournal.data.backup
 
-import nl.healthjournal.domain.model.backup.BackupDocument
-import nl.healthjournal.domain.model.backup.BackupException
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.EntryComment
-import nl.healthjournal.domain.model.metrics.OxygenContext
-import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
-import nl.healthjournal.domain.model.metrics.OxygenSaturationPercent
-import nl.healthjournal.domain.model.metrics.OxygenSite
+import nl.healthjournal.domain.backup.model.BackupDocument
+import nl.healthjournal.domain.backup.model.BackupException
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.metrics.model.OxygenContext
+import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
+import nl.healthjournal.domain.metrics.model.OxygenSaturationPercent
+import nl.healthjournal.domain.metrics.model.OxygenSite
 import java.time.Instant
 import org.json.JSONArray
 import org.json.JSONObject
@@ -80,7 +80,7 @@ class BackupFormatTest {
         assertEquals("26.0", profile.weights[0].bmi?.toPlainString())
         val med = profile.medications.single()
         assertEquals(2, med.intakes.size)
-        assertEquals(2, med.medication.schedules.single().let { (it.schedule as nl.healthjournal.domain.model.medication.Schedule.Recurring).times.size })
+        assertEquals(2, med.medication.schedules.single().let { (it.schedule as nl.healthjournal.domain.medication.model.Schedule.Recurring).times.size })
     }
 
     @Test
@@ -181,7 +181,7 @@ class BackupFormatTest {
     @Test
     fun `hostile headers are refused before deriving a key`() {
         val original = vector("sample-fast-nogzip.hjbackup")
-        val neverCalled = BackupContainer(object : nl.healthjournal.domain.port.secondary.BackupKeyDerivationPort {
+        val neverCalled = BackupContainer(object : nl.healthjournal.domain.backup.port.BackupKeyDerivationPort {
             override fun derive(passphrase: ByteArray, salt: ByteArray, memoryKiB: Int, iterations: Int, parallelism: Int, length: Int): ByteArray =
                 throw AssertionError("key derivation must not run")
         })
@@ -245,16 +245,16 @@ class BackupFormatTest {
 
     private fun withMigraine(doc: BackupDocument): BackupDocument {
         val p = doc.profiles.single()
-        val trigger = nl.healthjournal.domain.model.migraine.MigraineTag(
-            nl.healthjournal.domain.model.migraine.MigraineTagId.generate(), p.profile.id,
-            nl.healthjournal.domain.model.migraine.MigraineTagKind.TRIGGER, "skipped lunch"
+        val trigger = nl.healthjournal.domain.migraine.model.MigraineTag(
+            nl.healthjournal.domain.migraine.model.MigraineTagId.generate(), p.profile.id,
+            nl.healthjournal.domain.migraine.model.MigraineTagKind.TRIGGER, "skipped lunch"
         )
-        val entry = nl.healthjournal.domain.model.migraine.MigraineEntry(
-            id = nl.healthjournal.domain.model.common.MeasurementId.generate(), profileId = p.profile.id,
+        val entry = nl.healthjournal.domain.migraine.model.MigraineEntry(
+            id = nl.healthjournal.domain.shared.model.MeasurementId.generate(), profileId = p.profile.id,
             start = java.time.Instant.parse("2026-10-20T06:30:00Z"), wokeUpWithIt = true,
             end = java.time.Instant.parse("2026-10-20T10:00:00Z"), intensity = 7,
-            areas = setOf(nl.healthjournal.domain.model.migraine.HeadArea.TEMPLES),
-            symptoms = setOf(nl.healthjournal.domain.model.migraine.MigraineSymptom.NAUSEA),
+            areas = setOf(nl.healthjournal.domain.migraine.model.HeadArea.TEMPLES),
+            symptoms = setOf(nl.healthjournal.domain.migraine.model.MigraineSymptom.NAUSEA),
             customTriggerIds = setOf(trigger.id), tookSomething = true, medicationText = "my usual one",
             intensityAfter2Hours = 3, medicationHelpedMe = true
         )

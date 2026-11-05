@@ -30,13 +30,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.BreathingPattern
-import nl.healthjournal.domain.model.mindfulness.BreathingPhaseKind
-import nl.healthjournal.domain.model.mindfulness.BreathingState
-import nl.healthjournal.domain.model.mindfulness.BreathingTimer
-import nl.healthjournal.domain.model.mindfulness.CueChoices
-import nl.healthjournal.domain.model.mindfulness.ExerciseSession
-import nl.healthjournal.domain.model.mindfulness.SessionEnd
+import nl.healthjournal.domain.mindfulness.model.BreathingPattern
+import nl.healthjournal.domain.mindfulness.model.BreathingPhaseKind
+import nl.healthjournal.domain.mindfulness.model.BreathingState
+import nl.healthjournal.domain.mindfulness.model.BreathingTimer
+import nl.healthjournal.domain.mindfulness.model.CueChoices
+import nl.healthjournal.domain.mindfulness.model.ExerciseSession
+import nl.healthjournal.domain.mindfulness.model.SessionEnd
 
 /**
  * Runs one breathing exercise. Its session keeps the display on and records nothing:

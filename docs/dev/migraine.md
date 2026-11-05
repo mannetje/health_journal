@@ -15,7 +15,7 @@ The Migraine log is a personal record of headaches and migraines. It is not a me
 
 | Layer | Path |
 |-------|------|
-| Domain (model, statistics, use cases, ports) | `domain/src/main/kotlin/nl/healthjournal/domain/model/migraine/`, `domain/src/main/kotlin/nl/healthjournal/domain/usecase/MigraineUseCases.kt`, `domain/src/main/kotlin/nl/healthjournal/domain/port/secondary/MigraineRepositoryPort.kt`, `domain/src/main/kotlin/nl/healthjournal/domain/port/secondary/MigraineDataPorts.kt` |
+| Domain (model, statistics, use cases, ports) | `domain/src/main/kotlin/nl/healthjournal/domain/migraine/model/`, `domain/src/main/kotlin/nl/healthjournal/domain/migraine/usecase/MigraineUseCases.kt`, `domain/src/main/kotlin/nl/healthjournal/domain/migraine/port/MigraineRepositoryPort.kt`, `domain/src/main/kotlin/nl/healthjournal/domain/migraine/port/MigraineDataPorts.kt` |
 | Data (tables, DAO, mappers, repository, CSV, backup, migration 6 to 7) | `data/src/main/java/nl/healthjournal/data/local/entity/MigraineEntities.kt`, `data/src/main/java/nl/healthjournal/data/local/dao/MigraineDao.kt`, `data/src/main/java/nl/healthjournal/data/repository/RoomMigraineRepository.kt`, `data/src/main/java/nl/healthjournal/data/csv/CsvMigraineExportAdapter.kt`, `data/src/main/java/nl/healthjournal/data/csv/CsvMigraineImportAdapter.kt` |
 | Step form and state | `app/src/main/java/nl/healthjournal/app/ui/migraine/` (`MigraineLogScreen`, `MigraineLogViewModel`) |
 | History card and graph | `app/src/main/java/nl/healthjournal/app/ui/history/MigraineHistoryCard.kt`, `app/src/main/java/nl/healthjournal/app/ui/history/charts/MigraineGraphSection.kt`, `app/src/main/java/nl/healthjournal/app/ui/history/charts/MigraineCalendarCard.kt` |
@@ -34,7 +34,7 @@ One `MigraineLogViewModel` serves the form in both places. The Log screen shows 
 
 | What | Where |
 |------|-------|
-| Entry rules, statistics, tags | `domain/src/test/kotlin/nl/healthjournal/domain/model/migraine/` |
+| Entry rules, statistics, tags | `domain/src/test/kotlin/nl/healthjournal/domain/migraine/model/` |
 | Mapper, repository, CSV, migration | `data/src/test/java/nl/healthjournal/data/` (`RoomMigraineRepositoryTest`, `MigraineCsvTest`, `MigrationTest`) |
 | Form and History view models | `app/src/test/java/nl/healthjournal/app/ui/MigraineLogViewModelTest.kt`, `ViewModelsTest.kt` (fakes in `FakeMigraines.kt`), `MigraineStringsTest.kt` (strings) |
 

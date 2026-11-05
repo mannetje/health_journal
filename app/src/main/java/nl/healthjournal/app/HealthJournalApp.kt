@@ -9,15 +9,15 @@ import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.settings.UnitPreference
 import nl.healthjournal.data.DataModule
-import nl.healthjournal.domain.port.secondary.BackupCodecPort
-import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
-import nl.healthjournal.domain.port.secondary.DataExportPort
-import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
-import nl.healthjournal.domain.port.secondary.MigraineExportPort
-import nl.healthjournal.domain.port.secondary.MigraineImportPort
-import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.backup.port.BackupCodecPort
+import nl.healthjournal.domain.backup.port.BackupSnapshotPort
+import nl.healthjournal.domain.metrics.port.DataExportPort
+import nl.healthjournal.domain.metrics.port.DataImportPort
+import nl.healthjournal.domain.medication.port.MedicationRepositoryPort
+import nl.healthjournal.domain.migraine.port.MigraineExportPort
+import nl.healthjournal.domain.migraine.port.MigraineImportPort
+import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
 import javax.inject.Inject
 
 /**

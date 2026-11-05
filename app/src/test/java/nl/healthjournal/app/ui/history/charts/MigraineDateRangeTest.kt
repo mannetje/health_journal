@@ -3,9 +3,9 @@ package nl.healthjournal.app.ui.history.charts
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.migraine.MigraineEntry
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.migraine.model.MigraineEntry
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

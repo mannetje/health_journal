@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import nl.healthjournal.app.settings.LanguagePreference
 import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.settings.withAppLocale
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.usecase.RearmRemindersUseCase
-import nl.healthjournal.domain.usecase.TakeAllForSlotUseCase
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
+import nl.healthjournal.domain.medication.usecase.RearmRemindersUseCase
+import nl.healthjournal.domain.medication.usecase.TakeAllForSlotUseCase
 import java.time.LocalDateTime
 
 /**

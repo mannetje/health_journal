@@ -7,21 +7,21 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import nl.healthjournal.data.DataModule
-import nl.healthjournal.domain.port.secondary.BackupCodecPort
-import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
-import nl.healthjournal.domain.port.secondary.DataExportPort
-import nl.healthjournal.domain.port.secondary.DataImportPort
-import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
-import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
-import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
-import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
-import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
-import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
-import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
-import nl.healthjournal.domain.port.secondary.MigraineExportPort
-import nl.healthjournal.domain.port.secondary.MigraineImportPort
-import nl.healthjournal.domain.port.secondary.MigraineRepositoryPort
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.backup.port.BackupCodecPort
+import nl.healthjournal.domain.backup.port.BackupSnapshotPort
+import nl.healthjournal.domain.metrics.port.DataExportPort
+import nl.healthjournal.domain.metrics.port.DataImportPort
+import nl.healthjournal.domain.metrics.port.WeightRepositoryPort
+import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
+import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
+import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
+import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.medication.port.MedicationRepositoryPort
+import nl.healthjournal.domain.migraine.port.MigraineExportPort
+import nl.healthjournal.domain.migraine.port.MigraineImportPort
+import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
 import javax.inject.Singleton
 
 /** `DataModule` stays one singleton, so the database is opened once and every port shares it. */

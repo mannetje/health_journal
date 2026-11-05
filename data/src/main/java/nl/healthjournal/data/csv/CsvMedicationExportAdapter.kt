@@ -1,11 +1,11 @@
 package nl.healthjournal.data.csv
 
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.medication.DayPattern
-import nl.healthjournal.domain.model.medication.Schedule
-import nl.healthjournal.domain.port.secondary.MedicationCsvFiles
-import nl.healthjournal.domain.port.secondary.MedicationExportPort
-import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.medication.model.DayPattern
+import nl.healthjournal.domain.medication.model.Schedule
+import nl.healthjournal.domain.medication.port.MedicationCsvFiles
+import nl.healthjournal.domain.medication.port.MedicationExportPort
+import nl.healthjournal.domain.medication.port.MedicationRepositoryPort
 
 internal const val MEDICATIONS_HEADER =
     "ref,name,form,strength_amount,strength_unit,dose_amount,dose_unit,as_needed,colour,shape,comment,archived"

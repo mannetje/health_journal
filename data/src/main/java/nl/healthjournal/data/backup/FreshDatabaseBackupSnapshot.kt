@@ -3,9 +3,9 @@ package nl.healthjournal.data.backup
 import android.content.Context
 import nl.healthjournal.data.local.DatabaseRecovery
 import nl.healthjournal.data.local.HealthJournalDatabase
-import nl.healthjournal.domain.model.backup.BackupProfile
-import nl.healthjournal.domain.model.backup.MergeResult
-import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
+import nl.healthjournal.domain.backup.model.BackupProfile
+import nl.healthjournal.domain.backup.model.MergeResult
+import nl.healthjournal.domain.backup.port.BackupSnapshotPort
 
 /**
  * The lost-key restore target: the current data cannot be read, so [merge] first removes it together with the

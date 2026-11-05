@@ -2,12 +2,12 @@ package nl.healthjournal.data.repository
 
 import nl.healthjournal.data.local.dao.MedicationDao
 import nl.healthjournal.data.local.mapper.MedicationMapper
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.medication.Intake
-import nl.healthjournal.domain.model.medication.IntakeId
-import nl.healthjournal.domain.model.medication.Medication
-import nl.healthjournal.domain.model.medication.MedicationId
-import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.medication.model.Intake
+import nl.healthjournal.domain.medication.model.IntakeId
+import nl.healthjournal.domain.medication.model.Medication
+import nl.healthjournal.domain.medication.model.MedicationId
+import nl.healthjournal.domain.medication.port.MedicationRepositoryPort
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId

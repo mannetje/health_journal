@@ -2,16 +2,16 @@ package nl.healthjournal.app.command
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import nl.healthjournal.domain.command.Command
-import nl.healthjournal.domain.command.CommandHandler
-import nl.healthjournal.domain.command.Dispatcher
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.command.ObserveQuery
-import nl.healthjournal.domain.command.ObserveQueryHandler
-import nl.healthjournal.domain.command.Query
-import nl.healthjournal.domain.command.QueryHandler
-import nl.healthjournal.domain.command.domainCatching
+import nl.healthjournal.domain.shared.command.Command
+import nl.healthjournal.domain.shared.command.CommandHandler
+import nl.healthjournal.domain.shared.command.Dispatcher
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.shared.command.ObserveQuery
+import nl.healthjournal.domain.shared.command.ObserveQueryHandler
+import nl.healthjournal.domain.shared.command.Query
+import nl.healthjournal.domain.shared.command.QueryHandler
+import nl.healthjournal.domain.shared.command.domainCatching
 import javax.inject.Inject
 
 /**

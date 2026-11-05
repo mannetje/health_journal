@@ -5,8 +5,8 @@ import android.content.SharedPreferences
 import android.icu.util.LocaleData
 import android.icu.util.ULocale
 import android.os.Build
-import nl.healthjournal.domain.model.common.GlucoseUnit
-import nl.healthjournal.domain.model.common.UnitSystem
+import nl.healthjournal.domain.shared.model.GlucoseUnit
+import nl.healthjournal.domain.shared.model.UnitSystem
 import java.util.Locale
 
 /** The measurement system the user picked. [SYSTEM] follows the region of the active locale. */

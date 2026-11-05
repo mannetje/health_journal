@@ -9,20 +9,20 @@ import nl.healthjournal.data.local.dao.OxygenSaturationDao
 import nl.healthjournal.data.local.dao.WaistCircumferenceDao
 import nl.healthjournal.data.local.dao.WeightDao
 import nl.healthjournal.data.local.mapper.HealthLogMapper
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.ActivitySession
-import nl.healthjournal.domain.model.metrics.BloodPressureEntry
-import nl.healthjournal.domain.model.metrics.GlucoseEntry
-import nl.healthjournal.domain.model.metrics.OxygenSaturationEntry
-import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
-import nl.healthjournal.domain.model.metrics.WeightEntry
-import nl.healthjournal.domain.port.secondary.WeightRepositoryPort
-import nl.healthjournal.domain.port.secondary.BloodPressureRepositoryPort
-import nl.healthjournal.domain.port.secondary.GlucoseRepositoryPort
-import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
-import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
-import nl.healthjournal.domain.port.secondary.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.metrics.model.ActivitySession
+import nl.healthjournal.domain.metrics.model.BloodPressureEntry
+import nl.healthjournal.domain.metrics.model.GlucoseEntry
+import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
+import nl.healthjournal.domain.metrics.model.WaistCircumferenceEntry
+import nl.healthjournal.domain.metrics.model.WeightEntry
+import nl.healthjournal.domain.metrics.port.WeightRepositoryPort
+import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
+import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
+import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
+import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
 
 class RoomHealthLogRepository(
     private val weightDao: WeightDao,

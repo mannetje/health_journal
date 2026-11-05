@@ -6,16 +6,16 @@ import nl.healthjournal.data.local.entity.GlucoseEntity
 import nl.healthjournal.data.local.entity.OxygenSaturationEntity
 import nl.healthjournal.data.local.entity.WaistCircumferenceEntity
 import nl.healthjournal.data.local.entity.WeightEntity
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.*
-import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
-import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.metrics.model.*
+import nl.healthjournal.domain.metrics.model.NhgBloodPressureCategory
+import nl.healthjournal.domain.metrics.model.NhgGlucoseCategory
+import nl.healthjournal.domain.metrics.model.NhgWaistCircumferenceCategory
 import java.math.BigDecimal
 import java.time.Instant
-import nl.healthjournal.domain.model.common.EntryComment
-import nl.healthjournal.domain.model.common.WeightKg
+import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.shared.model.WeightKg
 
 object HealthLogMapper {
 

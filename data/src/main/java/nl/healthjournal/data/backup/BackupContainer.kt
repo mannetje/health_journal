@@ -1,8 +1,8 @@
 package nl.healthjournal.data.backup
 
-import nl.healthjournal.domain.model.backup.BackupException
-import nl.healthjournal.domain.model.backup.BackupPassphrase
-import nl.healthjournal.domain.port.secondary.BackupKeyDerivationPort
+import nl.healthjournal.domain.backup.model.BackupException
+import nl.healthjournal.domain.backup.model.BackupPassphrase
+import nl.healthjournal.domain.backup.port.BackupKeyDerivationPort
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer

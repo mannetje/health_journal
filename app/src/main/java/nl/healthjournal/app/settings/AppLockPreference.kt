@@ -2,7 +2,7 @@ package nl.healthjournal.app.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import nl.healthjournal.domain.model.lock.LockTimeout
+import nl.healthjournal.domain.lock.model.LockTimeout
 
 /**
  * Stores the opt-in app lock configuration: whether the lock is enabled and the background timeout.

@@ -7,11 +7,11 @@ import nl.healthjournal.domain.backup.command.OpenBackupHandler
 import nl.healthjournal.domain.backup.command.OpenBackupQuery
 import nl.healthjournal.domain.backup.command.RestoreBackupCommand
 import nl.healthjournal.domain.backup.command.RestoreBackupHandler
-import nl.healthjournal.domain.command.CommandHandler
-import nl.healthjournal.domain.command.Dispatcher
-import nl.healthjournal.domain.command.QueryHandler
-import nl.healthjournal.domain.port.secondary.BackupCodecPort
-import nl.healthjournal.domain.usecase.RestoreBackupUseCase
+import nl.healthjournal.domain.shared.command.CommandHandler
+import nl.healthjournal.domain.shared.command.Dispatcher
+import nl.healthjournal.domain.shared.command.QueryHandler
+import nl.healthjournal.domain.backup.port.BackupCodecPort
+import nl.healthjournal.domain.backup.usecase.RestoreBackupUseCase
 import javax.inject.Inject
 
 /**

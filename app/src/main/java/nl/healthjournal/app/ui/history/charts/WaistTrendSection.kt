@@ -9,9 +9,9 @@ import androidx.compose.ui.res.stringResource
 import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.formatDecimal
 import nl.healthjournal.app.ui.nhg.getWaistColor
-import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
-import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
-import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.metrics.model.WaistCircumferenceEntry
+import nl.healthjournal.domain.metrics.model.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.profile.model.Profile
 
 /** The waist trend in cm. With a sex in the profile the NHG limits are drawn as lines and the points take their band colour. */
 @Composable

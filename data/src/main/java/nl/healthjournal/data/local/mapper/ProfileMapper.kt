@@ -1,10 +1,10 @@
 package nl.healthjournal.data.local.mapper
 
 import nl.healthjournal.data.local.entity.ProfileEntity
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.common.HeightCm
-import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.model.profile.Sex
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.shared.model.HeightCm
+import nl.healthjournal.domain.profile.model.Profile
+import nl.healthjournal.domain.profile.model.Sex
 import java.time.LocalDate
 
 object ProfileMapper {

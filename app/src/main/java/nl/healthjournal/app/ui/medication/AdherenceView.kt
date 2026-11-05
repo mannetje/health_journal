@@ -21,9 +21,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.medication.Adherence
-import nl.healthjournal.domain.model.medication.AdherenceCounts
-import nl.healthjournal.domain.model.medication.MissedIntake
+import nl.healthjournal.domain.medication.model.Adherence
+import nl.healthjournal.domain.medication.model.AdherenceCounts
+import nl.healthjournal.domain.medication.model.MissedIntake
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 

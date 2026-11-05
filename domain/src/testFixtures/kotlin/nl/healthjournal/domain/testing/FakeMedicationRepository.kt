@@ -3,12 +3,12 @@ package nl.healthjournal.domain.testing
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.medication.Intake
-import nl.healthjournal.domain.model.medication.IntakeId
-import nl.healthjournal.domain.model.medication.Medication
-import nl.healthjournal.domain.model.medication.MedicationId
-import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.medication.model.Intake
+import nl.healthjournal.domain.medication.model.IntakeId
+import nl.healthjournal.domain.medication.model.Medication
+import nl.healthjournal.domain.medication.model.MedicationId
+import nl.healthjournal.domain.medication.port.MedicationRepositoryPort
 
 /** In-memory medications and intakes, with the real repository's replace rule. */
 class FakeMedicationRepository : MedicationRepositoryPort {

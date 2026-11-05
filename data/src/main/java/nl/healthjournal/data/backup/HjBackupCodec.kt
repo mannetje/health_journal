@@ -1,7 +1,7 @@
 package nl.healthjournal.data.backup
 
-import nl.healthjournal.domain.model.backup.BackupDocument
-import nl.healthjournal.domain.port.secondary.BackupCodecPort
+import nl.healthjournal.domain.backup.model.BackupDocument
+import nl.healthjournal.domain.backup.port.BackupCodecPort
 
 /** [BackupCodecPort] for the `.hjbackup` format: JSON document inside the encrypted container. */
 class HjBackupCodec(private val container: BackupContainer) : BackupCodecPort {

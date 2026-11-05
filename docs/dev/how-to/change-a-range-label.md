@@ -18,7 +18,7 @@ The authoritative text is the [range-labels spec](../../../openspec/specs/health
 
 | What | File |
 |------|------|
-| The limits (blood pressure, BMI, glucose) | `domain/src/main/kotlin/nl/healthjournal/domain/model/metrics/` (the `Nhg*Category` files) |
+| The limits (blood pressure, BMI, glucose) | `domain/src/main/kotlin/nl/healthjournal/domain/metrics/model/` (the `Nhg*Category` files) |
 | Which range is shown for a glucose context | `app/src/main/java/nl/healthjournal/app/ui/nhg/GlucoseRanges.kt` |
 | Label text | `app/src/main/java/nl/healthjournal/app/ui/nhg/NhgLabels.kt` and the `nhg_*` strings in both `strings.xml` files |
 | Colours | `app/src/main/java/nl/healthjournal/app/ui/nhg/NhgColors.kt` and `ui/theme/Color.kt` |
@@ -29,7 +29,7 @@ The authoritative text is the [range-labels spec](../../../openspec/specs/health
 A limit is a medical-guideline statement, so a limit change needs a source.
 
 1. Open an OpenSpec change that names the source and the exact text, and the affected capabilities (for example `health-metrics/blood-pressure`).
-2. Change the classifier in `domain/…/model/metrics/` and its tests. Test both sides of every boundary.
+2. Change the classifier in `domain/…/metrics/model/` and its tests. Test both sides of every boundary.
 3. If a glucose or blood pressure limit is shown in text, change the range in `GlucoseRanges.kt` and the strings. `GlucoseRangesTest` checks that the shown limits agree with the classifier.
 4. Update ADR 0005 with the new source and date.
 5. Update the README and the CHANGELOG.

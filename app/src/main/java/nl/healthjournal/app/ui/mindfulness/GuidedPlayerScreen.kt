@@ -35,9 +35,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.ExerciseSession
-import nl.healthjournal.domain.model.mindfulness.GuidedExercise
-import nl.healthjournal.domain.model.mindfulness.SessionEnd
+import nl.healthjournal.domain.mindfulness.model.ExerciseSession
+import nl.healthjournal.domain.mindfulness.model.GuidedExercise
+import nl.healthjournal.domain.mindfulness.model.SessionEnd
 
 /**
  * Plays one bundled recording. Each press on Play starts a session that holds the screen-on flag, the audio

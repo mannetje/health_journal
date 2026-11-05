@@ -110,10 +110,10 @@ Platform choice (free): UI toolkit, persistence engine, navigation, chart render
 
 | Spec | ADR | Primary code area |
 | --- | --- | --- |
-| profile | 0016 | domain `model/profile`, `CreateProfileUseCase`, app `ui/profile` |
-| health-metrics/* | 0005 | domain `model/metrics` (with the `Nhg*` classifiers), `usecase` |
+| profile | 0016 | domain `profile/model`, `CreateProfileUseCase`, app `ui/profile` |
+| health-metrics/* | 0005 | domain `metrics/model` (with the `Nhg*` classifiers), `usecase` |
 | entry-management | 0012 | domain update/delete use cases, app `ui/history/EntryDialogs` |
-| units-presentation | 0014 | app `settings/UnitPreference`, `ui/common/UnitFormat`, domain `model/common/UnitConversion` |
+| units-presentation | 0014 | app `settings/UnitPreference`, `ui/common/UnitFormat`, domain `shared/model/UnitConversion` |
 | health-trends/* | 0006 | app `ui/history/charts` |
 | data-export | 0004 | data `csv` adapters |
 | localization | 0009, 0010, 0013, 0015 | app `settings/LanguagePreference`, `ui/common/UiText` |

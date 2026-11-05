@@ -1,7 +1,7 @@
 package nl.healthjournal.app.settings
 
 import android.content.Context
-import nl.healthjournal.domain.model.backup.BackupPreferences
+import nl.healthjournal.domain.backup.model.BackupPreferences
 
 /**
  * Maps the display preferences to and from the backup document (`system` means follow the device).

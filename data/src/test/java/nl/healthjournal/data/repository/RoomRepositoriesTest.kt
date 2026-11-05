@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import nl.healthjournal.data.local.dao.*
 import nl.healthjournal.data.local.entity.*
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.*
-import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
-import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
-import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.metrics.model.*
+import nl.healthjournal.domain.metrics.model.NhgBloodPressureCategory
+import nl.healthjournal.domain.metrics.model.NhgGlucoseCategory
+import nl.healthjournal.domain.metrics.model.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.profile.model.Profile
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
@@ -22,9 +22,9 @@ import org.junit.Test
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
-import nl.healthjournal.domain.model.common.EntryComment
-import nl.healthjournal.domain.model.common.HeightCm
-import nl.healthjournal.domain.model.common.WeightKg
+import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.shared.model.HeightCm
+import nl.healthjournal.domain.shared.model.WeightKg
 
 class RoomRepositoriesTest {
 

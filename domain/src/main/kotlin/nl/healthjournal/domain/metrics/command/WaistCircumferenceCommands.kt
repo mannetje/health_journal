@@ -1,20 +1,20 @@
 package nl.healthjournal.domain.metrics.command
 
-import nl.healthjournal.domain.command.Command
-import nl.healthjournal.domain.command.CommandHandler
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.command.EntryKind
-import nl.healthjournal.domain.command.domainCatching
-import nl.healthjournal.domain.command.getOrElse
-import nl.healthjournal.domain.model.common.EntryComment
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.WaistCircumferenceCm
-import nl.healthjournal.domain.model.metrics.WaistCircumferenceClassifier
-import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.port.secondary.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.shared.command.Command
+import nl.healthjournal.domain.shared.command.CommandHandler
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.shared.command.EntryKind
+import nl.healthjournal.domain.shared.command.domainCatching
+import nl.healthjournal.domain.shared.command.getOrElse
+import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.metrics.model.WaistCircumferenceCm
+import nl.healthjournal.domain.metrics.model.WaistCircumferenceClassifier
+import nl.healthjournal.domain.metrics.model.WaistCircumferenceEntry
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
+import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
 import java.time.Clock
 import java.time.Instant
 

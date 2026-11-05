@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import nl.healthjournal.app.settings.AppLockPreference
-import nl.healthjournal.domain.model.lock.LockState
-import nl.healthjournal.domain.model.lock.LockTimeout
-import nl.healthjournal.domain.port.secondary.AppLockPort
+import nl.healthjournal.domain.lock.model.LockState
+import nl.healthjournal.domain.lock.model.LockTimeout
+import nl.healthjournal.domain.lock.port.AppLockPort
 
 /**
  * Android adapter for [AppLockPort].

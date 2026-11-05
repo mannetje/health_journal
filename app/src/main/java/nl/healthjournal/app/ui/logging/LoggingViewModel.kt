@@ -19,17 +19,17 @@ import nl.healthjournal.app.ui.common.distanceToMeters
 import nl.healthjournal.app.ui.common.glucoseToMmol
 import nl.healthjournal.app.ui.common.parseDecimal
 import nl.healthjournal.app.ui.common.weightToKg
-import nl.healthjournal.domain.model.common.GlucoseUnit
-import nl.healthjournal.domain.model.common.UnitConversion
-import nl.healthjournal.domain.model.metrics.*
-import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.metrics.NhgBmiCategory
-import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
-import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
-import nl.healthjournal.domain.model.profile.Profile
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.command.Dispatcher
-import nl.healthjournal.domain.command.GetHistoryQuery
+import nl.healthjournal.domain.shared.model.GlucoseUnit
+import nl.healthjournal.domain.shared.model.UnitConversion
+import nl.healthjournal.domain.metrics.model.*
+import nl.healthjournal.domain.metrics.model.NhgBloodPressureCategory
+import nl.healthjournal.domain.metrics.model.NhgBmiCategory
+import nl.healthjournal.domain.metrics.model.NhgGlucoseCategory
+import nl.healthjournal.domain.metrics.model.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.profile.model.Profile
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.shared.command.Dispatcher
+import nl.healthjournal.domain.shared.command.GetHistoryQuery
 import nl.healthjournal.domain.metrics.command.RecordActivityCommand
 import nl.healthjournal.domain.metrics.command.RecordBloodPressureCommand
 import nl.healthjournal.domain.metrics.command.RecordGlucoseCommand
@@ -37,12 +37,12 @@ import nl.healthjournal.domain.metrics.command.RecordOxygenSaturationCommand
 import nl.healthjournal.domain.metrics.command.RecordWaistCircumferenceCommand
 import nl.healthjournal.domain.metrics.command.RecordWeightCommand
 import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
-import nl.healthjournal.domain.model.common.ProfileId
+import nl.healthjournal.domain.shared.model.ProfileId
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.Locale
-import nl.healthjournal.domain.model.common.EntryComment
-import nl.healthjournal.domain.model.common.WeightKg
+import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.shared.model.WeightKg
 
 enum class MetricType {
     WEIGHT,

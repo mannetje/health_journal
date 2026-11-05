@@ -16,13 +16,13 @@ import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.settings.UnitPreference
 import java.time.Clock
-import nl.healthjournal.domain.usecase.GetPillboxDayUseCase
-import nl.healthjournal.domain.usecase.RecordIntakeUseCase
-import nl.healthjournal.domain.usecase.RecordSlotIntakesUseCase
-import nl.healthjournal.domain.port.secondary.MedicationRepositoryPort
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
-import nl.healthjournal.domain.usecase.RearmRemindersUseCase
-import nl.healthjournal.domain.usecase.TakeAllForSlotUseCase
+import nl.healthjournal.domain.medication.usecase.GetPillboxDayUseCase
+import nl.healthjournal.domain.medication.usecase.RecordIntakeUseCase
+import nl.healthjournal.domain.medication.usecase.RecordSlotIntakesUseCase
+import nl.healthjournal.domain.medication.port.MedicationRepositoryPort
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
+import nl.healthjournal.domain.medication.usecase.RearmRemindersUseCase
+import nl.healthjournal.domain.medication.usecase.TakeAllForSlotUseCase
 import javax.inject.Singleton
 
 /** Preferences and process-owned objects: each is a singleton because it holds state or is shared with the receivers. */

@@ -11,7 +11,7 @@ import android.os.Bundle
 import nl.healthjournal.app.MainActivity
 import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.medication.doseString
-import nl.healthjournal.domain.model.medication.Slot
+import nl.healthjournal.domain.medication.model.Slot
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle

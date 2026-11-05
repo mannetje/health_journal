@@ -1,7 +1,7 @@
 package nl.healthjournal.app.ui.history.charts
 
-import nl.healthjournal.domain.model.metrics.GlucoseContext
-import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
+import nl.healthjournal.domain.metrics.model.GlucoseContext
+import nl.healthjournal.domain.metrics.model.NhgGlucoseCategory
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate

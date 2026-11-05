@@ -1,17 +1,17 @@
 package nl.healthjournal.domain.metrics.command
 
-import nl.healthjournal.domain.command.Command
-import nl.healthjournal.domain.command.CommandHandler
-import nl.healthjournal.domain.command.DomainError
-import nl.healthjournal.domain.command.DomainResult
-import nl.healthjournal.domain.command.EntryKind
-import nl.healthjournal.domain.command.domainCatching
-import nl.healthjournal.domain.command.getOrElse
-import nl.healthjournal.domain.model.common.EntryComment
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.ActivitySession
-import nl.healthjournal.domain.port.secondary.ActivityRepositoryPort
+import nl.healthjournal.domain.shared.command.Command
+import nl.healthjournal.domain.shared.command.CommandHandler
+import nl.healthjournal.domain.shared.command.DomainError
+import nl.healthjournal.domain.shared.command.DomainResult
+import nl.healthjournal.domain.shared.command.EntryKind
+import nl.healthjournal.domain.shared.command.domainCatching
+import nl.healthjournal.domain.shared.command.getOrElse
+import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.metrics.model.ActivitySession
+import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
 import java.time.Instant
 
 /** Records an activity session. */

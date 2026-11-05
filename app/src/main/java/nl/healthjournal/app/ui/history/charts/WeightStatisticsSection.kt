@@ -28,7 +28,7 @@ import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.formatDecimal
 import nl.healthjournal.app.ui.common.weightFromKg
-import nl.healthjournal.domain.model.metrics.WeightEntry
+import nl.healthjournal.domain.metrics.model.WeightEntry
 import java.time.Instant
 import java.time.Month
 import java.time.ZoneId

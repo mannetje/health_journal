@@ -53,7 +53,9 @@ class ArchitectureGuardrailsTest {
 
     @Test
     fun commandPackageHasNoWallClockDefault() {
-        val offenders = kotlinFiles(File(domainMain, "command")).filter { "Instant.now()" in it.readText() }
+        val commandDirs = domainMain.walkTopDown().filter { it.isDirectory && it.name == "command" }.toList()
+        assertTrue("no command package found: the test would pass for nothing", commandDirs.isNotEmpty())
+        val offenders = commandDirs.flatMap { kotlinFiles(it) }.filter { "Instant.now()" in it.readText() }
         assertTrue(offenders.map { it.rel() }.toString(), offenders.isEmpty())
     }
 
@@ -66,7 +68,8 @@ class ArchitectureGuardrailsTest {
 
     @Test
     fun viewModelsDoNotImportSecondaryPorts() {
-        val found = offenders { "import nl.healthjournal.domain.port.secondary." in it }
+        val port = Regex("""^import nl\.healthjournal\.domain\.\w+\.port\.""", RegexOption.MULTILINE)
+        val found = offenders { port.containsMatchIn(it) }
         assertTrue("a ViewModel talks to the Dispatcher, not to a port: $found", found.isEmpty())
     }
 
@@ -92,9 +95,11 @@ class ArchitectureGuardrailsTest {
         assertTrue("handlers return DomainResult (or a Flow of it): $offenders", offenders.isEmpty())
     }
 
-    // --- 3.4 context map of `domain/model` ---
+    // --- 3.4 context map of `domain/<context>/model` ---
 
-    private val shared = "common"
+    private val contexts = setOf("shared", "profile", "metrics", "medication", "migraine", "mindfulness", "lock", "backup")
+    private val roles = setOf("model", "usecase", "port", "command")
+    private val shared = "shared"
 
     /** Contexts that may import `profile` (it is upstream of them). */
     private val downstreamOfProfile = setOf("metrics", "medication", "migraine")
@@ -110,14 +115,15 @@ class ArchitectureGuardrailsTest {
     /** Edge `from -> to` -> why it is still there. Empty since task 3.5; an accepted exception is added here with its reason. */
     private val knownCouplings: Map<String, String> = emptyMap()
 
+    private val reference = Regex("""nl\.healthjournal\.domain\.(\w+)\.(model|usecase|port|command)\b""")
+
+    private fun modelFiles() = contexts.flatMap { context -> kotlinFiles(File(domainMain, "$context/model")).map { context to it } }
+
     private fun contextEdges(): Map<String, List<String>> {
-        val modelDir = File(domainMain, "model")
-        val reference = Regex("""nl\.healthjournal\.domain\.(model\.(\w+)|usecase|port)\.""")
         val edges = sortedMapOf<String, MutableList<String>>()
-        for (file in kotlinFiles(modelDir)) {
-            val from = file.relativeTo(modelDir).invariantSeparatorsPath.substringBefore('/')
+        for ((from, file) in modelFiles()) {
             for (match in reference.findAll(file.readText())) {
-                val to = match.groupValues[2].ifEmpty { match.groupValues[1] }
+                val to = match.groupValues[1]
                 if (!allowed(from, to)) edges.getOrPut("$from -> $to") { mutableListOf() }.add(file.name)
             }
         }
@@ -132,9 +138,42 @@ class ArchitectureGuardrailsTest {
         assertEquals("these couplings are fixed, remove them from the list", emptySet<String>(), knownCouplings.keys - found.keys)
     }
 
+    /** A model may use the shared command types (`DomainResult`) but never a use case, a port or another context's commands. */
     @Test
     fun modelNeverImportsUseCasesOrPorts() {
-        val edges = contextEdges().keys.filter { it.endsWith("-> usecase") || it.endsWith("-> port") }
-        assertFalse("model must not depend on use cases or ports: $edges", edges.isNotEmpty())
+        val offenders = modelFiles().filter { (_, file) ->
+            reference.findAll(file.readText()).any { m ->
+                val role = m.groupValues[2]
+                role == "usecase" || role == "port" || (role == "command" && m.groupValues[1] != shared)
+            }
+        }.map { it.second.rel() }
+        assertFalse("model must not depend on use cases, ports or commands of a context: $offenders", offenders.isNotEmpty())
+    }
+
+    // --- context package layout (design: `<context>/{model,usecase,port,command}`) ---
+
+    @Test
+    fun everyDomainFileSitsInAContextRoleFolder() {
+        val offenders = kotlinFiles(domainMain).map { it.relativeTo(domainMain).invariantSeparatorsPath }.filterNot { path ->
+            val parts = path.split('/')
+            parts.size >= 3 && parts[0] in contexts && parts[1] in roles
+        }
+        assertTrue("move these into <context>/{model,usecase,port,command}: $offenders", offenders.isEmpty())
+    }
+
+    @Test
+    fun theDirectoryOfEveryDomainFileMatchesItsPackage() {
+        val offenders = kotlinFiles(domainMain).filter { file ->
+            val dir = file.parentFile!!.relativeTo(domainMain).invariantSeparatorsPath.replace('/', '.')
+            val pkg = Regex("""^package (\S+)""", RegexOption.MULTILINE).find(file.readText())?.groupValues?.get(1)
+            pkg != "nl.healthjournal.domain.$dir"
+        }.map { it.rel() }
+        assertTrue("package line and folder disagree: $offenders", offenders.isEmpty())
+    }
+
+    @Test
+    fun theOldLayerFoldersAreGone() {
+        val old = listOf("model", "usecase", "port", "command").map { File(domainMain, it) }.filter { it.exists() }
+        assertTrue("the layer folders were replaced by context folders: ${old.map { it.rel() }}", old.isEmpty())
     }
 }

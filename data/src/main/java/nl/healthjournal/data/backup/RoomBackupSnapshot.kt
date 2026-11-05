@@ -6,10 +6,10 @@ import nl.healthjournal.data.local.mapper.HealthLogMapper
 import nl.healthjournal.data.local.mapper.MedicationMapper
 import nl.healthjournal.data.local.mapper.MigraineMapper
 import nl.healthjournal.data.local.mapper.ProfileMapper
-import nl.healthjournal.domain.model.backup.BackupMedication
-import nl.healthjournal.domain.model.backup.BackupProfile
-import nl.healthjournal.domain.model.backup.MergeResult
-import nl.healthjournal.domain.port.secondary.BackupSnapshotPort
+import nl.healthjournal.domain.backup.model.BackupMedication
+import nl.healthjournal.domain.backup.model.BackupProfile
+import nl.healthjournal.domain.backup.model.MergeResult
+import nl.healthjournal.domain.backup.port.BackupSnapshotPort
 
 /**
  * Reads and merges the whole database for a backup, each in one Room transaction. The merge only uses

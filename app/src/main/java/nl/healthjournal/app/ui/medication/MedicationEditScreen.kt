@@ -48,15 +48,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.CommentField
-import nl.healthjournal.domain.model.medication.DoseUnit
-import nl.healthjournal.domain.model.medication.MedicationForm
-import nl.healthjournal.domain.model.medication.MedicationId
-import nl.healthjournal.domain.model.medication.MedicationName
-import nl.healthjournal.domain.model.medication.PillAppearance
-import nl.healthjournal.domain.model.medication.PillColor
-import nl.healthjournal.domain.model.medication.PillShape
-import nl.healthjournal.domain.model.medication.StrengthUnit
-import nl.healthjournal.domain.model.common.EntryComment
+import nl.healthjournal.domain.medication.model.DoseUnit
+import nl.healthjournal.domain.medication.model.MedicationForm
+import nl.healthjournal.domain.medication.model.MedicationId
+import nl.healthjournal.domain.medication.model.MedicationName
+import nl.healthjournal.domain.medication.model.PillAppearance
+import nl.healthjournal.domain.medication.model.PillColor
+import nl.healthjournal.domain.medication.model.PillShape
+import nl.healthjournal.domain.medication.model.StrengthUnit
+import nl.healthjournal.domain.shared.model.EntryComment
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -214,7 +214,7 @@ private fun ScheduleSection(draft: MedicationDraft, isNew: Boolean, onChange: (M
         }
         OutlinedButton(
             onClick = { addingTime = true },
-            enabled = draft.times.size < nl.healthjournal.domain.model.medication.Schedule.Recurring.MAX_TIMES_PER_DAY,
+            enabled = draft.times.size < nl.healthjournal.domain.medication.model.Schedule.Recurring.MAX_TIMES_PER_DAY,
             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
         ) { Text(stringResource(R.string.medication_action_add_time), textAlign = TextAlign.Center) }
 

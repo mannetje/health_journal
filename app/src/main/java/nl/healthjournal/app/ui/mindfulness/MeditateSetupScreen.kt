@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
-import nl.healthjournal.domain.model.mindfulness.CueChoices
-import nl.healthjournal.domain.model.mindfulness.MeditationTimer
+import nl.healthjournal.domain.mindfulness.model.CueChoices
+import nl.healthjournal.domain.mindfulness.model.MeditationTimer
 
 /** Choices for a silent sitting: how long, and whether a soft bell sounds on the way. */
 @OptIn(ExperimentalLayoutApi::class)

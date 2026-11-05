@@ -26,7 +26,7 @@ flowchart LR
     A["Room, CSV, backup codec"] -.implements.-> P
 ```
 
-1. **Requests are typed.** In `:domain/command` a `Command<R>` changes state, a `Query<R>` reads once and an `ObserveQuery<R>` streams. The result type `R` is part of the request class, so a call site cannot state a wrong one.
+1. **Requests are typed.** In `:domain/shared/command` a `Command<R>` changes state, a `Query<R>` reads once and an `ObserveQuery<R>` streams. The result type `R` is part of the request class, so a call site cannot state a wrong one.
 2. **One handler per request.** `CommandHandler`, `QueryHandler` and `ObserveQueryHandler` are plain Kotlin classes named `FooCommand` and `FooHandler`. Every handler returns `DomainResult<R>`, or a `Flow` of it for an observe query ([ADR 0037](0037-typed-domain-errors-and-single-source-for-rules.md)).
 3. **The dispatcher is an interface.** `Dispatcher` has `dispatch`, `query` and `observe`. `DefaultDispatcher` in `:app/command` finds the handler by request class in a Hilt `@Multibinds` map with `@ClassKey`. `CommandModule` registers each handler with one `@Provides @IntoMap` function. `:domain` stays free of Hilt ([ADR 0035](0035-hilt-for-dependency-injection.md)).
 4. **A missing handler fails a test, not a user.** `HandlerRegistryTest` enumerates every request class and checks that it is registered.

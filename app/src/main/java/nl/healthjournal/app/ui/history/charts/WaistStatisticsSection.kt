@@ -29,9 +29,9 @@ import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.formatDecimal
 import nl.healthjournal.app.ui.common.weightFromKg
-import nl.healthjournal.domain.model.metrics.WaistCircumferenceEntry
-import nl.healthjournal.domain.model.metrics.WeightEntry
-import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.metrics.model.WaistCircumferenceEntry
+import nl.healthjournal.domain.metrics.model.WeightEntry
+import nl.healthjournal.domain.profile.model.Profile
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

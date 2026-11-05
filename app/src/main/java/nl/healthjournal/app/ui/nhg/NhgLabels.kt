@@ -7,12 +7,12 @@ import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.formatDecimal
 import nl.healthjournal.app.ui.common.glucoseDigits
 import nl.healthjournal.app.ui.common.glucoseFromMmol
-import nl.healthjournal.domain.model.metrics.GlucoseContext
-import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.metrics.NhgBmiCategory
-import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
-import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
-import nl.healthjournal.domain.model.profile.Sex
+import nl.healthjournal.domain.metrics.model.GlucoseContext
+import nl.healthjournal.domain.metrics.model.NhgBloodPressureCategory
+import nl.healthjournal.domain.metrics.model.NhgBmiCategory
+import nl.healthjournal.domain.metrics.model.NhgGlucoseCategory
+import nl.healthjournal.domain.metrics.model.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.profile.model.Sex
 
 // Every label is "name · range" and never names a condition (range-labels).
 

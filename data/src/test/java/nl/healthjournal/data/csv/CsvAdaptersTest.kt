@@ -3,15 +3,15 @@ package nl.healthjournal.data.csv
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
-import nl.healthjournal.domain.model.common.MeasurementId
-import nl.healthjournal.domain.model.common.ProfileId
-import nl.healthjournal.domain.model.metrics.*
-import nl.healthjournal.domain.model.metrics.NhgBloodPressureCategory
-import nl.healthjournal.domain.model.metrics.NhgGlucoseCategory
-import nl.healthjournal.domain.model.metrics.NhgWaistCircumferenceCategory
-import nl.healthjournal.domain.model.profile.Profile
+import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
+import nl.healthjournal.domain.metrics.model.*
+import nl.healthjournal.domain.metrics.model.NhgBloodPressureCategory
+import nl.healthjournal.domain.metrics.model.NhgGlucoseCategory
+import nl.healthjournal.domain.metrics.model.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.profile.model.Profile
 import nl.healthjournal.domain.testing.FakeHealthLogRepository
-import nl.healthjournal.domain.port.secondary.ProfileRepositoryPort
+import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -19,9 +19,9 @@ import org.junit.Test
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
-import nl.healthjournal.domain.model.common.EntryComment
-import nl.healthjournal.domain.model.common.HeightCm
-import nl.healthjournal.domain.model.common.WeightKg
+import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.shared.model.HeightCm
+import nl.healthjournal.domain.shared.model.WeightKg
 
 class CsvAdaptersTest {
 
@@ -458,7 +458,7 @@ class CsvAdaptersTest {
         // Create a female profile so classification fires
         val profile = Profile.create(
             "Test User", LocalDate.of(1990, 1, 1),
-            sex = nl.healthjournal.domain.model.profile.Sex.FEMALE
+            sex = nl.healthjournal.domain.profile.model.Sex.FEMALE
         )
         profileRepo.save(profile)
         val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
@@ -489,14 +489,14 @@ class CsvAdaptersTest {
 
         val full = OxygenSaturationEntry(
             MeasurementId.generate(), profile.id, Instant.parse("2026-09-20T08:00:00Z"),
-            nl.healthjournal.domain.model.metrics.OxygenSaturationPercent(93), 80,
-            nl.healthjournal.domain.model.metrics.OxygenContext.AFTER_ACTIVITY,
-            nl.healthjournal.domain.model.metrics.OxygenSite.TOE, true,
-            nl.healthjournal.domain.model.common.EntryComment.ofOrNull("stairs, \"quick\"")
+            nl.healthjournal.domain.metrics.model.OxygenSaturationPercent(93), 80,
+            nl.healthjournal.domain.metrics.model.OxygenContext.AFTER_ACTIVITY,
+            nl.healthjournal.domain.metrics.model.OxygenSite.TOE, true,
+            nl.healthjournal.domain.shared.model.EntryComment.ofOrNull("stairs, \"quick\"")
         )
         val plain = OxygenSaturationEntry(
             MeasurementId.generate(), profile.id, Instant.parse("2026-09-21T08:00:00Z"),
-            nl.healthjournal.domain.model.metrics.OxygenSaturationPercent(98)
+            nl.healthjournal.domain.metrics.model.OxygenSaturationPercent(98)
         )
         healthLogRepo.saveOxygenSaturation(full)
         healthLogRepo.saveOxygenSaturation(plain)
