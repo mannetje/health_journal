@@ -66,7 +66,7 @@ flowchart LR
 ### The three modules (`app/src/main/java/nl/healthjournal/app/di/`)
 
 - **`DataPortsModule`** creates the one `DataModule` (`@Singleton`, so the database opens once) and exposes each port from it: the profile, health log, medication and migraine repositories, the export and import ports, the backup codec and snapshot. A ViewModel asks for the port; it never sees Room.
-- **`UseCaseModule`** now holds only the shared `Clock` and the few remaining use cases (`GetHealthHistory`, `CreateBackup`, `RestoreBackup`).
+- **`UseCaseModule`** holds the shared `Clock` and the use cases the handlers and platform adapters share (`GetHealthHistory`, `CreateBackup`, `RestoreBackup`). A request with its own logic has no use case ([ADR 0039](../adr/0039-use-case-or-handler.md)).
 - **`CommandModule`** (in `app/src/main/java/nl/healthjournal/app/command/`) registers one handler per command, query or observe query into the maps that `DefaultDispatcher` reads. `RecoveryDispatcher` is a second, small dispatcher for the lost-key screen: it knows only `RestoreBackupCommand` and `OpenBackupQuery`. A ViewModel takes the `Dispatcher`, not the handlers ([ADR 0036](../adr/0036-application-boundary-commands-and-queries.md)).
 - **`PlatformModule`** has the `@Singleton` preferences (`UnitPreference`, `ReminderPreference`, `MetricDisplayOrderPreference`, `BackupPreferenceBridge`), `AppLockManager`, `AlarmReminderScheduler` and `ReminderCoordinator`. These hold state or are shared with the receivers, so there must be exactly one.
 

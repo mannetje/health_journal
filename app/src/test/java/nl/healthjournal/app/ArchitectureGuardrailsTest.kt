@@ -176,4 +176,20 @@ class ArchitectureGuardrailsTest {
         val old = listOf("model", "usecase", "port", "command").map { File(domainMain, it) }.filter { it.exists() }
         assertTrue("the layer folders were replaced by context folders: ${old.map { it.rel() }}", old.isEmpty())
     }
+
+    // --- use cases versus handlers (ADR 0039) ---
+
+    @Test
+    fun everyUseCaseIsUsedByProductionCode() {
+        val production = listOf("domain", "data", "app").flatMap { kotlinFiles(File(root, "$it/src/main")) }
+        val texts = production.associateWith { it.readText() }
+        val useCases = kotlinFiles(domainMain).filter { "/usecase/" in it.invariantSeparatorsPath }.flatMap { file ->
+            Regex("""^class (\w+UseCase)\b""", RegexOption.MULTILINE).findAll(file.readText()).map { file to it.groupValues[1] }.toList()
+        }
+        assertTrue("no use case found: the test would pass for nothing", useCases.isNotEmpty())
+        val dead = useCases.filter { (file, name) ->
+            texts.none { (other, text) -> other != file && Regex("""\b$name\b""").containsMatchIn(text) }
+        }.map { (file, name) -> "${file.rel()}: $name" }
+        assertTrue("a use case nothing calls is dead code; single-caller logic lives in the handler (ADR 0039): $dead", dead.isEmpty())
+    }
 }

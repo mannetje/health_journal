@@ -10,10 +10,13 @@ import nl.healthjournal.domain.shared.command.PortEntryGateway
 import nl.healthjournal.domain.shared.command.ValidationField
 import nl.healthjournal.domain.shared.command.ValidationRule
 import nl.healthjournal.domain.shared.model.HeightCm
+import nl.healthjournal.domain.shared.model.EntryComment
 import nl.healthjournal.domain.shared.model.MeasurementId
 import nl.healthjournal.domain.shared.model.ProfileId
 import nl.healthjournal.domain.metrics.model.GlucoseContext
 import nl.healthjournal.domain.metrics.model.NhgWaistCircumferenceCategory
+import nl.healthjournal.domain.metrics.model.OxygenContext
+import nl.healthjournal.domain.metrics.model.OxygenSite
 import nl.healthjournal.domain.migraine.model.MigraineEntry
 import nl.healthjournal.domain.profile.model.Profile
 import nl.healthjournal.domain.profile.model.Sex
@@ -217,6 +220,28 @@ class MetricCommandHandlersTest {
         assertEquals(ValidationField.OXYGEN_SATURATION, record.handle(RecordOxygenSaturationCommand(pid, 20)).invalid().field)
         assertEquals(ValidationField.PULSE, record.handle(RecordOxygenSaturationCommand(pid, 97, pulse = 5)).invalid().field)
         assertEquals(2, health.oxygenSaturations.size)
+    }
+
+    @Test fun `oxygen saturation stores the notes and trims the comment`() = runBlocking {
+        val record = RecordOxygenSaturationHandler(health, clock)
+        val saved = record.handle(
+            RecordOxygenSaturationCommand(
+                pid, 96, pulse = 68, context = OxygenContext.AT_REST, site = OxygenSite.FINGER,
+                oxygenGiven = true, comment = "  after the stairs "
+            )
+        ).getOrNull()!!
+        assertEquals(68, saved.pulse)
+        assertEquals(OxygenContext.AT_REST, saved.context)
+        assertEquals(OxygenSite.FINGER, saved.site)
+        assertTrue(saved.oxygenGiven)
+        assertEquals(EntryComment("after the stairs"), saved.comment)
+
+        val plain = record.handle(RecordOxygenSaturationCommand(pid, 97)).getOrNull()!!
+        assertNull(plain.pulse)
+        assertNull(plain.context)
+        assertNull(plain.site)
+        assertEquals(false, plain.oxygenGiven)
+        assertNull(plain.comment)
     }
 
     @Test fun `oxygen saturation update keeps the given timestamp`() = runBlocking {

@@ -1,7 +1,6 @@
 package nl.healthjournal.domain.shared.usecase
 
 import kotlinx.coroutines.runBlocking
-import nl.healthjournal.domain.shared.model.MeasurementId
 import nl.healthjournal.domain.shared.model.ProfileId
 import nl.healthjournal.domain.medication.model.DayPattern
 import nl.healthjournal.domain.medication.model.DoseUnit
@@ -9,15 +8,11 @@ import nl.healthjournal.domain.medication.model.IntakeStatus
 import nl.healthjournal.domain.medication.model.MedicationForm
 import nl.healthjournal.domain.medication.model.Schedule
 import nl.healthjournal.domain.medication.model.StrengthUnit
-import nl.healthjournal.domain.metrics.model.GlucoseContext
-import nl.healthjournal.domain.migraine.model.MigraineEntry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import nl.healthjournal.domain.medication.usecase.RecordIntakeUseCase
 import nl.healthjournal.domain.medication.usecase.RecordSlotIntakesUseCase
 import nl.healthjournal.domain.medication.usecase.SaveMedicationUseCase
-import nl.healthjournal.domain.metrics.usecase.RecordOxygenSaturationUseCase
-import nl.healthjournal.domain.migraine.usecase.EndMigraineUseCase
 import org.junit.Test
 import java.math.BigDecimal
 import java.time.Clock
@@ -26,10 +21,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
-import nl.healthjournal.domain.testing.FakeHealthLogRepository
 import nl.healthjournal.domain.testing.FakeMedicationRepository
-import nl.healthjournal.domain.testing.FakeMigraineRepository
-import nl.healthjournal.domain.testing.FakeProfileRepository
 
 /** A null timestamp resolves to the injected clock; an explicit one is kept. */
 class ClockUseCasesTest {
@@ -37,33 +29,6 @@ class ClockUseCasesTest {
     private val explicit = Instant.parse("2026-01-02T03:04:05Z")
     private val clock = Clock.fixed(now, ZoneOffset.UTC)
     private val profile = ProfileId.generate()
-    private val health = FakeHealthLogRepository()
-    private val profiles = FakeProfileRepository()
-
-    @Test fun `oxygen saturation`() = runBlocking {
-        val use = RecordOxygenSaturationUseCase(health, clock)
-        assertEquals(now, use(profile, 97).timestamp)
-        assertEquals(explicit, use(profile, 97, timestamp = explicit).timestamp)
-    }
-
-    @Test fun `ending a migraine`() = runBlocking {
-        val repo = FakeMigraineRepository()
-        val start = now.minusSeconds(3600)
-        val entry = MigraineEntry(id = MeasurementId.generate(), profileId = profile, start = start)
-        repo.saveMigraine(entry)
-        assertEquals(now, EndMigraineUseCase(repo, clock)(entry.id)?.end)
-
-        val second = MigraineEntry(id = MeasurementId.generate(), profileId = profile, start = start)
-        repo.saveMigraine(second)
-        assertEquals(explicit.plusSeconds(86400 * 365), EndMigraineUseCase(repo, clock)(second.id, explicit.plusSeconds(86400 * 365))?.end)
-    }
-
-    @Test fun `ending a migraine before its start still fails with the clock`() = runBlocking {
-        val repo = FakeMigraineRepository()
-        val entry = MigraineEntry(id = MeasurementId.generate(), profileId = profile, start = now.plusSeconds(60))
-        repo.saveMigraine(entry)
-        assertNull(EndMigraineUseCase(repo, clock)(entry.id))
-    }
 
     @Test fun `intakes`() = runBlocking {
         val meds = FakeMedicationRepository()
