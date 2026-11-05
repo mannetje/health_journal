@@ -5,7 +5,7 @@ Order: the steps that stand on their own come first (ports, typed errors, clock,
 - [ ] 0.2 Confirm order against the six in-flight metric changes: this change first (design decision 9)
 - [ ] 0.3 Confirm release plan: own release 1.8.0 or folded into the next feature
 - [ ] 0.4 Confirm three ADRs (0036 application boundary, 0037 typed errors, 0038 bounded contexts) and the ADR 0002 and 0035 amendments (design decisions 10 and 11)
-- [ ] 0.4a Confirm the context map, in particular whether `profile` is upstream of `metrics` and whether `nhg` joins `metrics` (design decision 11)
+- [x] 0.4a Context map confirmed by the user: `nhg` joins `metrics`; `profile` and `metrics` are separate contexts, `profile` upstream; `HeightCm`, `WeightKg` and `EntryComment` go to the shared kernel (design decision 11)
 - [ ] 0.5 Spec review by the user before implementation starts
 - [ ] 0.6 Baseline: run `:domain:test`, `:data:test`, `:app:testDebugUnitTest` and `scripts/check-docs.sh` and record that all pass before the first edit
 
@@ -33,7 +33,7 @@ Order: the steps that stand on their own come first (ports, typed errors, clock,
 - [ ] 3.3 Guardrails for ViewModels (no secondary port import, no `*UseCases` bundle, no `catch (e: Exception)` around a dispatch) are written now as report-only with the current offenders listed; they become failing in section 6
 
 - [ ] 3.4 Context guardrail: a test scans `model/` imports against the context map (design decision 11), report-only, listing `EntryComment` in `metrics`, `Profile` using `HeightCm` and `WeightKg`, the `metrics` and `nhg` cycle, and `nhg` reading `profile`
-- [ ] 3.5 Resolve each listed coupling: move `EntryComment` (and `HeightCm`, `WeightKg` if `profile` stays upstream) to the shared kernel, and decide `nhg` inside `metrics` versus derived categories; record any accepted exception in the test with a reason
+- [ ] 3.5 Resolve each listed coupling: move `EntryComment`, `HeightCm` and `WeightKg` to the shared kernel; move the `nhg` classifiers into `metrics`; replace `Profile.classifyWaistCircumference` with a domain service in `metrics` that takes the sex as an argument and update its callers (`Profile.calculateBmi` stays); existing classifier and BMI tests keep their assertions; record any accepted exception in the test with a reason
 - [ ] 3.6 Turn the context guardrail into a failing test once the list is empty or every remaining edge is a recorded exception
 
 ## 4. Application boundary: dispatcher or grouped services
