@@ -19,7 +19,8 @@ This is one change because the pieces depend on each other: the new ports are wh
 - **Time through a clock:** commands take a `Clock`-derived instant from the handler, not `Instant.now()` defaults.
 - **All ViewModels migrated:** Logging, History, Medication, MigraineLog, Profile and RecoveryBackup.
 - **Guardrail tests** keep it that way (see tasks, section 6).
-- **Docs:** new ADR, ADR 0002 amended, the add-a-metric how-to and playbook updated, the architecture section of the README updated.
+- **Bounded contexts:** a context map with a shared kernel, a guardrail test on cross-context imports (starting report-only), the four couplings found today resolved or recorded, and context packages for new code. Moving existing code into context packages is a separate follow-up change.
+- **Docs:** three new ADRs (0036 application boundary, 0037 typed errors, 0038 bounded contexts), a context map and glossary in `docs/dev`, ADR 0002 and ADR 0035 amended, the add-a-metric how-to and playbook updated, the architecture section of the README updated.
 
 ## Capabilities
 - **Modified Capability:** `architecture-governance` (layered structure now names the segregated ports and the application boundary; new requirement for the boundary rules and their automated checks)

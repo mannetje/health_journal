@@ -2,10 +2,43 @@
 
 The hexagon is sound at the module level: `:domain` has no framework dependency, DI stays in `:app` ([ADR 0035](../../../docs/adr/0035-hilt-for-dependency-injection.md)) and `RepositoryGuardrailsTest` already enforces that. The friction is inside the application layer ([ADR 0002](../../../docs/adr/0002-hexagonal-architecture.md) names Use Cases but never defined a primary boundary). Messages shown to the user must stay localized ([ADR 0015](../../../docs/adr/0015-localized-viewmodel-messages.md)); metrics stay plain, with no assessment ([ADR 0026](../../../docs/adr/0026-oxygen-saturation-without-assessment.md) and the later ones).
 
+## Target architecture
+
+```mermaid
+flowchart LR
+    subgraph app[":app (driving side and composition root)"]
+        UI["Compose screens"] --> VM["ViewModels"]
+        VM -->|"command / query / observe"| DSP["DefaultDispatcher (Hilt map)"]
+        PLAT["Receivers, AppLockManager, ReminderCoordinator"]
+    end
+    subgraph domain[":domain (pure Kotlin)"]
+        DSP --> H["Handlers (one per command or query)"]
+        H --> VO["Value objects: of() factories, bounds once"]
+        H --> DS["Domain services: NHG classifiers, Pillbox, Adherence, statistics"]
+        H --> P["Secondary ports: one per metric, plus migraine, medication, profile, export, import, backup, reminders"]
+    end
+    subgraph data[":data (driven side)"]
+        ROOM["Room repositories, CSV adapters, backup codec"] -.implements.-> P
+    end
+    PLAT --> P
+```
+
+Rules the diagram stands for: ViewModels know only the dispatcher; handlers know only ports, value objects and a clock; adapters implement ports; Hilt wires everything and exists only in `:app`. Platform entry points (alarm receivers, app lock, reminder coordinator) are driving or driven adapters themselves and keep using their own narrow ports and use cases; they are the allowed set in the guardrail.
+
+## Also needed (not in the review)
+1. **Streams.** ViewModels observe history and today's pillbox as `Flow`, and the dispatcher as the review wrote it is `suspend` only. Add `ObserveQuery<R>` with `fun <R> observe(query: ObserveQuery<R>): Flow<DomainResult<R>>`, or handlers cannot replace the current observe paths.
+2. **Cancellation.** The dispatcher and handlers must rethrow `CancellationException` and never turn it into `DomainError.Storage` (the 1.6.5 backup fix was exactly this bug).
+3. **Active profile.** Five ViewModels call `profileRepository.getActiveProfile()`. Provide a `GetActiveProfileQuery` and let commands take the profile from the handler or the caller, so no ViewModel needs the profile port.
+4. **Shared test fakes.** Six ports means six hand-written fakes in every test class today's way. Put in-memory fakes of the ports in one shared test fixture so handler and ViewModel tests reuse them.
+5. **Main-safety.** Handlers stay main-safe by relying on Room's own dispatching; the dispatcher does not switch threads. Write this in ADR 0036 so nobody adds `withContext` per handler.
+6. **Cost check.** Like ADR 0035, record the debug APK size and cold start before and after, and the build time impact of the new multibinding.
+7. **R8.** The map is keyed by class literals, not reflection, so no keep rules are expected. Verify with a release-minified build once, not only the debug APK CI builds.
+8. **Commit shape.** One commit per phase on a branch (or master with green CI per phase), so any phase can be reverted alone; the final change is archived only after the emulator pass.
+
 ## Goals / Non-Goals
 
 **Goals:** ISP-sized ports; ViewModels that touch only the application boundary; typed validation errors with no duplicated bounds; fewer classes per new metric; checks that stop the drift coming back.
-**Non-Goals:** any user-visible change, database or backup change, domain events, richer metric aggregates, a new DI framework, changes to the `Medication` aggregate or `Pillbox`.
+**Non-Goals:** any user-visible change, database or backup change, domain events, richer metric aggregates, a new DI framework, changes to the `Medication` aggregate or `Pillbox`, a Gradle module per context, and the physical move of existing models and use cases into context packages (a follow-up change).
 
 ## What the review got right, wrong and missed
 
@@ -37,7 +70,7 @@ One port per metric in `domain/port/secondary/`: `WeightRepositoryPort`, `BloodP
 - `:domain/command/`: `Command<R>`, `Query<R>`, `CommandHandler<C, R>`, `QueryHandler<Q, R>`, `DomainResult<T>`, `DomainError`, and an interface `Dispatcher` with `suspend fun <R> dispatch(command: Command<R>): DomainResult<R>` and `suspend fun <R> query(query: Query<R>): DomainResult<R>`. The result type is carried by the command, so a call site cannot state a wrong `R` (the review's `dispatch<C, R>` signature allows that).
 - `:app/command/DefaultDispatcher` looks the handler up by command class in a Hilt `@Multibinds` map (`@ClassKey`). `:domain` has no Hilt, so handlers are plain classes and `CommandModule` in `:app` provides and registers them.
 - A missing handler is a programming error and fails a unit test at build time (a test enumerates every `Command` and `Query` subclass under `command/` and checks each has a registered handler), not a runtime `DomainError`.
-- Alternative considered: grouped application services per area (`EntryService`, `ExchangeService`, `PillboxService`) injected directly, no dispatcher. Smaller and easier to read, but the dispatcher was the stated choice. Kept as the fallback if task 2.4 shows the multibinding costs more than it saves.
+- Alternative considered: grouped application services per area (`EntryService`, `ExchangeService`, `PillboxService`) injected directly, no dispatcher. Smaller and easier to read, but the dispatcher was the stated choice. This is decided last (task 4.4): ports, typed errors, the clock and the guardrails land first and do not depend on it, so the fallback costs only sections 5 and 6, not the earlier work.
 - Existing use cases that carry real logic and are not CRUD (`GetHealthHistoryUseCase`, `GetPillboxDayUseCase`, `GetAdherenceUseCase`, `RearmRemindersUseCase`, the backup use cases) stay as classes, wrapped by a query handler only where a ViewModel needs them. They are not rewritten.
 
 ### 3. Consolidation
@@ -65,6 +98,28 @@ This is a refactor under test. The existing JVM, CSV and migration tests are the
 
 ### 9. Order against the in-flight metric changes
 Six `add-*` changes (body temperature, daily activity, energy, fluid, mood, sleep) each add port methods and use cases in the old shape. Recommended: land this change first, then update their tasks and designs, which name `HealthLogRepositoryPort` and `Record/Update/DeleteX` classes. The updated add-a-metric playbook then makes each of them smaller. If some must land first, they land unchanged and this change absorbs their ports at the cost of one more port and handler each.
+
+### 10. Order and documentation
+- **Work order:** (1) segregated ports, (2) typed errors, factories and clock, (3) guardrails that already hold, (4) the dispatcher spike and its decision checkpoint, (5) handlers, (6) ViewModel migration and the remaining guardrails, then docs and verification. Each step compiles and passes the tests on its own. The highest-value, lowest-risk work comes first, and the dispatcher is an informed choice instead of an assumption.
+- **ADR 0036, "Application boundary: commands and queries".** The model stated explicitly: hexagonal with a command and query application layer. Covers the dispatcher (or grouped services), handlers, observe queries and main-safety. Clean Architecture's use case idea is borrowed; presenters and per-use-case response models are not adopted, because the ViewModel maps the typed result.
+- **ADR 0037, "Typed domain errors and a single source for rules".** `DomainResult`, `DomainError` with code and parameters and no display text, `of(...)` factories beside the validating constructors, bounds once, `Clock`.
+- The two ADRs are separate because 0037 and the segregated ports stand even when 0036 falls back to grouped services; a single ADR would then need rewriting.
+- **Amend ADR 0002:** a "Primary ports" section. **Amend ADR 0035:** one line that the handler map lives in `:app`, so the no-Hilt-in-`:domain` rule holds.
+
+### 11. Bounded contexts
+The domain already splits into contexts by folder (`profile`, `metrics`, `medication`, `migraine`, `mindfulness`, `backup`, `lock`, plus `nhg` and `common`), but nothing enforces it. An import scan of `model/` shows four real couplings:
+- `medication`, `migraine` and `metrics` all use `metrics.EntryComment`. It is a shared concept and belongs in the shared kernel.
+- `profile.Profile` uses `metrics.HeightCm` and `metrics.WeightKg`. Height is profile data; the question is whether `Profile` belongs upstream of `metrics` (then `HeightCm` and `WeightKg` move to the shared kernel) or on top of it.
+- `metrics` entries hold `nhg` categories, while `nhg` classifiers read `metrics` readings and `profile`. That is a cycle between `metrics` and `nhg`. Either `nhg` becomes part of `metrics`, or the entries stop storing the category and it is derived.
+- `backup` reads everything, which is correct: it is the one allowed consumer of all contexts.
+
+Decisions:
+- **Context map.** `shared` (ids, units, `EntryComment`, and whatever the checks above move there) is upstream of all. `profile` is upstream of `metrics`, `medication` and `migraine`. `metrics`, `medication` and `migraine` do not import each other. `nhg` is resolved as above. `backup` may import every context. `mindfulness` and `lock` import nothing.
+- **Guardrail.** A test scans `model/` imports against this map and names the file and the forbidden edge. It starts report-only (task 3.4) listing the four couplings above; each is then fixed or recorded as an accepted exception in the test, and it becomes failing once the list is empty.
+- **Package layout for new code.** New ports, commands and handlers live in their context: `domain/<context>/{port,command}` for what this change adds (for example `metrics/port/WeightRepositoryPort.kt`, `metrics/command/RecordWeight...`). Existing models and the 30 use cases stay where they are. This keeps the refactor behaviour-preserving and the diff reviewable. The physical move of existing code is a separate follow-up change, so nothing is moved twice.
+- **Language and entities.** ADR 0038 fixes the vocabulary and the tactical roles: entries are entities with a `MeasurementId`, readings are immutable value objects validated through `of(...)`, NHG classifiers are pure domain services (no ports), handlers are application services (ports, clock, transactions). `docs/dev` gets a context map and a glossary (slot, intake, pillbox, range label which is never a verdict, episode).
+- **Aggregates.** `Medication` stays the aggregate root it is. Plain metrics stay plain records on purpose (no invariants over time), so no aggregate roots are added there. `MigraineEntry` has a lifecycle (ongoing, then ended); task 5.8 checks whether ending an episode belongs on the entry instead of being rebuilt in a use case, and moves it if so.
+- **Non-goals:** no Gradle module per context, no domain events.
 
 ## Risks / Trade-offs
 - **Large diff touching every screen.** Mitigated by phase order: each phase compiles and passes tests on its own, and phases 1 and 2 add structure without moving behaviour.

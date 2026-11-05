@@ -31,3 +31,14 @@ Driving adapters (screens and their ViewModels) SHALL reach the domain only thro
 #### Scenario: Missing string
 - **WHEN** a validation rule has no message in English or Dutch
 - **THEN** a unit test fails and names the rule
+
+### Requirement: Bounded contexts
+The domain layer SHALL be divided into named contexts (profile, metrics, medication, migraine, mindfulness, backup and lock) with a shared kernel for concepts used by several of them. Dependencies between contexts SHALL follow a documented context map: the shared kernel and the profile context are upstream, the metrics, medication and migraine contexts SHALL NOT depend on each other, and only the backup context MAY depend on all of them. An automated test SHALL fail when a model imports across a forbidden edge and SHALL name the file and the edge. New ports, commands and handlers SHALL live in their context's package.
+
+#### Scenario: Forbidden context dependency
+- **WHEN** a medication model imports a type from the migraine context
+- **THEN** the context test fails and names the file and the forbidden edge
+
+#### Scenario: Shared concept
+- **WHEN** a concept is used by more than one context
+- **THEN** it lives in the shared kernel and not in one of the contexts that use it
