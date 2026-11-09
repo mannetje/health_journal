@@ -26,4 +26,4 @@ GitHub stays the source of truth and keeps its Actions. An optional Forgejo inst
 - **Releases on a mirror.** Forgejo may refuse a release on a pull-mirror repository. If so, delete `release.yaml`; tags are still built and tested.
 - **Memory.** `gradle.properties` caps the Gradle daemon at 2 GB; plan the host accordingly.
 - **Docker socket.** The agent needs it. Only let trusted users start pipelines and do not run pipelines for pull requests from forks.
-- **SDK versions.** The image installs platform 36 and build-tools 36.0.0; change the Dockerfile and `compileSdk` together. The command-line tools download id in the Dockerfile ages; take the current one from the Android Studio download page.
+- **SDK versions.** The image installs platform 36 and build-tools 35.0.0 and 36.0.0 (Gradle picks the one AGP wants and otherwise tries to download it mid-build); change the Dockerfile and `compileSdk` together. The command-line tools download id in the Dockerfile ages; take the current one from the Android Studio download page.

@@ -18,3 +18,7 @@ RUN mkdir -p $ANDROID_HOME/cmdline-tools \
  && rm /tmp/tools.zip \
  && yes | sdkmanager --licenses > /dev/null \
  && sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+# Gradle asks for build-tools 35 as well (AGP default for part of the build). Without it Gradle tries to
+# download it during the build, which fails on a flaky connection.
+RUN sdkmanager "build-tools;35.0.0"
