@@ -1,0 +1,31 @@
+# Mirror of the release part of .github/workflows/android.yml: on a v* tag, attach the debug APK and its checksum.
+# GitHub stays the place that publishes the release. If Forgejo refuses a release on a pull-mirror repository,
+# delete this file; the tag still gets built and tested by ci.yaml.
+when:
+  - event: tag
+    ref: refs/tags/v*
+
+steps:
+  build:
+    image: health-journal-ci:1
+    pull: false
+    commands:
+      - chmod +x gradlew
+      - ./gradlew assembleDebug
+      - cd app/build/outputs/apk/debug
+      - cp app-debug.apk health-journal-${CI_COMMIT_TAG}-debug.apk
+      - sha256sum health-journal-${CI_COMMIT_TAG}-debug.apk > health-journal-${CI_COMMIT_TAG}-debug.apk.sha256
+      - cd /woodpecker/src/${CI_REPO}
+      - VERSION="${CI_COMMIT_TAG#v}"
+      - awk -v h="## [$VERSION]" 'index($0,h)==1{f=1;next} index($0,"## [")==1{f=0} f' CHANGELOG.md > RELEASE_NOTES.md
+
+  publish:
+    image: woodpeckerci/plugin-release
+    settings:
+      api_key:
+        from_secret: forgejo_release_token
+      title: Health Journal ${CI_COMMIT_TAG}
+      note: RELEASE_NOTES.md
+      files:
+        - app/build/outputs/apk/debug/health-journal-${CI_COMMIT_TAG}-debug.apk
+        - app/build/outputs/apk/debug/health-journal-${CI_COMMIT_TAG}-debug.apk.sha256

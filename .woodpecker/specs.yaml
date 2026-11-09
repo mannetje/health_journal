@@ -1,0 +1,10 @@
+# Mirror of .github/workflows/specs.yml
+when:
+  - event: [push, pull_request, manual]
+    path: "openspec/**"
+
+steps:
+  validate:
+    image: node:22
+    commands:
+      - npx --yes @fission-ai/openspec@1.13.1 validate --all --strict
