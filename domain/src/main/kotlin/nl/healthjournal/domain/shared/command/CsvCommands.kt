@@ -30,6 +30,7 @@ fun entryKindFromKey(key: String): EntryKind? = when (key.lowercase().replace("-
     "waist_circumference", "waist" -> EntryKind.WAIST_CIRCUMFERENCE
     "oxygen_saturation", "oxygen", "spo2" -> EntryKind.OXYGEN_SATURATION
     "migraine" -> EntryKind.MIGRAINE
+    "fluid", "fluid_intake" -> EntryKind.FLUID_INTAKE
     else -> null
 }
 
@@ -48,6 +49,7 @@ class ExportCsvHandler(
             EntryKind.ACTIVITY -> export.exportActivityCsv(query.profileId)
             EntryKind.WAIST_CIRCUMFERENCE -> export.exportWaistCircumferenceCsv(query.profileId)
             EntryKind.OXYGEN_SATURATION -> export.exportOxygenSaturationCsv(query.profileId)
+            EntryKind.FLUID_INTAKE -> export.exportFluidCsv(query.profileId)
             EntryKind.MIGRAINE -> migraineExport.exportMigraineCsv(query.profileId)
         }
     }
@@ -75,4 +77,5 @@ private fun EntryKind.importKey(libra: Boolean): String = when (this) {
     EntryKind.WAIST_CIRCUMFERENCE -> "waist_circumference"
     EntryKind.OXYGEN_SATURATION -> "oxygen_saturation"
     EntryKind.MIGRAINE -> "migraine"
+    EntryKind.FLUID_INTAKE -> "fluid"
 }

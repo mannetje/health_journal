@@ -102,6 +102,7 @@ class ViewModelsTest {
         override suspend fun exportActivityCsv(profileId: ProfileId): String = "start_timestamp,end_timestamp,distance_m,duration_s\n"
         override suspend fun exportWaistCircumferenceCsv(profileId: ProfileId): String = "timestamp,waist_cm,classification\n"
         override suspend fun exportOxygenSaturationCsv(profileId: ProfileId): String = "timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n"
+        override suspend fun exportFluidCsv(profileId: ProfileId): String = "timestamp,ml,drink,comment\n"
     }
 
     private class FakeImportAdapter : DataImportPort {

@@ -75,7 +75,7 @@ internal fun historyDispatcher(
         UpdateActivityCommand::class.java to UpdateActivityHandler(health),
         UpdateWaistCircumferenceCommand::class.java to UpdateWaistCircumferenceHandler(health, profiles),
         UpdateOxygenSaturationCommand::class.java to UpdateOxygenSaturationHandler(health),
-        DeleteEntryCommand::class.java to DeleteEntryHandler(PortEntryGateway(health, health, health, health, health, health, migraines)),
+        DeleteEntryCommand::class.java to DeleteEntryHandler(PortEntryGateway(health, health, health, health, health, health, migraines, health)),
         EndMigraineCommand::class.java to EndMigraineHandler(migraines, clock),
         ImportCsvCommand::class.java to ImportCsvHandler(import, migraineImport)
     ),
