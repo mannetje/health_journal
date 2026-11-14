@@ -242,7 +242,10 @@ class MainActivity : FragmentActivity() {
                             reminderPermissions = reminderPermissions,
                             refresher = refresher,
                             viewModels = shellViewModels,
-                            startOnMigraineTab = app.metricDisplayOrderPreference.order.value.first() == MetricSlot.MIGRAINE,
+                            // Read once: only the initial tab depends on the display order
+                            startOnMigraineTab = remember {
+                                app.metricDisplayOrderPreference.order.value.first() == MetricSlot.MIGRAINE
+                            },
                             pillboxRequested = pillboxRequested,
                             onPillboxRequestHandled = { pillboxRequested = false },
                             actions = actions

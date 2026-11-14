@@ -1,12 +1,13 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "nl.healthjournal.data"
-    compileSdk = 36
+    compileSdk {
+        version = release(36) { minorApiLevel = 1 }
+    }
 
     defaultConfig {
         minSdk = 26
@@ -33,8 +34,8 @@ android {
     }
     sourceSets {
         // The exported Room schemas are the input of MigrationTestHelper (unit tests and instrumented tests).
-        getByName("test").assets.srcDir("$projectDir/schemas")
-        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+        getByName("test").assets.directories.add("$projectDir/schemas")
+        getByName("androidTest").assets.directories.add("$projectDir/schemas")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21

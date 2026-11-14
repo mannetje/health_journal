@@ -1,10 +1,10 @@
 [versions]
 # Core Tooling & Language
-agp = "8.13.2"
+agp = "9.5.1"
 kotlin = "2.4.21"
-ksp = "2.3.13"
+ksp = "2.3.14"
 # ADR 0035 dependency (exception to ADR 0003): Hilt, in :app only
-hilt = "2.58"
+hilt = "2.60.1"
 
 # First-Party Kotlin Libraries
 coroutines = "1.11.0"
@@ -88,7 +88,6 @@ androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-mani
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
