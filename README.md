@@ -26,6 +26,8 @@ You can download the ready-to-install Android APK directly from GitHub:
 👉 **[Download Latest APK (v1.7.5)](https://github.com/mannetje/health_journal/releases/latest)**  
 See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
+**Want updates without checking GitHub?** Add this repository to [Obtainium](https://obtainium.imranr.dev/) and it installs the APK and updates it when a new release appears. See [Method 2](#method-2-install-and-update-with-obtainium).
+
 ---
 
 ## Screenshots
@@ -202,7 +204,20 @@ flowchart TD
 
 ---
 
-### Method 2: Sideload via ADB
+### Method 2: Install and update with Obtainium
+
+[Obtainium](https://obtainium.imranr.dev/) is a free, open source Android app that installs and updates apps straight from their GitHub releases, with no store account. Health Journal publishes its APK on every release, so Obtainium can keep it current.
+
+1. Install Obtainium on your device (from its [website](https://obtainium.imranr.dev/) or its GitHub releases).
+2. Open Obtainium, tap **Add App** and paste `https://github.com/mannetje/health_journal`.
+3. Tap **Add**, then **Install**. Allow *Install unknown apps* for Obtainium when Android asks.
+4. Obtainium checks for new releases in the background and offers the update. Updates install over the existing app and keep your data, because every release uses the same signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
+
+Health Journal never contacts the internet (it has no INTERNET permission); only Obtainium does, to look at GitHub. More detail, a one-tap link and troubleshooting are in the [Obtainium guide](docs/dev/obtainium.md).
+
+---
+
+### Method 3: Sideload via ADB
 
 If you build locally or have the Android SDK:
 
