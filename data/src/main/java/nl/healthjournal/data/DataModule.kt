@@ -25,6 +25,7 @@ import nl.healthjournal.domain.migraine.port.MigraineExportPort
 import nl.healthjournal.domain.migraine.port.MigraineImportPort
 import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
 import nl.healthjournal.domain.metrics.port.DataExportPort
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
 import nl.healthjournal.domain.metrics.port.DataImportPort
 import nl.healthjournal.domain.metrics.port.WeightRepositoryPort
 import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
@@ -45,7 +46,8 @@ class DataModule(context: Context) {
         glucoseDao = database.glucoseDao(),
         activityDao = database.activityDao(),
         waistCircumferenceDao = database.waistCircumferenceDao(),
-        oxygenSaturationDao = database.oxygenSaturationDao()
+        oxygenSaturationDao = database.oxygenSaturationDao(),
+        fluidIntakeDao = database.fluidIntakeDao()
     )
 
     val weightRepository: WeightRepositoryPort = healthLog
@@ -53,6 +55,8 @@ class DataModule(context: Context) {
     val bloodPressureRepository: BloodPressureRepositoryPort = healthLog
 
     val glucoseRepository: GlucoseRepositoryPort = healthLog
+
+    val fluidRepository: FluidRepositoryPort = healthLog
 
     val activityRepository: ActivityRepositoryPort = healthLog
 
@@ -64,9 +68,9 @@ class DataModule(context: Context) {
 
     val migraineRepository: MigraineRepositoryPort = RoomMigraineRepository(database.migraineDao())
 
-    val dataExportPort: DataExportPort = CsvDataExportAdapter(weightRepository, bloodPressureRepository, glucoseRepository, activityRepository, waistCircumferenceRepository, oxygenSaturationRepository)
+    val dataExportPort: DataExportPort = CsvDataExportAdapter(weightRepository, bloodPressureRepository, glucoseRepository, activityRepository, waistCircumferenceRepository, oxygenSaturationRepository, fluidRepository)
 
-    val dataImportPort: DataImportPort = CsvDataImportAdapter(weightRepository, bloodPressureRepository, glucoseRepository, activityRepository, waistCircumferenceRepository, oxygenSaturationRepository, profileRepository)
+    val dataImportPort: DataImportPort = CsvDataImportAdapter(weightRepository, bloodPressureRepository, glucoseRepository, activityRepository, waistCircumferenceRepository, oxygenSaturationRepository, fluidRepository, profileRepository)
 
     val medicationExportPort: MedicationExportPort = CsvMedicationExportAdapter(medicationRepository)
 

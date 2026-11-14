@@ -68,9 +68,9 @@ class MigrationChainTest {
     private companion object {
         val DB_NAME: String = InstrumentationRegistry.getInstrumentation().targetContext.getDatabasePath("migration-chain-test").absolutePath
         const val FIRST_VERSION = 1
-        const val CURRENT_VERSION = 8
+        const val CURRENT_VERSION = 9
         val ALL_MIGRATIONS = arrayOf(
-            MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8
+            MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9
         )
     }
 }

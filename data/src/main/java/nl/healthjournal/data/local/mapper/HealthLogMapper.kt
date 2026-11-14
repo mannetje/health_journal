@@ -3,7 +3,13 @@ package nl.healthjournal.data.local.mapper
 import nl.healthjournal.data.local.entity.ActivityEntity
 import nl.healthjournal.data.local.entity.BloodPressureEntity
 import nl.healthjournal.data.local.entity.GlucoseEntity
+import nl.healthjournal.data.local.entity.FluidIntakeEntity
+import nl.healthjournal.data.local.entity.FluidSettingsEntity
 import nl.healthjournal.data.local.entity.OxygenSaturationEntity
+import nl.healthjournal.domain.metrics.model.FluidDrink
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
+import nl.healthjournal.domain.metrics.model.FluidLimits
+import nl.healthjournal.domain.metrics.model.FluidMl
 import nl.healthjournal.data.local.entity.WaistCircumferenceEntity
 import nl.healthjournal.data.local.entity.WeightEntity
 import nl.healthjournal.domain.shared.model.MeasurementId
@@ -167,4 +173,31 @@ object HealthLogMapper {
             comment = EntryComment.ofOrNull(entity.comment)
         )
     }
+
+    // Fluid intake
+    fun toEntity(domain: FluidIntakeEntry): FluidIntakeEntity = FluidIntakeEntity(
+        id = domain.id.value.toString(),
+        profileId = domain.profileId.value.toString(),
+        timestamp = domain.timestamp.toEpochMilli(),
+        ml = domain.amount.value,
+        drink = domain.drink.code,
+        comment = domain.comment?.text
+    )
+
+    /** A missing or unknown drink code (older file or later version) reads as Other. */
+    fun toDomain(entity: FluidIntakeEntity): FluidIntakeEntry = FluidIntakeEntry(
+        id = MeasurementId.fromString(entity.id),
+        profileId = ProfileId.fromString(entity.profileId),
+        timestamp = Instant.ofEpochMilli(entity.timestamp),
+        drink = FluidDrink.fromCode(entity.drink),
+        amount = FluidMl(entity.ml),
+        comment = EntryComment.ofOrNull(entity.comment)
+    )
+
+    fun toEntity(profileId: ProfileId, limits: FluidLimits): FluidSettingsEntity =
+        FluidSettingsEntity(profileId.value.toString(), limits.minMl, limits.maxMl)
+
+    /** Stored numbers that no longer make sense read as not set instead of failing the screen. */
+    fun toDomain(entity: FluidSettingsEntity?): FluidLimits =
+        entity?.let { runCatching { FluidLimits(it.minMl, it.maxMl) }.getOrNull() } ?: FluidLimits.NONE
 }

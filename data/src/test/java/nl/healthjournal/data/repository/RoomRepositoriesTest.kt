@@ -3,6 +3,7 @@ package nl.healthjournal.data.repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import nl.healthjournal.data.local.dao.*
 import nl.healthjournal.data.local.entity.*
@@ -203,6 +204,44 @@ class RoomRepositoriesTest {
         override fun observeByProfileId(profileId: String): Flow<List<WaistCircumferenceEntity>> = flow
     }
 
+    private class FakeFluidIntakeDao : FluidIntakeDao {
+        private val list = mutableListOf<FluidIntakeEntity>()
+        private val flow = MutableStateFlow<List<FluidIntakeEntity>>(emptyList())
+        private val settings = MutableStateFlow<Map<String, FluidSettingsEntity>>(emptyMap())
+
+        override suspend fun insert(entry: FluidIntakeEntity) {
+            list.removeAll { it.id == entry.id }
+            list.add(entry)
+            flow.value = list.sortedByDescending { it.timestamp }
+        }
+        override suspend fun insertIgnore(entry: FluidIntakeEntity): Long {
+            if (list.any { it.id == entry.id }) return -1L
+            insert(entry)
+            return 1L
+        }
+        override suspend fun update(entry: FluidIntakeEntity): Int {
+            val i = list.indexOfFirst { it.id == entry.id }
+            if (i < 0) return 0
+            list[i] = entry
+            flow.value = list.sortedByDescending { it.timestamp }
+            return 1
+        }
+        override suspend fun deleteById(id: String): Int {
+            val removed = list.removeAll { it.id == id }
+            flow.value = list.sortedByDescending { it.timestamp }
+            return if (removed) 1 else 0
+        }
+        override suspend fun getByProfileId(profileId: String): List<FluidIntakeEntity> =
+            list.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
+        override fun observeByProfileId(profileId: String): Flow<List<FluidIntakeEntity>> =
+            flow.map { l -> l.filter { it.profileId == profileId } }
+        override suspend fun upsertSettings(settings: FluidSettingsEntity) {
+            this.settings.value = this.settings.value + (settings.profileId to settings)
+        }
+        override suspend fun getSettings(profileId: String): FluidSettingsEntity? = settings.value[profileId]
+        override fun observeSettings(profileId: String): Flow<FluidSettingsEntity?> = settings.map { it[profileId] }
+    }
+
     private class FakeOxygenSaturationDao : OxygenSaturationDao {
         override suspend fun insertIgnore(entry: OxygenSaturationEntity): Long {
             insert(entry)
@@ -258,7 +297,7 @@ class RoomRepositoriesTest {
     fun `RoomHealthLogRepository saves, lists, updates and deletes oxygen saturation`() = runBlocking {
         val repo = RoomHealthLogRepository(
             FakeWeightDao(), FakeBloodPressureDao(), FakeGlucoseDao(), FakeActivityDao(), FakeWaistCircumferenceDao(),
-            FakeOxygenSaturationDao()
+            FakeOxygenSaturationDao(), FakeFluidIntakeDao()
         )
         val profileId = ProfileId.generate()
         val older = OxygenSaturationEntry(MeasurementId.generate(), profileId, Instant.parse("2026-09-20T08:00:00Z"), OxygenSaturationPercent(95))
@@ -289,7 +328,7 @@ class RoomRepositoriesTest {
         val activityDao = FakeActivityDao()
         val waistDao = FakeWaistCircumferenceDao()
 
-        val repo = RoomHealthLogRepository(weightDao, bpDao, glucoseDao, activityDao, waistDao, FakeOxygenSaturationDao())
+        val repo = RoomHealthLogRepository(weightDao, bpDao, glucoseDao, activityDao, waistDao, FakeOxygenSaturationDao(), FakeFluidIntakeDao())
         val profileId = ProfileId.generate()
 
         // Weight
@@ -387,7 +426,7 @@ class RoomRepositoriesTest {
 
     @Test
     fun `RoomHealthLogRepository keeps comments on save and update for every metric`() = runBlocking {
-        val repo = RoomHealthLogRepository(FakeWeightDao(), FakeBloodPressureDao(), FakeGlucoseDao(), FakeActivityDao(), FakeWaistCircumferenceDao(), FakeOxygenSaturationDao())
+        val repo = RoomHealthLogRepository(FakeWeightDao(), FakeBloodPressureDao(), FakeGlucoseDao(), FakeActivityDao(), FakeWaistCircumferenceDao(), FakeOxygenSaturationDao(), FakeFluidIntakeDao())
         val profileId = ProfileId.generate()
         val t = Instant.parse("2026-09-27T10:00:00Z")
         val note = EntryComment("note, with comma")
@@ -421,5 +460,29 @@ class RoomRepositoriesTest {
         assertEquals(note, repo.getWaistCircumferenceHistory(profileId).single().comment)
         repo.updateWaistCircumference(waist.copy(comment = null))
         assertNull(repo.getWaistCircumferenceHistory(profileId).single().comment)
+    }
+
+    @Test
+    fun `RoomHealthLogRepository keeps fluid entries with the drink and the persons own limits`() = runBlocking {
+        val repo = RoomHealthLogRepository(
+            FakeWeightDao(), FakeBloodPressureDao(), FakeGlucoseDao(), FakeActivityDao(), FakeWaistCircumferenceDao(),
+            FakeOxygenSaturationDao(), FakeFluidIntakeDao()
+        )
+        val profileId = ProfileId.generate()
+        assertEquals(FluidLimits.NONE, repo.getFluidLimits(profileId))
+        val entry = FluidIntakeEntry(
+            MeasurementId.generate(), profileId, Instant.parse("2026-11-14T08:00:00Z"), FluidDrink.COFFEE, FluidMl(125)
+        )
+        repo.saveFluidIntake(entry)
+        assertEquals(listOf(entry), repo.getFluidHistory(profileId))
+        assertTrue(repo.updateFluidIntake(entry.copy(amount = FluidMl(250))))
+        assertEquals(250, repo.getFluidHistory(profileId).single().amount.value)
+        repo.saveFluidLimits(profileId, FluidLimits(1400, 2000))
+        assertEquals(FluidLimits(1400, 2000), repo.getFluidLimits(profileId))
+        assertTrue(repo.deleteFluidIntake(entry.id))
+        assertTrue(repo.getFluidHistory(profileId).isEmpty())
+        // Clearing the limits never touches entries and never invents a number.
+        repo.saveFluidLimits(profileId, FluidLimits.NONE)
+        assertEquals(FluidLimits.NONE, repo.getFluidLimits(profileId))
     }
 }

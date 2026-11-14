@@ -139,4 +139,4 @@ class FakeHealthLogRepository :
         flow { emit(getWaistCircumferenceHistory(profileId)) }
 }
 
-fun FakeHealthLogRepository.healthHistoryUseCase() = GetHealthHistoryUseCase(this, this, this, this, this, this)
+fun FakeHealthLogRepository.healthHistoryUseCase() = GetHealthHistoryUseCase(this, this, this, this, this, this, this)

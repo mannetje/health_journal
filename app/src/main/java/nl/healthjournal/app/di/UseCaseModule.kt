@@ -12,6 +12,7 @@ import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
 import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
 import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
 import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
 import nl.healthjournal.domain.backup.usecase.CreateBackupUseCase
 import nl.healthjournal.domain.backup.usecase.RestoreBackupUseCase
 import nl.healthjournal.domain.metrics.usecase.GetHealthHistoryUseCase
@@ -32,8 +33,9 @@ object UseCaseModule {
         glucose: GlucoseRepositoryPort,
         activity: ActivityRepositoryPort,
         waist: WaistCircumferenceRepositoryPort,
-        oxygen: OxygenSaturationRepositoryPort
-    ) = GetHealthHistoryUseCase(weight, bloodPressure, glucose, activity, waist, oxygen)
+        oxygen: OxygenSaturationRepositoryPort,
+        fluid: FluidRepositoryPort
+    ) = GetHealthHistoryUseCase(weight, bloodPressure, glucose, activity, waist, oxygen, fluid)
 
     @Provides
     fun createBackup(snapshot: BackupSnapshotPort, codec: BackupCodecPort) = CreateBackupUseCase(snapshot, codec)

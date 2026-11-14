@@ -325,6 +325,9 @@
     <string name="log_err_duration">Please enter a valid duration in minutes</string>
     <string name="log_err_distance">Please enter a valid distance in %1$s</string>
     <string name="log_err_waist">Please enter a valid waist circumference (40–200 cm)</string>
+    <string name="fluid_err_amount">Please enter an amount between 10 and 5000 ml</string>
+    <string name="fluid_err_limit">Please enter a number between 100 and 10000 ml</string>
+    <string name="fluid_err_min_above_max">The minimum cannot be above the maximum</string>
     <string name="log_choose_value_hint">Scroll or type to set a value. The starting position is not recorded.</string>
     <string name="log_picker_not_set">not set yet</string>
     <string name="log_picker_state">%1$s, %2$s</string>

@@ -41,8 +41,8 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1), HeightCm(180))
         profileRepo.save(profile)
 
-        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         // Empty export produces header-only CSV
         val emptyCsv = exportAdapter.exportWeightCsv(profile.id)
@@ -80,8 +80,8 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val entry = BloodPressureEntry(
             MeasurementId.generate(), profile.id, Instant.parse("2026-09-20T08:00:00Z"),
@@ -107,8 +107,8 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val entry = GlucoseEntry(
             MeasurementId.generate(), profile.id, Instant.parse("2026-09-20T08:00:00Z"),
@@ -134,8 +134,8 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val session = ActivitySession(
             MeasurementId.generate(), profile.id,
@@ -163,7 +163,7 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val malformedCsv = """
             timestamp,weight_kg,bmi
@@ -189,7 +189,7 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val csv = """
             timestamp,weight_kg,bmi
@@ -214,7 +214,7 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1), HeightCm(180))
         profileRepo.save(profile)
 
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val libraCsv = """
             #Version: 6
@@ -239,7 +239,7 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val libraCsv = """
             #Version: 6
@@ -263,7 +263,7 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         // File with extra metadata, optional trailing columns, and a comment line in the body
         val libraCsv = """
@@ -288,7 +288,7 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val libraCsv = """
             #Version: 6
@@ -312,7 +312,7 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val libraCsv = """
             #Version: 6
@@ -333,7 +333,7 @@ class CsvAdaptersTest {
         val profileRepo = InMemoryProfileRepository()
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1), height?.let { HeightCm(it) })
         runBlocking { profileRepo.save(profile) }
-        return Triple(logRepo, profile, CsvDataImportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo, profileRepo))
+        return Triple(logRepo, profile, CsvDataImportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo, logRepo, profileRepo))
     }
 
     private fun lines(vararg l: String) = l.joinToString("\n")
@@ -375,7 +375,7 @@ class CsvAdaptersTest {
                 BloodPressureReading(185, 95), NhgBloodPressureCategory.SERIOUSLY_RAISED
             )
         )
-        val csv = CsvDataExportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo).exportBloodPressureCsv(profile.id)
+        val csv = CsvDataExportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo, logRepo).exportBloodPressureCsv(profile.id)
         assertTrue(csv.contains("2026-09-20T08:00:00Z,185,95,,SERIOUSLY_RAISED"))
 
         logRepo.bloodPressures.clear()
@@ -417,8 +417,8 @@ class CsvAdaptersTest {
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
 
-        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         // Empty export produces header-only CSV
         val emptyCsv = exportAdapter.exportWaistCircumferenceCsv(profile.id)
@@ -461,7 +461,7 @@ class CsvAdaptersTest {
             sex = nl.healthjournal.domain.profile.model.Sex.FEMALE
         )
         profileRepo.save(profile)
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         // File claims HEALTHY but the value (82 cm for female) should be INCREASED_RISK
         val csv = lines(
@@ -479,8 +479,8 @@ class CsvAdaptersTest {
         val profileRepo = InMemoryProfileRepository()
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
-        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val exportAdapter = CsvDataExportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         assertEquals(
             "timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n",
@@ -520,7 +520,7 @@ class CsvAdaptersTest {
         val profileRepo = InMemoryProfileRepository()
         val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
         profileRepo.save(profile)
-        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
+        val importAdapter = CsvDataImportAdapter(healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, healthLogRepo, profileRepo)
 
         val csv = lines(
             "timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment",
@@ -550,7 +550,7 @@ class CsvAdaptersTest {
                 WeightKg(BigDecimal("75.0")), null, EntryComment(text)
             )
         )
-        val csv = CsvDataExportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo).exportWeightCsv(profile.id)
+        val csv = CsvDataExportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo, logRepo).exportWeightCsv(profile.id)
         assertTrue(csv.contains(",\"dizzy, then \"\"fine\"\"\"\n"))
 
         logRepo.weights.clear()
@@ -562,7 +562,7 @@ class CsvAdaptersTest {
     @Test
     fun `comment round trips for every entry type`() = runBlocking {
         val (logRepo, profile, importer) = importSetup()
-        val export = CsvDataExportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo)
+        val export = CsvDataExportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo, logRepo)
         val comment = EntryComment("after a walk")
         val at = Instant.parse("2026-09-20T08:00:00Z")
         logRepo.saveBloodPressure(

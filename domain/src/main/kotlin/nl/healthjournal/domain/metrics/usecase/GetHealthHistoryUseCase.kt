@@ -13,6 +13,8 @@ import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
 import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
 import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
 import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
 
 data class HealthHistory(
     val weights: List<WeightEntry>,
@@ -20,7 +22,8 @@ data class HealthHistory(
     val glucoses: List<GlucoseEntry>,
     val activities: List<ActivitySession>,
     val waistCircumferences: List<WaistCircumferenceEntry> = emptyList(),
-    val oxygenSaturations: List<OxygenSaturationEntry> = emptyList()
+    val oxygenSaturations: List<OxygenSaturationEntry> = emptyList(),
+    val fluidIntakes: List<FluidIntakeEntry> = emptyList()
 )
 
 class GetHealthHistoryUseCase(
@@ -29,7 +32,8 @@ class GetHealthHistoryUseCase(
     private val glucoseRepository: GlucoseRepositoryPort,
     private val activityRepository: ActivityRepositoryPort,
     private val waistCircumferenceRepository: WaistCircumferenceRepositoryPort,
-    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort
+    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort,
+    private val fluidRepository: FluidRepositoryPort
 ) {
     suspend operator fun invoke(profileId: ProfileId): HealthHistory {
         return HealthHistory(
@@ -38,7 +42,8 @@ class GetHealthHistoryUseCase(
             glucoses = glucoseRepository.getGlucoseHistory(profileId),
             activities = activityRepository.getActivityHistory(profileId),
             waistCircumferences = waistCircumferenceRepository.getWaistCircumferenceHistory(profileId),
-            oxygenSaturations = oxygenSaturationRepository.getOxygenSaturationHistory(profileId)
+            oxygenSaturations = oxygenSaturationRepository.getOxygenSaturationHistory(profileId),
+            fluidIntakes = fluidRepository.getFluidHistory(profileId)
         )
     }
 }

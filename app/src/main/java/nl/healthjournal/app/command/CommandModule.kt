@@ -35,6 +35,15 @@ import nl.healthjournal.domain.metrics.command.RecordBloodPressureCommand
 import nl.healthjournal.domain.metrics.command.RecordBloodPressureHandler
 import nl.healthjournal.domain.metrics.command.RecordGlucoseCommand
 import nl.healthjournal.domain.metrics.command.RecordGlucoseHandler
+import nl.healthjournal.domain.metrics.command.ObserveFluidLimitsHandler
+import nl.healthjournal.domain.metrics.command.ObserveFluidLimitsQuery
+import nl.healthjournal.domain.metrics.command.RecordFluidIntakeCommand
+import nl.healthjournal.domain.metrics.command.RecordFluidIntakeHandler
+import nl.healthjournal.domain.metrics.command.SetFluidLimitsCommand
+import nl.healthjournal.domain.metrics.command.SetFluidLimitsHandler
+import nl.healthjournal.domain.metrics.command.UpdateFluidIntakeCommand
+import nl.healthjournal.domain.metrics.command.UpdateFluidIntakeHandler
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
 import nl.healthjournal.domain.metrics.command.RecordOxygenSaturationCommand
 import nl.healthjournal.domain.metrics.command.RecordOxygenSaturationHandler
 import nl.healthjournal.domain.metrics.command.RecordWaistCircumferenceCommand
@@ -150,8 +159,9 @@ object CommandModule {
         activity: ActivityRepositoryPort,
         waist: WaistCircumferenceRepositoryPort,
         oxygen: OxygenSaturationRepositoryPort,
-        migraine: MigraineRepositoryPort
-    ): EntryGateway = PortEntryGateway(weight, bloodPressure, glucose, activity, waist, oxygen, migraine)
+        migraine: MigraineRepositoryPort,
+        fluid: FluidRepositoryPort
+    ): EntryGateway = PortEntryGateway(weight, bloodPressure, glucose, activity, waist, oxygen, migraine, fluid)
 
     @Provides @IntoMap @ClassKey(DeleteEntryCommand::class)
     fun deleteEntry(gateway: EntryGateway): CommandHandler<*, *> = DeleteEntryHandler(gateway)
@@ -210,6 +220,18 @@ object CommandModule {
     @Provides @IntoMap @ClassKey(GetHistoryQuery::class)
     fun getHistory(health: GetHealthHistoryUseCase, migraines: MigraineRepositoryPort): QueryHandler<*, *> =
         GetHistoryHandler(health, migraines)
+
+    @Provides @IntoMap @ClassKey(RecordFluidIntakeCommand::class)
+    fun recordFluidIntake(fluid: FluidRepositoryPort, clock: Clock): CommandHandler<*, *> = RecordFluidIntakeHandler(fluid, clock)
+
+    @Provides @IntoMap @ClassKey(UpdateFluidIntakeCommand::class)
+    fun updateFluidIntake(fluid: FluidRepositoryPort): CommandHandler<*, *> = UpdateFluidIntakeHandler(fluid)
+
+    @Provides @IntoMap @ClassKey(SetFluidLimitsCommand::class)
+    fun setFluidLimits(fluid: FluidRepositoryPort): CommandHandler<*, *> = SetFluidLimitsHandler(fluid)
+
+    @Provides @IntoMap @ClassKey(ObserveFluidLimitsQuery::class)
+    fun observeFluidLimits(fluid: FluidRepositoryPort): ObserveQueryHandler<*, *> = ObserveFluidLimitsHandler(fluid)
 
     @Provides @IntoMap @ClassKey(ObserveMigraineHistoryQuery::class)
     fun observeMigraineHistory(migraines: MigraineRepositoryPort): ObserveQueryHandler<*, *> =

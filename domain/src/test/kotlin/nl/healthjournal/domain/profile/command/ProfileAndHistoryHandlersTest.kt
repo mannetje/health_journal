@@ -64,7 +64,7 @@ class ProfileAndHistoryHandlersTest {
         val migraines = FakeMigraineRepository()
         val profile = Profile.create("A", born).also { profiles.profiles[it.id] = it }
         migraines.saveMigraine(MigraineEntry(MeasurementId.generate(), profile.id, Instant.parse("2026-01-01T08:00:00Z")))
-        val useCase = GetHealthHistoryUseCase(health, health, health, health, health, health)
+        val useCase = GetHealthHistoryUseCase(health, health, health, health, health, health, health)
         val snapshot = GetHistoryHandler(useCase, migraines).handle(GetHistoryQuery(profile.id)).getOrNull()!!
         assertEquals(1, snapshot.migraines.size)
         assertTrue(snapshot.health.weights.isEmpty())

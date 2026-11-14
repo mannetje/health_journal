@@ -325,6 +325,9 @@
     <string name="log_err_duration">Voer een geldige duur in minuten in</string>
     <string name="log_err_distance">Voer een geldige afstand in (%1$s)</string>
     <string name="log_err_waist">Voer een geldige middelomtrek in (40–200 cm)</string>
+    <string name="fluid_err_amount">Voer een hoeveelheid in tussen 10 en 5000 ml</string>
+    <string name="fluid_err_limit">Voer een getal in tussen 100 en 10000 ml</string>
+    <string name="fluid_err_min_above_max">Het minimum mag niet hoger zijn dan het maximum</string>
     <string name="log_choose_value_hint">Scroll of typ om een waarde in te stellen. De beginpositie wordt niet opgeslagen.</string>
     <string name="log_picker_not_set">nog niet ingesteld</string>
     <string name="log_picker_state">%1$s, %2$s</string>
