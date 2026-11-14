@@ -4,6 +4,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.7.4] - 2026-11-14
+
 ### Added
 - **Your own drink portions:** a "Your portions" card on the Fluid tab sets how many ml one tap adds for each drink (10 to 500 ml). The app still suggests no amount. English and Dutch.
 
@@ -328,7 +330,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.3...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.4...HEAD
+[1.7.4]: https://github.com/mannetje/health_journal/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/mannetje/health_journal/compare/v1.7.2...v1.7.3
 [1.7.2]: https://github.com/mannetje/health_journal/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/mannetje/health_journal/compare/v1.7.0...v1.7.1
