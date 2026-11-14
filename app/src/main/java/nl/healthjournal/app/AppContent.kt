@@ -114,6 +114,11 @@ fun AppContent(
 
     val configuration = LocalConfiguration.current
     val navigationLayout = AdaptiveLayout.navigationLayout(configuration.screenWidthDp, configuration.screenHeightDp)
+    val historyTwoPane = AdaptiveLayout.historyTwoPane(configuration.screenWidthDp)
+    val contentMaxWidthDp = AdaptiveLayout.contentMaxWidthDp(
+        historyTwoPane && navigation.currentTab == AppNavDestination.HISTORY &&
+            !navigation.showPillbox && !navigation.showMindfulness
+    )
 
     Scaffold(
         topBar = {
@@ -153,7 +158,7 @@ fun AppContent(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                     Box(
                         modifier = Modifier
-                            .widthIn(max = AdaptiveLayout.CONTENT_MAX_WIDTH_DP.dp)
+                            .widthIn(max = contentMaxWidthDp.dp)
                             .fillMaxWidth()
                             .fillMaxHeight()
                     ) {
@@ -182,7 +187,7 @@ fun AppContent(
                                 }
                             )
                             AppNavDestination.HISTORY ->
-                                HistoryScreen(viewModel = viewModels.history, migraineViewModel = viewModels.migraine)
+                                HistoryScreen(viewModel = viewModels.history, migraineViewModel = viewModels.migraine, twoPane = historyTwoPane)
                             AppNavDestination.PROFILE -> ProfileRoute(
                                 viewModel = viewModels.profile,
                                 settings = settings,

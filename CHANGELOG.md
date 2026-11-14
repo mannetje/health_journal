@@ -6,6 +6,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ### Added
 - **Adaptive layouts:** on a tablet, an unfolded foldable or a phone in landscape the bottom bar becomes a navigation rail on the left, and the content is capped at 840 dp and centred instead of stretching over the whole window. A portrait phone looks the same as before. Light and dark screenshots are in `docs/screenshots.md`, the thresholds in `docs/dev/adaptive-layouts.md`.
+- **History shows entries and chart side by side on wide windows:** from 900 dp wide (a tablet in landscape) the History tab with a metric selected shows the entries on the left and the chart and statistics on the right, with the range chips above both and no graph/list toggle. Narrower windows, including a tablet in portrait, work as before.
 
 ### Changed
 - **Build tooling, no behaviour change:** the build now uses Android Gradle plugin 9.5.1 with Gradle 9.9.1 (built-in Kotlin, so the separate Kotlin Android plugin is gone), Hilt 2.60.1 and KSP 2.3.14, and compiles against Android API 36.1 as the biometric library requires. The app still supports Android 8.0 and later (`minSdk` 26). The Compose BOM moves to 2026.05.00 so the code is compiled against the same Compose 1.11.1 that already ran in the app (the old BOM pinned 1.7.4 for compiling only, which AGP 9 no longer hides), and one Compose read in `MainActivity` is now an explicit one-time read; the screens look and behave the same. Dependabot no longer caps Hilt.

@@ -36,4 +36,19 @@ class AdaptiveLayoutTest {
     fun contentIsCappedAt840Dp() {
         assertEquals(840, AdaptiveLayout.CONTENT_MAX_WIDTH_DP)
     }
+
+    @Test
+    fun historyHasTwoPanesFrom900Dp() {
+        assertEquals(false, AdaptiveLayout.historyTwoPane(widthDp = 411))
+        assertEquals(false, AdaptiveLayout.historyTwoPane(widthDp = 800))
+        assertEquals(false, AdaptiveLayout.historyTwoPane(widthDp = 899))
+        assertEquals(true, AdaptiveLayout.historyTwoPane(widthDp = 900))
+        assertEquals(true, AdaptiveLayout.historyTwoPane(widthDp = 1280))
+    }
+
+    @Test
+    fun twoPaneHistoryUsesTheWiderCap() {
+        assertEquals(1240, AdaptiveLayout.contentMaxWidthDp(historyTwoPane = true))
+        assertEquals(840, AdaptiveLayout.contentMaxWidthDp(historyTwoPane = false))
+    }
 }
