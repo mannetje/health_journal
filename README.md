@@ -296,7 +296,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0027: Sleep Log Without Assessment](docs/adr/0027-sleep-log-without-assessment.md)
 - [ADR 0028: Mood Log Without Assessment](docs/adr/0028-mood-log-without-assessment.md)
 - [ADR 0029: Body Temperature Without Assessment](docs/adr/0029-body-temperature-without-assessment.md)
-- [ADR 0030: Fluid Intake as a Quick Log Without Target](docs/adr/0030-fluid-intake-quick-log-without-target.md)
+- [ADR 0030: Fluid Intake as a Quick Log With Personal Limits](docs/adr/0030-fluid-intake-quick-log-with-personal-limits.md)
 - [ADR 0031: Daily Activity Typed by Hand, Without Targets or Sensors](docs/adr/0031-daily-activity-typed-by-hand-without-targets.md)
 - [ADR 0032: Energy Level as a 0-10 Rating Without Assessment](docs/adr/0032-energy-level-without-assessment.md)
 - [ADR 0033: Pickers Start from the Person's Own Entries Only](docs/adr/0033-picker-starts-from-own-entries-only.md)
