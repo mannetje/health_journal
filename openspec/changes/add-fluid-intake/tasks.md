@@ -26,7 +26,7 @@
 ## 2. App (`:app`)
 - [x] 2.1 Fluid card: one button per drink with the count stepper, custom entry form with a drink choice, Today line (with and without limits, with the position label), portion settings, "Your limits" fields with clear for each, Undo
 - [x] 2.1a Visual design: `DrinkTile` grid with own-drawn icons for the seven drinks (light and dark), `FluidGlass` gauge (scale from the person's own number, steps of one glass without one, ripple, haptic tick, reduced motion), today strip of drink icons; no streaks, badges or motivational text; previews and the wide layout
-- [ ] 2.2 Reference note "About these amounts" (sheet, sources and links, never fills a field)
+- [x] 2.2 Reference note "About these amounts" (sheet, sources and links, never fills a field)
 - [x] 2.3 History rows, day-total rows with the position label under the Fluid filter, filter chip, edit dialog, delete
 - [x] 2.4 Graph view like the Migraine view: Graph and Calendar toggle and range chips; figures, daily bar chart with up to two dashed lines, weekday chart, time-of-day chart, drinks chart; chart descriptions
 - [x] 2.4a Fluid calendar card: month grid with the total in each logged day, one-hue shading, position markers with legend when limits are set, previous and next month, tap a day to open it in History; reuse the Migraine calendar parts

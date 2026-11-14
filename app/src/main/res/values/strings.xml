@@ -960,6 +960,8 @@
     <string name="fluid_portions_title">Your portions</string>
     <string name="fluid_portions_help">How many ml one tap adds for each drink (10 to 500). Only you set these.</string>
     <string name="fluid_portions_save">Save portions</string>
+    <string name="fluid_source_voedingscentrum">Source: Voedingscentrum, Vocht</string>
+    <string name="fluid_source_thuisarts">Source: Thuisarts, Uitdroging</string>
     <string name="fluid_reference_title">About these amounts</string>
     <string name="fluid_reference_body">The Voedingscentrum says adults need at least about 1.4 litres a day from drinks, more in warm weather, with illness or when exercising, and that all drinks count. A doctor can set a personal maximum, for example with heart failure; hospital leaflets often mention 1.5 to 2 litres. This is information, not advice from the app. Talk to your huisarts about your own amount.</string>
     <string name="fluid_gauge_title">Gauge</string>

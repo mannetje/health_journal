@@ -960,6 +960,8 @@
     <string name="fluid_portions_title">Jouw porties</string>
     <string name="fluid_portions_help">Hoeveel ml één tik toevoegt per drankje (10 tot 500). Alleen jij stelt dit in.</string>
     <string name="fluid_portions_save">Porties opslaan</string>
+    <string name="fluid_source_voedingscentrum">Bron: Voedingscentrum, Vocht</string>
+    <string name="fluid_source_thuisarts">Bron: Thuisarts, Uitdroging</string>
     <string name="fluid_reference_title">Over deze hoeveelheden</string>
     <string name="fluid_reference_body">Het Voedingscentrum noemt voor volwassenen minstens ongeveer 1,4 liter per dag uit drinken, meer bij warm weer, ziekte of sporten, en alle drankjes tellen mee. Een arts kan een eigen maximum vaststellen, bijvoorbeeld bij hartfalen; folders van ziekenhuizen noemen vaak 1,5 tot 2 liter. Dit is informatie, geen advies van de app. Bespreek je eigen hoeveelheid met je huisarts.</string>
     <string name="fluid_gauge_title">Weergave</string>

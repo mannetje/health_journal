@@ -45,6 +45,10 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -114,7 +118,8 @@ fun FluidLogScreen(viewModel: FluidLogViewModel, modifier: Modifier = Modifier) 
                 Row(Modifier.fillMaxWidth().padding(start = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         stringResource(R.string.fluid_added, stringResource(last.drink.nameRes), last.amount.value),
-                        Modifier.weight(1f), color = MaterialTheme.colorScheme.onSecondaryContainer
+                        Modifier.weight(1f).semantics { liveRegion = LiveRegionMode.Polite },
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     TextButton(onClick = viewModel::undo) { Text(stringResource(R.string.fluid_undo)) }
                 }
@@ -329,11 +334,20 @@ private fun ReferenceNote() {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(stringResource(R.string.fluid_reference_title), style = MaterialTheme.typography.titleSmall)
             Text(stringResource(R.string.fluid_reference_body), style = MaterialTheme.typography.bodySmall)
+            val uriHandler = LocalUriHandler.current
+            TextButton(onClick = { uriHandler.openUri(VOEDINGSCENTRUM_URL) }, modifier = Modifier.heightIn(min = 48.dp)) {
+                Text(stringResource(R.string.fluid_source_voedingscentrum))
+            }
+            TextButton(onClick = { uriHandler.openUri(THUISARTS_URL) }, modifier = Modifier.heightIn(min = 48.dp)) {
+                Text(stringResource(R.string.fluid_source_thuisarts))
+            }
         }
     }
 }
 
 private const val STRIP_MAX = 8
+private const val VOEDINGSCENTRUM_URL = "https://www.voedingscentrum.nl/encyclopedie/vocht.aspx"
+private const val THUISARTS_URL = "https://www.thuisarts.nl/uitdroging"
 private const val UNDO_MS = 6000L
 
 /** Own-drawn drink icons: simple shapes in the theme colours, no third-party assets and no per-drink status colour. */

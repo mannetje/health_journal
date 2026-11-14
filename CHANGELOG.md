@@ -4,6 +4,12 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Added
+- **Fluid sources:** the "About these amounts" note links to its two sources, the Voedingscentrum and Thuisarts pages, as plain links.
+
+### Fixed
+- **Fluid Undo:** a screen reader now announces "added, ml" when a drink is logged, so the Undo option is no longer silent.
+
 ## [1.7.4] - 2026-11-14
 
 ### Added
