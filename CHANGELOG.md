@@ -5,7 +5,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 ### Changed
-- **Build tooling, no behaviour change:** the build now uses Android Gradle plugin 9.5.1 with Gradle 9.9.1 (built-in Kotlin, so the separate Kotlin Android plugin is gone), Hilt 2.60.1 and KSP 2.3.14, and compiles against Android API 36.1 as the biometric library requires. The app still supports Android 8.0 and later (`minSdk` 26). One screen layout (`FlowRow` in the glucose log) and one Compose read in `MainActivity` were adjusted to build cleanly; the screens look and behave the same. Dependabot no longer caps Hilt.
+- **Build tooling, no behaviour change:** the build now uses Android Gradle plugin 9.5.1 with Gradle 9.9.1 (built-in Kotlin, so the separate Kotlin Android plugin is gone), Hilt 2.60.1 and KSP 2.3.14, and compiles against Android API 36.1 as the biometric library requires. The app still supports Android 8.0 and later (`minSdk` 26). The Compose BOM moves to 2026.05.00 so the code is compiled against the same Compose 1.11.1 that already ran in the app (the old BOM pinned 1.7.4 for compiling only, which AGP 9 no longer hides), and one Compose read in `MainActivity` is now an explicit one-time read; the screens look and behave the same. Dependabot no longer caps Hilt.
 
 ## [1.7.2] - 2026-11-05
 

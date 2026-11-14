@@ -182,7 +182,8 @@ fun LogMetricScreen(
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        itemVerticalAlignment = Alignment.CenterVertically
                     ) {
                         FilterChip(
                             selected = state.glucoseContext == GlucoseContext.FASTING,
@@ -200,13 +201,10 @@ fun LogMetricScreen(
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        itemVerticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            stringResource(R.string.log_unit_label),
-                            modifier = Modifier.align(Alignment.CenterVertically),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Text(stringResource(R.string.log_unit_label), style = MaterialTheme.typography.bodyMedium)
                         FilterChip(
                             selected = units.glucose == GlucoseUnit.MMOL_PER_L,
                             onClick = { onGlucoseUnitSelected(GlucoseUnit.MMOL_PER_L) },
