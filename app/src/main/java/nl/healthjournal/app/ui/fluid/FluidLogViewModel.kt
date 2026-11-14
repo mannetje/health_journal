@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import nl.healthjournal.app.R
+import nl.healthjournal.app.settings.DrinkPortionsPreference
 import nl.healthjournal.app.settings.FluidGaugePreference
 import nl.healthjournal.app.settings.FluidGaugeStyle
 import nl.healthjournal.app.ui.common.UiText
@@ -57,12 +59,13 @@ class FluidLogViewModel(
     private val dispatcher: Dispatcher,
     private val clock: Clock,
     private val zone: () -> ZoneId,
-    private val gauge: FluidGaugePreference? = null
+    private val gauge: FluidGaugePreference? = null,
+    private val portionsPreference: DrinkPortionsPreference? = null
 ) : ViewModel() {
 
     @Inject
-    constructor(dispatcher: Dispatcher, gauge: FluidGaugePreference) :
-        this(dispatcher, Clock.systemDefaultZone(), { ZoneId.systemDefault() }, gauge)
+    constructor(dispatcher: Dispatcher, gauge: FluidGaugePreference, portions: DrinkPortionsPreference) :
+        this(dispatcher, Clock.systemDefaultZone(), { ZoneId.systemDefault() }, gauge, portions)
 
     private val _uiState = MutableStateFlow(FluidUiState())
     val uiState: StateFlow<FluidUiState> = _uiState.asStateFlow()
@@ -74,7 +77,27 @@ class FluidLogViewModel(
         gauge?.let { pref ->
             viewModelScope.launch { pref.style.collect { _uiState.value = _uiState.value.copy(gaugeStyle = it) } }
         }
+        portionsPreference?.let { pref ->
+            viewModelScope.launch { pref.portions.collect { _uiState.value = _uiState.value.copy(portions = it) } }
+        }
         loadProfile()
+    }
+
+    /**
+     * Saves the person's own portions, drink by drink; a null keeps that drink's current portion. Nothing is saved
+     * unless every number is 10 to 500 ml. Returns whether it was saved.
+     */
+    fun savePortions(values: Map<FluidDrink, Int?>): Boolean {
+        val current = _uiState.value.portions
+        if (values.values.any { it != null && !DrinkPortions.isValid(it) }) {
+            _uiState.value = _uiState.value.copy(message = UiText.Res(R.string.fluid_err_portion))
+            return false
+        }
+        val updated = values.entries.fold(current) { acc, (drink, ml) -> if (ml == null) acc else acc.with(drink, ml) }
+        if (portionsPreference != null) portionsPreference.save(updated)
+        else _uiState.value = _uiState.value.copy(portions = updated)
+        _uiState.value = _uiState.value.copy(message = null)
+        return true
     }
 
     fun setGaugeStyle(style: FluidGaugeStyle) {

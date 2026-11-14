@@ -326,6 +326,7 @@
     <string name="log_err_distance">Voer een geldige afstand in (%1$s)</string>
     <string name="log_err_waist">Voer een geldige middelomtrek in (40–200 cm)</string>
     <string name="fluid_err_amount">Voer een hoeveelheid in tussen 10 en 5000 ml</string>
+    <string name="fluid_err_portion">Voer een portie in tussen 10 en 500 ml</string>
     <string name="fluid_err_limit">Voer een getal in tussen 100 en 10000 ml</string>
     <string name="fluid_err_min_above_max">Het minimum mag niet hoger zijn dan het maximum</string>
     <string name="log_choose_value_hint">Scroll of typ om een waarde in te stellen. De beginpositie wordt niet opgeslagen.</string>
@@ -956,6 +957,9 @@
     <string name="fluid_min_label">Minimum (ml)</string>
     <string name="fluid_max_label">Maximum (ml)</string>
     <string name="fluid_limits_save">Opslaan</string>
+    <string name="fluid_portions_title">Jouw porties</string>
+    <string name="fluid_portions_help">Hoeveel ml één tik toevoegt per drankje (10 tot 500). Alleen jij stelt dit in.</string>
+    <string name="fluid_portions_save">Porties opslaan</string>
     <string name="fluid_reference_title">Over deze hoeveelheden</string>
     <string name="fluid_reference_body">Het Voedingscentrum noemt voor volwassenen minstens ongeveer 1,4 liter per dag uit drinken, meer bij warm weer, ziekte of sporten, en alle drankjes tellen mee. Een arts kan een eigen maximum vaststellen, bijvoorbeeld bij hartfalen; folders van ziekenhuizen noemen vaak 1,5 tot 2 liter. Dit is informatie, geen advies van de app. Bespreek je eigen hoeveelheid met je huisarts.</string>
     <string name="fluid_gauge_title">Weergave</string>

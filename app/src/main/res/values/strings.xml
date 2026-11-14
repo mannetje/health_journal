@@ -326,6 +326,7 @@
     <string name="log_err_distance">Please enter a valid distance in %1$s</string>
     <string name="log_err_waist">Please enter a valid waist circumference (40–200 cm)</string>
     <string name="fluid_err_amount">Please enter an amount between 10 and 5000 ml</string>
+    <string name="fluid_err_portion">Please enter a portion between 10 and 500 ml</string>
     <string name="fluid_err_limit">Please enter a number between 100 and 10000 ml</string>
     <string name="fluid_err_min_above_max">The minimum cannot be above the maximum</string>
     <string name="log_choose_value_hint">Scroll or type to set a value. The starting position is not recorded.</string>
@@ -956,6 +957,9 @@
     <string name="fluid_min_label">Minimum (ml)</string>
     <string name="fluid_max_label">Maximum (ml)</string>
     <string name="fluid_limits_save">Save</string>
+    <string name="fluid_portions_title">Your portions</string>
+    <string name="fluid_portions_help">How many ml one tap adds for each drink (10 to 500). Only you set these.</string>
+    <string name="fluid_portions_save">Save portions</string>
     <string name="fluid_reference_title">About these amounts</string>
     <string name="fluid_reference_body">The Voedingscentrum says adults need at least about 1.4 litres a day from drinks, more in warm weather, with illness or when exercising, and that all drinks count. A doctor can set a personal maximum, for example with heart failure; hospital leaflets often mention 1.5 to 2 litres. This is information, not advice from the app. Talk to your huisarts about your own amount.</string>
     <string name="fluid_gauge_title">Gauge</string>

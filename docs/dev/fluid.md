@@ -31,7 +31,7 @@ The [C4 page](c4.md) has the slice across the three modules, and the [database p
 - **Entries only.** `fluid_intakes` holds one row per entry. A day total, the position label and every chart figure is derived with an injected time zone, so a change of limit or zone rewrites nothing and day boundaries follow the local calendar day.
 - **Limits.** `fluid_settings` has one row per profile with `minMl` and `maxMl`, each null or 100 to 10000, minimum not above maximum. They are set only by the person; nothing fills in, defaults or hints a number. A total equal to a limit is within it.
 - **Drinks.** A fixed list of stable lower-case codes. Every drink counts equally (ml is ml); there is no caffeine, sugar or alcohol attribute. A missing or unknown code reads as Other.
-- **Portions and gauge look.** The portion per drink and the gauge style are display choices kept in preferences, never entries or limits.
+- **Portions and gauge look.** The portion per drink (10 to 500 ml, so ten portions fit one 5000 ml entry) and the gauge style are display choices kept in preferences (`DrinkPortionsPreference`, `FluidGaugePreference`), never entries or limits. The person edits the portions in the "Your portions" card; a missing, unknown or out-of-range stored value reads as the starting portion.
 - **Gauge scale.** The fill is scaled to the person's own maximum, else their own minimum, with a tick for each number set. With neither it fills in whole glasses and shows no scale. No percentage is shown. Animation is skipped when the system asks to reduce motion.
 
 ## Compliance
@@ -51,8 +51,8 @@ The Fluid tab asks for a recount just after each local midnight (`FluidLogViewMo
 
 ## Tests
 
-`FluidModelTest` (domain: ranges, drink parsing, day totals, position, statistics, calendar), `FluidLogViewModelTest` (taps, counts, position, limits, midnight recount, undo, History limits), `FluidGaugePreferenceTest`, the fluid cases in `CsvAdaptersTest` (round trip, duplicates, bad rows) and `BackupFormatTest` (round trip, unknown drink, out-of-range amount, invalid limits), and the mapper, migration 8 to 9, `HandlerRegistryTest` and `MetricSlotTest`. See [Testing](testing.md).
+`FluidModelTest` (domain: ranges, drink parsing, day totals, position, statistics, calendar), `FluidLogViewModelTest` (taps, counts, position, limits, midnight recount, undo, History limits), `FluidGaugePreferenceTest`, `DrinkPortionsPreferenceTest`, `FluidWordingTest` (no coaching, goal or verdict words, position texts carry the number, same strings and placeholders in English and Dutch, no streak or badge in the code), the fluid cases in `CsvAdaptersTest` (round trip, duplicates, bad rows) and `BackupFormatTest` (round trip, unknown drink, out-of-range amount, invalid limits), and the mapper, migration 8 to 9, `HandlerRegistryTest` and `MetricSlotTest`. See [Testing](testing.md).
 
 ## Known gaps
 
-The drink portions are not yet editable in the app, and the Profile notice, the final wording review and the zib check are open items in the change's `tasks.md`.
+The Profile notice and the final English and Dutch wording review are open items in the change's `tasks.md`. The lower-case drink codes in CSV and backup shipped in 1.7.3 and are now part of the format.

@@ -21,7 +21,7 @@
 - [x] 1.5 Entity, DAO, mapper, `fluid_settings(profile_id, min_ml, max_ml)`, one migration from the current version N to N+1, repository; migration test from version N
 - [x] 1.6 CSV export and import (`timestamp,ml,drink,comment`; file without the drink column reads as other) with row rejection; round-trip tests
 - [x] 1.7 Backup snapshot and restore of `fluidEntries`, `fluidMinMl` and `fluidMaxMl`; older-file and null-value tests
-- [ ] 1.8 Preferences for the drink portions with starting values and validation; test that no entry data and no limit is stored in preferences
+- [x] 1.8 Preferences for the drink portions with starting values and validation; test that no entry data and no limit is stored in preferences
 
 ## 2. App (`:app`)
 - [x] 2.1 Fluid card: one button per drink with the count stepper, custom entry form with a drink choice, Today line (with and without limits, with the position label), portion settings, "Your limits" fields with clear for each, Undo

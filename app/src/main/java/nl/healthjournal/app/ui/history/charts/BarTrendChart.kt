@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -56,6 +57,8 @@ fun BarTrendChart(
     val aboveArea = PlotHeight * (above / scale).toFloat() + LabelHeight
     val belowArea = PlotHeight * (below / scale).toFloat() + LabelHeight
     val color = MaterialTheme.colorScheme.secondary
+    // A dashed line may run through a value label; the card's own colour behind the label keeps the number readable.
+    val labelBackground = if (referenceLines.isEmpty()) androidx.compose.ui.graphics.Color.Transparent else CardDefaults.cardColors().containerColor
 
     Row(modifier = modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
         bars.forEach { bar ->
@@ -78,13 +81,13 @@ fun BarTrendChart(
                     contentAlignment = Alignment.BottomCenter
                 ) {
                     if (value != null && value > 0) {
-                        BarWithValue(valueText(value), PlotHeight * (value / scale).toFloat(), color, valueAbove = true)
+                        BarWithValue(valueText(value), PlotHeight * (value / scale).toFloat(), color, valueAbove = true, labelBackground = labelBackground)
                     }
                 }
                 HorizontalDivider()
                 Box(modifier = Modifier.heightIn(min = belowArea).width(SlotWidth), contentAlignment = Alignment.TopCenter) {
                     if (value != null && value < 0) {
-                        BarWithValue(valueText(value), PlotHeight * (abs(value) / scale).toFloat(), color, valueAbove = false)
+                        BarWithValue(valueText(value), PlotHeight * (abs(value) / scale).toFloat(), color, valueAbove = false, labelBackground = labelBackground)
                     }
                 }
                 Text(
@@ -101,7 +104,7 @@ fun BarTrendChart(
 }
 
 @Composable
-private fun BarWithValue(text: String, barHeight: Dp, color: androidx.compose.ui.graphics.Color, valueAbove: Boolean) {
+private fun BarWithValue(text: String, barHeight: Dp, color: androidx.compose.ui.graphics.Color, valueAbove: Boolean, labelBackground: androidx.compose.ui.graphics.Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         val valueLabel = @Composable {
             Text(
@@ -109,7 +112,8 @@ private fun BarWithValue(text: String, barHeight: Dp, color: androidx.compose.ui
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
-                softWrap = false
+                softWrap = false,
+                modifier = Modifier.background(labelBackground)
             )
         }
         val bar = @Composable { Box(modifier = Modifier.width(24.dp).height(barHeight).background(color)) }

@@ -50,6 +50,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.healthjournal.app.R
 import nl.healthjournal.app.ui.common.asString
@@ -125,6 +126,7 @@ fun FluidLogScreen(viewModel: FluidLogViewModel, modifier: Modifier = Modifier) 
         }
 
         LimitsCard(state, viewModel)
+        PortionsCard(state, viewModel)
         GaugeCard(state, viewModel)
         ReferenceNote()
     }
@@ -264,6 +266,35 @@ private fun LimitsCard(state: FluidUiState, viewModel: FluidLogViewModel) {
             }
             Button(onClick = { viewModel.saveLimits(min.toIntOrNull(), max.toIntOrNull()) }) {
                 Text(stringResource(R.string.fluid_limits_save))
+            }
+        }
+    }
+}
+
+@Composable
+private fun PortionsCard(state: FluidUiState, viewModel: FluidLogViewModel) {
+    var values by remember(state.portions) {
+        mutableStateOf(FluidDrink.entries.associateWith { state.portions.of(it).toString() })
+    }
+    Card {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.fluid_portions_title), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.fluid_portions_help), style = MaterialTheme.typography.bodySmall)
+            FluidDrink.entries.chunked(2).forEach { pair ->
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    pair.forEach { drink ->
+                        OutlinedTextField(
+                            value = values.getValue(drink),
+                            onValueChange = { values = values + (drink to it.filter(Char::isDigit).take(3)) },
+                            label = { Text(stringResource(drink.nameRes)) }, singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (pair.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+            Button(onClick = { viewModel.savePortions(values.mapValues { it.value.toIntOrNull() ?: -1 }) }) {
+                Text(stringResource(R.string.fluid_portions_save))
             }
         }
     }
