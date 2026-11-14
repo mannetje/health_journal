@@ -116,7 +116,8 @@ F-Droid also supports reproducible builds: it builds the app, compares it with t
 | GitLab fork `marvinstorage/fdroiddata` | created |
 | Recipe `metadata/nl.healthjournal.yml` | on the fork branch `add-nl.healthjournal` |
 | `fdroid lint`, `rewritemeta`, `checkupdates` | run locally in a Debian container, all pass (lint first failed on the `/master` changelog link, fixed) |
-| `fdroid build` | not run (needs F-Droid's large build image and more memory than the Podman VM has) |
+| `fdroid build` | run locally in F-Droid's `buildserver-trixie` image with CI's flags (`--test --refresh-scanner --on-server --no-tarball nl.healthjournal:37`): builds tag `v1.7.5` in about 2 minutes, unsigned APK of 32 MB |
+| `fdroid scanner` on the built APK | run locally (`--exit-code`): no non-free classes or extra signing blocks, exit 0 |
 | Merge request to `fdroid/fdroiddata` | open: !57386, "New app: Health Journal" |
 | Pipeline for the merge request | cannot run: GitLab asks the account for identity verification (phone or card), which was declined |
 
