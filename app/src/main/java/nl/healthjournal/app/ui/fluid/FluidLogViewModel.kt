@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import nl.healthjournal.app.settings.FluidGaugePreference
+import nl.healthjournal.app.settings.FluidGaugeStyle
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.toUiText
 import nl.healthjournal.domain.metrics.command.ObserveFluidHistoryQuery
@@ -44,7 +46,8 @@ data class FluidUiState(
     val position: FluidPosition = FluidPosition.NONE,
     /** The entry the Undo message would remove: the last tap. */
     val lastAdded: FluidIntakeEntry? = null,
-    val message: UiText? = null
+    val message: UiText? = null,
+    val gaugeStyle: FluidGaugeStyle = FluidGaugeStyle.GLASS
 ) {
     fun countOf(drink: FluidDrink): Int = counts[drink] ?: 1
 }
@@ -53,11 +56,13 @@ data class FluidUiState(
 class FluidLogViewModel(
     private val dispatcher: Dispatcher,
     private val clock: Clock,
-    private val zone: () -> ZoneId
+    private val zone: () -> ZoneId,
+    private val gauge: FluidGaugePreference? = null
 ) : ViewModel() {
 
     @Inject
-    constructor(dispatcher: Dispatcher) : this(dispatcher, Clock.systemDefaultZone(), { ZoneId.systemDefault() })
+    constructor(dispatcher: Dispatcher, gauge: FluidGaugePreference) :
+        this(dispatcher, Clock.systemDefaultZone(), { ZoneId.systemDefault() }, gauge)
 
     private val _uiState = MutableStateFlow(FluidUiState())
     val uiState: StateFlow<FluidUiState> = _uiState.asStateFlow()
@@ -66,7 +71,14 @@ class FluidLogViewModel(
     private var allEntries: List<FluidIntakeEntry> = emptyList()
 
     init {
+        gauge?.let { pref ->
+            viewModelScope.launch { pref.style.collect { _uiState.value = _uiState.value.copy(gaugeStyle = it) } }
+        }
         loadProfile()
+    }
+
+    fun setGaugeStyle(style: FluidGaugeStyle) {
+        gauge?.save(style)
     }
 
     /** Also called after a backup restore or a profile switch. */

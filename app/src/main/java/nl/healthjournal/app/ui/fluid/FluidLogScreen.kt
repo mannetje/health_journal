@@ -16,6 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import nl.healthjournal.app.settings.FluidGaugeStyle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
@@ -111,6 +115,7 @@ fun FluidLogScreen(viewModel: FluidLogViewModel, modifier: Modifier = Modifier) 
         }
 
         LimitsCard(state, viewModel)
+        GaugeCard(state, viewModel)
         ReferenceNote()
     }
 }
@@ -118,12 +123,13 @@ fun FluidLogScreen(viewModel: FluidLogViewModel, modifier: Modifier = Modifier) 
 @Composable
 private fun Summary(state: FluidUiState) {
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-        FluidGlass(
+        FluidGauge(
+            style = state.gaugeStyle,
             totalMl = state.todayMl,
             minMl = state.limits.minMl,
             maxMl = state.limits.maxMl,
             glassMl = state.portions.of(FluidDrink.WATER),
-            modifier = Modifier.width(96.dp).height(140.dp)
+            modifier = Modifier.width(if (state.gaugeStyle == FluidGaugeStyle.GLASS) 96.dp else 80.dp).height(150.dp)
         )
         Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
             Text(stringResource(R.string.fluid_today, state.todayMl), style = MaterialTheme.typography.titleLarge)
@@ -254,6 +260,29 @@ private fun LimitsCard(state: FluidUiState, viewModel: FluidLogViewModel) {
 }
 
 @Composable
+private fun GaugeCard(state: FluidUiState, viewModel: FluidLogViewModel) {
+    val options = listOf(
+        FluidGaugeStyle.GLASS to R.string.fluid_gauge_glass,
+        FluidGaugeStyle.WOMAN to R.string.fluid_gauge_woman,
+        FluidGaugeStyle.MAN to R.string.fluid_gauge_man
+    )
+    Card {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.fluid_gauge_title), style = MaterialTheme.typography.titleMedium)
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                options.forEachIndexed { index, (style, label) ->
+                    SegmentedButton(
+                        selected = state.gaugeStyle == style,
+                        onClick = { viewModel.setGaugeStyle(style) },
+                        shape = SegmentedButtonDefaults.itemShape(index, options.size)
+                    ) { Text(stringResource(label)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun ReferenceNote() {
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -265,54 +294,6 @@ private fun ReferenceNote() {
 
 private const val STRIP_MAX = 8
 private const val UNDO_MS = 6000L
-
-/**
- * A glass that fills with today's total. The scale is the person's own maximum, else their own minimum, with a tick
- * for each number set. With neither it fills in whole glasses and shows no scale, tick or percentage. Animation is
- * skipped when the system asks to reduce motion.
- */
-@Composable
-fun FluidGlass(totalMl: Int, minMl: Int?, maxMl: Int?, glassMl: Int, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val reduceMotion = remember {
-        runCatching { Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }.getOrDefault(false)
-    }
-    val scale = maxMl ?: minMl
-    val target = if (scale != null) (totalMl.toFloat() / scale).coerceIn(0f, 1f)
-    else (totalMl / glassMl.coerceAtLeast(1)).coerceAtMost(GLASSES).toFloat() / GLASSES
-    val level by animateFloatAsState(target, if (reduceMotion) snap() else tween(600), label = "glass")
-    val outline = MaterialTheme.colorScheme.outline
-    val water = MaterialTheme.colorScheme.primary
-    val tick = MaterialTheme.colorScheme.onSurfaceVariant
-    val description = stringResource(R.string.fluid_glass_description, totalMl)
-
-    Canvas(modifier.semantics { contentDescription = description }) {
-        val glass = glassPath(size)
-        clipPath(glass) {
-            val top = size.height * (1f - level)
-            drawRect(water.copy(alpha = 0.55f), topLeft = Offset(0f, top), size = Size(size.width, size.height - top))
-        }
-        drawPath(glass, outline, style = Stroke(width = 3.dp.toPx()))
-        // A tick for each number the person set, on the same scale as the fill.
-        if (scale != null) {
-            listOfNotNull(minMl, maxMl).forEach { n ->
-                val y = size.height * (1f - (n.toFloat() / scale).coerceIn(0f, 1f))
-                drawLine(tick, Offset(size.width * 0.1f, y), Offset(size.width * 0.9f, y), strokeWidth = 2.dp.toPx())
-            }
-        }
-    }
-}
-
-private fun DrawScope.glassPath(size: Size): Path = Path().apply {
-    val inset = size.width * 0.18f
-    moveTo(inset * 0.4f, 0f)
-    lineTo(size.width - inset * 0.4f, 0f)
-    lineTo(size.width - inset, size.height)
-    lineTo(inset, size.height)
-    close()
-}
-
-private const val GLASSES = 8
 
 /** Own-drawn drink icons: simple shapes in the theme colours, no third-party assets and no per-drink status colour. */
 @Composable

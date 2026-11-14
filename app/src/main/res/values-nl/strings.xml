@@ -958,6 +958,11 @@
     <string name="fluid_limits_save">Opslaan</string>
     <string name="fluid_reference_title">Over deze hoeveelheden</string>
     <string name="fluid_reference_body">Het Voedingscentrum noemt voor volwassenen minstens ongeveer 1,4 liter per dag uit drinken, meer bij warm weer, ziekte of sporten, en alle drankjes tellen mee. Een arts kan een eigen maximum vaststellen, bijvoorbeeld bij hartfalen; folders van ziekenhuizen noemen vaak 1,5 tot 2 liter. Dit is informatie, geen advies van de app. Bespreek je eigen hoeveelheid met je huisarts.</string>
+    <string name="fluid_gauge_title">Weergave</string>
+    <string name="fluid_gauge_glass">Glas</string>
+    <string name="fluid_gauge_woman">Vrouw</string>
+    <string name="fluid_gauge_man">Man</string>
+    <string name="fluid_body_description">Lichaamssilhouet met vandaag %1$d ml</string>
     <string name="fluid_history_line">%1$s · %2$d ml</string>
     <string name="fluid_day_total">Dagtotaal %1$d ml</string>
     <string name="fluid_day_filter_clear">Toon alle dagen</string>

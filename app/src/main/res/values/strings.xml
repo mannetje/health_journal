@@ -958,6 +958,11 @@
     <string name="fluid_limits_save">Save</string>
     <string name="fluid_reference_title">About these amounts</string>
     <string name="fluid_reference_body">The Voedingscentrum says adults need at least about 1.4 litres a day from drinks, more in warm weather, with illness or when exercising, and that all drinks count. A doctor can set a personal maximum, for example with heart failure; hospital leaflets often mention 1.5 to 2 litres. This is information, not advice from the app. Talk to your huisarts about your own amount.</string>
+    <string name="fluid_gauge_title">Gauge</string>
+    <string name="fluid_gauge_glass">Glass</string>
+    <string name="fluid_gauge_woman">Woman</string>
+    <string name="fluid_gauge_man">Man</string>
+    <string name="fluid_body_description">Body outline showing %1$d ml today</string>
     <string name="fluid_history_line">%1$s · %2$d ml</string>
     <string name="fluid_day_total">Day total %1$d ml</string>
     <string name="fluid_day_filter_clear">Show all days</string>
