@@ -26,6 +26,7 @@ Health Journal is an offline-first Android app for logging weight, blood pressur
 | 12 | [Backup and restore](backup.md) | read the portable encrypted backup (`.hjbackup`): functional and technical views, create and restore flows, merge rules |
 | 13 | [Mindfulness (the feature)](mindfulness-feature.md) | see the 🪷 area: what the user can do, screen map, domain model, how the breathing timer works, the session object, saved choices, tests, how to extend, build status (Mermaid) |
 | 13a | [Mindfulness (decisions and wording)](mindfulness.md) | read why it is shaped this way: scope, the agreed safety wording, content licences and references |
+| 14 | [Adaptive layouts](adaptive-layouts.md) | see when the bottom bar becomes a navigation rail, the content width cap, and how to test other window sizes |
 
 How-to guides for common changes:
 

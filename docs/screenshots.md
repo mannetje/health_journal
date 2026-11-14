@@ -161,3 +161,13 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 | Light | Dark |
 |---|---|
 | <img src="screenshots/light-metric-order.png" width="250" alt="Profile tab with the Metric order list: Migraine, Activity, Weight, Blood Pressure, Glucose, Waist, each row with move up, move down and drag handle buttons, light theme"> | <img src="screenshots/dark-metric-order.png" width="250" alt="Profile tab with the Metric order list: Migraine, Activity, Weight, Blood Pressure, Glucose, Waist, each row with move up, move down and drag handle buttons, dark theme"> |
+
+**Adaptive layouts** (the bottom bar becomes a navigation rail on windows at least 600 dp wide or lower than 480 dp, such as a phone in landscape or a tablet; the content is capped at 840 dp and centred; captured on a Pixel Tablet emulator, the landscape phone by resizing its display to 1080x2400 at 420 dpi)
+
+| | Light | Dark |
+|---|---|---|
+| Phone, landscape | <img src="screenshots/light-adaptive-landscape-log.png" width="400" alt="Log screen on a phone in landscape with a navigation rail on the left instead of the bottom bar, light theme"> | <img src="screenshots/dark-adaptive-landscape-log.png" width="400" alt="Log screen on a phone in landscape with a navigation rail on the left instead of the bottom bar, dark theme"> |
+| Tablet | <img src="screenshots/light-adaptive-tablet-log.png" width="400" alt="Log screen on a tablet with a navigation rail and the form centred at a capped width, light theme"> | <img src="screenshots/dark-adaptive-tablet-log.png" width="400" alt="Log screen on a tablet with a navigation rail and the form centred at a capped width, dark theme"> |
+| Tablet, History | <img src="screenshots/light-adaptive-tablet-history.png" width="400" alt="History on a tablet with the weight entries on the left and the trend chart and statistics on the right, light theme"> | <img src="screenshots/dark-adaptive-tablet-history.png" width="400" alt="History on a tablet with the weight entries on the left and the trend chart and statistics on the right, dark theme"> |
+
+From 900 dp wide, History with a metric selected (Weight, BP, Glucose, Migraine, Waist, Oxygen) shows the entries and the chart with its statistics side by side, so the graph/list toggle is hidden; sample data.

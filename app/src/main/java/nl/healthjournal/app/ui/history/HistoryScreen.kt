@@ -57,6 +57,7 @@ import nl.healthjournal.app.ui.history.charts.WeightTrendSection
 import nl.healthjournal.app.ui.history.charts.filterByDateRange
 import nl.healthjournal.app.ui.migraine.MigraineLogScreen
 import nl.healthjournal.app.ui.migraine.MigraineLogViewModel
+import nl.healthjournal.app.ui.common.AdaptiveLayout
 import nl.healthjournal.app.ui.nhg.RangeSourceNote
 import nl.healthjournal.app.ui.nhg.label
 import nl.healthjournal.app.ui.theme.infoContainerColor
@@ -70,7 +71,8 @@ import nl.healthjournal.app.ui.theme.onInfoContainerColor
 fun HistoryScreen(
     viewModel: HistoryViewModel,
     migraineViewModel: MigraineLogViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    twoPane: Boolean = false
 ) {
     val migraineState by migraineViewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { migraineViewModel.loadProfile() }
@@ -79,7 +81,7 @@ fun HistoryScreen(
             MigraineLogScreen(viewModel = migraineViewModel)
         }
     } else {
-        HistoryList(viewModel, migraineState.tags, migraineViewModel::startEdit, modifier)
+        HistoryList(viewModel, migraineState.tags, migraineViewModel::startEdit, twoPane, modifier)
     }
 }
 
@@ -89,6 +91,7 @@ private fun HistoryList(
     viewModel: HistoryViewModel,
     migraineTags: List<MigraineTag>,
     onEditMigraine: (MigraineEntry) -> Unit,
+    twoPane: Boolean,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -158,7 +161,8 @@ private fun HistoryList(
                 RangeSourceNote(compact = true)
             }
             Spacer(Modifier.weight(1f))
-            if (hasChart) {
+            // With room for two panes the entries and the chart are both visible, so there is nothing to toggle.
+            if (hasChart && !twoPane) {
                 IconButton(onClick = { setGraphView(filterNow, !graphViewNow) }) {
                     Icon(
                         imageVector = if (graphViewNow) ListViewIcon else GraphViewIcon,
@@ -358,88 +362,45 @@ private fun HistoryList(
         // The selected period is derived from the list position, so scrolling and the chips cannot disagree.
         val selectedMonth by remember(timeline) { derivedStateOf { timeline.monthAt(listState.firstVisibleItemIndex) } }
         val scope = rememberCoroutineScope()
-        LaunchedEffect(state.selectedFilter, state.selectedDateRange, graphViewNow) { listState.scrollToItem(0) }
+        LaunchedEffect(state.selectedFilter, state.selectedDateRange, graphViewNow, twoPane) { listState.scrollToItem(0) }
 
         // The range chooses both the chart and the entries, so it stays visible in both views.
         if (hasChart) {
             DateRangeSelector(selected = state.selectedDateRange, onSelect = { viewModel.setDateRange(it) })
         }
 
-        state.migraineDay?.let { day ->
-            if (!graphViewNow && filterNow == HistoryFilter.MIGRAINE) {
-                InputChip(
-                    selected = true,
-                    onClick = { viewModel.clearMigraineDay() },
-                    label = { Text(stringResource(R.string.migraine_day_filter, day.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))) },
-                    trailingIcon = {
-                        Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.migraine_day_filter_clear), modifier = Modifier.size(18.dp))
-                    }
-                )
-            }
-        }
-
-        if (!graphViewNow && timeline.navigable && !state.isLoading) {
-            selectedMonth?.let { month ->
-                TimelineRows(
-                    timeline = timeline,
-                    selected = month,
-                    onMonth = { target -> timeline.indexOf(target)?.let { scope.launch { listState.animateScrollToItem(it) } } },
-                    onYear = { year -> timeline.indexOfYear(year)?.let { scope.launch { listState.animateScrollToItem(it) } } }
-                )
-            }
-        }
-
-        if (state.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-        } else {
-            LazyColumn(
-                state = listState,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                if (graphViewNow) {
-                    item {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            when (state.selectedFilter) {
-                                HistoryFilter.WEIGHT -> {
-                                    WeightTrendSection(entries = weights)
-                                    WeightStatisticsSection(entries = state.weights)
-                                }
-                                HistoryFilter.BLOOD_PRESSURE -> {
-                                    BloodPressureTrendSection(entries = bloodPressures)
-                                    BloodPressureStatisticsSection(entries = state.bloodPressures, range = state.selectedDateRange)
-                                }
-                                HistoryFilter.GLUCOSE -> {
-                                    GlucoseTrendSection(entries = glucoses)
-                                    GlucoseStatisticsSection(glucoses = glucoses, allGlucoses = state.glucoses)
-                                }
-                                HistoryFilter.WAIST_CIRCUMFERENCE -> {
-                                    WaistTrendSection(entries = waists, profile = state.activeProfile)
-                                    WaistStatisticsSection(
-                                        waists = waists,
-                                        allWaists = state.waistCircumferences,
-                                        weights = state.weights,
-                                        profile = state.activeProfile
-                                    )
-                                }
-                                HistoryFilter.OXYGEN_SATURATION -> {
-                                    OxygenTrendSection(entries = oxygens)
-                                    OxygenStatisticsSection(entries = oxygens)
-                                }
-                                HistoryFilter.MIGRAINE -> MigraineGraphSection(
-                                    entries = state.migraines,
-                                    tags = migraineTags,
-                                    selectedRange = state.selectedDateRange,
-                                    onOpenDay = { day ->
-                                        viewModel.showMigraineDay(day)
-                                        setGraphView(HistoryFilter.MIGRAINE, false)
-                                    }
-                                )
-                                else -> Unit
+        // The entries and the chart are two panes: shown one at a time behind the toggle, or side by side when there is room.
+        val listPane: @Composable (Modifier) -> Unit = { paneModifier ->
+            Column(modifier = paneModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                state.migraineDay?.let { day ->
+                    if (filterNow == HistoryFilter.MIGRAINE) {
+                        InputChip(
+                            selected = true,
+                            onClick = { viewModel.clearMigraineDay() },
+                            label = { Text(stringResource(R.string.migraine_day_filter, day.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))) },
+                            trailingIcon = {
+                                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.migraine_day_filter_clear), modifier = Modifier.size(18.dp))
                             }
-                        }
+                        )
                     }
-                } else {
+                }
+
+                if (timeline.navigable) {
+                    selectedMonth?.let { month ->
+                        TimelineRows(
+                            timeline = timeline,
+                            selected = month,
+                            onMonth = { target -> timeline.indexOf(target)?.let { scope.launch { listState.animateScrollToItem(it) } } },
+                            onYear = { year -> timeline.indexOfYear(year)?.let { scope.launch { listState.animateScrollToItem(it) } } }
+                        )
+                    }
+                }
+
+                LazyColumn(
+                    state = listState,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     items(timeline.items) { item ->
                         when (item) {
                             is TimelineItem.Header -> MonthHeader(item.month, item.count)
@@ -448,6 +409,70 @@ private fun HistoryList(
                     }
                 }
             }
+        }
+        val graphPane: @Composable (Modifier) -> Unit = { paneModifier ->
+            // Keyed so a new metric or range starts at the top, like the list does.
+            key(state.selectedFilter, state.selectedDateRange) {
+                Column(
+                    modifier = paneModifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    when (state.selectedFilter) {
+                        HistoryFilter.WEIGHT -> {
+                            WeightTrendSection(entries = weights)
+                            WeightStatisticsSection(entries = state.weights)
+                        }
+                        HistoryFilter.BLOOD_PRESSURE -> {
+                            BloodPressureTrendSection(entries = bloodPressures)
+                            BloodPressureStatisticsSection(entries = state.bloodPressures, range = state.selectedDateRange)
+                        }
+                        HistoryFilter.GLUCOSE -> {
+                            GlucoseTrendSection(entries = glucoses)
+                            GlucoseStatisticsSection(glucoses = glucoses, allGlucoses = state.glucoses)
+                        }
+                        HistoryFilter.WAIST_CIRCUMFERENCE -> {
+                            WaistTrendSection(entries = waists, profile = state.activeProfile)
+                            WaistStatisticsSection(
+                                waists = waists,
+                                allWaists = state.waistCircumferences,
+                                weights = state.weights,
+                                profile = state.activeProfile
+                            )
+                        }
+                        HistoryFilter.OXYGEN_SATURATION -> {
+                            OxygenTrendSection(entries = oxygens)
+                            OxygenStatisticsSection(entries = oxygens)
+                        }
+                        HistoryFilter.MIGRAINE -> MigraineGraphSection(
+                            entries = state.migraines,
+                            tags = migraineTags,
+                            selectedRange = state.selectedDateRange,
+                            onOpenDay = { day ->
+                                viewModel.showMigraineDay(day)
+                                setGraphView(HistoryFilter.MIGRAINE, false)
+                            }
+                        )
+                        else -> Unit
+                    }
+                }
+            }
+        }
+
+        when {
+            state.isLoading -> CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+            twoPane && hasChart -> Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                listPane(Modifier.weight(1f).fillMaxHeight())
+                graphPane(Modifier.weight(1f).fillMaxHeight())
+            }
+            graphViewNow -> graphPane(Modifier.fillMaxSize())
+            // Wide window without a chart (All, Activity): one list at reading width.
+            twoPane -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                listPane(Modifier.widthIn(max = AdaptiveLayout.CONTENT_MAX_WIDTH_DP.dp).fillMaxHeight())
+            }
+            else -> listPane(Modifier.fillMaxSize())
         }
     }
 

@@ -10,6 +10,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -70,6 +72,24 @@ fun AppNavigationBar(selected: AppNavDestination?, onSelect: (AppNavDestination)
     NavigationBar {
         AppNavDestination.entries.forEach { destination ->
             NavigationBarItem(
+                selected = destination == selected,
+                onClick = { onSelect(destination) },
+                label = { Text(stringResource(destination.tabRes)) },
+                icon = { Text(destination.icon) }
+            )
+        }
+    }
+}
+
+/**
+ * The rail that replaces the bottom bar on wide or short windows (see AdaptiveLayout). It lists the same
+ * destinations as [AppNavigationBar], so the two cannot drift apart.
+ */
+@Composable
+fun AppNavigationRail(selected: AppNavDestination?, onSelect: (AppNavDestination) -> Unit) {
+    NavigationRail {
+        AppNavDestination.entries.forEach { destination ->
+            NavigationRailItem(
                 selected = destination == selected,
                 onClick = { onSelect(destination) },
                 label = { Text(stringResource(destination.tabRes)) },
