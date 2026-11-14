@@ -7,7 +7,7 @@ The app is one column with a top bar, a tab row and a bottom bar, sized for a po
 - **Navigation rail instead of the bottom bar** when the window is at least 600 dp wide or less than 480 dp high (landscape phone, tablet, unfolded foldable, split screen). The bar stays on a portrait phone. The same destinations, order, labels and selected state apply in both.
 - **Content width cap:** on windows wider than 840 dp the screen content is centred in a column of at most 840 dp, so lines, chips and fields stay readable. Charts and the History list use the same cap.
 - **Less chrome in landscape phones:** with a window less than 480 dp high the top bar keeps its buttons and title and the Log tab row scrolls with the form instead of staying fixed, so the form gets the screen.
-- **No new libraries and no new permissions:** the size classes are plain width and height thresholds read from the window, not an added adaptive library ([ADR 0003](../../../docs/adr/0003-dependency-minimization.md)).
+- **No new libraries and no new permissions:** the size classes are plain width and height thresholds read from the window, not an added adaptive library ([ADR 0003](../../../../docs/adr/0003-dependency-minimization.md)).
 - **No change to data, backup, export, copy or colours.** Orientation stays free; the manifest is unchanged.
 
 ## Capabilities

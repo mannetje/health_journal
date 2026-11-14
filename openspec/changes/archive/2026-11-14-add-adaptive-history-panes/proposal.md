@@ -1,7 +1,7 @@
 # Add adaptive History panes
 
 ## Why
-[add-adaptive-layouts](../add-adaptive-layouts/proposal.md) gives wide windows a navigation rail and a centred 840 dp column, and left a two-pane History as a follow-up. On a tablet the History tab still shows one thing at a time: the entries, or the chart behind the graph toggle. With a metric selected, a wide window has room for both, and the chart and the entries it is drawn from belong together (the date range already drives both).
+[add-adaptive-layouts](../2026-11-14-add-adaptive-layouts/proposal.md) gives wide windows a navigation rail and a centred 840 dp column, and left a two-pane History as a follow-up. On a tablet the History tab still shows one thing at a time: the entries, or the chart behind the graph toggle. With a metric selected, a wide window has room for both, and the chart and the entries it is drawn from belong together (the date range already drives both).
 
 ## What Changes
 - **Entries and chart side by side** on windows at least 900 dp wide when a metric with a chart is selected (Weight, Blood pressure, Glucose, Waist, Migraine, Oxygen): the entry timeline on the left, the chart and statistics on the right. The range chips stay above both.

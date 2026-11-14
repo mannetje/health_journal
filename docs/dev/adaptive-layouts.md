@@ -1,6 +1,6 @@
 # Adaptive layouts
 
-How the app adapts to the window size. Spec: [platform-android](../../openspec/specs/platform-android/spec.md) (requirement "Navigation and content adapt to the window"). Specs: also [add-adaptive-history-panes](../../openspec/changes/add-adaptive-history-panes/proposal.md). Screenshots: [screenshots.md](../screenshots.md#screenshots).
+How the app adapts to the window size. Spec: [platform-android](../../openspec/specs/platform-android/spec.md) (requirement "Navigation and content adapt to the window"). Specs: also [add-adaptive-history-panes](../../openspec/changes/archive/2026-11-14-add-adaptive-history-panes/proposal.md). Screenshots: [screenshots.md](../screenshots.md#screenshots).
 
 There is no window-size library (see [ADR 0003](../adr/0003-dependency-minimization.md)). `AdaptiveLayout` in `ui/common/AdaptiveLayout.kt` holds the thresholds as a pure function, and `AppContent` reads `LocalConfiguration.screenWidthDp` and `screenHeightDp`.
 

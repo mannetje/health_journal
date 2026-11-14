@@ -34,7 +34,7 @@ See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 |---|---|---|
 | <img src="docs/screenshots/light-log.png" width="250" alt="Log screen with a neutral blood pressure range label, light theme"> | <img src="docs/screenshots/light-weight.png" width="250" alt="Weight trend chart with a dot per entry and moving average, light theme"> | <img src="docs/screenshots/light-glucose.png" width="250" alt="Glucose trend with fasting and post-meal lines and NHG limit lines, light theme"> |
 
-More screenshots (dark theme, graphs and statistics, migraine log, medication reminders, adherence, history timeline, app icon): **[all screenshots](docs/screenshots.md)**. They use synthetic sample data.
+More screenshots (dark theme, graphs and statistics, migraine log, medication reminders, adherence, history timeline, phone landscape and tablet, app icon): **[all screenshots](docs/screenshots.md)**. They use synthetic sample data.
 
 ---
 
@@ -87,6 +87,7 @@ Questions about your values go to your doctor or pharmacist. The rules behind th
 - **Presentation Units:** Toggle between Metric (kg, cm, m) and Imperial (lb, mi, ft/in) as well as mmol/L or mg/dL glucose units. *([spec](openspec/specs/units-presentation/spec.md), [ADR 0014](docs/adr/0014-units-presentation.md))*
 - **Version and Changelog Link:** The Profile tab shows the installed version and a "What's new" link that opens the changelog on GitHub at that version. *([spec](openspec/specs/profile/spec.md))*
 - **Your Own Metric Order:** Choose the order of the metrics on the Log tabs and History chips in Profile, with Move up and Move down buttons or by dragging. The order is a display setting kept on the device. *([spec](openspec/specs/metric-display-order/spec.md), [ADR 0034](docs/adr/0034-metric-display-order-preference.md))*
+- **Phone, landscape and tablet:** A navigation rail replaces the bottom bar on wide or short windows, content is capped at a readable width, and History shows entries and chart side by side from 900 dp. *([spec](openspec/specs/platform-android/spec.md), [ADR 0040](docs/adr/0040-adaptive-layouts-without-window-size-library.md), [dev doc](docs/dev/adaptive-layouts.md))*
 - **Light & Dark Themes:** Automatic system theme matching or manual System/Light/Dark selection. *([spec](openspec/specs/theming/spec.md), [ADR 0017](docs/adr/0017-in-app-theme-choice.md))*
 
 ---
@@ -305,6 +306,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0037: Typed domain errors and a single source for rules](docs/adr/0037-typed-domain-errors-and-single-source-for-rules.md)
 - [ADR 0038: Bounded contexts and tactical roles](docs/adr/0038-bounded-contexts-and-tactical-roles.md)
 - [ADR 0039: Use case or handler](docs/adr/0039-use-case-or-handler.md)
+- [ADR 0040: Adaptive layouts without a window-size library](docs/adr/0040-adaptive-layouts-without-window-size-library.md)
 
 ---
 

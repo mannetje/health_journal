@@ -20,6 +20,7 @@ Short rules that keep the code and the docs consistent. When a rule has a reason
 - No hard-coded user-facing text. Strings go in English and Dutch together ([Add a translation](how-to/add-a-translation.md)).
 - ViewModels expose `UiText`, not resolved strings ([ADR 0015](../adr/0015-localized-viewmodel-messages.md)).
 - Layouts must survive long Dutch text and larger fonts ([ADR 0010](../adr/0010-responsive-dutch-ui-layout.md)).
+- Layouts must also work on a tablet and in landscape: navigation and width come from `AdaptiveLayout`, never from a device check ([ADR 0040](../adr/0040-adaptive-layouts-without-window-size-library.md)).
 - Touch targets are at least 48 dp and icons have a content description.
 - Ask `isAppDarkTheme()` (in `ui/theme/Theme.kt`) whether dark is active, never `isSystemInDarkTheme()`, so the Light, Dark and System choice in Profile applies everywhere ([ADR 0017](../adr/0017-in-app-theme-choice.md)).
 - The app is a logging tool, not a medical device. Text gives information only: no advice, no diagnosis, no condition names ([range labels](how-to/change-a-range-label.md)).
