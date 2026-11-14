@@ -1,0 +1,2 @@
+- Stel op het tabblad Vocht je eigen portie per drankje in
+- De stippellijn van je grens loopt niet meer door de waarden van de dagbalken in de vochtgrafiek

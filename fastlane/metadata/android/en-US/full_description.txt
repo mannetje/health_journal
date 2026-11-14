@@ -1,0 +1,31 @@
+Health Journal is a private, offline logbook for your own health numbers. It stores what you enter, encrypted on your phone, and shows it back as lists, trend charts and a calendar. There is no account, no network access, no analytics and no cloud.
+
+<b>What you can log</b>
+<ul>
+<li>Weight, with BMI</li>
+<li>Waist circumference</li>
+<li>Blood pressure</li>
+<li>Blood glucose</li>
+<li>Headaches and migraine, with a calendar</li>
+<li>Activity</li>
+<li>Oxygen saturation</li>
+<li>Fluid intake: one tap per drink, with your own portions and your own optional minimum and maximum</li>
+<li>Medication, with reminders you set yourself</li>
+<li>Mindfulness sessions</li>
+</ul>
+
+<b>Look back</b>
+A History timeline, trend charts with moving averages, statistics, and a calendar for headaches and fluid. Export your entries as CSV or make an encrypted backup you control.
+
+<b>Private by design</b>
+<ul>
+<li>No INTERNET permission, no telemetry, no sync</li>
+<li>Data encrypted on the device (SQLCipher), optional app lock with biometrics</li>
+<li>Portable encrypted backup, restored only with your passphrase</li>
+<li>English and Dutch, light and dark theme, phone and tablet layouts</li>
+</ul>
+
+<b>What it is not</b>
+Health Journal is a personal tool for logging and reminders. It is not a medical device. It gives no advice, targets or scores: where a published guideline gives a range, it shows a neutral label with your number. Questions about your values go to your doctor or pharmacist.
+
+Open source under the Apache 2.0 licence.

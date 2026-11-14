@@ -1,0 +1,2 @@
+- Set your own portion per drink on the Fluid tab
+- The dashed limit line no longer cuts through the daily bar values in the Fluid chart

@@ -1,0 +1,31 @@
+Health Journal is een privé, offline logboek voor je eigen gezondheidswaarden. Het bewaart wat je invoert versleuteld op je telefoon en laat het terugzien als lijsten, trendgrafieken en een kalender. Er is geen account, geen netwerktoegang, geen analyse en geen cloud.
+
+<b>Wat je kunt vastleggen</b>
+<ul>
+<li>Gewicht, met BMI</li>
+<li>Middelomtrek</li>
+<li>Bloeddruk</li>
+<li>Bloedglucose</li>
+<li>Hoofdpijn en migraine, met een kalender</li>
+<li>Activiteit</li>
+<li>Zuurstofsaturatie</li>
+<li>Vochtinname: één tik per drankje, met je eigen porties en je eigen optionele minimum en maximum</li>
+<li>Medicatie, met herinneringen die je zelf instelt</li>
+<li>Mindfulness-sessies</li>
+</ul>
+
+<b>Terugkijken</b>
+Een tijdlijn in Historie, trendgrafieken met voortschrijdend gemiddelde, statistieken en een kalender voor hoofdpijn en vocht. Exporteer je gegevens als CSV of maak een versleutelde back-up die je zelf beheert.
+
+<b>Privé door ontwerp</b>
+<ul>
+<li>Geen INTERNET-toestemming, geen telemetrie, geen synchronisatie</li>
+<li>Gegevens versleuteld op het apparaat (SQLCipher), optionele app-vergrendeling met biometrie</li>
+<li>Draagbare versleutelde back-up, alleen terug te zetten met je wachtwoordzin</li>
+<li>Nederlands en Engels, licht en donker thema, indelingen voor telefoon en tablet</li>
+</ul>
+
+<b>Wat het niet is</b>
+Health Journal is een persoonlijk hulpmiddel voor vastleggen en herinneringen. Het is geen medisch hulpmiddel. Het geeft geen advies, doelen of scores: waar een gepubliceerde richtlijn een bereik geeft, toont de app een neutraal label met jouw getal. Vragen over je waarden stel je aan je huisarts of apotheker.
+
+Open source onder de Apache 2.0-licentie.
