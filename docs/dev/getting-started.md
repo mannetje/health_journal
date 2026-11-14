@@ -61,7 +61,7 @@ The debug APK is signed with a fixed key committed in `app/debug.keystore`, so u
 ```text
 domain/   pure Kotlin, one folder per context (shared, profile, metrics, medication, migraine, mindfulness, lock, backup), each with model/, usecase/, port/ and command/ as needed
 data/     local/ (Room), csv/, repository/, DataModule.kt
-app/      HealthJournalApp.kt (the `@HiltAndroidApp`), di/ (Hilt modules: data ports, platform objects, the reminder entry point), command/ (DefaultDispatcher and CommandModule, which registers every handler), MainActivity.kt (`@AndroidEntryPoint`, Activity-bound wiring), AppContent.kt (the unlocked shell), AppChrome.kt (top bar, bottom bar, reminder permission dialog), AppNavDestination.kt, ui/ (ui/shell holds the shell state), settings/ (display preferences, including the metric order), res/
+app/      HealthJournalApp.kt (the `@HiltAndroidApp`), di/ (Hilt modules: data ports, platform objects, the reminder entry point), command/ (DefaultDispatcher and CommandModule, which registers every handler), MainActivity.kt (`@AndroidEntryPoint`, Activity-bound wiring), AppContent.kt (the unlocked shell), AppChrome.kt (top bar, bottom bar, navigation rail, reminder permission dialog), AppNavDestination.kt, ui/ (ui/shell holds the shell state), settings/ (display preferences, including the metric order), res/
 docs/     adr/, dev/, screenshots/
 openspec/ specs/ (what the system does), changes/ (proposed work)
 ```

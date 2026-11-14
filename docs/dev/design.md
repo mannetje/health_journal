@@ -28,12 +28,12 @@ This page collects the design of Health Journal in one place: the principles, th
 
 ## Screen map
 
-The bottom bar has three tabs. The pill button in the top bar opens the pillbox, which replaces the tab content (it is not a fourth tab). The lotus button next to it opens the Mindfulness area the same way, and the logo at the right of the top bar returns to the Log tab. The pillbox and Mindfulness are never open together.
+The bottom bar has three tabs; on a tablet or a phone in landscape the same three destinations sit in a navigation rail on the left ([adaptive layouts](adaptive-layouts.md)). The pill button in the top bar opens the pillbox, which replaces the tab content (it is not a fourth tab). The lotus button next to it opens the Mindfulness area the same way, and the logo at the right of the top bar returns to the Log tab. The pillbox and Mindfulness are never open together.
 
 ```mermaid
 flowchart TD
     APP(["Health Journal"]) --> LOG["Log tab<br/>Weight, BP, Glucose, Waist, Activity, Migraine"]
-    APP --> HIST["History tab<br/>filters, list or graph view, year and month rows, trend charts (tap an entry for its value, tap a second for the difference), weight and blood pressure statistics, edit, delete, CSV"]
+    APP --> HIST["History tab<br/>filters, list or graph view (side by side from 900 dp wide), year and month rows, trend charts (tap an entry for its value, tap a second for the difference), weight and blood pressure statistics, edit, delete, CSV"]
     APP --> PROF["Profile tab<br/>height, birth date, sex, language, region,<br/>units, theme, reminder settings"]
     APP -->|"pill button"| PILL["Pillbox"]
     PILL -->|"first time"| NOTICE["Notice: a log, not a medical device<br/>links to apotheek.nl and Thuisarts"]
