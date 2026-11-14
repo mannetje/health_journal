@@ -11,7 +11,7 @@
 - [ ] 0.9a Read the Antonius leaflet `vochtbeperking-een.pdf` (not readable by the fetch tool) and check it against the reference note
 - [x] 0.10 Read the zib Vochtbalans in full (pages answered 503 during drafting) and complete `docs/dev/zib-mapping.md`
 - [ ] 0.11 Final English and Dutch wording agreed (card, button names, Today line, limits, position labels, reference note, Undo, notice)
-- [ ] 0.12 The migration is the next free number at implementation time (current database version + 1); build order is the user's choice
+- [x] 0.12 The migration is the next free number at implementation time (current database version + 1); build order is the user's choice
 
 ## 1. Domain (`:domain`) and data (`:data`)
 - [x] 1.1 `FluidIntakeEntry`, `FluidMl`, `FluidDrink`, `DrinkPortions`, validation; JVM tests (drink parse, unknown reads as Other, portion bounds, count times portion above 5000)
@@ -33,7 +33,7 @@
 - [x] 2.4b `MetricSlot.FLUID`, `MetricType.FLUID`, Fluid Log tab, History filter chip and day filter; `DomainErrorUiText` strings; `HandlerRegistryTest` and `ArchitectureGuardrailsTest` stay green; check the two-pane History on a tablet
 - [ ] 2.5 Position label colours from the neutral ramp in light and dark, contrast at least 4.5:1, label text always present
 - [ ] 2.6 Strings in English and Dutch; scan test that bans advice and verdict words while allowing the position label words and the person's own numbers; Profile notice sentence
-- [ ] 2.7 Export and import entries in Profile with the unencrypted warning
+- [x] 2.7 Export and import entries in Profile with the unencrypted warning
 - [ ] 2.8 Accessibility: 48 dp targets, content descriptions with the amount, Undo announced, label read with its number
 - [ ] 2.9 Emulator pass (phone, tablet, landscape, animation and reduced motion included): English and Dutch, light and dark, 320 dp, phone and tablet, with no limits, only a minimum, only a maximum and both; screenshots
 
