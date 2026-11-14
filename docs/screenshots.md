@@ -128,11 +128,15 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 | <img src="screenshots/light-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, light theme"> | <img src="screenshots/dark-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, dark theme"> |
 | <img src="screenshots/light-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, light theme"> | <img src="screenshots/dark-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, dark theme"> |
 
-**Fluid** (last tab of the Log screen, Dutch UI, dark theme, sample data: three drinks of water, coffee and tea making 750 ml; large drink tiles with an own-drawn icon, the portion and a count stepper, a glass that fills with today's total and a strip of today's drinks; no goal, percentage or encouragement. Light theme, English and the tablet are still to be captured; History, Graph and Calendar come with the rest of the change)
+**Fluid** (last tab of the Log screen, Dutch UI, dark theme, sample data: three drinks of water, coffee and tea making 750 ml, own limits of 1500 and 2500 ml; large drink tiles with an own-drawn icon, the portion and a count stepper, a gauge that fills with today's total and a strip of today's drinks; the gauge is a glass, a woman or a man outline chosen in the Display card, with a tick for each limit and a neutral position label; no goal, percentage or encouragement. In History the Fluid chip shows entries with the day total, Graph with figures, daily bars with dashed limit lines, weekday, time-of-day and per-drink charts, and Calendar with shade, printed total and a shape marker for below, within or above. Light theme, English and the tablet are still to be captured)
 
-| Dark |
-|---|
-| <img src="screenshots/dark-fluid-log.png" width="250" alt="Fluid tab in Dutch with a glass filled to 750 ml, four drink icons for today and the Water, Koffie, Thee and Melk tiles, dark theme"> |
+| Log, glass | Log, woman | Log, man | Display card |
+|---|---|---|---|
+| <img src="screenshots/dark-fluid-log.png" width="200" alt="Fluid tab with a glass filled to 750 ml and the drink tiles, dark theme"> | <img src="screenshots/dark-fluid-log-woman.png" width="200" alt="Fluid tab with a woman outline filled to 750 ml and a minimum label, dark theme"> | <img src="screenshots/dark-fluid-log-man.png" width="200" alt="Fluid tab with a man outline filled to 750 ml and a minimum label, dark theme"> | <img src="screenshots/dark-fluid-gauge-choice.png" width="200" alt="Limits card and the Display card with Glas, Vrouw and Man, dark theme"> |
+
+| History list | Graph | Calendar |
+|---|---|---|
+| <img src="screenshots/dark-fluid-history-list.png" width="250" alt="Fluid history with drink icons and a day total, dark theme"> | <img src="screenshots/dark-fluid-history-graph.png" width="250" alt="Fluid graph with figures and daily bars with dashed limit lines, dark theme"> | <img src="screenshots/dark-fluid-history-calendar.png" width="250" alt="Fluid calendar with shaded days, totals and below or within markers, dark theme"> |
 
 **Oxygen saturation** (last tab of the Log screen: a whole-number ruler from 50 to 100 %, optional pulse, situation and measuring site, an Oxygen given switch and a dismissible tip; in History the Oxygen chip shows plain entry cards, a trend line, Figures and Readings per situation; no ranges, colours or judging words; sample data)
 
