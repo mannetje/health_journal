@@ -52,6 +52,9 @@ data class SetFluidLimitsCommand(
 /** The person's own minimum and maximum; emits again when they change. */
 data class ObserveFluidLimitsQuery(val profileId: ProfileId) : ObserveQuery<FluidLimits>
 
+/** The person's fluid entries, newest first; emits again on every change. */
+data class ObserveFluidHistoryQuery(val profileId: ProfileId) : ObserveQuery<List<FluidIntakeEntry>>
+
 private fun buildFluid(
     id: MeasurementId,
     profileId: ProfileId,
@@ -104,4 +107,11 @@ class ObserveFluidLimitsHandler(
 ) : ObserveQueryHandler<ObserveFluidLimitsQuery, FluidLimits> {
     override fun observe(query: ObserveFluidLimitsQuery): Flow<DomainResult<FluidLimits>> =
         repository.observeFluidLimits(query.profileId).map { DomainResult.success(it) }
+}
+
+class ObserveFluidHistoryHandler(
+    private val repository: FluidRepositoryPort
+) : ObserveQueryHandler<ObserveFluidHistoryQuery, List<FluidIntakeEntry>> {
+    override fun observe(query: ObserveFluidHistoryQuery): Flow<DomainResult<List<FluidIntakeEntry>>> =
+        repository.observeFluidHistory(query.profileId).map { DomainResult.success(it) }
 }

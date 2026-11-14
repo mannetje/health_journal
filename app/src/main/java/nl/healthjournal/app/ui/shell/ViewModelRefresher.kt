@@ -1,5 +1,6 @@
 package nl.healthjournal.app.ui.shell
 
+import nl.healthjournal.app.ui.fluid.FluidLogViewModel
 import nl.healthjournal.app.AppNavDestination
 import nl.healthjournal.app.reminder.ReminderHooks
 import nl.healthjournal.app.ui.backup.BackupViewModel
@@ -47,6 +48,7 @@ class ViewModelRefresher(
             profile: ProfileViewModel,
             logging: LoggingViewModel,
             migraine: MigraineLogViewModel,
+            fluid: FluidLogViewModel,
             history: HistoryViewModel,
             medication: MedicationViewModel,
             backup: BackupViewModel,
@@ -55,17 +57,19 @@ class ViewModelRefresher(
             clearMessages = {
                 logging.clearMessages()
                 migraine.clearMessages()
+                fluid.clearMessage()
                 profile.clearMessages()
                 history.clearMessages()
                 medication.clearMessages()
                 backup.clearMessages()
             },
             clearMedicationMessages = medication::clearMessages,
-            loadMigraineProfile = migraine::loadProfile,
+            loadMigraineProfile = { migraine.loadProfile(); fluid.loadProfile() },
             reloadData = {
                 profile.loadProfile()
                 logging.loadProfile()
                 migraine.loadProfile()
+                fluid.loadProfile()
                 history.loadHistory()
                 medication.refresh()
             },

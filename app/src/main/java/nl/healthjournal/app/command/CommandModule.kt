@@ -35,6 +35,8 @@ import nl.healthjournal.domain.metrics.command.RecordBloodPressureCommand
 import nl.healthjournal.domain.metrics.command.RecordBloodPressureHandler
 import nl.healthjournal.domain.metrics.command.RecordGlucoseCommand
 import nl.healthjournal.domain.metrics.command.RecordGlucoseHandler
+import nl.healthjournal.domain.metrics.command.ObserveFluidHistoryHandler
+import nl.healthjournal.domain.metrics.command.ObserveFluidHistoryQuery
 import nl.healthjournal.domain.metrics.command.ObserveFluidLimitsHandler
 import nl.healthjournal.domain.metrics.command.ObserveFluidLimitsQuery
 import nl.healthjournal.domain.metrics.command.RecordFluidIntakeCommand
@@ -229,6 +231,9 @@ object CommandModule {
 
     @Provides @IntoMap @ClassKey(SetFluidLimitsCommand::class)
     fun setFluidLimits(fluid: FluidRepositoryPort): CommandHandler<*, *> = SetFluidLimitsHandler(fluid)
+
+    @Provides @IntoMap @ClassKey(ObserveFluidHistoryQuery::class)
+    fun observeFluidHistory(fluid: FluidRepositoryPort): ObserveQueryHandler<*, *> = ObserveFluidHistoryHandler(fluid)
 
     @Provides @IntoMap @ClassKey(ObserveFluidLimitsQuery::class)
     fun observeFluidLimits(fluid: FluidRepositoryPort): ObserveQueryHandler<*, *> = ObserveFluidLimitsHandler(fluid)

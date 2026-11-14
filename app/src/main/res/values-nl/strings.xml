@@ -927,4 +927,35 @@
     <string name="oxygen_average">Gemiddelde</string>
     <string name="oxygen_count">Metingen</string>
     <string name="oxygen_per_context_title">Metingen per situatie</string>
+
+    <!-- Vochtinname -->
+    <string name="log_tab_fluid">Vocht</string>
+    <string name="history_filter_fluid">Vocht</string>
+    <string name="fluid_drink_water">Water</string>
+    <string name="fluid_drink_coffee">Koffie</string>
+    <string name="fluid_drink_tea">Thee</string>
+    <string name="fluid_drink_milk">Melk</string>
+    <string name="fluid_drink_juice">Sap</string>
+    <string name="fluid_drink_soup">Soep</string>
+    <string name="fluid_drink_other">Overig</string>
+    <string name="fluid_ml">%1$d ml</string>
+    <string name="fluid_today">Vandaag · %1$d ml</string>
+    <string name="fluid_glass_description">Glas met vandaag %1$d ml</string>
+    <string name="fluid_add_description">Voeg %1$s toe, %2$d ml</string>
+    <string name="fluid_more_description">Nog een portie %1$s</string>
+    <string name="fluid_less_description">Een portie %1$s minder</string>
+    <string name="fluid_added">%1$s toegevoegd, %2$d ml</string>
+    <string name="fluid_undo">Ongedaan maken</string>
+    <string name="fluid_today_empty">Vandaag nog niets gelogd</string>
+    <string name="fluid_today_more">+%1$d</string>
+    <string name="fluid_position_below">Onder je minimum · %1$d ml</string>
+    <string name="fluid_position_within">Binnen je grenzen · %1$d tot %2$d ml</string>
+    <string name="fluid_position_above">Boven je maximum · %1$d ml</string>
+    <string name="fluid_limits_title">Je eigen grenzen (optioneel)</string>
+    <string name="fluid_limits_help">Alleen jij stelt deze in. De app stelt geen hoeveelheid voor.</string>
+    <string name="fluid_min_label">Minimum (ml)</string>
+    <string name="fluid_max_label">Maximum (ml)</string>
+    <string name="fluid_limits_save">Opslaan</string>
+    <string name="fluid_reference_title">Over deze hoeveelheden</string>
+    <string name="fluid_reference_body">Het Voedingscentrum noemt voor volwassenen minstens ongeveer 1,4 liter per dag uit drinken, meer bij warm weer, ziekte of sporten, en alle drankjes tellen mee. Een arts kan een eigen maximum vaststellen, bijvoorbeeld bij hartfalen; folders van ziekenhuizen noemen vaak 1,5 tot 2 liter. Dit is informatie, geen advies van de app. Bespreek je eigen hoeveelheid met je huisarts.</string>
 </resources>

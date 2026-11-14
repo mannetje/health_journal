@@ -636,4 +636,5 @@ private val MetricSlot.filterLabelRes: Int
         MetricSlot.WAIST_CIRCUMFERENCE -> R.string.history_filter_waist
         MetricSlot.ACTIVITY -> R.string.history_filter_activity
         MetricSlot.OXYGEN_SATURATION -> R.string.history_filter_oxygen
+        MetricSlot.FLUID -> R.string.history_filter_fluid
     }

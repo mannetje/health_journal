@@ -14,4 +14,5 @@ val MetricSlot.nameRes: Int
         MetricSlot.WAIST_CIRCUMFERENCE -> R.string.log_tab_waist_circumference
         MetricSlot.ACTIVITY -> R.string.log_tab_activity
         MetricSlot.OXYGEN_SATURATION -> R.string.log_tab_oxygen_saturation
+        MetricSlot.FLUID -> R.string.log_tab_fluid
     }

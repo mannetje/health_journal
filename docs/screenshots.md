@@ -128,6 +128,12 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 | <img src="screenshots/light-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, light theme"> | <img src="screenshots/dark-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, dark theme"> |
 | <img src="screenshots/light-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, light theme"> | <img src="screenshots/dark-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, dark theme"> |
 
+**Fluid** (last tab of the Log screen, Dutch UI, dark theme, sample data: three drinks of water, coffee and tea making 750 ml; large drink tiles with an own-drawn icon, the portion and a count stepper, a glass that fills with today's total and a strip of today's drinks; no goal, percentage or encouragement. Light theme, English and the tablet are still to be captured; History, Graph and Calendar come with the rest of the change)
+
+| Dark |
+|---|
+| <img src="screenshots/dark-fluid-log.png" width="250" alt="Fluid tab in Dutch with a glass filled to 750 ml, four drink icons for today and the Water, Koffie, Thee and Melk tiles, dark theme"> |
+
 **Oxygen saturation** (last tab of the Log screen: a whole-number ruler from 50 to 100 %, optional pulse, situation and measuring site, an Oxygen given switch and a dismissible tip; in History the Oxygen chip shows plain entry cards, a trend line, Figures and Readings per situation; no ranges, colours or judging words; sample data)
 
 | Light | Dark |

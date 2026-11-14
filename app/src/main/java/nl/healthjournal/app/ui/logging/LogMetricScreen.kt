@@ -42,10 +42,10 @@ fun LogMetricScreen(
     viewModel: LoggingViewModel,
     modifier: Modifier = Modifier,
     onGlucoseUnitSelected: (GlucoseUnit) -> Unit = {},
-    /** The migraine tab sits beside the metric tabs; its content replaces the metric form. */
-    migraineTabSelected: Boolean = false,
-    onMigraineTabSelected: (Boolean) -> Unit = {},
-    migraineContent: @Composable ColumnScope.() -> Unit = {}
+    /** The Migraine and Fluid tabs sit beside the metric tabs; their content replaces the metric form. */
+    customSlot: MetricSlot? = null,
+    onCustomSlotSelected: (MetricSlot?) -> Unit = {},
+    customContent: @Composable ColumnScope.(MetricSlot) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val units = LocalDisplayUnits.current
@@ -105,8 +105,8 @@ fun LogMetricScreen(
         }
 
         // Metric Selector Tabs
-        val selectedSlot = if (migraineTabSelected) {
-            MetricSlot.MIGRAINE
+        val selectedSlot = if (customSlot != null) {
+            customSlot
         } else {
             state.orderedMetrics.first { it.metricType == state.selectedMetric }
         }
@@ -115,7 +115,7 @@ fun LogMetricScreen(
                 Tab(
                     selected = slot == selectedSlot,
                     onClick = {
-                        onMigraineTabSelected(slot.metricType == null)
+                        onCustomSlotSelected(slot.takeIf { it.metricType == null })
                         slot.metricType?.let(viewModel::selectMetric)
                     },
                     text = { Text(stringResource(slot.nameRes), maxLines = 1) }
@@ -123,8 +123,8 @@ fun LogMetricScreen(
             }
         }
 
-        if (migraineTabSelected) {
-            migraineContent()
+        if (customSlot != null) {
+            customContent(customSlot)
         } else {
             when (state.selectedMetric) {
                 MetricType.WEIGHT -> {

@@ -58,7 +58,8 @@ enum class HistoryFilter {
     ACTIVITY,
     WAIST_CIRCUMFERENCE,
     MIGRAINE,
-    OXYGEN_SATURATION
+    OXYGEN_SATURATION,
+    FLUID
 }
 
 /** A reference to one History entry, used to track which entry is being edited or deleted. */

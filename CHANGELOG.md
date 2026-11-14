@@ -5,6 +5,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 ## [Unreleased]
 
 ### Added
+- **Fluid intake (in progress, Log tab only):** a Fluid tab to log drinks with one tap on a drink tile (Water, Coffee, Tea, Milk, Juice, Soup, Other, each with its own portion and a count stepper), a glass that fills with today's total, a strip of today's drinks, and your own optional minimum and maximum. The app suggests no amount. Stored in two new tables (database version 9), with CSV and backup support in the data layer; History, graphs and calendar follow. English and Dutch. See [ADR 0030](docs/adr/0030-fluid-intake-quick-log-with-personal-limits.md).
 - **Adaptive layouts:** on a tablet, an unfolded foldable or a phone in landscape the bottom bar becomes a navigation rail on the left, and the content is capped at 840 dp and centred instead of stretching over the whole window. A portrait phone looks the same as before. Light and dark screenshots are in `docs/screenshots.md`, the thresholds in `docs/dev/adaptive-layouts.md`.
 - **History shows entries and chart side by side on wide windows:** from 900 dp wide (a tablet in landscape) the History tab with a metric selected shows the entries on the left and the chart and statistics on the right, with the range chips above both and no graph/list toggle. Narrower windows, including a tablet in portrait, work as before.
 

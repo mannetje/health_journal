@@ -927,4 +927,35 @@
     <string name="oxygen_average">Average</string>
     <string name="oxygen_count">Readings</string>
     <string name="oxygen_per_context_title">Readings per situation</string>
+
+    <!-- Fluid intake -->
+    <string name="log_tab_fluid">Fluid</string>
+    <string name="history_filter_fluid">Fluid</string>
+    <string name="fluid_drink_water">Water</string>
+    <string name="fluid_drink_coffee">Coffee</string>
+    <string name="fluid_drink_tea">Tea</string>
+    <string name="fluid_drink_milk">Milk</string>
+    <string name="fluid_drink_juice">Juice</string>
+    <string name="fluid_drink_soup">Soup</string>
+    <string name="fluid_drink_other">Other</string>
+    <string name="fluid_ml">%1$d ml</string>
+    <string name="fluid_today">Today · %1$d ml</string>
+    <string name="fluid_glass_description">Glass showing %1$d ml today</string>
+    <string name="fluid_add_description">Add %1$s, %2$d ml</string>
+    <string name="fluid_more_description">One more %1$s portion</string>
+    <string name="fluid_less_description">One less %1$s portion</string>
+    <string name="fluid_added">%1$s added, %2$d ml</string>
+    <string name="fluid_undo">Undo</string>
+    <string name="fluid_today_empty">No drinks logged yet today</string>
+    <string name="fluid_today_more">+%1$d</string>
+    <string name="fluid_position_below">Below your minimum · %1$d ml</string>
+    <string name="fluid_position_within">Within your limits · %1$d to %2$d ml</string>
+    <string name="fluid_position_above">Above your maximum · %1$d ml</string>
+    <string name="fluid_limits_title">Your own limits (optional)</string>
+    <string name="fluid_limits_help">Only you set these. The app suggests no amount.</string>
+    <string name="fluid_min_label">Minimum (ml)</string>
+    <string name="fluid_max_label">Maximum (ml)</string>
+    <string name="fluid_limits_save">Save</string>
+    <string name="fluid_reference_title">About these amounts</string>
+    <string name="fluid_reference_body">The Voedingscentrum says adults need at least about 1.4 litres a day from drinks, more in warm weather, with illness or when exercising, and that all drinks count. A doctor can set a personal maximum, for example with heart failure; hospital leaflets often mention 1.5 to 2 litres. This is information, not advice from the app. Talk to your huisarts about your own amount.</string>
 </resources>
