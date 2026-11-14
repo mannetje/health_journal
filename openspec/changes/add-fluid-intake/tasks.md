@@ -9,7 +9,7 @@
 - [x] 0.8 Reference note "About these amounts" with Voedingscentrum `vocht.aspx`, Thuisarts and the huisarts line; information with the source named, never prefilled
 - [ ] 0.9 Spec review by the user before implementation starts, including the compliance question on the position label (design section 5)
 - [ ] 0.9a Read the Antonius leaflet `vochtbeperking-een.pdf` (not readable by the fetch tool) and check it against the reference note
-- [ ] 0.10 Read the zib Vochtbalans in full (pages answered 503 during drafting) and complete `docs/dev/zib-mapping.md`
+- [x] 0.10 Read the zib Vochtbalans in full (pages answered 503 during drafting) and complete `docs/dev/zib-mapping.md`
 - [ ] 0.11 Final English and Dutch wording agreed (card, button names, Today line, limits, position labels, reference note, Undo, notice)
 - [ ] 0.12 The migration is the next free number at implementation time (current database version + 1); build order is the user's choice
 
