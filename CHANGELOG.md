@@ -4,7 +4,10 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.7.3] - 2026-11-14
+
 ### Added
+- **Fluid intake:** a Fluid tab to log drinks with one tap on a drink tile (Water, Coffee, Tea, Milk, Juice, Soup, Other, each with its own portion and a count stepper), a gauge that fills with today's total (a glass, or a woman or man outline, your choice), a strip of today's drinks, and your own optional minimum and maximum with a neutral position label. The app suggests no amount and has no streaks or badges. History shows the entries with day totals, a Graph with dashed limit lines plus weekday, time-of-day and per-drink charts, and a Calendar with shade, printed number and a shape marker. CSV import and export, and backups carry fluid entries and limits (`fluidEntries`, `fluidMinMl`, `fluidMaxMl`, schema version unchanged). Stored in two new tables (database version 9). English and Dutch. See [ADR 0030](docs/adr/0030-fluid-intake-quick-log-with-personal-limits.md).
 - **Adaptive layouts:** on a tablet, an unfolded foldable or a phone in landscape the bottom bar becomes a navigation rail on the left, and the content is capped at 840 dp and centred instead of stretching over the whole window. A portrait phone looks the same as before. Light and dark screenshots are in `docs/screenshots.md`, the thresholds in `docs/dev/adaptive-layouts.md`.
 - **History shows entries and chart side by side on wide windows:** from 900 dp wide (a tablet in landscape) the History tab with a metric selected shows the entries on the left and the chart and statistics on the right, with the range chips above both and no graph/list toggle. Narrower windows, including a tablet in portrait, work as before.
 
@@ -319,7 +322,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.2...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.3...HEAD
+[1.7.3]: https://github.com/mannetje/health_journal/compare/v1.7.2...v1.7.3
 [1.7.2]: https://github.com/mannetje/health_journal/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/mannetje/health_journal/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/mannetje/health_journal/compare/v1.6.6...v1.7.0

@@ -260,7 +260,7 @@ class MetricCommandHandlersTest {
 
     @Test fun `delete works for every kind and reports an unknown id`() = runBlocking {
         val migraines = FakeMigraineRepository()
-        val handler = DeleteEntryHandler(PortEntryGateway(health, health, health, health, health, health, migraines))
+        val handler = DeleteEntryHandler(PortEntryGateway(health, health, health, health, health, health, migraines, health))
         val ids = mapOf(
             EntryKind.WEIGHT to RecordWeightHandler(health, profiles, clock).handle(RecordWeightCommand(pid, BigDecimal("80"))).getOrNull()!!.id,
             EntryKind.BLOOD_PRESSURE to RecordBloodPressureHandler(health, clock).handle(RecordBloodPressureCommand(pid, 120, 80)).getOrNull()!!.id,

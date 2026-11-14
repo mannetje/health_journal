@@ -17,6 +17,7 @@ import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
 import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
 import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
 import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
 import nl.healthjournal.domain.medication.port.MedicationRepositoryPort
 import nl.healthjournal.domain.migraine.port.MigraineExportPort
 import nl.healthjournal.domain.migraine.port.MigraineImportPort
@@ -53,6 +54,9 @@ object DataPortsModule {
 
     @Provides
     fun oxygenSaturationRepository(data: DataModule): OxygenSaturationRepositoryPort = data.oxygenSaturationRepository
+
+    @Provides
+    fun fluidRepository(data: DataModule): FluidRepositoryPort = data.fluidRepository
 
     @Provides
     fun medicationRepository(data: DataModule): MedicationRepositoryPort = data.medicationRepository

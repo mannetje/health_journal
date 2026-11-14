@@ -13,6 +13,10 @@ import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
 import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
 import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
 import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
+import nl.healthjournal.domain.metrics.model.FluidDrink
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
+import nl.healthjournal.domain.metrics.model.FluidMl
 import nl.healthjournal.domain.shared.model.ImportResult
 import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
 import nl.healthjournal.domain.shared.model.SkippedRow
@@ -56,6 +60,7 @@ class CsvDataImportAdapter(
     private val activityRepository: ActivityRepositoryPort,
     private val waistCircumferenceRepository: WaistCircumferenceRepositoryPort,
     private val oxygenSaturationRepository: OxygenSaturationRepositoryPort,
+    private val fluidRepository: FluidRepositoryPort,
     private val profileRepository: ProfileRepositoryPort
 ) : DataImportPort {
 
@@ -93,6 +98,8 @@ class CsvDataImportAdapter(
         val commentColumn = CsvQuoting.split(lines.first()).indexOfFirst { it.equals("comment", ignoreCase = true) }
         val skippedRows = mutableListOf<SkippedRow>()
         var importedCount = 0
+        // Drinks already stored, loaded on the first fluid row, so importing the same file twice adds nothing.
+        var knownFluid: MutableSet<Triple<Instant, Int, FluidDrink>>? = null
 
         for ((index, line) in dataLines.withIndex()) {
             val lineNumber = lineNumbers[index + 1] // physical line; the header is the first non-blank line
@@ -232,6 +239,26 @@ class CsvDataImportAdapter(
                                 oxygenGiven = oxygenGiven,
                                 comment = comment
                             )
+                        )
+                        importedCount++
+                    }
+                    "fluid", "fluid_intake" -> {
+                        if (parts.size < 2) {
+                            skippedRows.add(SkippedRow(lineNumber, "Expected at least 2 columns (timestamp, ml), got ${parts.size}"))
+                            continue
+                        }
+                        val timestamp = parseInstant(parts[0])
+                        val ml = FluidMl(parts[1].trim().toInt())
+                        // A missing or unknown drink reads as Other, so older files and later versions still import.
+                        val drink = FluidDrink.fromCode(parts.getOrNull(2))
+                        val known = knownFluid ?: fluidRepository.getFluidHistory(profileId)
+                            .map { Triple(it.timestamp, it.amount.value, it.drink) }.toMutableSet().also { knownFluid = it }
+                        if (!known.add(Triple(timestamp, ml.value, drink))) {
+                            skippedRows.add(SkippedRow(lineNumber, "Already in your log (same time, amount and drink)"))
+                            continue
+                        }
+                        fluidRepository.saveFluidIntake(
+                            FluidIntakeEntry(MeasurementId.generate(), profileId, timestamp, drink, ml, comment)
                         )
                         importedCount++
                     }

@@ -4,8 +4,8 @@ import nl.healthjournal.app.ui.history.HistoryFilter
 import nl.healthjournal.app.ui.logging.MetricType
 
 /**
- * A metric the person can place in their own order on the Log tabs and History chips. Migraine has its own
- * logging flow, so it has no [MetricType].
+ * A metric the person can place in their own order on the Log tabs and History chips. Migraine and Fluid have
+ * their own logging screens, so they have no [MetricType].
  */
 enum class MetricSlot(val metricType: MetricType?, val historyFilter: HistoryFilter) {
     WEIGHT(MetricType.WEIGHT, HistoryFilter.WEIGHT),
@@ -14,7 +14,8 @@ enum class MetricSlot(val metricType: MetricType?, val historyFilter: HistoryFil
     MIGRAINE(null, HistoryFilter.MIGRAINE),
     WAIST_CIRCUMFERENCE(MetricType.WAIST_CIRCUMFERENCE, HistoryFilter.WAIST_CIRCUMFERENCE),
     ACTIVITY(MetricType.ACTIVITY, HistoryFilter.ACTIVITY),
-    OXYGEN_SATURATION(MetricType.OXYGEN_SATURATION, HistoryFilter.OXYGEN_SATURATION);
+    OXYGEN_SATURATION(MetricType.OXYGEN_SATURATION, HistoryFilter.OXYGEN_SATURATION),
+    FLUID(null, HistoryFilter.FLUID);
 
     companion object {
         /** The order when the person has not chosen one. */

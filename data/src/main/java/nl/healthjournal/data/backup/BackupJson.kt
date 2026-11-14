@@ -43,6 +43,10 @@ import nl.healthjournal.domain.metrics.model.GlucoseContext
 import nl.healthjournal.domain.metrics.model.GlucoseEntry
 import nl.healthjournal.domain.metrics.model.GlucoseLevel
 import nl.healthjournal.domain.shared.model.HeightCm
+import nl.healthjournal.domain.metrics.model.FluidDrink
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
+import nl.healthjournal.domain.metrics.model.FluidLimits
+import nl.healthjournal.domain.metrics.model.FluidMl
 import nl.healthjournal.domain.metrics.model.OxygenContext
 import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
 import nl.healthjournal.domain.metrics.model.OxygenSaturationPercent
@@ -152,6 +156,15 @@ object BackupJson {
                         .put("oxygenGiven", e.oxygenGiven)
                         .put("comment", nullable(e.comment?.text))
                 })
+                // Fluid entries and the person's own minimum and maximum, written only when present.
+                if (bp.fluidEntries.isNotEmpty()) o.put("fluidEntries", array(bp.fluidEntries.sortedBy { it.timestamp }) { e ->
+                    JSONObject().put("id", e.id.toString()).put("timestamp", e.timestamp.toString())
+                        .put("ml", e.amount.value)
+                        .put("drink", e.drink.code)
+                        .put("comment", nullable(e.comment?.text))
+                })
+                bp.fluidLimits.minMl?.let { o.put("fluidMinMl", it) }
+                bp.fluidLimits.maxMl?.let { o.put("fluidMaxMl", it) }
                 if (bp.migraineTags.isNotEmpty()) {
                     o.put("migraineTags", array(bp.migraineTags.sortedWith(compareBy({ it.kind.name }, { it.label.lowercase() }, { it.id.toString() }))) { t ->
                         JSONObject().put("id", t.id.toString()).put("kind", t.kind.name).put("label", t.label)
@@ -370,6 +383,24 @@ object BackupJson {
                         e.optBoolean("oxygenGiven", false), e.comment()
                     )
                 }
+            },
+            fluidEntries = guard("fluidEntries") {
+                // An entry whose amount is outside 10 to 5000 ml is left out, so one bad value never blocks a restore.
+                readList(o.optJSONArray("fluidEntries")) { e ->
+                    val ml = e.getInt("ml")
+                    if (ml !in FluidMl.MIN..FluidMl.MAX) null else FluidIntakeEntry(
+                        MeasurementId.fromString(e.req("id")), pid, Instant.parse(e.req("timestamp")),
+                        FluidDrink.fromCode(e.text("drink")), FluidMl(ml), e.comment()
+                    )
+                }.filterNotNull()
+            },
+            fluidLimits = guard("fluidLimits") {
+                runCatching {
+                    FluidLimits(
+                        if (o.has("fluidMinMl") && !o.isNull("fluidMinMl")) o.getInt("fluidMinMl") else null,
+                        if (o.has("fluidMaxMl") && !o.isNull("fluidMaxMl")) o.getInt("fluidMaxMl") else null
+                    )
+                }.getOrDefault(FluidLimits.NONE)
             },
             medications = guard("medications") { readList(o.optJSONArray("medications")) { readMedication(it, pid) } },
             migraines = guard("migraines") { readList(o.optJSONArray("migraines")) { readMigraine(it, pid, unknown) } },

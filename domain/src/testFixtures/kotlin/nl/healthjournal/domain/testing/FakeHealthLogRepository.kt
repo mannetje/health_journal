@@ -1,17 +1,22 @@
 package nl.healthjournal.domain.testing
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import nl.healthjournal.domain.shared.model.MeasurementId
 import nl.healthjournal.domain.shared.model.ProfileId
 import nl.healthjournal.domain.metrics.model.ActivitySession
 import nl.healthjournal.domain.metrics.model.BloodPressureEntry
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
+import nl.healthjournal.domain.metrics.model.FluidLimits
 import nl.healthjournal.domain.metrics.model.GlucoseEntry
 import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
 import nl.healthjournal.domain.metrics.model.WaistCircumferenceEntry
 import nl.healthjournal.domain.metrics.model.WeightEntry
 import nl.healthjournal.domain.metrics.port.WeightRepositoryPort
 import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
 import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
 import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
 import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
@@ -25,13 +30,40 @@ class FakeHealthLogRepository :
     GlucoseRepositoryPort,
     ActivityRepositoryPort,
     WaistCircumferenceRepositoryPort,
-    OxygenSaturationRepositoryPort {
+    OxygenSaturationRepositoryPort,
+    FluidRepositoryPort {
     val weights = mutableListOf<WeightEntry>()
     val bloodPressures = mutableListOf<BloodPressureEntry>()
     val glucoses = mutableListOf<GlucoseEntry>()
     val activities = mutableListOf<ActivitySession>()
     val waistCircumferences = mutableListOf<WaistCircumferenceEntry>()
     val oxygenSaturations = mutableListOf<OxygenSaturationEntry>()
+    val fluidIntakes = mutableListOf<FluidIntakeEntry>()
+    private val fluidLimits = MutableStateFlow<Map<ProfileId, FluidLimits>>(emptyMap())
+
+    /** Bumped on every change made through the port, so observers emit again like the real database does. */
+    private val fluidChanges = MutableStateFlow(0)
+
+    override suspend fun saveFluidIntake(entry: FluidIntakeEntry) { fluidIntakes.add(entry); fluidChanges.value++ }
+    override suspend fun getFluidHistory(profileId: ProfileId): List<FluidIntakeEntry> =
+        fluidIntakes.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
+    override fun observeFluidHistory(profileId: ProfileId): Flow<List<FluidIntakeEntry>> =
+        fluidChanges.map { getFluidHistory(profileId) }
+    override suspend fun updateFluidIntake(entry: FluidIntakeEntry): Boolean {
+        val index = fluidIntakes.indexOfFirst { it.id == entry.id && it.profileId == entry.profileId }
+        if (index < 0) return false
+        fluidIntakes[index] = entry
+        fluidChanges.value++
+        return true
+    }
+    override suspend fun deleteFluidIntake(id: MeasurementId): Boolean =
+        fluidIntakes.removeAll { it.id == id }.also { if (it) fluidChanges.value++ }
+    override suspend fun getFluidLimits(profileId: ProfileId): FluidLimits = fluidLimits.value[profileId] ?: FluidLimits.NONE
+    override fun observeFluidLimits(profileId: ProfileId): Flow<FluidLimits> =
+        fluidLimits.map { it[profileId] ?: FluidLimits.NONE }
+    override suspend fun saveFluidLimits(profileId: ProfileId, limits: FluidLimits) {
+        fluidLimits.value = fluidLimits.value + (profileId to limits)
+    }
 
     override suspend fun saveOxygenSaturation(entry: OxygenSaturationEntry) { oxygenSaturations.add(entry) }
     override suspend fun updateOxygenSaturation(entry: OxygenSaturationEntry): Boolean {
@@ -112,4 +144,4 @@ class FakeHealthLogRepository :
         flow { emit(getWaistCircumferenceHistory(profileId)) }
 }
 
-fun FakeHealthLogRepository.healthHistoryUseCase() = GetHealthHistoryUseCase(this, this, this, this, this, this)
+fun FakeHealthLogRepository.healthHistoryUseCase() = GetHealthHistoryUseCase(this, this, this, this, this, this, this)

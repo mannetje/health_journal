@@ -35,6 +35,9 @@ private fun DomainError.Invalid.invalidText(units: DisplayUnits): UiText = when 
         ValidationField.WEIGHT -> UiText.Res(R.string.log_err_weight, units.weightSymbol)
         ValidationField.WAIST -> UiText.Res(R.string.log_err_waist)
         ValidationField.DISTANCE -> UiText.Res(R.string.log_err_distance, units.distanceSymbol)
+        ValidationField.FLUID -> UiText.Res(R.string.fluid_err_amount)
+        ValidationField.FLUID_MIN,
+        ValidationField.FLUID_MAX -> UiText.Res(R.string.fluid_err_limit)
         ValidationField.PULSE,
         ValidationField.OXYGEN_SATURATION,
         ValidationField.TIME_RANGE,
@@ -46,6 +49,7 @@ private fun DomainError.Invalid.invalidText(units: DisplayUnits): UiText = when 
     }
     ValidationRule.TOO_SHORT -> UiText.Res(R.string.backup_err_too_short, params.firstOrNull() ?: 0)
     ValidationRule.MISMATCH -> UiText.Res(R.string.backup_err_mismatch)
+    ValidationRule.MIN_ABOVE_MAX -> UiText.Res(R.string.fluid_err_min_above_max)
     ValidationRule.REQUIRED,
     ValidationRule.SYSTOLIC_NOT_ABOVE_DIASTOLIC,
     ValidationRule.TOO_LONG -> UiText.Res(R.string.history_edit_invalid)

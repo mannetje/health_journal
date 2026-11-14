@@ -1,5 +1,6 @@
 package nl.healthjournal.app.ui.shell
 
+import nl.healthjournal.app.settings.MetricSlot
 import androidx.compose.runtime.saveable.SaverScope
 import nl.healthjournal.app.AppNavDestination
 import org.junit.Assert.assertEquals
@@ -84,7 +85,7 @@ class AppNavigationStateTest {
 
     @Test
     fun savedStateRestoresTheTabAndScreensButNotThePendingNotificationTap() {
-        val state = AppNavigationState(tab = AppNavDestination.HISTORY, logMigraineTab = true, encryptionBannerDismissed = true)
+        val state = AppNavigationState(tab = AppNavDestination.HISTORY, logCustomSlot = MetricSlot.FLUID, encryptionBannerDismissed = true)
         state.openPillboxOnToday()
 
         val saved = with(AppNavigationState.Saver) { SaverScope { true }.save(state) }!!
@@ -93,7 +94,7 @@ class AppNavigationStateTest {
         assertEquals(AppNavDestination.HISTORY, restored.currentTab)
         assertTrue(restored.showPillbox)
         assertFalse(restored.showMindfulness)
-        assertTrue(restored.logMigraineTab)
+        assertEquals(MetricSlot.FLUID, restored.logCustomSlot)
         assertTrue(restored.encryptionBannerDismissed)
         assertFalse(restored.openPillboxOnToday)
     }

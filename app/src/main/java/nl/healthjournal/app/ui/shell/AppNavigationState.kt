@@ -1,5 +1,6 @@
 package nl.healthjournal.app.ui.shell
 
+import nl.healthjournal.app.settings.MetricSlot
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -14,8 +15,8 @@ class AppNavigationState(
     tab: AppNavDestination = AppNavDestination.LOG,
     pillbox: Boolean = false,
     mindfulness: Boolean = false,
-    /** The migraine tab of the Log screen; hoisted so it survives the form opening and closing. */
-    logMigraineTab: Boolean = false,
+    /** The Migraine or Fluid tab of the Log screen, null on a metric form; hoisted so it survives the form opening and closing. */
+    logCustomSlot: MetricSlot? = null,
     encryptionBannerDismissed: Boolean = false
 ) {
     var currentTab by mutableStateOf(tab)
@@ -29,7 +30,7 @@ class AppNavigationState(
     var showMindfulness by mutableStateOf(mindfulness)
         private set
 
-    var logMigraineTab by mutableStateOf(logMigraineTab)
+    var logCustomSlot by mutableStateOf(logCustomSlot)
 
     var encryptionBannerDismissed by mutableStateOf(encryptionBannerDismissed)
 
@@ -80,14 +81,14 @@ class AppNavigationState(
 
     companion object {
         val Saver: Saver<AppNavigationState, Any> = Saver(
-            save = { listOf(it.currentTab.name, it.showPillbox, it.showMindfulness, it.logMigraineTab, it.encryptionBannerDismissed) },
+            save = { listOf(it.currentTab.name, it.showPillbox, it.showMindfulness, it.logCustomSlot?.name.orEmpty(), it.encryptionBannerDismissed) },
             restore = {
                 val values = it as List<*>
                 AppNavigationState(
                     tab = AppNavDestination.valueOf(values[0] as String),
                     pillbox = values[1] as Boolean,
                     mindfulness = values[2] as Boolean,
-                    logMigraineTab = values[3] as Boolean,
+                    logCustomSlot = MetricSlot.entries.firstOrNull { slot -> slot.name == values[3] as? String },
                     encryptionBannerDismissed = values[4] as Boolean
                 )
             }

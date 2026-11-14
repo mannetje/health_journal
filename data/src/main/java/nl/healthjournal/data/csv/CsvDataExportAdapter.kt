@@ -8,6 +8,7 @@ import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
 import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
 import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
 import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
 
 class CsvDataExportAdapter(
     private val weightRepository: WeightRepositoryPort,
@@ -15,7 +16,8 @@ class CsvDataExportAdapter(
     private val glucoseRepository: GlucoseRepositoryPort,
     private val activityRepository: ActivityRepositoryPort,
     private val waistCircumferenceRepository: WaistCircumferenceRepositoryPort,
-    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort
+    private val oxygenSaturationRepository: OxygenSaturationRepositoryPort,
+    private val fluidRepository: FluidRepositoryPort
 ) : DataExportPort {
 
     override suspend fun exportWeightCsv(profileId: ProfileId): String {
@@ -67,6 +69,16 @@ class CsvDataExportAdapter(
         for (entry in history) {
             val categoryStr = entry.category?.name ?: ""
             sb.append("${entry.timestamp},${entry.waist.value},$categoryStr,${CsvQuoting.cell(entry.comment?.text)}\n")
+        }
+        return sb.toString()
+    }
+
+    override suspend fun exportFluidCsv(profileId: ProfileId): String {
+        val history = fluidRepository.getFluidHistory(profileId).sortedBy { it.timestamp }
+        val sb = StringBuilder()
+        sb.append("timestamp,ml,drink,comment\n")
+        for (entry in history) {
+            sb.append("${entry.timestamp},${entry.amount.value},${entry.drink.code},${CsvQuoting.cell(entry.comment?.text)}\n")
         }
         return sb.toString()
     }

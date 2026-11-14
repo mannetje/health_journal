@@ -205,6 +205,39 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
     }
 }
 
+/**
+ * Adds the `fluid_intakes` and `fluid_settings` tables. Tables only: no existing row is touched.
+ * The SQL mirrors what Room expects for the entities in `FluidIntakeEntity.kt` and `FluidSettingsEntity.kt`.
+ */
+val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `fluid_intakes` (
+                `id` TEXT NOT NULL,
+                `profileId` TEXT NOT NULL,
+                `timestamp` INTEGER NOT NULL,
+                `ml` INTEGER NOT NULL,
+                `drink` TEXT,
+                `comment` TEXT,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_fluid_intakes_profileId_timestamp` ON `fluid_intakes` (`profileId`, `timestamp`)")
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `fluid_settings` (
+                `profileId` TEXT NOT NULL,
+                `minMl` INTEGER,
+                `maxMl` INTEGER,
+                PRIMARY KEY(`profileId`)
+            )
+            """.trimIndent()
+        )
+    }
+}
+
 @Database(
     entities = [
         ProfileEntity::class,
@@ -219,9 +252,11 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
         IntakeEntity::class,
         MigraineEntity::class,
         MigraineTagEntity::class,
-        OxygenSaturationEntity::class
+        OxygenSaturationEntity::class,
+        FluidIntakeEntity::class,
+        FluidSettingsEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = true
 )
 abstract class HealthJournalDatabase : RoomDatabase() {
@@ -234,6 +269,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
     abstract fun medicationDao(): MedicationDao
     abstract fun migraineDao(): MigraineDao
     abstract fun oxygenSaturationDao(): OxygenSaturationDao
+    abstract fun fluidIntakeDao(): FluidIntakeDao
 
     companion object {
         const val DATABASE_NAME = "health_journal.db"
@@ -266,7 +302,7 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 context,
                 HealthJournalDatabase::class.java,
                 DATABASE_NAME
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
 
             if (!hasSqlCipher) {
                 return notEncrypted(builder, "the SQLCipher library could not be loaded")

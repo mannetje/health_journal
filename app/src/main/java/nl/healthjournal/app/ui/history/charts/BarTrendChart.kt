@@ -16,6 +16,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
@@ -37,10 +40,18 @@ private val PlotHeight = 110.dp
  * never overlap at large font sizes.
  */
 @Composable
-fun BarTrendChart(bars: List<Bar>, valueText: (Double) -> String, modifier: Modifier = Modifier) {
+fun BarTrendChart(
+    bars: List<Bar>,
+    valueText: (Double) -> String,
+    modifier: Modifier = Modifier,
+    /** Values drawn as dashed lines across the bars, for the person's own numbers; they share the bars' scale. */
+    referenceLines: List<Double> = emptyList()
+) {
     val values = bars.mapNotNull { it.value }
-    val scale = max(values.maxOfOrNull { abs(it) } ?: 0.0, 1e-9)
-    val above = values.filter { it > 0 }.maxOrNull() ?: 0.0
+    val highestLine = referenceLines.maxOrNull() ?: 0.0
+    val scale = max(max(values.maxOfOrNull { abs(it) } ?: 0.0, highestLine), 1e-9)
+    val above = max(values.filter { it > 0 }.maxOrNull() ?: 0.0, highestLine)
+    val lineColor = MaterialTheme.colorScheme.onSurfaceVariant
     val below = values.filter { it < 0 }.minOfOrNull { abs(it) } ?: 0.0
     val aboveArea = PlotHeight * (above / scale).toFloat() + LabelHeight
     val belowArea = PlotHeight * (below / scale).toFloat() + LabelHeight
@@ -54,7 +65,18 @@ fun BarTrendChart(bars: List<Bar>, valueText: (Double) -> String, modifier: Modi
                 modifier = Modifier.width(SlotWidth).clearAndSetSemantics { contentDescription = description },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(modifier = Modifier.heightIn(min = aboveArea).width(SlotWidth), contentAlignment = Alignment.BottomCenter) {
+                Box(
+                    modifier = Modifier.heightIn(min = aboveArea).width(SlotWidth).drawBehind {
+                        referenceLines.forEach { v ->
+                            val y = size.height - PlotHeight.toPx() * (v / scale).toFloat()
+                            drawLine(
+                                lineColor, Offset(0f, y), Offset(size.width, y),
+                                strokeWidth = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f))
+                            )
+                        }
+                    },
+                    contentAlignment = Alignment.BottomCenter
+                ) {
                     if (value != null && value > 0) {
                         BarWithValue(valueText(value), PlotHeight * (value / scale).toFloat(), color, valueAbove = true)
                     }

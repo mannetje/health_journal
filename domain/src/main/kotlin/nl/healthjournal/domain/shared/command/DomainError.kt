@@ -21,7 +21,8 @@ sealed interface DomainError {
 
 /** The input a [ValidationRule] was broken on. */
 enum class ValidationField {
-    SYSTOLIC, DIASTOLIC, PULSE, GLUCOSE, WEIGHT, WAIST, OXYGEN_SATURATION, DISTANCE, TIME_RANGE, COMMENT, NAME, HEIGHT, DATE_OF_BIRTH, PASSPHRASE
+    SYSTOLIC, DIASTOLIC, PULSE, GLUCOSE, WEIGHT, WAIST, OXYGEN_SATURATION, DISTANCE, TIME_RANGE, COMMENT, NAME, HEIGHT, DATE_OF_BIRTH, PASSPHRASE,
+    FLUID, FLUID_MIN, FLUID_MAX
 }
 
 enum class ValidationRule {
@@ -30,6 +31,9 @@ enum class ValidationRule {
 
     /** The value is outside its bounds; params are the minimum and the maximum. */
     OUT_OF_RANGE,
+
+    /** A personal minimum is above the maximum. */
+    MIN_ABOVE_MAX,
 
     /** Systolic must be strictly above diastolic. */
     SYSTOLIC_NOT_ABOVE_DIASTOLIC,

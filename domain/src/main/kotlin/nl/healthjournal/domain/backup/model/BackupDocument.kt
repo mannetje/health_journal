@@ -5,6 +5,8 @@ import nl.healthjournal.domain.medication.model.Medication
 import nl.healthjournal.domain.metrics.model.ActivitySession
 import nl.healthjournal.domain.metrics.model.BloodPressureEntry
 import nl.healthjournal.domain.metrics.model.GlucoseEntry
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
+import nl.healthjournal.domain.metrics.model.FluidLimits
 import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
 import nl.healthjournal.domain.metrics.model.WaistCircumferenceEntry
 import nl.healthjournal.domain.metrics.model.WeightEntry
@@ -43,10 +45,13 @@ data class BackupProfile(
     val medications: List<BackupMedication> = emptyList(),
     val migraines: List<MigraineEntry> = emptyList(),
     val migraineTags: List<MigraineTag> = emptyList(),
-    val oxygenSaturations: List<OxygenSaturationEntry> = emptyList()
+    val oxygenSaturations: List<OxygenSaturationEntry> = emptyList(),
+    val fluidEntries: List<FluidIntakeEntry> = emptyList(),
+    /** The person's own minimum and maximum; [FluidLimits.NONE] when not set. */
+    val fluidLimits: FluidLimits = FluidLimits.NONE
 ) {
     val entryCount: Int
-        get() = weights.size + bloodPressures.size + glucoses.size + waistCircumferences.size + activities.size + migraines.size + oxygenSaturations.size
+        get() = weights.size + bloodPressures.size + glucoses.size + waistCircumferences.size + activities.size + migraines.size + oxygenSaturations.size + fluidEntries.size
     val intakeCount: Int
         get() = medications.sumOf { it.intakes.size }
 }

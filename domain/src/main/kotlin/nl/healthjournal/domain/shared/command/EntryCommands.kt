@@ -3,6 +3,7 @@ package nl.healthjournal.domain.shared.command
 import nl.healthjournal.domain.shared.model.MeasurementId
 import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
 import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
 import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
 import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
 import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
@@ -10,7 +11,7 @@ import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
 import nl.healthjournal.domain.metrics.port.WeightRepositoryPort
 
 /** The kinds of entry the journal stores. */
-enum class EntryKind { WEIGHT, BLOOD_PRESSURE, GLUCOSE, ACTIVITY, WAIST_CIRCUMFERENCE, OXYGEN_SATURATION, MIGRAINE }
+enum class EntryKind { WEIGHT, BLOOD_PRESSURE, GLUCOSE, ACTIVITY, WAIST_CIRCUMFERENCE, OXYGEN_SATURATION, MIGRAINE, FLUID_INTAKE }
 
 /** Permanently deletes one entry. Fails with [DomainError.NotFound] when the id is unknown. */
 data class DeleteEntryCommand(val kind: EntryKind, val id: MeasurementId) : Command<Unit>
@@ -28,7 +29,8 @@ class PortEntryGateway(
     private val activity: ActivityRepositoryPort,
     private val waist: WaistCircumferenceRepositoryPort,
     private val oxygen: OxygenSaturationRepositoryPort,
-    private val migraine: MigraineRepositoryPort
+    private val migraine: MigraineRepositoryPort,
+    private val fluid: FluidRepositoryPort
 ) : EntryGateway {
     override suspend fun delete(kind: EntryKind, id: MeasurementId): Boolean = when (kind) {
         EntryKind.WEIGHT -> weight.deleteWeight(id)
@@ -38,6 +40,7 @@ class PortEntryGateway(
         EntryKind.WAIST_CIRCUMFERENCE -> waist.deleteWaistCircumference(id)
         EntryKind.OXYGEN_SATURATION -> oxygen.deleteOxygenSaturation(id)
         EntryKind.MIGRAINE -> migraine.deleteMigraine(id)
+        EntryKind.FLUID_INTAKE -> fluid.deleteFluidIntake(id)
     }
 }
 

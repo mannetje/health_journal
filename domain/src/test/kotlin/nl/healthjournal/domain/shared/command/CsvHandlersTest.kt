@@ -22,6 +22,7 @@ class CsvHandlersTest {
         override suspend fun exportActivityCsv(profileId: ProfileId) = "activity"
         override suspend fun exportWaistCircumferenceCsv(profileId: ProfileId) = "waist"
         override suspend fun exportOxygenSaturationCsv(profileId: ProfileId) = "oxygen"
+        override suspend fun exportFluidCsv(profileId: ProfileId) = "fluid"
     }
     private val migraineExport = object : MigraineExportPort {
         override suspend fun exportMigraineCsv(profileId: ProfileId) = "migraine"

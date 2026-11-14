@@ -65,7 +65,7 @@ class MigrationTest {
         listOf("medications", "medication_schedules", "medication_times", "intakes")
             .forEach { assertEquals(it, 0, count(it)) }
         listOf("migraines", "migraine_tags", "oxygen_saturations").forEach { assertEquals(it, 0, count(it)) }
-        assertEquals(8, db!!.openHelper.readableDatabase.version)
+        assertEquals(9, db!!.openHelper.readableDatabase.version)
     }
 
     @Test
@@ -74,7 +74,7 @@ class MigrationTest {
         db = HealthJournalDatabase.create(context)
         assertTrue(count("medications") == 0)
         assertTrue(count("migraines") == 0)
-        assertEquals(8, db!!.openHelper.readableDatabase.version)
+        assertEquals(9, db!!.openHelper.readableDatabase.version)
     }
 
     private companion object {

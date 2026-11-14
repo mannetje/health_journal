@@ -12,6 +12,7 @@ import nl.healthjournal.app.reminder.ReminderCoordinator
 import nl.healthjournal.app.reminder.ReminderNotifier
 import nl.healthjournal.app.settings.AppLockPreference
 import nl.healthjournal.app.settings.BackupPreferenceBridge
+import nl.healthjournal.app.settings.FluidGaugePreference
 import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.ReminderPreference
 import nl.healthjournal.app.settings.UnitPreference
@@ -33,6 +34,10 @@ object PlatformModule {
     @Provides
     @Singleton
     fun metricDisplayOrder(@ApplicationContext context: Context) = MetricDisplayOrderPreference(context)
+
+    @Provides
+    @Singleton
+    fun fluidGaugePreference(@ApplicationContext context: Context) = FluidGaugePreference(context)
 
     @Provides
     @Singleton

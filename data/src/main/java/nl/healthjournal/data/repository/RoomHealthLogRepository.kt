@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.map
 import nl.healthjournal.data.local.dao.ActivityDao
 import nl.healthjournal.data.local.dao.BloodPressureDao
 import nl.healthjournal.data.local.dao.GlucoseDao
+import nl.healthjournal.data.local.dao.FluidIntakeDao
 import nl.healthjournal.data.local.dao.OxygenSaturationDao
 import nl.healthjournal.data.local.dao.WaistCircumferenceDao
 import nl.healthjournal.data.local.dao.WeightDao
@@ -14,6 +15,8 @@ import nl.healthjournal.domain.shared.model.ProfileId
 import nl.healthjournal.domain.metrics.model.ActivitySession
 import nl.healthjournal.domain.metrics.model.BloodPressureEntry
 import nl.healthjournal.domain.metrics.model.GlucoseEntry
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
+import nl.healthjournal.domain.metrics.model.FluidLimits
 import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
 import nl.healthjournal.domain.metrics.model.WaistCircumferenceEntry
 import nl.healthjournal.domain.metrics.model.WeightEntry
@@ -22,6 +25,7 @@ import nl.healthjournal.domain.metrics.port.BloodPressureRepositoryPort
 import nl.healthjournal.domain.metrics.port.GlucoseRepositoryPort
 import nl.healthjournal.domain.metrics.port.ActivityRepositoryPort
 import nl.healthjournal.domain.metrics.port.WaistCircumferenceRepositoryPort
+import nl.healthjournal.domain.metrics.port.FluidRepositoryPort
 import nl.healthjournal.domain.metrics.port.OxygenSaturationRepositoryPort
 
 class RoomHealthLogRepository(
@@ -30,8 +34,9 @@ class RoomHealthLogRepository(
     private val glucoseDao: GlucoseDao,
     private val activityDao: ActivityDao,
     private val waistCircumferenceDao: WaistCircumferenceDao,
-    private val oxygenSaturationDao: OxygenSaturationDao
-) : WeightRepositoryPort, BloodPressureRepositoryPort, GlucoseRepositoryPort, ActivityRepositoryPort, WaistCircumferenceRepositoryPort, OxygenSaturationRepositoryPort {
+    private val oxygenSaturationDao: OxygenSaturationDao,
+    private val fluidIntakeDao: FluidIntakeDao
+) : WeightRepositoryPort, BloodPressureRepositoryPort, GlucoseRepositoryPort, ActivityRepositoryPort, WaistCircumferenceRepositoryPort, OxygenSaturationRepositoryPort, FluidRepositoryPort {
 
     // Weight
     override suspend fun saveWeight(entry: WeightEntry) {
@@ -157,5 +162,32 @@ class RoomHealthLogRepository(
         return oxygenSaturationDao.observeByProfileId(profileId.value.toString()).map { list ->
             list.map { HealthLogMapper.toDomain(it) }
         }
+    }
+
+    // Fluid intake
+    override suspend fun saveFluidIntake(entry: FluidIntakeEntry) {
+        fluidIntakeDao.insert(HealthLogMapper.toEntity(entry))
+    }
+
+    override suspend fun updateFluidIntake(entry: FluidIntakeEntry): Boolean =
+        fluidIntakeDao.update(HealthLogMapper.toEntity(entry)) > 0
+
+    override suspend fun deleteFluidIntake(id: MeasurementId): Boolean =
+        fluidIntakeDao.deleteById(id.value.toString()) > 0
+
+    override suspend fun getFluidHistory(profileId: ProfileId): List<FluidIntakeEntry> =
+        fluidIntakeDao.getByProfileId(profileId.value.toString()).map { HealthLogMapper.toDomain(it) }
+
+    override fun observeFluidHistory(profileId: ProfileId): Flow<List<FluidIntakeEntry>> =
+        fluidIntakeDao.observeByProfileId(profileId.value.toString()).map { list -> list.map { HealthLogMapper.toDomain(it) } }
+
+    override suspend fun getFluidLimits(profileId: ProfileId): FluidLimits =
+        HealthLogMapper.toDomain(fluidIntakeDao.getSettings(profileId.value.toString()))
+
+    override fun observeFluidLimits(profileId: ProfileId): Flow<FluidLimits> =
+        fluidIntakeDao.observeSettings(profileId.value.toString()).map { HealthLogMapper.toDomain(it) }
+
+    override suspend fun saveFluidLimits(profileId: ProfileId, limits: FluidLimits) {
+        fluidIntakeDao.upsertSettings(HealthLogMapper.toEntity(profileId, limits))
     }
 }

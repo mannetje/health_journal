@@ -19,6 +19,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import nl.healthjournal.app.ui.history.charts.OxygenStatisticsSection
+import nl.healthjournal.app.ui.history.charts.FluidGraphSection
+import nl.healthjournal.app.ui.history.charts.fluidPositionText
+import nl.healthjournal.app.ui.fluid.DrinkIcon
+import nl.healthjournal.app.ui.fluid.nameRes
+import nl.healthjournal.domain.metrics.model.fluidPosition
 import nl.healthjournal.app.ui.history.charts.OxygenTrendSection
 import nl.healthjournal.app.ui.history.charts.WaistStatisticsSection
 import nl.healthjournal.app.ui.history.charts.WaistTrendSection
@@ -122,10 +127,13 @@ private fun HistoryList(
     var waistGraph by rememberSaveable { mutableStateOf(false) }
     var migraineGraph by rememberSaveable { mutableStateOf(false) }
     var oxygenGraph by rememberSaveable { mutableStateOf(false) }
+    var fluidGraph by rememberSaveable { mutableStateOf(false) }
     val filterNow = state.selectedFilter
     val hasChart = filterNow == HistoryFilter.WEIGHT || filterNow == HistoryFilter.BLOOD_PRESSURE || filterNow == HistoryFilter.GLUCOSE ||
-        filterNow == HistoryFilter.WAIST_CIRCUMFERENCE || filterNow == HistoryFilter.MIGRAINE || filterNow == HistoryFilter.OXYGEN_SATURATION
+        filterNow == HistoryFilter.WAIST_CIRCUMFERENCE || filterNow == HistoryFilter.MIGRAINE || filterNow == HistoryFilter.OXYGEN_SATURATION ||
+        filterNow == HistoryFilter.FLUID
     val graphViewNow = hasChart && when (filterNow) {
+        HistoryFilter.FLUID -> fluidGraph
         HistoryFilter.WEIGHT -> weightGraph
         HistoryFilter.BLOOD_PRESSURE -> bpGraph
         HistoryFilter.WAIST_CIRCUMFERENCE -> waistGraph
@@ -140,6 +148,7 @@ private fun HistoryList(
             HistoryFilter.WAIST_CIRCUMFERENCE -> waistGraph = on
             HistoryFilter.MIGRAINE -> migraineGraph = on
             HistoryFilter.OXYGEN_SATURATION -> oxygenGraph = on
+            HistoryFilter.FLUID -> fluidGraph = on
             else -> glucoseGraph = on
         }
     }
@@ -157,7 +166,9 @@ private fun HistoryList(
                 text = stringResource(R.string.history_title),
                 style = MaterialTheme.typography.titleLarge
             )
-            if (state.selectedFilter != HistoryFilter.ACTIVITY && state.selectedFilter != HistoryFilter.MIGRAINE) {
+            if (state.selectedFilter != HistoryFilter.ACTIVITY && state.selectedFilter != HistoryFilter.MIGRAINE &&
+                state.selectedFilter != HistoryFilter.FLUID
+            ) {
                 RangeSourceNote(compact = true)
             }
             Spacer(Modifier.weight(1f))
@@ -235,6 +246,11 @@ private fun HistoryList(
         val glucoses = if (ranged) state.glucoses.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.glucoses
         val waists = if (ranged) state.waistCircumferences.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.waistCircumferences
         val oxygens = if (ranged) state.oxygenSaturations.filterByDateRange(state.selectedDateRange) { it.timestamp } else state.oxygenSaturations
+        val fluids = when {
+            state.fluidDay != null -> state.fluidIntakes.filter { it.timestamp.atZone(ZoneId.systemDefault()).toLocalDate() == state.fluidDay }
+            ranged -> state.fluidIntakes.filterByDateRange(state.selectedDateRange) { it.timestamp }
+            else -> state.fluidIntakes
+        }
         val migraines = when {
             state.migraineDay != null -> state.migraines.filter { it.startDay(ZoneId.systemDefault()) == state.migraineDay }
             ranged -> {
@@ -342,6 +358,42 @@ private fun HistoryList(
                     })
                 }
             }
+            if (filter == HistoryFilter.ALL || filter == HistoryFilter.FLUID) {
+                val zone = ZoneId.systemDefault()
+                // The day total (with its neutral position) sits on the newest entry of each day.
+                val newestOfDay = fluids.groupBy { it.timestamp.atZone(zone).toLocalDate() }
+                    .mapValues { (_, list) -> list.maxBy { it.timestamp }.id }
+                val dayTotals = fluids.groupBy { it.timestamp.atZone(zone).toLocalDate() }
+                    .mapValues { (_, list) -> list.sumOf { it.amount.value } }
+                fluids.forEach { f ->
+                    add(f.timestamp to {
+                        EntryCard(
+                            onEdit = { viewModel.startEdit(EntryRef.Fluid(f)) },
+                            onDelete = { viewModel.requestDelete(EntryRef.Fluid(f)) }
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                DrinkIcon(f.drink, Modifier.size(36.dp))
+                                Column {
+                                    Text(
+                                        stringResource(R.string.fluid_history_line, stringResource(f.drink.nameRes), f.amount.value),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(stringResource(R.string.history_time_line, f.timestamp.formatLocal()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                            if (filter == HistoryFilter.FLUID && newestOfDay[f.timestamp.atZone(zone).toLocalDate()] == f.id) {
+                                val total = dayTotals.getValue(f.timestamp.atZone(zone).toLocalDate())
+                                val position = fluidPositionText(fluidPosition(total, state.fluidLimits), state.fluidLimits)
+                                Text(
+                                    listOfNotNull(stringResource(R.string.fluid_day_total, total), position).joinToString(" · "),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                            CommentLine(f.comment)
+                        }
+                    })
+                }
+            }
             if (filter == HistoryFilter.ALL || filter == HistoryFilter.MIGRAINE) {
                 migraines.forEach { m ->
                     add(m.start to {
@@ -372,6 +424,18 @@ private fun HistoryList(
         // The entries and the chart are two panes: shown one at a time behind the toggle, or side by side when there is room.
         val listPane: @Composable (Modifier) -> Unit = { paneModifier ->
             Column(modifier = paneModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                state.fluidDay?.let { day ->
+                    if (filterNow == HistoryFilter.FLUID) {
+                        InputChip(
+                            selected = true,
+                            onClick = { viewModel.clearFluidDay() },
+                            label = { Text(stringResource(R.string.migraine_day_filter, day.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))) },
+                            trailingIcon = {
+                                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.fluid_day_filter_clear), modifier = Modifier.size(18.dp))
+                            }
+                        )
+                    }
+                }
                 state.migraineDay?.let { day ->
                     if (filterNow == HistoryFilter.MIGRAINE) {
                         InputChip(
@@ -443,6 +507,15 @@ private fun HistoryList(
                             OxygenTrendSection(entries = oxygens)
                             OxygenStatisticsSection(entries = oxygens)
                         }
+                        HistoryFilter.FLUID -> FluidGraphSection(
+                            entries = fluids,
+                            allEntries = state.fluidIntakes,
+                            limits = state.fluidLimits,
+                            onOpenDay = { day ->
+                                viewModel.showFluidDay(day)
+                                setGraphView(HistoryFilter.FLUID, false)
+                            }
+                        )
                         HistoryFilter.MIGRAINE -> MigraineGraphSection(
                             entries = state.migraines,
                             tags = migraineTags,
@@ -510,6 +583,9 @@ private fun HistoryList(
                     Button(onClick = { viewModel.exportCsv("oxygen_saturation") }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.history_export_oxygen))
                     }
+                    Button(onClick = { viewModel.exportCsv("fluid") }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.history_export_fluid))
+                    }
                     Button(onClick = { viewModel.exportCsv("migraine") }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.history_export_migraine))
                     }
@@ -570,6 +646,11 @@ private fun HistoryList(
                             label = { Text(stringResource(R.string.history_import_type_oxygen)) }
                         )
                         FilterChip(
+                            selected = importMetricType == "fluid",
+                            onClick = { importMetricType = "fluid" },
+                            label = { Text(stringResource(R.string.history_import_type_fluid)) }
+                        )
+                        FilterChip(
                             selected = importMetricType == "migraine",
                             onClick = { importMetricType = "migraine" },
                             label = { Text(stringResource(R.string.history_import_type_migraine)) }
@@ -587,6 +668,7 @@ private fun HistoryList(
                                 "libra" -> Text(stringResource(R.string.history_libra_placeholder))
                                 "waist_circumference" -> Text("timestamp,waist_cm\n...")
                                 "oxygen_saturation" -> Text("timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n...")
+                                "fluid" -> Text("timestamp,ml,drink,comment\n...")
                                 "migraine" -> Text(stringResource(R.string.history_migraine_placeholder))
                                 else -> Text(stringResource(R.string.history_csv_placeholder))
                             }
@@ -636,4 +718,5 @@ private val MetricSlot.filterLabelRes: Int
         MetricSlot.WAIST_CIRCUMFERENCE -> R.string.history_filter_waist
         MetricSlot.ACTIVITY -> R.string.history_filter_activity
         MetricSlot.OXYGEN_SATURATION -> R.string.history_filter_oxygen
+        MetricSlot.FLUID -> R.string.history_filter_fluid
     }

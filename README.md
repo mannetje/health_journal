@@ -23,7 +23,7 @@ Health Journal is **a personal tool for logging and reminders, for private use. 
 
 You can download the ready-to-install Android APK directly from GitHub:
 
-👉 **[Download Latest APK (v1.7.2)](https://github.com/mannetje/health_journal/releases/latest)**  
+👉 **[Download Latest APK (v1.7.3)](https://github.com/mannetje/health_journal/releases/latest)**  
 See the [CHANGELOG](CHANGELOG.md) for what changed in each release.
 
 ---
@@ -61,6 +61,7 @@ Questions about your values go to your doctor or pharmacist. The rules behind th
 - **Blood Pressure & Pulse:** Record systolic, diastolic (mmHg), and pulse (30–250 bpm); shown with its NHG range label (Normal, High, Seriously raised). *([spec](openspec/specs/health-metrics/blood-pressure/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
 - **Blood Glucose:** Record fasting and postprandial levels in mmol/L or mg/dL; shown with the NHG range label for the context. *([spec](openspec/specs/health-metrics/glucose/spec.md), [ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md))*
 - **Migraine log:** A step-by-step log of headaches and migraines on its own tab of the Log screen: start and end (or still ongoing), intensity 0 to 10, where it hurts, type, symptoms, triggers, medication taken, relief and a comment, with your own trigger and relief tags. History shows one compact card per migraine and a graph view with counts, a timeline, durations, weekdays and a time-of-day heat map. Plain facts only: no advice, no diagnosis and no comparisons. *([change](openspec/changes/archive/2026-10-24-add-migraine-log/proposal.md), [spec](openspec/specs/migraine/spec.md), [ADR 0025](docs/adr/0025-migraine-log-data-model.md), [dev doc](docs/dev/migraine.md))*
+- **Fluid intake:** One tap on a drink tile (Water, Coffee, Tea, Milk, Juice, Soup, Other, each with its own portion and a count stepper) logs a drink. A glass, woman or man outline fills with today's total. You may set your own minimum and maximum; the app then shows where the day stands in plain words and numbers, and never suggests an amount, sends a reminder or counts streaks. History has day totals, a Graph (with your limits as dashed lines) and a Calendar, and entries can be exported and imported as CSV. *([ADR 0030](docs/adr/0030-fluid-intake-quick-log-with-personal-limits.md), [spec](openspec/changes/add-fluid-intake/proposal.md), [dev doc](docs/dev/fluid.md))*
 - **Physical Activity:** Track duration and distance for workout sessions manually or via bulk import. *([spec](openspec/specs/health-metrics/activity/spec.md))*
 - **Medication Pillbox (💊):** Manage medications (tablets, liquids, sprays, injectables) with flexible schedule versions, daily time slots, and intake logs. *([spec](openspec/specs/medication/spec.md), [ADR 0020](docs/adr/0020-medication-model-and-pillbox.md), [dev doc](docs/dev/pillbox.md))*
 - **Mindfulness (🪷):** A calm corner next to the pillbox, with no advice and no record of your practice. Breathe: box, 4-7-8, physiological sigh or belly breathing for 1, 3 or 5 minutes, drawn as a soft lotus, circle or rounded square. Meditate: a quiet timer of 5, 10, 15, 20 or 30 minutes with optional interval bells. Guided: three recorded exercises from the Free Mindfulness Project, played on the device and credited in the app. Start here: a three-step first-time ladder. Tones, vibration and spoken cues (the phone's offline voice) can each be switched on or off, and a short safety note is shown on first open. Only your display choices are saved. Tapping the logo in the top bar takes you back to the Log screen. *([spec](openspec/specs/mindfulness/spec.md), [decisions and wording](docs/dev/mindfulness.md), [how it works](docs/dev/mindfulness-feature.md), [credits](docs/credits.md))*
@@ -191,11 +192,11 @@ flowchart TD
 ### Method 1: Download from GitHub Releases (Easiest)
 
 1. Open **[GitHub Releases](https://github.com/mannetje/health_journal/releases/latest)** on your Android device.
-2. Download `health-journal-v1.7.2-debug.apk`.
+2. Download `health-journal-v1.7.3-debug.apk`.
 3. Tap the downloaded file in your browser/file manager.
 4. When prompted with *"Install unknown apps"*, allow permission and tap **Install**.
 
-> **Verifying:** each release also has a `.sha256` file. Run `sha256sum health-journal-v1.7.2-debug.apk` (or `Get-FileHash` on Windows) and compare. These are personal, sideloaded builds signed with a public debug key, not store builds ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
+> **Verifying:** each release also has a `.sha256` file. Run `sha256sum health-journal-v1.7.3-debug.apk` (or `Get-FileHash` on Windows) and compare. These are personal, sideloaded builds signed with a public debug key, not store builds ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)).
 >
 > **Updating:** builds from v1.4.4 onward share one fixed signing key ([ADR 0008](docs/adr/0008-fixed-debug-signing-key.md)) and install over the previous version. If your installed copy is v1.4.3 or older, Android will report a signature conflict once: export your data as CSV (History → Export) or make an encrypted backup (Profile), uninstall, install the new APK, then import the CSV again.
 
@@ -240,6 +241,7 @@ All data files must be encoded in **UTF-8**.
 | **Blood Glucose** | CSV | `timestamp,glucose_mmol_l,context,classification,comment` | `2026-09-09T07:15:00Z,5.4,FASTING,NORMAL,"Felt dizzy, rested"` |
 | **Waist Circumference** | CSV | `timestamp,waist_cm,classification,comment` | `2026-09-09T08:00:00Z,86.5,INCREASED_RISK,` |
 | **Oxygen Saturation** | CSV | `timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment` | `2026-10-20T08:00:00Z,96,72,AT_REST,FINGER,false,` |
+| **Fluid intake** | CSV | `timestamp,ml,drink,comment` | `2026-11-14T09:00:00Z,250,water,` |
 | **Activity Session** | CSV | `start_timestamp,end_timestamp,distance_m,duration_s,comment` | `2026-09-09T18:00:00Z,2026-09-09T18:45:00Z,5200,2700,Evening walk` |
 | **Migraine** | CSV (several values in one cell are joined with a pipe) | `start_timestamp,woke_up_with_it,end_timestamp,intensity,areas,pain_character,type,symptoms,triggers,took_something,medication_text,second_dose,intensity_after_2h,relief_methods,custom_triggers,custom_relief_methods,medication_helped_me,relief_helped_me,activities,comment` | `2026-10-20T06:30:00Z,false,2026-10-20T10:00:00Z,6,LEFT_SIDE\|TEMPLES,THROBBING,WITH_AURA,AURA\|NAUSEA,STRESS,false,,false,,,,,false,false,,` |
 | **Weight (Libra)** | Libra CSV (`net.cachapa.libra`) | `#Units: kg\|lbs`, `#date;weight;...` (semicolon-delimited) | `2026-09-09T08:00:00.000Z;74.5;;;` |
@@ -296,7 +298,7 @@ Key architectural choices are preserved in [`docs/adr/`](docs/adr/):
 - [ADR 0027: Sleep Log Without Assessment](docs/adr/0027-sleep-log-without-assessment.md)
 - [ADR 0028: Mood Log Without Assessment](docs/adr/0028-mood-log-without-assessment.md)
 - [ADR 0029: Body Temperature Without Assessment](docs/adr/0029-body-temperature-without-assessment.md)
-- [ADR 0030: Fluid Intake as a Quick Log Without Target](docs/adr/0030-fluid-intake-quick-log-without-target.md)
+- [ADR 0030: Fluid Intake as a Quick Log With Personal Limits](docs/adr/0030-fluid-intake-quick-log-with-personal-limits.md)
 - [ADR 0031: Daily Activity Typed by Hand, Without Targets or Sensors](docs/adr/0031-daily-activity-typed-by-hand-without-targets.md)
 - [ADR 0032: Energy Level as a 0-10 Rating Without Assessment](docs/adr/0032-energy-level-without-assessment.md)
 - [ADR 0033: Pickers Start from the Person's Own Entries Only](docs/adr/0033-picker-starts-from-own-entries-only.md)

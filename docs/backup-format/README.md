@@ -92,6 +92,7 @@ erDiagram
     PROFILE ||--o{ MIGRAINE : migraines
     PROFILE ||--o{ MIGRAINE_TAG : migraineTags
     PROFILE ||--o{ OXYGEN_SATURATION : oxygenSaturations
+    PROFILE ||--o{ FLUID_INTAKE : fluidEntries
     MIGRAINE }o--o{ MIGRAINE_TAG : "customTriggers, customReliefMethods"
     MEDICATION ||--o{ SCHEDULE : "schedules (versions)"
     MEDICATION ||--o{ INTAKE : intakes
@@ -156,6 +157,13 @@ erDiagram
         enum context "nullable"
         enum site "nullable"
         bool oxygenGiven
+        string comment "nullable"
+    }
+    FLUID_INTAKE {
+        uuid id
+        instant timestamp
+        int ml "10 to 5000"
+        enum drink "water, coffee, tea, milk, juice, soup, other"
         string comment "nullable"
     }
     ACTIVITY {
@@ -249,6 +257,10 @@ erDiagram
 ### Oxygen saturation
 
 `oxygenSaturations` is written only when the profile has any; a file without it restores none, and an older app version ignores it. An entry needs `id`, `timestamp` and `percent` (a whole number from 50 to 100). `pulse` (30 to 250 bpm), `context` (`AT_REST`, `AFTER_ACTIVITY`, `ASLEEP_OR_JUST_WOKE`, `OTHER`), `site` (`FINGER`, `TOE`, `EARLOBE`) and `comment` are optional. `oxygenGiven` is the person's own tick that oxygen was being given; it is never interpreted. There is no `category`: oxygen saturation is stored without an assessment. A reader ignores a `context` or `site` code it does not know. On merge, entries are matched on `id` and only added. `schemaVersion` stays 1, because a property was only added.
+
+### Fluid intake
+
+`fluidEntries` is written only when the profile has any; a file without it restores none, and an older app version ignores it. An entry needs `id`, `timestamp` and `ml` (a whole number from 10 to 5000; the app leaves out an entry with an amount outside that range and restores the rest). `drink` is one of the lower-case codes `water`, `coffee`, `tea`, `milk`, `juice`, `soup`, `other`; a reader treats a code it does not know as `other`. `comment` is optional. The person's own optional limits are two properties on the profile, `fluidMinMl` and `fluidMaxMl` (a whole number from 100 to 10000, the minimum not above the maximum); each is written only when set, and a reader that finds an invalid pair ignores both. They are the person's own numbers: the app never suggests or interprets them, and there is no `category`. On merge, entries are matched on `id` and only added, and the limits of a file are applied only when the profile has none yet. `schemaVersion` stays 1, because properties were only added.
 
 ### Medication
 

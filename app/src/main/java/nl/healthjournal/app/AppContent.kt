@@ -39,6 +39,9 @@ import nl.healthjournal.app.ui.medication.MedicationNoticeDialog
 import nl.healthjournal.app.ui.medication.MedicationViewModel
 import nl.healthjournal.app.ui.medication.PillboxScreen
 import nl.healthjournal.app.ui.migraine.MigraineCard
+import nl.healthjournal.app.ui.fluid.FluidLogScreen
+import nl.healthjournal.app.ui.fluid.FluidLogViewModel
+import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.migraine.MigraineLogScreen
 import nl.healthjournal.app.ui.migraine.MigraineLogViewModel
 import nl.healthjournal.app.ui.mindfulness.ExerciseGate
@@ -58,6 +61,7 @@ class ShellViewModels(
     val profile: ProfileViewModel,
     val logging: LoggingViewModel,
     val migraine: MigraineLogViewModel,
+    val fluid: FluidLogViewModel,
     val history: HistoryViewModel,
     val medication: MedicationViewModel,
     val backup: BackupViewModel
@@ -81,13 +85,13 @@ fun AppContent(
     reminderPermissions: ReminderPermissionState,
     refresher: ViewModelRefresher,
     viewModels: ShellViewModels,
-    startOnMigraineTab: Boolean,
+    startOnCustomSlot: MetricSlot?,
     pillboxRequested: Boolean,
     onPillboxRequestHandled: () -> Unit,
     actions: ShellActions
 ) {
     val navigation = rememberSaveable(saver = AppNavigationState.Saver) {
-        AppNavigationState(logMigraineTab = startOnMigraineTab)
+        AppNavigationState(logCustomSlot = startOnCustomSlot)
     }
     val migraineState by viewModels.migraine.uiState.collectAsStateWithLifecycle()
     BackHandler(enabled = navigation.showPillbox) { navigation.closePillbox() }
@@ -176,10 +180,12 @@ fun AppContent(
                             AppNavDestination.LOG -> LogMetricScreen(
                                 viewModel = viewModels.logging,
                                 onGlucoseUnitSelected = { settings.changeGlucoseUnit(GlucoseUnitChoice.from(it)) },
-                                migraineTabSelected = navigation.logMigraineTab,
-                                onMigraineTabSelected = { navigation.logMigraineTab = it },
-                                migraineContent = {
-                                    if (migraineState.open) {
+                                customSlot = navigation.logCustomSlot,
+                                onCustomSlotSelected = { navigation.logCustomSlot = it },
+                                customContent = { slot ->
+                                    if (slot == MetricSlot.FLUID) {
+                                        FluidLogScreen(viewModel = viewModels.fluid)
+                                    } else if (migraineState.open) {
                                         MigraineLogScreen(viewModel = viewModels.migraine)
                                     } else {
                                         MigraineCard(state = migraineState, onLog = viewModels.migraine::startNew)

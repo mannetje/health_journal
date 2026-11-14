@@ -35,6 +35,7 @@ import nl.healthjournal.app.ui.history.HistoryViewModel
 import nl.healthjournal.app.ui.lock.DatabaseKeyLostScreen
 import nl.healthjournal.app.ui.lock.LockOverlay
 import nl.healthjournal.app.ui.logging.LoggingViewModel
+import nl.healthjournal.app.ui.fluid.FluidLogViewModel
 import nl.healthjournal.app.ui.migraine.MigraineLogViewModel
 import nl.healthjournal.app.ui.medication.MedicationViewModel
 import nl.healthjournal.app.ui.shell.AppSettingsState
@@ -76,12 +77,13 @@ class MainActivity : FragmentActivity() {
     private val profileViewModel: ProfileViewModel by viewModels()
     private val loggingViewModel: LoggingViewModel by viewModels()
     private val migraineViewModel: MigraineLogViewModel by viewModels()
+    private val fluidViewModel: FluidLogViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels()
     private val medicationViewModel: MedicationViewModel by viewModels()
 
     private val refresher by lazy {
         ViewModelRefresher.of(
-            profileViewModel, loggingViewModel, migraineViewModel, historyViewModel, medicationViewModel,
+            profileViewModel, loggingViewModel, migraineViewModel, fluidViewModel, historyViewModel, medicationViewModel,
             backupViewModel, app.reminders
         )
     }
@@ -118,7 +120,7 @@ class MainActivity : FragmentActivity() {
 
     private val shellViewModels by lazy {
         ShellViewModels(
-            profileViewModel, loggingViewModel, migraineViewModel, historyViewModel, medicationViewModel,
+            profileViewModel, loggingViewModel, migraineViewModel, fluidViewModel, historyViewModel, medicationViewModel,
             backupViewModel
         )
     }
@@ -243,8 +245,8 @@ class MainActivity : FragmentActivity() {
                             refresher = refresher,
                             viewModels = shellViewModels,
                             // Read once: only the initial tab depends on the display order
-                            startOnMigraineTab = remember {
-                                app.metricDisplayOrderPreference.order.value.first() == MetricSlot.MIGRAINE
+                            startOnCustomSlot = remember {
+                                app.metricDisplayOrderPreference.order.value.first().takeIf { it.metricType == null }
                             },
                             pillboxRequested = pillboxRequested,
                             onPillboxRequestHandled = { pillboxRequested = false },

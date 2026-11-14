@@ -2,6 +2,7 @@ package nl.healthjournal.app.settings
 
 import nl.healthjournal.app.settings.MetricSlot.ACTIVITY
 import nl.healthjournal.app.settings.MetricSlot.BLOOD_PRESSURE
+import nl.healthjournal.app.settings.MetricSlot.FLUID
 import nl.healthjournal.app.settings.MetricSlot.GLUCOSE
 import nl.healthjournal.app.settings.MetricSlot.MIGRAINE
 import nl.healthjournal.app.settings.MetricSlot.OXYGEN_SATURATION
@@ -15,8 +16,8 @@ import org.junit.Test
 class MetricSlotTest {
 
     @Test
-    fun `the default order puts Migraine after Glucose and before Waist and Activity, with Oxygen last`() {
-        assertEquals(listOf(WEIGHT, BLOOD_PRESSURE, GLUCOSE, MIGRAINE, WAIST_CIRCUMFERENCE, ACTIVITY, OXYGEN_SATURATION), MetricSlot.DEFAULT_ORDER)
+    fun `the default order puts Migraine after Glucose and before Waist and Activity, with Oxygen and Fluid last`() {
+        assertEquals(listOf(WEIGHT, BLOOD_PRESSURE, GLUCOSE, MIGRAINE, WAIST_CIRCUMFERENCE, ACTIVITY, OXYGEN_SATURATION, FLUID), MetricSlot.DEFAULT_ORDER)
     }
 
     @Test
@@ -27,7 +28,7 @@ class MetricSlotTest {
 
     @Test
     fun `a saved order is read back`() {
-        val order = listOf(ACTIVITY, MIGRAINE, GLUCOSE, WEIGHT, WAIST_CIRCUMFERENCE, BLOOD_PRESSURE, OXYGEN_SATURATION)
+        val order = listOf(ACTIVITY, MIGRAINE, GLUCOSE, WEIGHT, WAIST_CIRCUMFERENCE, BLOOD_PRESSURE, OXYGEN_SATURATION, FLUID)
 
         assertEquals(order, MetricSlot.parseOrder(MetricSlot.serialiseOrder(order)))
     }
@@ -35,7 +36,7 @@ class MetricSlotTest {
     @Test
     fun `an unknown name is dropped without resetting the rest`() {
         assertEquals(
-            listOf(GLUCOSE, WEIGHT, BLOOD_PRESSURE, MIGRAINE, WAIST_CIRCUMFERENCE, ACTIVITY, OXYGEN_SATURATION),
+            listOf(GLUCOSE, WEIGHT, BLOOD_PRESSURE, MIGRAINE, WAIST_CIRCUMFERENCE, ACTIVITY, OXYGEN_SATURATION, FLUID),
             MetricSlot.parseOrder("GLUCOSE, SLEEP ,WEIGHT")
         )
     }
@@ -43,7 +44,7 @@ class MetricSlotTest {
     @Test
     fun `a repeated name counts once, at its first place`() {
         assertEquals(
-            listOf(GLUCOSE, WEIGHT, BLOOD_PRESSURE, MIGRAINE, WAIST_CIRCUMFERENCE, ACTIVITY, OXYGEN_SATURATION),
+            listOf(GLUCOSE, WEIGHT, BLOOD_PRESSURE, MIGRAINE, WAIST_CIRCUMFERENCE, ACTIVITY, OXYGEN_SATURATION, FLUID),
             MetricSlot.parseOrder("GLUCOSE,WEIGHT,GLUCOSE")
         )
     }
@@ -51,15 +52,15 @@ class MetricSlotTest {
     @Test
     fun `metrics missing from the stored value follow in their default order`() {
         assertEquals(
-            listOf(ACTIVITY, WEIGHT, BLOOD_PRESSURE, GLUCOSE, MIGRAINE, WAIST_CIRCUMFERENCE, OXYGEN_SATURATION),
+            listOf(ACTIVITY, WEIGHT, BLOOD_PRESSURE, GLUCOSE, MIGRAINE, WAIST_CIRCUMFERENCE, OXYGEN_SATURATION, FLUID),
             MetricSlot.parseOrder("ACTIVITY")
         )
     }
 
     @Test
-    fun `every slot has a history filter and only Migraine has no logging type`() {
+    fun `every slot has a history filter and only Migraine and Fluid have no logging type`() {
         assertEquals(MetricSlot.entries.size, MetricSlot.entries.map { it.historyFilter }.toSet().size)
-        assertEquals(listOf(MIGRAINE), MetricSlot.entries.filter { it.metricType == null })
+        assertEquals(listOf(MIGRAINE, FLUID), MetricSlot.entries.filter { it.metricType == null })
         assertEquals(HistoryFilter.MIGRAINE, MIGRAINE.historyFilter)
         assertNull(MIGRAINE.metricType)
     }

@@ -102,6 +102,7 @@ class ViewModelsTest {
         override suspend fun exportActivityCsv(profileId: ProfileId): String = "start_timestamp,end_timestamp,distance_m,duration_s\n"
         override suspend fun exportWaistCircumferenceCsv(profileId: ProfileId): String = "timestamp,waist_cm,classification\n"
         override suspend fun exportOxygenSaturationCsv(profileId: ProfileId): String = "timestamp,spo2_percent,pulse_bpm,context,site,oxygen_given,comment\n"
+        override suspend fun exportFluidCsv(profileId: ProfileId): String = "timestamp,ml,drink,comment\n"
     }
 
     private class FakeImportAdapter : DataImportPort {
@@ -935,7 +936,7 @@ class ViewModelsTest {
         vm.moveMetric(from = 3, to = 0)
 
         assertEquals(
-            listOf(MetricSlot.MIGRAINE, MetricSlot.WEIGHT, MetricSlot.BLOOD_PRESSURE, MetricSlot.GLUCOSE, MetricSlot.WAIST_CIRCUMFERENCE, MetricSlot.ACTIVITY, MetricSlot.OXYGEN_SATURATION),
+            listOf(MetricSlot.MIGRAINE, MetricSlot.WEIGHT, MetricSlot.BLOOD_PRESSURE, MetricSlot.GLUCOSE, MetricSlot.WAIST_CIRCUMFERENCE, MetricSlot.ACTIVITY, MetricSlot.OXYGEN_SATURATION, MetricSlot.FLUID),
             saved.single()
         )
     }
@@ -952,7 +953,7 @@ class ViewModelsTest {
 
         vm.moveMetric(from = 2, to = 2)
         vm.moveMetric(from = 0, to = -1)
-        vm.moveMetric(from = 7, to = 0)
+        vm.moveMetric(from = 8, to = 0)
 
         assertEquals(emptyList<List<MetricSlot>>(), saved)
     }

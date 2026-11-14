@@ -4,6 +4,10 @@ import nl.healthjournal.domain.backup.model.BackupDocument
 import nl.healthjournal.domain.backup.model.BackupException
 import nl.healthjournal.domain.shared.model.MeasurementId
 import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.metrics.model.FluidDrink
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
+import nl.healthjournal.domain.metrics.model.FluidLimits
+import nl.healthjournal.domain.metrics.model.FluidMl
 import nl.healthjournal.domain.metrics.model.OxygenContext
 import nl.healthjournal.domain.metrics.model.OxygenSaturationEntry
 import nl.healthjournal.domain.metrics.model.OxygenSaturationPercent
@@ -116,6 +120,69 @@ class BackupFormatTest {
 
         val codec = HjBackupCodec(fast)
         assertEquals(withOxygen, codec.decode(codec.encode(withOxygen, passphrase), passphrase))
+    }
+
+    @Test
+    fun `a backup without fluid has no fluid keys and reads back with no entries and no limits`() {
+        val doc = HjBackupCodec(fast).decode(vector("sample-fast-nogzip.hjbackup"), passphrase)
+        val json = String(BackupJson.write(doc), Charsets.UTF_8)
+        assertFalse(json.contains("fluidEntries"))
+        assertFalse(json.contains("fluidMinMl"))
+        assertFalse(json.contains("fluidMaxMl"))
+        val back = BackupJson.read(json.toByteArray(Charsets.UTF_8)).profiles.single()
+        assertTrue(back.fluidEntries.isEmpty())
+        assertEquals(FluidLimits.NONE, back.fluidLimits)
+    }
+
+    @Test
+    fun `fluid entries and limits survive writing and reading, schema version stays 1`() {
+        val doc = HjBackupCodec(fast).decode(vector("sample-fast-nogzip.hjbackup"), passphrase)
+        val bp = doc.profiles.single()
+        val tea = FluidIntakeEntry(
+            MeasurementId.generate(), bp.profile.id, Instant.parse("2026-11-13T09:00:00Z"), FluidDrink.TEA, FluidMl(125),
+            EntryComment.ofOrNull("with lemon")
+        )
+        val water = FluidIntakeEntry(MeasurementId.generate(), bp.profile.id, Instant.parse("2026-11-14T09:00:00Z"), FluidDrink.WATER, FluidMl(250))
+        val withFluid = doc.copy(profiles = listOf(bp.copy(fluidEntries = listOf(tea, water), fluidLimits = FluidLimits(1500, null))))
+
+        val json = String(BackupJson.write(withFluid), Charsets.UTF_8)
+        val root = JSONObject(json)
+        assertEquals(1, root.getInt("schemaVersion"))
+        val profile = root.getJSONArray("profiles").getJSONObject(0)
+        assertEquals(1500, profile.getInt("fluidMinMl"))
+        assertFalse(profile.has("fluidMaxMl"))
+        assertEquals("tea", profile.getJSONArray("fluidEntries").getJSONObject(0).getString("drink"))
+
+        val back = BackupJson.read(json.toByteArray(Charsets.UTF_8)).profiles.single()
+        assertEquals(listOf(tea, water), back.fluidEntries)
+        assertEquals(FluidLimits(1500, null), back.fluidLimits)
+
+        val codec = HjBackupCodec(fast)
+        assertEquals(withFluid, codec.decode(codec.encode(withFluid, passphrase), passphrase))
+    }
+
+    @Test
+    fun `an unknown drink reads as other and an amount outside 10 to 5000 ml is left out without failing the restore`() {
+        val doc = HjBackupCodec(fast).decode(vector("sample-fast-nogzip.hjbackup"), passphrase)
+        val bp = doc.profiles.single()
+        val entry = FluidIntakeEntry(MeasurementId.generate(), bp.profile.id, Instant.parse("2026-11-14T09:00:00Z"), FluidDrink.WATER, FluidMl(250))
+        val json = String(BackupJson.write(doc.copy(profiles = listOf(bp.copy(fluidEntries = listOf(entry))))), Charsets.UTF_8)
+        val root = JSONObject(json)
+        val list = root.getJSONArray("profiles").getJSONObject(0).getJSONArray("fluidEntries")
+        list.getJSONObject(0).put("drink", "kombucha")
+        list.put(JSONObject().put("id", MeasurementId.generate().toString()).put("timestamp", "2026-11-14T10:00:00Z").put("ml", 6000))
+        list.put(JSONObject().put("id", MeasurementId.generate().toString()).put("timestamp", "2026-11-14T11:00:00Z").put("ml", 0))
+
+        val back = BackupJson.read(root.toString().toByteArray(Charsets.UTF_8)).profiles.single()
+        assertEquals(listOf(FluidDrink.OTHER), back.fluidEntries.map { it.drink })
+    }
+
+    @Test
+    fun `stored limits that break the rules read as not set`() {
+        val doc = HjBackupCodec(fast).decode(vector("sample-fast-nogzip.hjbackup"), passphrase)
+        val root = JSONObject(String(BackupJson.write(doc), Charsets.UTF_8))
+        root.getJSONArray("profiles").getJSONObject(0).put("fluidMinMl", 3000).put("fluidMaxMl", 1500)
+        assertEquals(FluidLimits.NONE, BackupJson.read(root.toString().toByteArray(Charsets.UTF_8)).profiles.single().fluidLimits)
     }
 
     @Test

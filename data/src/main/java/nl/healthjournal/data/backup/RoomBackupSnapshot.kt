@@ -40,6 +40,8 @@ class RoomBackupSnapshot(
                 migraines = db.migraineDao().getByProfileId(id).map(MigraineMapper::toDomain),
                 migraineTags = db.migraineDao().getTags(id).mapNotNull(MigraineMapper::toDomain),
                 oxygenSaturations = db.oxygenSaturationDao().getByProfileId(id).map(HealthLogMapper::toDomain),
+                fluidEntries = db.fluidIntakeDao().getByProfileId(id).map(HealthLogMapper::toDomain),
+                fluidLimits = HealthLogMapper.toDomain(db.fluidIntakeDao().getSettings(id)),
                 medications = medications.map { med ->
                     BackupMedication(
                         medication = MedicationMapper.toDomain(med, schedules[med.id].orEmpty(), times[med.id].orEmpty()),
@@ -71,6 +73,11 @@ class RoomBackupSnapshot(
             item.glucoses.forEach { count(db.glucoseDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
             item.waistCircumferences.forEach { count(db.waistCircumferenceDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
             item.activities.forEach { count(db.activityDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
+            item.fluidEntries.forEach { count(db.fluidIntakeDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
+            // The numbers are the person's own: restore them only where this device has none, never overwrite.
+            if (item.fluidLimits.isSet && db.fluidIntakeDao().getSettings(profileId) == null) {
+                db.fluidIntakeDao().upsertSettings(HealthLogMapper.toEntity(item.profile.id, item.fluidLimits))
+            }
             item.oxygenSaturations.forEach { count(db.oxygenSaturationDao().insertIgnore(HealthLogMapper.toEntity(it))) { entriesAdded++ } }
 
             val migraineDao = db.migraineDao()
