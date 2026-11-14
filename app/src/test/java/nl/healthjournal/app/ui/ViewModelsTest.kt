@@ -936,7 +936,7 @@ class ViewModelsTest {
         vm.moveMetric(from = 3, to = 0)
 
         assertEquals(
-            listOf(MetricSlot.MIGRAINE, MetricSlot.WEIGHT, MetricSlot.BLOOD_PRESSURE, MetricSlot.GLUCOSE, MetricSlot.WAIST_CIRCUMFERENCE, MetricSlot.ACTIVITY, MetricSlot.OXYGEN_SATURATION),
+            listOf(MetricSlot.MIGRAINE, MetricSlot.WEIGHT, MetricSlot.BLOOD_PRESSURE, MetricSlot.GLUCOSE, MetricSlot.WAIST_CIRCUMFERENCE, MetricSlot.ACTIVITY, MetricSlot.OXYGEN_SATURATION, MetricSlot.FLUID),
             saved.single()
         )
     }
@@ -953,7 +953,7 @@ class ViewModelsTest {
 
         vm.moveMetric(from = 2, to = 2)
         vm.moveMetric(from = 0, to = -1)
-        vm.moveMetric(from = 7, to = 0)
+        vm.moveMetric(from = 8, to = 0)
 
         assertEquals(emptyList<List<MetricSlot>>(), saved)
     }

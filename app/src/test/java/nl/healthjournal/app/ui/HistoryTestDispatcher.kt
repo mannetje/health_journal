@@ -13,6 +13,11 @@ import nl.healthjournal.domain.shared.command.ImportCsvCommand
 import nl.healthjournal.domain.shared.command.ImportCsvHandler
 import nl.healthjournal.domain.shared.command.PortEntryGateway
 import nl.healthjournal.domain.shared.command.QueryHandler
+import nl.healthjournal.domain.shared.command.ObserveQueryHandler
+import nl.healthjournal.domain.metrics.command.ObserveFluidLimitsHandler
+import nl.healthjournal.domain.metrics.command.ObserveFluidLimitsQuery
+import nl.healthjournal.domain.metrics.command.UpdateFluidIntakeCommand
+import nl.healthjournal.domain.metrics.command.UpdateFluidIntakeHandler
 import nl.healthjournal.domain.metrics.command.RecordActivityCommand
 import nl.healthjournal.domain.metrics.command.RecordActivityHandler
 import nl.healthjournal.domain.metrics.command.RecordBloodPressureCommand
@@ -75,6 +80,7 @@ internal fun historyDispatcher(
         UpdateActivityCommand::class.java to UpdateActivityHandler(health),
         UpdateWaistCircumferenceCommand::class.java to UpdateWaistCircumferenceHandler(health, profiles),
         UpdateOxygenSaturationCommand::class.java to UpdateOxygenSaturationHandler(health),
+        UpdateFluidIntakeCommand::class.java to UpdateFluidIntakeHandler(health),
         DeleteEntryCommand::class.java to DeleteEntryHandler(PortEntryGateway(health, health, health, health, health, health, migraines, health)),
         EndMigraineCommand::class.java to EndMigraineHandler(migraines, clock),
         ImportCsvCommand::class.java to ImportCsvHandler(import, migraineImport)
@@ -84,5 +90,7 @@ internal fun historyDispatcher(
         GetHistoryQuery::class.java to GetHistoryHandler(health.healthHistoryUseCase(), migraines),
         ExportCsvQuery::class.java to ExportCsvHandler(export, migraineExport)
     ),
-    observers = emptyMap()
+    observers = mapOf<Class<*>, ObserveQueryHandler<*, *>>(
+        ObserveFluidLimitsQuery::class.java to ObserveFluidLimitsHandler(health)
+    )
 )

@@ -48,6 +48,12 @@ import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
+import kotlinx.coroutines.flow.first
+import nl.healthjournal.domain.metrics.command.ObserveFluidLimitsQuery
+import nl.healthjournal.domain.metrics.command.UpdateFluidIntakeCommand
+import nl.healthjournal.domain.metrics.model.FluidDrink
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
+import nl.healthjournal.domain.metrics.model.FluidLimits
 import javax.inject.Inject
 
 enum class HistoryFilter {
@@ -71,6 +77,7 @@ sealed interface EntryRef {
     data class Activity(val session: ActivitySession) : DialogEntryRef { override val id get() = session.id }
     data class WaistCircumference(val entry: WaistCircumferenceEntry) : DialogEntryRef { override val id get() = entry.id }
     data class OxygenSaturation(val entry: OxygenSaturationEntry) : DialogEntryRef { override val id get() = entry.id }
+    data class Fluid(val entry: FluidIntakeEntry) : DialogEntryRef { override val id get() = entry.id }
     data class Migraine(val entry: MigraineEntry) : EntryRef { override val id get() = entry.id }
 }
 
@@ -85,6 +92,10 @@ data class HistoryUiState(
     val selectedDateRange: TrendDateRange = TrendDateRange.THIRTY_DAYS,
     /** Set when the Migraine calendar opened a day: History then lists only that day's migraines. */
     val migraineDay: LocalDate? = null,
+    /** Set when the Fluid calendar opened a day: History then lists only that day's entries. */
+    val fluidDay: LocalDate? = null,
+    val fluidIntakes: List<FluidIntakeEntry> = emptyList(),
+    val fluidLimits: FluidLimits = FluidLimits.NONE,
     val weights: List<WeightEntry> = emptyList(),
     val bloodPressures: List<BloodPressureEntry> = emptyList(),
     val glucoses: List<GlucoseEntry> = emptyList(),
@@ -128,7 +139,7 @@ class HistoryViewModel(
     }
 
     fun setFilter(filter: HistoryFilter) {
-        _uiState.value = _uiState.value.copy(selectedFilter = filter, migraineDay = null)
+        _uiState.value = _uiState.value.copy(selectedFilter = filter, migraineDay = null, fluidDay = null)
     }
 
     /** Opens one day of the Migraine calendar: the Migraine filter, all dates, only that day's entries. */
@@ -139,6 +150,22 @@ class HistoryViewModel(
             migraineDay = day
         )
     }
+
+    /** Opens one day of the Fluid calendar: the Fluid filter, all dates, only that day's entries. */
+    fun showFluidDay(day: LocalDate) {
+        _uiState.value = _uiState.value.copy(
+            selectedFilter = HistoryFilter.FLUID,
+            selectedDateRange = TrendDateRange.ALL,
+            fluidDay = day
+        )
+    }
+
+    fun clearFluidDay() {
+        _uiState.value = _uiState.value.copy(fluidDay = null)
+    }
+
+    fun updateFluid(entry: FluidIntakeEntry, drink: FluidDrink, ml: Int, timestamp: Instant, comment: String?) =
+        runUpdate { dispatcher.dispatch(UpdateFluidIntakeCommand(entry.id, entry.profileId, drink, ml, timestamp, comment)) }
 
     fun clearMigraineDay() {
         _uiState.value = _uiState.value.copy(migraineDay = null)
@@ -163,6 +190,7 @@ class HistoryViewModel(
                 _uiState.value = _uiState.value.copy(activeProfile = null, isLoading = false)
                 return@launch
             }
+            val limits = dispatcher.observe(ObserveFluidLimitsQuery(profile.id)).first().getOrNull() ?: FluidLimits.NONE
             when (val result = dispatcher.query(GetHistoryQuery(profile.id))) {
                 is DomainResult.Success -> {
                     val history = result.value.health
@@ -174,6 +202,8 @@ class HistoryViewModel(
                         activities = history.activities,
                         waistCircumferences = history.waistCircumferences,
                         oxygenSaturations = history.oxygenSaturations,
+                        fluidIntakes = history.fluidIntakes,
+                        fluidLimits = limits,
                         migraines = result.value.migraines,
                         isLoading = false
                     )
@@ -376,6 +406,7 @@ private fun EntryRef.kind(): EntryKind = when (this) {
     is EntryRef.Activity -> EntryKind.ACTIVITY
     is EntryRef.WaistCircumference -> EntryKind.WAIST_CIRCUMFERENCE
     is EntryRef.OxygenSaturation -> EntryKind.OXYGEN_SATURATION
+    is EntryRef.Fluid -> EntryKind.FLUID_INTAKE
     is EntryRef.Migraine -> EntryKind.MIGRAINE
 }
 

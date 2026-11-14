@@ -15,6 +15,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import nl.healthjournal.app.R
+import androidx.compose.foundation.horizontalScroll
+import nl.healthjournal.app.ui.fluid.nameRes
+import nl.healthjournal.domain.metrics.model.FluidDrink
 import nl.healthjournal.app.ui.common.CommentField
 import nl.healthjournal.app.ui.common.UiText
 import nl.healthjournal.app.ui.common.asString
@@ -114,7 +117,10 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
         is EntryRef.Activity -> ref.session.startTime
         is EntryRef.WaistCircumference -> ref.entry.timestamp
         is EntryRef.OxygenSaturation -> ref.entry.timestamp
+        is EntryRef.Fluid -> ref.entry.timestamp
     }
+    var fluidDrink by remember { mutableStateOf((ref as? EntryRef.Fluid)?.entry?.drink ?: FluidDrink.WATER) }
+    var fluidMl by remember { mutableStateOf((ref as? EntryRef.Fluid)?.entry?.amount?.value?.toString().orEmpty()) }
     var dateTime by remember { mutableStateOf(LocalDateTime.ofInstant(initialTime, zone)) }
     var invalid by remember { mutableStateOf(false) }
 
@@ -157,6 +163,7 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
                 is EntryRef.Activity -> ref.session.comment
                 is EntryRef.WaistCircumference -> ref.entry.comment
                 is EntryRef.OxygenSaturation -> ref.entry.comment
+                is EntryRef.Fluid -> ref.entry.comment
             }?.text.orEmpty()
         )
     }
@@ -198,6 +205,11 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
                 val cm = waist.toDoubleOrNull()?.takeIf { it in nl.healthjournal.domain.metrics.model.WaistCircumferenceCm.MIN_CM..nl.healthjournal.domain.metrics.model.WaistCircumferenceCm.MAX_CM }
                 if (cm == null) invalid = true
                 else viewModel.updateWaistCircumference(ref.entry, cm, dateTime.atZone(zone).toInstant(), comment)
+            }
+            is EntryRef.Fluid -> {
+                val ml = fluidMl.toIntOrNull()?.takeIf { it > 0 }
+                if (ml == null) invalid = true
+                else viewModel.updateFluid(ref.entry, fluidDrink, ml, dateTime.atZone(zone).toInstant(), comment)
             }
             is EntryRef.OxygenSaturation -> {
                 val percent = oxygenPercent.toIntOrNull()?.takeIf { it in OxygenSaturationPercent.MIN..OxygenSaturationPercent.MAX }
@@ -263,6 +275,28 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
                             value = waist,
                             onValueChange = { waist = it },
                             label = { Text(stringResource(R.string.log_waist_label)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    is EntryRef.Fluid -> {
+                        Row(
+                            modifier = Modifier.horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FluidDrink.entries.forEach { drink ->
+                                FilterChip(
+                                    selected = fluidDrink == drink,
+                                    onClick = { fluidDrink = drink },
+                                    label = { Text(stringResource(drink.nameRes)) }
+                                )
+                            }
+                        }
+                        OutlinedTextField(
+                            value = fluidMl,
+                            onValueChange = { fluidMl = it.filter(Char::isDigit).take(5) },
+                            label = { Text(stringResource(R.string.fluid_edit_amount)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
