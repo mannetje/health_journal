@@ -1,0 +1,2 @@
+- The Fluid reference note now links to its two sources
+- Undo after logging a drink is announced by screen readers

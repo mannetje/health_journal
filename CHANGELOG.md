@@ -4,7 +4,10 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.7.5] - 2026-11-14
+
 ### Added
+- **Fastlane metadata for F-Droid:** title, descriptions, icon, screenshots and a changelog in English and Dutch under `fastlane/metadata/android/`, so the app can be listed on F-Droid.
 - **Fluid sources:** the "About these amounts" note links to its two sources, the Voedingscentrum and Thuisarts pages, as plain links.
 
 ### Fixed
@@ -336,7 +339,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.4...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.5...HEAD
+[1.7.5]: https://github.com/mannetje/health_journal/compare/v1.7.4...v1.7.5
 [1.7.4]: https://github.com/mannetje/health_journal/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/mannetje/health_journal/compare/v1.7.2...v1.7.3
 [1.7.2]: https://github.com/mannetje/health_journal/compare/v1.7.1...v1.7.2
