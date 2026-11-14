@@ -49,7 +49,7 @@ License: Apache-2.0
 AuthorName: marvinstorage
 SourceCode: https://github.com/mannetje/health_journal
 IssueTracker: https://github.com/mannetje/health_journal/issues
-Changelog: https://github.com/mannetje/health_journal/blob/master/CHANGELOG.md
+Changelog: https://github.com/mannetje/health_journal/blob/HEAD/CHANGELOG.md
 
 AutoName: Health Journal
 
@@ -74,6 +74,7 @@ Things in it that need checking against F-Droid's current documentation before t
 
 - **Categories.** Only names from `config/categories.yml` in `fdroiddata` are valid. "Health Manager" (weight, blood pressure and other health metrics) and "Medication" fit the app.
 - **JDK and Gradle.** The app builds with JDK 21 and a recent Gradle wrapper. The build server's JDK may need an extra setting in the recipe (for example a `sudo:` step or a different image). `fdroid build` shows this.
+- **Links to files in the repository** must use `/HEAD`, not `/master` (`fdroid lint` rejects `/master`).
 - **The commit.** It must be a tag that contains `fastlane/`. v1.7.4 does not; v1.7.5 is the first tag that does.
 
 ## Steps, in order
@@ -114,7 +115,19 @@ F-Droid also supports reproducible builds: it builds the app, compares it with t
 | Release tag with the metadata | `v1.7.5` |
 | GitLab fork `marvinstorage/fdroiddata` | created |
 | Recipe `metadata/nl.healthjournal.yml` | on the fork branch `add-nl.healthjournal` |
-| `fdroid lint` and `fdroid build` | not run |
-| Merge request to `fdroid/fdroiddata` | not opened |
+| `fdroid lint`, `rewritemeta`, `checkupdates` | run locally in a Debian container, all pass (lint first failed on the `/master` changelog link, fixed) |
+| `fdroid build` | not run (needs F-Droid's large build image and more memory than the Podman VM has) |
+| Merge request to `fdroid/fdroiddata` | open: !57386, "New app: Health Journal" |
+| Pipeline for the merge request | cannot run: GitLab asks the account for identity verification (phone or card), which was declined |
 
 Pipelines that run in the fork on a push can fail with no jobs; a merge request pipeline runs in the target project instead. Judge the build by the merge request pipeline, not by the fork's.
+
+## Running the checks locally without GitLab CI
+
+GitLab runs CI only for verified accounts. The same checks run in a container with Podman or Docker, using the Debian image F-Droid's CI uses:
+
+```bash
+podman run --rm -i debian:trixie-slim bash -s < fdroid-checks.sh
+```
+
+where `fdroid-checks.sh` installs `fdroidserver` and `git` with apt, clones the fork branch (`git clone --depth 1 --branch add-nl.healthjournal https://gitlab.com/marvinstorage/fdroiddata.git /work`), then runs `fdroid lint`, `fdroid rewritemeta` (and `git diff --exit-code`) and `fdroid checkupdates --auto -v` for `nl.healthjournal`. Run `chmod 0600 config.yml` first to silence the permissions warning. `checkupdates` also prints errors about `serverwebroot`; F-Droid's CI sets `serverwebroot=/tmp` to avoid them, and they do not affect the result.
