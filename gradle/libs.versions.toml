@@ -14,7 +14,7 @@ coroutines = "1.11.0"
 sqlcipher = "4.20.0"
 biometric = "1.4.0-beta01"
 # ADR 0024 dependency (exception to ADR 0003): Argon2id for the portable backup
-bouncycastle = "1.86"
+bouncycastle = "1.87"
 coreKtx = "1.15.0"
 fragment = "1.9.1"
 lifecycle = "2.8.7"
