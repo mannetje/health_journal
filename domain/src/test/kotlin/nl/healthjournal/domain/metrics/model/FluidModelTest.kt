@@ -33,6 +33,18 @@ class FluidModelTest {
     }
 
     @Test
+    fun `a portion is 10 to 500 ml so ten of them still fit one entry`() {
+        assertTrue(DrinkPortions.isValid(10))
+        assertTrue(DrinkPortions.isValid(500))
+        assertFalse(DrinkPortions.isValid(9))
+        assertFalse(DrinkPortions.isValid(501))
+        assertEquals(500, DrinkPortions().with(FluidDrink.MILK, 500).of(FluidDrink.MILK))
+        assertTrue(DrinkPortions.MAX * 10 <= FluidMl.MAX)
+        org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { DrinkPortions().with(FluidDrink.MILK, 501) }
+        org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { DrinkPortions().with(FluidDrink.MILK, 0) }
+    }
+
+    @Test
     fun `drink totals are plain ml largest first then fixed order`() {
         val totals = FluidDrinkTotals.of(
             listOf(entry(FluidDrink.TEA, 125), entry(FluidDrink.WATER, 250), entry(FluidDrink.COFFEE, 125), entry(FluidDrink.WATER, 250))

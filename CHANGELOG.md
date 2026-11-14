@@ -4,6 +4,12 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Added
+- **Your own drink portions:** a "Your portions" card on the Fluid tab sets how many ml one tap adds for each drink (10 to 500 ml). The app still suggests no amount. English and Dutch.
+
+### Fixed
+- **Fluid chart:** the dashed limit line no longer runs through the value labels of the daily bars.
+
 ## [1.7.3] - 2026-11-14
 
 ### Added

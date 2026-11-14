@@ -18,13 +18,25 @@ enum class FluidDrink(val code: String) {
     }
 }
 
-/** The person's own portion per drink in ml, with the starting values of ADR 0030. */
+/**
+ * The person's own portion per drink in ml, with the starting values of ADR 0030. A portion is 10 to 500 ml, so the
+ * largest count a tap can add (ten portions) stays within one entry's 5000 ml.
+ */
 data class DrinkPortions(private val portions: Map<FluidDrink, Int> = DEFAULTS) {
+    init {
+        require(portions.values.all { it in MIN..MAX }) { "A portion must be between $MIN and $MAX ml" }
+    }
+
     fun of(drink: FluidDrink): Int = portions[drink] ?: DEFAULTS.getValue(drink)
 
     fun with(drink: FluidDrink, ml: Int): DrinkPortions = DrinkPortions(portions + (drink to ml))
 
     companion object {
+        const val MIN = 10
+        const val MAX = 500
+
+        fun isValid(ml: Int): Boolean = ml in MIN..MAX
+
         val DEFAULTS: Map<FluidDrink, Int> = mapOf(
             FluidDrink.WATER to 250, FluidDrink.COFFEE to 125, FluidDrink.TEA to 125, FluidDrink.MILK to 200,
             FluidDrink.JUICE to 150, FluidDrink.SOUP to 200, FluidDrink.OTHER to 200

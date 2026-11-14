@@ -153,6 +153,24 @@ class FluidLogViewModelTest {
     }
 
     @Test
+    fun `own portions change what a tap adds, and a bad number saves nothing`() = runTest(testDispatcher) {
+        val vm = viewModel()
+        advanceUntilIdle()
+        assertEquals(true, vm.savePortions(mapOf(FluidDrink.WATER to 330, FluidDrink.TEA to null)))
+        assertEquals(330, vm.uiState.value.portions.of(FluidDrink.WATER))
+        assertEquals(125, vm.uiState.value.portions.of(FluidDrink.TEA))
+        vm.add(FluidDrink.WATER)
+        advanceUntilIdle()
+        assertEquals(330, health.fluidIntakes.single().amount.value)
+
+        assertEquals(false, vm.savePortions(mapOf(FluidDrink.WATER to 600, FluidDrink.COFFEE to 150)))
+        assertNotNull(vm.uiState.value.message)
+        assertEquals(330, vm.uiState.value.portions.of(FluidDrink.WATER))
+        assertEquals(125, vm.uiState.value.portions.of(FluidDrink.COFFEE))
+        assertEquals(false, vm.savePortions(mapOf(FluidDrink.WATER to -1)))
+    }
+
+    @Test
     fun `the count stays between one and ten`() = runTest(testDispatcher) {
         val vm = viewModel()
         advanceUntilIdle()
