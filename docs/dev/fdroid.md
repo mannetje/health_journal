@@ -43,7 +43,8 @@ F-Droid's own repository, `gitlab.com/fdroid/fdroiddata`, holds one file per app
 
 ```yaml
 Categories:
-  - Sports & Health
+  - Health Manager
+  - Medication
 License: Apache-2.0
 AuthorName: marvinstorage
 SourceCode: https://github.com/mannetje/health_journal
@@ -71,7 +72,7 @@ CurrentVersionCode: 37
 
 Things in it that need checking against F-Droid's current documentation before the merge request:
 
-- **Category.** Pick from F-Droid's list; "Sports & Health" is the closest guess.
+- **Categories.** Only names from `config/categories.yml` in `fdroiddata` are valid. "Health Manager" (weight, blood pressure and other health metrics) and "Medication" fit the app.
 - **JDK and Gradle.** The app builds with JDK 21 and a recent Gradle wrapper. The build server's JDK may need an extra setting in the recipe (for example a `sudo:` step or a different image). `fdroid build` shows this.
 - **The commit.** It must be a tag that contains `fastlane/`. v1.7.4 does not; v1.7.5 is the first tag that does.
 
@@ -85,9 +86,9 @@ Things in it that need checking against F-Droid's current documentation before t
    glab repo fork fdroid/fdroiddata --clone=false --remote=false
    ```
    Done: `gitlab.com/marvinstorage/fdroiddata`. The repository is large, so avoid cloning it unless you want to run `fdroid build` locally.
-5. **Add the recipe** `metadata/nl.healthjournal.yml` on a branch of the fork (the web editor works, or clone and push).
+5. **Add the recipe** `metadata/nl.healthjournal.yml` on a branch of the fork (the web editor works, or clone and push). Done on the branch `add-nl.healthjournal`, committed with the API (`glab api` to create the branch, then a commit with one `create` action). The fork must be public and the branch unprotected; both are true.
 6. **Test the build** if you can: install the F-Droid tooling (`fdroidserver`), then run `fdroid lint nl.healthjournal` and `fdroid build -v -l nl.healthjournal` from a clone of `fdroiddata`. The merge request pipeline runs the same checks.
-7. **Open a merge request** from the fork to `fdroid/fdroiddata`, with the template filled in. Reviewers answer on the merge request. Expect questions about the dependencies, the health data and the anti-features.
+7. **Open a merge request** from the fork to `fdroid/fdroiddata`, titled `New app: Health Journal`, with the template filled in (the abstract, why the app exists and what it adds over other apps on F-Droid, and the checklist). Reviewers answer on the merge request. Expect questions about the dependencies, the health data and the anti-features.
 8. **After the merge**, F-Droid builds and publishes within a few days. Check the listing at `f-droid.org/packages/nl.healthjournal`.
 
 ## Every release afterwards
@@ -112,6 +113,8 @@ F-Droid also supports reproducible builds: it builds the app, compares it with t
 | Fastlane metadata in the repository | on `master` |
 | Release tag with the metadata | `v1.7.5` |
 | GitLab fork `marvinstorage/fdroiddata` | created |
-| Recipe `metadata/nl.healthjournal.yml` | drafted above, not yet in the fork |
+| Recipe `metadata/nl.healthjournal.yml` | on the fork branch `add-nl.healthjournal` |
 | `fdroid lint` and `fdroid build` | not run |
 | Merge request to `fdroid/fdroiddata` | not opened |
+
+Pipelines that run in the fork on a push can fail with no jobs; a merge request pipeline runs in the target project instead. Judge the build by the merge request pipeline, not by the fork's.
