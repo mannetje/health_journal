@@ -53,6 +53,9 @@
         "glucoses": { "type": "array", "items": { "$ref": "#/$defs/glucose" } },
         "waistCircumferences": { "type": "array", "items": { "$ref": "#/$defs/waist" } },
         "oxygenSaturations": { "type": "array", "items": { "$ref": "#/$defs/oxygenSaturation" }, "description": "Absent in files written before oxygen saturation existed, or when the profile has none; a reader restores none then." },
+        "fluidEntries": { "type": "array", "items": { "$ref": "#/$defs/fluidIntake" }, "description": "Absent in files written before fluid intake existed, or when the profile has none; a reader restores none then." },
+        "fluidMinMl": { "type": "integer", "minimum": 100, "maximum": 10000, "description": "The person's own minimum, only when set. Never suggested or interpreted by the app." },
+        "fluidMaxMl": { "type": "integer", "minimum": 100, "maximum": 10000, "description": "The person's own maximum, only when set. Never suggested or interpreted by the app." },
         "activities": { "type": "array", "items": { "$ref": "#/$defs/activity" } },
         "medications": { "type": "array", "items": { "$ref": "#/$defs/medication" } },
         "migraines": { "type": "array", "items": { "$ref": "#/$defs/migraine" }, "description": "Absent in files written before the migraine log existed; a reader restores none then." },
@@ -155,6 +158,17 @@
         "context": { "enum": ["AT_REST", "AFTER_ACTIVITY", "ASLEEP_OR_JUST_WOKE", "OTHER", null], "description": "A reader ignores a code it does not know." },
         "site": { "enum": ["FINGER", "TOE", "EARLOBE", null], "description": "A reader ignores a code it does not know." },
         "oxygenGiven": { "type": "boolean" },
+        "comment": { "$ref": "#/$defs/comment" }
+      }
+    },
+    "fluidIntake": {
+      "type": "object",
+      "required": ["id", "timestamp", "ml"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "timestamp": { "$ref": "#/$defs/instant" },
+        "ml": { "type": "integer", "minimum": 10, "maximum": 5000 },
+        "drink": { "enum": ["water", "coffee", "tea", "milk", "juice", "soup", "other"], "description": "A reader treats a code it does not know as other." },
         "comment": { "$ref": "#/$defs/comment" }
       }
     },

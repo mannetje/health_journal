@@ -32,7 +32,7 @@ The bottom bar has three tabs; on a tablet or a phone in landscape the same thre
 
 ```mermaid
 flowchart TD
-    APP(["Health Journal"]) --> LOG["Log tab<br/>Weight, BP, Glucose, Waist, Activity, Migraine"]
+    APP(["Health Journal"]) --> LOG["Log tab<br/>Weight, BP, Glucose, Waist, Activity, Migraine, Oxygen, Fluid"]
     APP --> HIST["History tab<br/>filters, list or graph view (side by side from 900 dp wide), year and month rows, trend charts (tap an entry for its value, tap a second for the difference), weight and blood pressure statistics, edit, delete, CSV"]
     APP --> PROF["Profile tab<br/>height, birth date, sex, language, region,<br/>units, theme, reminder settings"]
     APP -->|"pill button"| PILL["Pillbox"]

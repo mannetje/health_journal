@@ -127,6 +127,7 @@ CSV_TABLES = {
 }
 
 
+FLUID_HEADER = ["timestamp", "ml", "drink", "comment"]
 OXYGEN_HEADER = ["timestamp", "spo2_percent", "pulse_bpm", "context", "site", "oxygen_given", "comment"]
 
 
@@ -185,6 +186,15 @@ def write_csv(document, directory):
                     writer.writerow(["" if c is None else c for c in
                                      [e["timestamp"], e["percent"], e.get("pulse"), e.get("context"), e.get("site"),
                                       "true" if e.get("oxygenGiven") else "false", e.get("comment")]])
+            written.append(path)
+        if profile.get("fluidEntries"):
+            path = os.path.join(directory, f"profile{index}_fluid.csv")
+            with open(path, "w", encoding="utf-8", newline="") as handle:
+                writer = csv.writer(handle, lineterminator="\n")
+                writer.writerow(FLUID_HEADER)
+                for e in sorted(profile["fluidEntries"], key=lambda e: e["timestamp"]):
+                    writer.writerow(["" if c is None else c for c in
+                                     [e["timestamp"], e["ml"], e.get("drink"), e.get("comment")]])
             written.append(path)
     return written
 

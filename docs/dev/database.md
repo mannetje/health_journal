@@ -2,7 +2,7 @@
 
 Health Journal keeps everything in one local Room (SQLite) database, `health_journal.db`, defined in `data/src/main/java/nl/healthjournal/data/local/HealthJournalDatabase.kt`. Nothing leaves the device. This page is the map of the tables; [Change the database](how-to/change-the-database.md) explains how to alter it safely.
 
-Current version: **7**. Room exports the schema of every version to `data/schemas/nl.healthjournal.data.local.HealthJournalDatabase/<version>.json`. Those files are committed and are the exact record of what each released version looked like; the migration tests are built on them ([Testing](testing.md)). This page and the entity classes in `data/src/main/java/nl/healthjournal/data/local/entity/` are the readable map.
+Current version: **9**. Room exports the schema of every version to `data/schemas/nl.healthjournal.data.local.HealthJournalDatabase/<version>.json`. Those files are committed and are the exact record of what each released version looked like; the migration tests are built on them ([Testing](testing.md)). This page and the entity classes in `data/src/main/java/nl/healthjournal/data/local/entity/` are the readable map.
 
 ## Entity-relationship diagram
 
@@ -20,6 +20,8 @@ erDiagram
     profiles ||--o{ migraines : "profileId (logical)"
     profiles ||--o{ migraine_tags : "profileId (logical)"
     profiles ||--o{ oxygen_saturations : "profileId (logical)"
+    profiles ||--o{ fluid_intakes : "profileId (logical)"
+    profiles ||--o| fluid_settings : "profileId (logical, one row per profile)"
     migraine_tags }o--o{ migraines : "ids in customTriggers and customReliefMethods (logical)"
 
     profiles {
@@ -153,6 +155,19 @@ erDiagram
         INTEGER oxygenGiven "0 or 1"
         TEXT comment "nullable"
     }
+    fluid_intakes {
+        TEXT id PK
+        TEXT profileId
+        INTEGER timestamp "epoch ms"
+        INTEGER ml "whole number, 10 to 5000"
+        TEXT drink "nullable enum code, unknown reads as other"
+        TEXT comment "nullable"
+    }
+    fluid_settings {
+        TEXT profileId PK
+        INTEGER minMl "nullable, 100 to 10000, the person's own"
+        INTEGER maxMl "nullable, 100 to 10000, the person's own"
+    }
 ```
 
 ## Naming conventions
@@ -179,6 +194,7 @@ Primary key `id` (TEXT), `profileId` on every per-profile table, times as epoch 
 - **Amounts as text.** Strength, dose and actual amount are stored as plain decimal text, so 2.5 stays 2.5. Units are stored as entered and never converted.
 - **Migraine sets.** A migraine keeps its multi-choice answers as comma-separated stable code names in one column each (`areas`, `symptoms`, `triggers` and so on), because they are only read back with the entry and never queried one by one. A personal tag is referenced by its id, so renaming a tag changes every entry that uses it. A tag is never hard-deleted: removing it sets `archived`, and older entries keep showing it. See [ADR 0025](../adr/0025-migraine-log-data-model.md) and the [Migraine page](migraine.md).
 - **Oxygen saturation has no derived column.** There is no category or band, so nothing is stored that a rule could change later (see [ADR 0026](../adr/0026-oxygen-saturation-without-assessment.md)). `context` and `site` are stable code names, and a code the app does not know reads back as not set. `oxygenGiven` is the person's own tick.
+- **Fluid intake stores entries, never totals.** One row per tap or custom entry in `fluid_intakes`; the total of a day, the position label and the chart figures are always derived (`FluidDayTotals`, `fluidPosition`), so changing a limit rewrites nothing. `fluid_settings` has one row per profile holding only the minimum and maximum the person typed; a null is not set and the app never writes a number of its own there. `drink` is a stable code and a missing or unknown code reads as Other. The chosen gauge look (glass, woman or man) and the drink portions are display choices in preferences, not in the database. See [ADR 0030](../adr/0030-fluid-intake-quick-log-with-personal-limits.md) and the [Fluid page](fluid.md).
 - **Time.** Instants are epoch milliseconds. Planned times are local wall-clock text without a zone, so an 08:00 planned intake stays 08:00 when travelling.
 
 ## Version history
@@ -192,6 +208,7 @@ Primary key `id` (TEXT), `profileId` on every per-profile table, times as epoch 
 | 5 to 6 | medication tables added: `medications`, `medication_schedules`, `medication_times`, `intakes` |
 | 6 to 7 | migraine tables added: `migraines`, `migraine_tags` |
 | 7 to 8 | `oxygen_saturations` table added |
+| 8 to 9 | fluid tables added: `fluid_intakes` (index on `profileId, timestamp`) and `fluid_settings` |
 
 Every migration is hand-written in `HealthJournalDatabase.kt`. Update this page, the diagram included, whenever an entity changes. `MigrationChainTest` migrates a database from each exported version to the current one and checks the result against the exported schema.
 

@@ -2,7 +2,7 @@
 
 Welcome. These pages explain how Health Journal is built and how to contribute. They are written in English so contributors from any country can join. The app itself is available in English and Dutch.
 
-Health Journal is an offline-first Android app for logging weight, blood pressure, blood glucose, waist, activity, migraines, oxygen saturation and medication. It is a personal logging tool, not a medical device: it shows ranges and never gives advice or a diagnosis.
+Health Journal is an offline-first Android app for logging weight, blood pressure, blood glucose, waist, activity, migraines, oxygen saturation, fluid intake and medication. It is a personal logging tool, not a medical device: it shows ranges and never gives advice or a diagnosis.
 
 ## Reading order
 
@@ -20,6 +20,7 @@ Health Journal is an offline-first Android app for logging weight, blood pressur
 | 7 | [Database](database.md) | see every table and how they relate (entity-relationship diagram) |
 | 8 | [Pillbox](pillbox.md) | see the medication feature (Today, Medications, Adherence, reminders), where it lives and what it looks like |
 | 8a | [Migraine](migraine.md) | see the migraine log (step form, personal tags, History card and graph), where it lives, how the form is hosted twice and what is tested |
+| 8b | [Fluid](fluid.md) | see the fluid log (drink tiles, gauge, personal limits, History graph and calendar), where it lives, the data rules and what is tested |
 | 9 | [Continuous integration](ci.md) | see which GitHub Actions run, what they check, how Dependabot is used and how to run the same checks locally |
 | 10 | [Graphs](graphs.md) | see how the History graph view is built, with the waist and glucose graphs as worked examples, and a checklist for a new graph |
 | 11 | [Privacy and security](privacy-and-security.md) | see offline-first rules, SQLCipher database encryption, key provider, app lock and backup exclusions |

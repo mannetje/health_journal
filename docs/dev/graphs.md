@@ -37,6 +37,8 @@ Three tricks worth knowing:
 
 A third graph, the **Migraine** view (`MigraineGraphSection.kt`), shows a pattern without bands or limits: all cards are counts (summary tiles, timeline, duration and intensity groups, weekday bars, a weekday by time-of-day heat map and label counts) and a month calendar (`MigraineCalendarCard.kt`) behind a Graph and Calendar toggle. Its figures come from `MigraineStatistics` in `:domain`, and the section draws bars in the same `secondary` colour as the other charts. Read it as the example for a graph that has no reference values. See the [Migraine page](migraine.md).
 
+The **Fluid** view (`FluidGraphSection.kt`) follows the same Graph and Calendar toggle. Its figures come from `FluidStatistics` and the other Fluid* functions in `:domain`: a daily bar chart of day totals with up to two dashed lines for the minimum and maximum the person set (none when they set none), weekday averages, a time-of-day chart and a per-drink chart of plain ml. The calendar reuses the Migraine calendar parts: one hue, the total printed in each day, and a shape marker (below, within or above) so the meaning never rests on colour alone. See the [Fluid page](fluid.md).
+
 ## Example 1: waist graphs
 
 Change: `openspec/changes/archive/` (`add-waist-graphs`). Files: `WaistStatistics.kt`, `WaistTrendSection.kt`, `WaistStatisticsSection.kt`, test `WaistStatisticsTest.kt`.
