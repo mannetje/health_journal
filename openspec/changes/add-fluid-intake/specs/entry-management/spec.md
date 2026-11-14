@@ -1,7 +1,11 @@
 ## ADDED Requirements
 
 ### Requirement: Fluid intake entries in History
-The History list SHALL include fluid intake entries as a further entry type in the merged list, sorted by timestamp, and the single-metric filter SHALL offer Fluid. Under the Fluid filter the list SHALL show, per local calendar day, a day-total row (date and total ml, plus the position label of `fluid-intake` when the person has set a minimum or maximum) above that day's entries. Each entry can be edited in a dialog with an editable date and time, the millilitres (10 to 5000) and the comment, validated like recording; deleting uses the same confirmation as other entries. A failed update keeps the dialog open. Without a minimum or maximum the day-total row SHALL carry no label, colour or comparison; with them it carries only the neutral position label.
+The History list SHALL include fluid intake entries as a further entry type in the merged list, sorted by timestamp, and the single-metric filter SHALL offer Fluid. Under the Fluid filter the list SHALL show, per local calendar day, a day-total row (date and total ml, plus the position label of `fluid-intake` when the person has set a minimum or maximum) above that day's entries. Each entry can be edited in a dialog with an editable date and time, the drink, the millilitres (10 to 5000) and the comment, validated like recording; deleting uses the same confirmation as other entries. A failed update keeps the dialog open. Without a minimum or maximum the day-total row SHALL carry no label, colour or comparison; with them it carries only the neutral position label.
+
+#### Scenario: Drink shown
+- **WHEN** a fluid entry of Coffee is listed
+- **THEN** the row shows the drink name with the amount
 
 #### Scenario: Merged order
 - **WHEN** a weight at 10:00 and a fluid entry at 11:00 exist

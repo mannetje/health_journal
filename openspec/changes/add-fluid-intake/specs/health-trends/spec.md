@@ -1,11 +1,13 @@
 ## ADDED Requirements
 
 ### Requirement: Fluid intake graph view with Graph and Calendar
-Under the Fluid filter the History tab SHALL offer the same entries/graph switch as the other chart filters, and the graph view SHALL offer a Graph and Calendar toggle and the range chips week, month, 3 months, 6 months and year (the same chips and range rules as other trends), as the Migraine view does. All figures SHALL be computed by pure functions in the domain layer for the active profile and range. The Graph view SHALL show, in this order: summary figures; a daily-total chart; a weekday chart; a time-of-day chart. An empty range SHALL show a plain empty text and no charts. Every chart and figure group SHALL have a text description for screen readers with the same numbers.
+Under the Fluid filter the History tab SHALL offer the same entries/graph switch as the other chart filters, and the graph view SHALL offer a Graph and Calendar toggle and the range chips week, month, 3 months, 6 months and year (the same chips and range rules as other trends), as the Migraine view does. All figures SHALL be computed by pure functions in the domain layer for the active profile and range. The Graph view SHALL show, in this order: summary figures; a daily-total chart; a weekday chart; a time-of-day chart; a drinks chart. An empty range SHALL show a plain empty text and no charts. Every chart and figure group SHALL have a text description for screen readers with the same numbers.
 
 **Daily-total chart.** One bar per local calendar day with the day's total in ml over the selected range (calendar-aligned axis, zoom and pan and minimum-data rule as other trends), on a value axis starting at 0, in a single neutral hue. Days without entries SHALL show no bar. When the person has set a minimum, a maximum or both it SHALL draw one thin dashed horizontal line per number set, at that number in the same hue, with the number as plain text; bars SHALL NOT change colour above or below a line. It SHALL draw no other goal line, reference line, band, progress fill or colour threshold, and the current day SHALL be drawn like any other day.
 
 **Weekday chart.** Seven bars, one per weekday starting on the locale's first day of the week, each the average total of the logged days of that weekday in the range (whole ml), labelled with those numbers only; a weekday without a logged day shows no bar.
+
+**Drinks chart.** One bar per drink that has at least one entry in the range, showing the total ml of that drink in the range, sorted by amount and then by the fixed order of the list, labelled with those numbers only (no percentage, no share headline). Every bar uses the same single hue. It SHALL NOT rank, praise or warn about a drink.
 
 **Time-of-day chart.** Eight bars for the three-hour blocks of the day (00 to 03 up to 21 to 24), each the average ml drunk in that block per logged day in the range (whole ml), labelled with those numbers only. It shows when entries were made and says nothing about when to drink.
 
@@ -32,6 +34,10 @@ Under the Fluid filter the History tab SHALL offer the same entries/graph switch
 #### Scenario: Weekday averages
 - **WHEN** the range holds two Mondays with 1000 and 2000 ml
 - **THEN** the Monday bar is labelled 1500 ml
+
+#### Scenario: Drinks chart
+- **WHEN** the range holds 1000 ml of Water, 750 ml of Coffee and 250 ml of Tea
+- **THEN** three bars are drawn in one colour labelled 1000, 750 and 250 ml, with no percentage or comment
 
 #### Scenario: Time of day
 - **WHEN** the range holds one logged day with 250 ml at 08:10 and 500 ml at 08:50

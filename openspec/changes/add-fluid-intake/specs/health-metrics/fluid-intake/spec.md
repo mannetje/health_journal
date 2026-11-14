@@ -1,48 +1,83 @@
 ## ADDED Requirements
 
 ### Requirement: Record fluid intake
-The system SHALL allow recording a fluid intake entry for a Profile at a given timestamp as a whole number of millilitres from 10 to 5000, with the optional comment. Every quick-add tap and every custom entry SHALL be one separate entry. This metric is optional: a Profile with no entries SHALL function identically to today. The system SHALL NOT record the type of drink.
+The system SHALL allow recording a fluid intake entry for a Profile at a given timestamp as a whole number of millilitres from 10 to 5000, with a drink and the optional comment. The drink SHALL be one of a fixed list: Water, Coffee, Tea, Milk, Juice, Soup and Other. Every quick-add tap and every custom entry SHALL be one separate entry. This metric is optional: a Profile with no entries SHALL function identically to today. The drink is a label only: every drink SHALL count equally towards the total, and the system SHALL NOT attach caffeine, sugar, alcohol, nutrition or any assessment to a drink.
 
 #### Scenario: Valid custom entry
-- **WHEN** an entry of 330 ml is recorded
-- **THEN** it is stored and appears in History
+- **WHEN** an entry of 330 ml of Tea is recorded
+- **THEN** it is stored with its drink and appears in History
 
 #### Scenario: Out of range
 - **WHEN** a value below 10 or above 5000, or a fraction such as 250.5, is entered
 - **THEN** it is refused with a message in the app language and nothing is stored
 
 #### Scenario: Two taps
-- **WHEN** the same quick-add button is tapped twice
+- **WHEN** the same drink button is tapped twice
 - **THEN** two entries are stored, each with its own timestamp
 
-### Requirement: Quick add with own sizes
-The Log card SHALL offer three quick-add buttons. A tap SHALL store one entry of that button's size at the current time without a further step, and show a short message with an Undo action that removes exactly that entry. The three sizes (10 to 5000 ml each) and their short names SHALL be editable by the person and kept in preferences. The defaults (150, 250 and 500 ml, named glass, cup and bottle) SHALL be stated as the app's own starting values and SHALL NOT be presented as a recommended amount. Changing a size SHALL NOT change stored entries.
+#### Scenario: All drinks count equally
+- **WHEN** 250 ml of Water, 125 ml of Coffee and 125 ml of Tea are recorded today
+- **THEN** the total is 500 ml
+
+### Requirement: Quick add by drink with own portions
+The Fluid tab SHALL offer one button per drink (Water, Coffee, Tea, Milk, Juice, Soup, Other) and a count stepper from 1 to 10 (default 1). A tap SHALL store one entry of that drink with the amount count times that drink's portion at the current time without a further step, and show a short message such as "Added 2 x Coffee, 250 ml" with an Undo action that removes exactly that entry. Each drink's portion (10 to 5000 ml) SHALL be editable by the person and kept in preferences. The starting portions (Water 250, Coffee 125, Tea 125, Milk 200, Juice 150, Soup 200, Other 200 ml) SHALL be stated as the app's own starting values and SHALL NOT be presented as a recommended amount. A count that would make the amount exceed 5000 ml SHALL be refused. Changing a portion SHALL NOT change stored entries.
 
 #### Scenario: One tap
-- **WHEN** the person taps "+1 cup" and the cup size is 250
-- **THEN** an entry of 250 ml with the current time is stored and the Today line rises by 250
+- **WHEN** the person taps Coffee with the count 1 and the coffee portion is 125
+- **THEN** an entry of 125 ml of Coffee with the current time is stored and the Today line rises by 125
+
+#### Scenario: Count
+- **WHEN** the count is 3 and the person taps Tea with a portion of 125
+- **THEN** one entry of 375 ml of Tea is stored and the message reads "Added 3 x Tea, 375 ml"
 
 #### Scenario: Undo
 - **WHEN** the person taps Undo in the message after a quick-add
 - **THEN** that entry is deleted and the Today line returns to its earlier value
 
-#### Scenario: Own size
-- **WHEN** the person sets the glass to 120 ml
-- **THEN** the next "+1 glass" stores 120 ml and earlier entries are unchanged
+#### Scenario: Own portion
+- **WHEN** the person sets the water portion to 200 ml
+- **THEN** the next Water tap stores 200 ml and earlier entries are unchanged
 
-#### Scenario: Invalid size
-- **WHEN** a size of 5 or 6000 is entered in the size settings
-- **THEN** it is refused and the previous size is kept
+#### Scenario: Invalid portion
+- **WHEN** a portion of 5 or 6000 is entered in the portion settings
+- **THEN** it is refused and the previous portion is kept
+
+#### Scenario: Count too high
+- **WHEN** the count is 10 and the soup portion is 600 ml
+- **THEN** the entry is refused with a message about the accepted range and nothing is stored
+
+### Requirement: Visual design of the Fluid tab
+The Fluid tab SHALL look finished and friendly rather than like a form, in the style of well-known hydration trackers (large one-tap drink tiles, a glass that fills, a calm daily summary) while staying inside the compliance rules. The drink buttons SHALL be large tiles (at least 64 dp tall and 48 dp wide, in a grid that fits two to four columns by window width) each with a simple own-drawn icon, the drink name and the portion, in the app theme with no per-drink traffic-light colour. A **glass gauge** SHALL show today's total: a glass illustration whose fill animates (ripple on add, no animation when the system asks to reduce motion) with the total in ml printed next to it. The gauge scale SHALL be the person's own maximum when set, otherwise their minimum when set, with a tick for each number that is set; without any number set it SHALL show a fixed neutral glass that fills in steps of the person's glass portion and SHALL carry no scale, percentage or target. Below it the Today line and the position label, and a row of small drink icons for the entries of today in the order they were made. An add SHALL give light haptic feedback and the Undo message. The tab SHALL work in light and dark theme, on phone, tablet and in landscape (a tile grid and the gauge side by side when wide), and in long Dutch text. There SHALL be no streaks, badges, mascots, points, challenges, "well done" or motivational text.
+
+#### Scenario: Tile grid
+- **WHEN** the Fluid tab is opened on a 360 dp phone and on a tablet
+- **THEN** the seven drink tiles are shown with icon, name and portion, in two or three columns on the phone and in one or two rows on the tablet
+
+#### Scenario: Glass gauge with a maximum
+- **WHEN** the maximum is 1500 and 900 ml were drunk
+- **THEN** the glass is filled to the height of 900 against 1500 with a tick at the maximum, the total reads 900 ml and no percentage is shown
+
+#### Scenario: Glass gauge without numbers
+- **WHEN** neither a minimum nor a maximum is set
+- **THEN** the glass fills in steps of one glass portion with no scale, tick, percentage or target
+
+#### Scenario: Reduced motion
+- **WHEN** the system asks to reduce motion
+- **THEN** the glass changes level without animation
+
+#### Scenario: No gamification
+- **WHEN** the Fluid tab and its strings are reviewed
+- **THEN** there is no streak, badge, mascot, point, challenge or motivational message
 
 ### Requirement: Custom entry
-The card SHALL offer a custom entry with the millilitres, the date and time (default now) and the optional comment from `entry-comments`. The comment SHALL be available on custom entries; quick-add entries SHALL be stored without a comment and MAY be given one later by editing in History.
+The Fluid tab SHALL offer a custom entry with the drink, the millilitres, the date and time (default now) and the optional comment from `entry-comments`. The comment SHALL be available on custom entries; quick-add entries SHALL be stored without a comment and MAY be given one later by editing in History.
 
 #### Scenario: Custom with comment
-- **WHEN** 400 ml with the comment "after the walk" is saved
-- **THEN** History shows both
+- **WHEN** 400 ml of Water with the comment "after the walk" is saved
+- **THEN** History shows the drink, the amount and the comment
 
 ### Requirement: Daily total
-The Log card SHALL show the total millilitres of the Profile's entries on the current calendar day of the device as a plain line ("Today: N ml"), reading "Today: 0 ml" when there are none. A day SHALL run from local midnight to local midnight. When the person has set a minimum, a maximum or both, the line SHALL also show those numbers and the position label of the requirement "Personal minimum and maximum set by the person". The total SHALL be shown only as numbers and that label: no progress ring, bar fill, percentage or caption.
+The Log card SHALL show the total millilitres of the Profile's entries on the current calendar day of the device as a plain line ("Today: N ml"), reading "Today: 0 ml" when there are none. A day SHALL run from local midnight to local midnight. When the person has set a minimum, a maximum or both, the line SHALL also show those numbers and the position label of the requirement "Personal minimum and maximum set by the person". The total SHALL be shown as numbers, that label and the glass gauge: no progress ring, bar, percentage or caption.
 
 #### Scenario: Sum of the day
 - **WHEN** entries of 250, 150 and 500 ml exist today and 300 ml yesterday
@@ -109,7 +144,7 @@ Next to the limits fields the system SHALL offer an "About these amounts" note t
 - **THEN** no control fills a field with a published amount
 
 ### Requirement: No target set by the app, no reminder or advice
-The system SHALL NOT set, suggest or compare to a daily target, minimum or maximum of fluid on its own; the only numbers used are those the person entered. The system SHALL NOT show a progress indicator or percentage toward an amount; SHALL NOT send a reminder or notification to drink or to stop drinking; and SHALL NOT advise, label or comment on an amount or a day beyond the position label above, including words such as enough, too little, too much, dehydrated, good, bad, should or must in either language. Figures SHALL be plain numbers.
+The system SHALL NOT set, suggest or compare to a daily target, minimum or maximum of fluid on its own; the only numbers used are those the person entered. The system SHALL NOT show a progress ring, bar, percentage or caption toward an amount (the glass gauge of the Visual design requirement, drawn from the person's own number and printed with the plain total only, is the one allowed picture); SHALL NOT send a reminder or notification to drink or to stop drinking; and SHALL NOT advise, label or comment on an amount or a day beyond the position label above, including words such as enough, too little, too much, dehydrated, good, bad, should or must in either language. Figures SHALL be plain numbers.
 
 #### Scenario: Any amount without numbers set
 - **WHEN** no minimum or maximum is set and one day totals 300 ml and another 4500 ml
@@ -135,7 +170,7 @@ The system SHALL allow retrieving all entries of a Profile in reverse chronologi
 - **THEN** two totals are returned, one per day, and days without entries are not returned
 
 ### Requirement: Fluid intake text in English and Dutch
-Every string of this metric SHALL exist in English and Dutch. Dutch SHALL use "Drinken" for the metric, "Vandaag" for the daily total, "Jouw minimum", "Jouw maximum" and "Jouw grenzen" for the limits, "Onder je minimum", "Binnen je grenzen" (one number: "Binnen je grens") and "Boven je maximum" for the position labels, "Over deze hoeveelheden" for the note, "Glas", "Kopje" and "Fles" for the default button names and "Ongedaan maken" for Undo; English SHALL use "Fluid intake", "Today", "Your minimum", "Your maximum", "Your limits", "Below your minimum", "Within your limits" (one number: "Within your limit"), "Above your maximum", "About these amounts", "Glass", "Cup", "Bottle" and "Undo".
+Every string of this metric SHALL exist in English and Dutch. Dutch SHALL use "Drinken" for the metric, "Water", "Koffie", "Thee", "Melk", "Sap", "Soep" and "Overig" for the drinks, "Aantal" for the count, "Vandaag" for the daily total, "Jouw minimum", "Jouw maximum" and "Jouw grenzen" for the limits, "Onder je minimum", "Binnen je grenzen" (one number: "Binnen je grens") and "Boven je maximum" for the position labels, "Over deze hoeveelheden" for the note, "Ongedaan maken" for Undo; English SHALL use "Fluid intake", "Today", "Your minimum", "Your maximum", "Your limits", "Below your minimum", "Within your limits" (one number: "Within your limit"), "Above your maximum", "About these amounts", "Water", "Coffee", "Tea", "Milk", "Juice", "Soup", "Other", "Count" and "Undo".
 
 #### Scenario: Dutch card
 - **WHEN** the app language is Dutch, the minimum is 1400 and the total is 900
