@@ -1,9 +1,14 @@
 package nl.healthjournal.app
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -14,12 +19,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nl.healthjournal.app.settings.GlucoseUnitChoice
 import nl.healthjournal.app.ui.backup.BackupSection
 import nl.healthjournal.app.ui.backup.BackupViewModel
+import nl.healthjournal.app.ui.common.AdaptiveLayout
+import nl.healthjournal.app.ui.common.NavigationLayout
 import nl.healthjournal.app.ui.history.HistoryScreen
 import nl.healthjournal.app.ui.history.HistoryViewModel
 import nl.healthjournal.app.ui.lock.EncryptionNotActiveBanner
@@ -102,6 +112,9 @@ fun AppContent(
         if (!navigation.showPillbox) refresher.onPillboxClosed()
     }
 
+    val configuration = LocalConfiguration.current
+    val navigationLayout = AdaptiveLayout.navigationLayout(configuration.screenWidthDp, configuration.screenHeightDp)
+
     Scaffold(
         topBar = {
             Column {
@@ -126,47 +139,64 @@ fun AppContent(
             }
         },
         bottomBar = {
-            AppNavigationBar(selected = navigation.selectedTab, onSelect = navigation::openTab)
+            if (navigationLayout == NavigationLayout.BAR) {
+                AppNavigationBar(selected = navigation.selectedTab, onSelect = navigation::openTab)
+            }
         }
     ) { innerPadding ->
-        Surface(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            if (navigation.showPillbox) {
-                PillboxScreen(
-                    viewModel = viewModels.medication,
-                    showNotice = !settings.medicationNoticeAccepted,
-                    openOnToday = navigation.openPillboxOnToday,
-                    onOpenedOnToday = navigation::onOpenedOnToday,
-                    onNoticeAccepted = settings::acceptMedicationNotice
-                )
-            } else if (navigation.showMindfulness) {
-                CompositionLocalProvider(LocalExerciseGate provides exerciseGate) { MindfulnessArea() }
-            } else when (navigation.currentTab) {
-                AppNavDestination.LOG -> LogMetricScreen(
-                    viewModel = viewModels.logging,
-                    onGlucoseUnitSelected = { settings.changeGlucoseUnit(GlucoseUnitChoice.from(it)) },
-                    migraineTabSelected = navigation.logMigraineTab,
-                    onMigraineTabSelected = { navigation.logMigraineTab = it },
-                    migraineContent = {
-                        if (migraineState.open) {
-                            MigraineLogScreen(viewModel = viewModels.migraine)
-                        } else {
-                            MigraineCard(state = migraineState, onLog = viewModels.migraine::startNew)
+        Row(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            if (navigationLayout == NavigationLayout.RAIL) {
+                AppNavigationRail(selected = navigation.selectedTab, onSelect = navigation::openTab)
+            }
+            // Centred and capped on wide windows so lines, chips and fields stay readable.
+            Surface(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                    Box(
+                        modifier = Modifier
+                            .widthIn(max = AdaptiveLayout.CONTENT_MAX_WIDTH_DP.dp)
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                    ) {
+                        if (navigation.showPillbox) {
+                            PillboxScreen(
+                                viewModel = viewModels.medication,
+                                showNotice = !settings.medicationNoticeAccepted,
+                                openOnToday = navigation.openPillboxOnToday,
+                                onOpenedOnToday = navigation::onOpenedOnToday,
+                                onNoticeAccepted = settings::acceptMedicationNotice
+                            )
+                        } else if (navigation.showMindfulness) {
+                            CompositionLocalProvider(LocalExerciseGate provides exerciseGate) { MindfulnessArea() }
+                        } else when (navigation.currentTab) {
+                            AppNavDestination.LOG -> LogMetricScreen(
+                                viewModel = viewModels.logging,
+                                onGlucoseUnitSelected = { settings.changeGlucoseUnit(GlucoseUnitChoice.from(it)) },
+                                migraineTabSelected = navigation.logMigraineTab,
+                                onMigraineTabSelected = { navigation.logMigraineTab = it },
+                                migraineContent = {
+                                    if (migraineState.open) {
+                                        MigraineLogScreen(viewModel = viewModels.migraine)
+                                    } else {
+                                        MigraineCard(state = migraineState, onLog = viewModels.migraine::startNew)
+                                    }
+                                }
+                            )
+                            AppNavDestination.HISTORY ->
+                                HistoryScreen(viewModel = viewModels.history, migraineViewModel = viewModels.migraine)
+                            AppNavDestination.PROFILE -> ProfileRoute(
+                                viewModel = viewModels.profile,
+                                settings = settings,
+                                onLocaleChanged = actions.recreate,
+                                onShowMedicationNotice = { showNoticeFromProfile = true },
+                                reminderSettings = actions.reminderSettings,
+                                securitySettings = actions.securitySettings,
+                                backupSettings = { BackupSection(viewModel = viewModels.backup) },
+                                versionName = BuildConfig.VERSION_NAME,
+                                changelogAnchor = BuildConfig.CHANGELOG_ANCHOR
+                            )
                         }
                     }
-                )
-                AppNavDestination.HISTORY ->
-                    HistoryScreen(viewModel = viewModels.history, migraineViewModel = viewModels.migraine)
-                AppNavDestination.PROFILE -> ProfileRoute(
-                    viewModel = viewModels.profile,
-                    settings = settings,
-                    onLocaleChanged = actions.recreate,
-                    onShowMedicationNotice = { showNoticeFromProfile = true },
-                    reminderSettings = actions.reminderSettings,
-                    securitySettings = actions.securitySettings,
-                    backupSettings = { BackupSection(viewModel = viewModels.backup) },
-                    versionName = BuildConfig.VERSION_NAME,
-                    changelogAnchor = BuildConfig.CHANGELOG_ANCHOR
-                )
+                }
             }
         }
     }
