@@ -128,7 +128,7 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 | <img src="screenshots/light-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, light theme"> | <img src="screenshots/dark-migraine-export.png" width="250" alt="Export CSV dialog with the Export Migraine CSV button, dark theme"> |
 | <img src="screenshots/light-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, light theme"> | <img src="screenshots/dark-migraine-import.png" width="250" alt="Import CSV dialog with the Migraine type selected, dark theme"> |
 
-**Fluid** (last tab of the Log screen; light theme is the English UI and dark theme the Dutch UI; sample data: three drinks of water, coffee and tea making 750 ml, own limits of 1500 and 2500 ml; large drink tiles with an own-drawn icon, the portion and a count stepper, a gauge that fills with today's total and a strip of today's drinks; the gauge is a glass, a woman or a man outline chosen in the Display card, with a tick for each limit and a neutral position label; no goal, percentage or encouragement. In History the Fluid chip shows entries with the day total, Graph with figures, daily bars with dashed limit lines, weekday, time-of-day and per-drink charts, and Calendar with shade, printed total and a shape marker for below, within or above. The tablet is still to be captured)
+**Fluid** (last tab of the Log screen; light theme is the English UI and dark theme the Dutch UI; sample data: three drinks of water, coffee and tea making 750 ml, own limits of 1500 and 2500 ml; large drink tiles with an own-drawn icon, the portion and a count stepper, a gauge that fills with today's total and a strip of today's drinks; the gauge is a glass, a woman or a man outline chosen in the Display card, with a tick for each limit and a neutral position label; no goal, percentage or encouragement. In History the Fluid chip shows entries with the day total, Graph with figures, daily bars with dashed limit lines, weekday, time-of-day and per-drink charts, and Calendar with shade, printed total and a shape marker for below, within or above. On a tablet the tiles sit beside the gauge and History is two panes, entries on the left and Graph or Calendar on the right; the tablet shots are dark and English only)
 
 | | Light (English) | Dark (Dutch) |
 |---|---|---|
@@ -139,6 +139,12 @@ Mindfulness in Dutch (light theme, except the last one). The last picture is the
 | History list | <img src="screenshots/light-fluid-history-list.png" width="200" alt="Fluid history with drink icons and a day total, light theme"> | <img src="screenshots/dark-fluid-history-list.png" width="200" alt="Fluid history with drink icons and a day total, dark theme"> |
 | Graph | <img src="screenshots/light-fluid-history-graph.png" width="200" alt="Fluid graph with figures and daily bars with dashed limit lines, light theme"> | <img src="screenshots/dark-fluid-history-graph.png" width="200" alt="Fluid graph with figures and daily bars with dashed limit lines, dark theme"> |
 | Calendar | <img src="screenshots/light-fluid-history-calendar.png" width="200" alt="Fluid calendar with shaded days, totals and below or within markers, light theme"> | <img src="screenshots/dark-fluid-history-calendar.png" width="200" alt="Fluid calendar with shaded days, totals and below or within markers, dark theme"> |
+
+| Tablet | Dark (English) |
+|---|---|
+| Log | <img src="screenshots/dark-fluid-tablet-log.png" width="500" alt="Fluid tab on a tablet with the glass beside the drink tiles, dark theme"> |
+| History, Graph | <img src="screenshots/dark-fluid-tablet-history.png" width="500" alt="Fluid history on a tablet with entries on the left and figures and daily bars with limit lines on the right, dark theme"> |
+| History, Calendar | <img src="screenshots/dark-fluid-tablet-history-calendar.png" width="500" alt="Fluid history on a tablet with entries on the left and the calendar on the right, dark theme"> |
 
 **Oxygen saturation** (last tab of the Log screen: a whole-number ruler from 50 to 100 %, optional pulse, situation and measuring site, an Oxygen given switch and a dismissible tip; in History the Oxygen chip shows plain entry cards, a trend line, Figures and Readings per situation; no ranges, colours or judging words; sample data)
 
