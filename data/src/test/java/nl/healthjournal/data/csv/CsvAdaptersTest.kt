@@ -17,6 +17,9 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.math.BigDecimal
+import nl.healthjournal.domain.metrics.model.FluidDrink
+import nl.healthjournal.domain.metrics.model.FluidIntakeEntry
+import nl.healthjournal.domain.metrics.model.FluidMl
 import java.time.Instant
 import java.time.LocalDate
 import nl.healthjournal.domain.shared.model.EntryComment
@@ -646,5 +649,75 @@ class CsvAdaptersTest {
         assertEquals(1, result.importedCount)
         assertTrue(result.skippedRows.isEmpty())
         assertEquals("a".repeat(200), logRepo.weights.single().comment?.text)
+    }
+
+    private fun fluidAdapters(logRepo: FakeHealthLogRepository, profileRepo: InMemoryProfileRepository) = Pair(
+        CsvDataExportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo, logRepo),
+        CsvDataImportAdapter(logRepo, logRepo, logRepo, logRepo, logRepo, logRepo, logRepo, profileRepo)
+    )
+
+    @Test
+    fun `fluid CSV exports oldest first with lower-case drinks and imports back`() = runBlocking {
+        val logRepo = FakeHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val (export, import) = fluidAdapters(logRepo, profileRepo)
+        assertEquals("timestamp,ml,drink,comment\n", export.exportFluidCsv(profile.id))
+
+        logRepo.saveFluidIntake(FluidIntakeEntry(MeasurementId.generate(), profile.id, Instant.parse("2026-11-14T09:00:00Z"), FluidDrink.WATER, FluidMl(250)))
+        logRepo.saveFluidIntake(
+            FluidIntakeEntry(MeasurementId.generate(), profile.id, Instant.parse("2026-11-13T09:00:00Z"), FluidDrink.TEA, FluidMl(125), EntryComment.ofOrNull("a, b"))
+        )
+        val csv = export.exportFluidCsv(profile.id)
+        assertEquals(
+            "timestamp,ml,drink,comment\n2026-11-13T09:00:00Z,125,tea,\"a, b\"\n2026-11-14T09:00:00Z,250,water,\n",
+            csv
+        )
+
+        logRepo.fluidIntakes.clear()
+        val result = import.importCsv(profile.id, "fluid", csv)
+        assertEquals(2, result.importedCount)
+        assertTrue(result.skippedRows.isEmpty())
+        assertEquals(listOf(FluidDrink.TEA, FluidDrink.WATER), logRepo.fluidIntakes.sortedBy { it.timestamp }.map { it.drink })
+        assertEquals("a, b", logRepo.fluidIntakes.single { it.drink == FluidDrink.TEA }.comment?.text)
+    }
+
+    @Test
+    fun `importing the same fluid file twice adds nothing the second time`() = runBlocking {
+        val logRepo = FakeHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val (_, import) = fluidAdapters(logRepo, profileRepo)
+        val csv = "timestamp,ml,drink,comment\n2026-11-14T09:00:00Z,250,water,\n2026-11-14T10:00:00Z,125,coffee,\n"
+
+        assertEquals(2, import.importCsv(profile.id, "fluid", csv).importedCount)
+        val again = import.importCsv(profile.id, "fluid", csv)
+        assertEquals(0, again.importedCount)
+        assertEquals(2, again.skippedRows.size)
+        assertEquals(2, logRepo.fluidIntakes.size)
+    }
+
+    @Test
+    fun `fluid import reads a missing or unknown drink as other and skips rows outside 10 to 5000 ml`() = runBlocking {
+        val logRepo = FakeHealthLogRepository()
+        val profileRepo = InMemoryProfileRepository()
+        val profile = Profile.create("Test User", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val (_, import) = fluidAdapters(logRepo, profileRepo)
+        val csv = "timestamp,ml,drink,comment\n" +
+            "2026-11-14T09:00:00Z,250,kombucha,\n" +
+            "2026-11-14T10:00:00Z,9,water,\n" +
+            "2026-11-14T11:00:00Z,5001,water,\n" +
+            "not a time,200,water,\n"
+        val result = import.importCsv(profile.id, "fluid", csv)
+        assertEquals(1, result.importedCount)
+        assertEquals(3, result.skippedRows.size)
+        assertEquals(FluidDrink.OTHER, logRepo.fluidIntakes.single().drink)
+
+        val noDrinkColumn = import.importCsv(profile.id, "fluid", "timestamp,ml\n2026-11-15T09:00:00Z,300\n")
+        assertEquals(1, noDrinkColumn.importedCount)
+        assertEquals(FluidDrink.OTHER, logRepo.fluidIntakes.single { it.timestamp == Instant.parse("2026-11-15T09:00:00Z") }.drink)
     }
 }

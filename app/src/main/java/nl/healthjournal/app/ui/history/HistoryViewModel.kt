@@ -32,6 +32,7 @@ import nl.healthjournal.domain.metrics.command.UpdateWaistCircumferenceCommand
 import nl.healthjournal.domain.metrics.command.UpdateWeightCommand
 import nl.healthjournal.domain.migraine.command.EndMigraineCommand
 import nl.healthjournal.domain.shared.model.MeasurementId
+import nl.healthjournal.domain.shared.model.ProfileId
 import nl.healthjournal.domain.metrics.model.ActivitySession
 import nl.healthjournal.domain.metrics.model.BloodPressureEntry
 import nl.healthjournal.domain.metrics.model.GlucoseContext
@@ -48,7 +49,7 @@ import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Job
 import nl.healthjournal.domain.metrics.command.ObserveFluidLimitsQuery
 import nl.healthjournal.domain.metrics.command.UpdateFluidIntakeCommand
 import nl.healthjournal.domain.metrics.model.FluidDrink
@@ -127,6 +128,8 @@ class HistoryViewModel(
     private val _uiState = MutableStateFlow(HistoryUiState(isLoading = true, orderedMetrics = metricOrder.value))
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
 
+    private var limitsJob: Job? = null
+
     init {
         observeMetricOrder()
         loadHistory()
@@ -190,7 +193,7 @@ class HistoryViewModel(
                 _uiState.value = _uiState.value.copy(activeProfile = null, isLoading = false)
                 return@launch
             }
-            val limits = dispatcher.observe(ObserveFluidLimitsQuery(profile.id)).first().getOrNull() ?: FluidLimits.NONE
+            observeLimits(profile.id)
             when (val result = dispatcher.query(GetHistoryQuery(profile.id))) {
                 is DomainResult.Success -> {
                     val history = result.value.health
@@ -203,12 +206,21 @@ class HistoryViewModel(
                         waistCircumferences = history.waistCircumferences,
                         oxygenSaturations = history.oxygenSaturations,
                         fluidIntakes = history.fluidIntakes,
-                        fluidLimits = limits,
                         migraines = result.value.migraines,
                         isLoading = false
                     )
                 }
                 is DomainResult.Failure -> loadFailed(result.error)
+            }
+        }
+    }
+
+    /** The person's own limits follow every change, so a number set on the Fluid tab shows in History at once. */
+    private fun observeLimits(profileId: ProfileId) {
+        limitsJob?.cancel()
+        limitsJob = viewModelScope.launch {
+            dispatcher.observe(ObserveFluidLimitsQuery(profileId)).collect { result ->
+                result.getOrNull()?.let { _uiState.value = _uiState.value.copy(fluidLimits = it) }
             }
         }
     }

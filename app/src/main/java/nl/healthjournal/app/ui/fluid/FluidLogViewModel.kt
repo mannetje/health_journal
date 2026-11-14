@@ -95,14 +95,20 @@ class FluidLogViewModel(
             observing = launch {
                 launch {
                     dispatcher.observe(ObserveFluidHistoryQuery(profile.id)).collect { result ->
-                        result.getOrNull()?.let { allEntries = it; refreshToday() }
+                        when (result) {
+                            is DomainResult.Success -> { allEntries = result.value; refreshToday() }
+                            is DomainResult.Failure -> _uiState.value = _uiState.value.copy(message = result.error.toUiText())
+                        }
                     }
                 }
                 launch {
                     dispatcher.observe(ObserveFluidLimitsQuery(profile.id)).collect { result ->
-                        result.getOrNull()?.let { limits ->
-                            _uiState.value = _uiState.value.copy(limits = limits)
-                            refreshToday()
+                        when (result) {
+                            is DomainResult.Success -> {
+                                _uiState.value = _uiState.value.copy(limits = result.value)
+                                refreshToday()
+                            }
+                            is DomainResult.Failure -> _uiState.value = _uiState.value.copy(message = result.error.toUiText())
                         }
                     }
                 }
@@ -110,7 +116,8 @@ class FluidLogViewModel(
         }
     }
 
-    private fun refreshToday() {
+    /** Recomputes "today" from the clock; the screen calls it at midnight so the day rolls over without a new entry. */
+    fun refreshToday() {
         val z = zone()
         val today: LocalDate = clock.instant().atZone(z).toLocalDate()
         val entries = allEntries.filter { it.timestamp.atZone(z).toLocalDate() == today }.sortedBy { it.timestamp }
@@ -145,8 +152,11 @@ class FluidLogViewModel(
     fun undo() {
         val last = _uiState.value.lastAdded ?: return
         viewModelScope.launch {
-            dispatcher.dispatch(DeleteEntryCommand(EntryKind.FLUID_INTAKE, last.id))
-            _uiState.value = _uiState.value.copy(lastAdded = null)
+            when (val result = dispatcher.dispatch(DeleteEntryCommand(EntryKind.FLUID_INTAKE, last.id))) {
+                is DomainResult.Success -> _uiState.value = _uiState.value.copy(lastAdded = null)
+                // The drink stays in the total, so the message must not claim it was removed.
+                is DomainResult.Failure -> _uiState.value = _uiState.value.copy(lastAdded = null, message = result.error.toUiText())
+            }
         }
     }
 

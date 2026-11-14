@@ -41,18 +41,23 @@ class FakeHealthLogRepository :
     val fluidIntakes = mutableListOf<FluidIntakeEntry>()
     private val fluidLimits = MutableStateFlow<Map<ProfileId, FluidLimits>>(emptyMap())
 
-    override suspend fun saveFluidIntake(entry: FluidIntakeEntry) { fluidIntakes.add(entry) }
+    /** Bumped on every change made through the port, so observers emit again like the real database does. */
+    private val fluidChanges = MutableStateFlow(0)
+
+    override suspend fun saveFluidIntake(entry: FluidIntakeEntry) { fluidIntakes.add(entry); fluidChanges.value++ }
     override suspend fun getFluidHistory(profileId: ProfileId): List<FluidIntakeEntry> =
         fluidIntakes.filter { it.profileId == profileId }.sortedByDescending { it.timestamp }
     override fun observeFluidHistory(profileId: ProfileId): Flow<List<FluidIntakeEntry>> =
-        flow { emit(getFluidHistory(profileId)) }
+        fluidChanges.map { getFluidHistory(profileId) }
     override suspend fun updateFluidIntake(entry: FluidIntakeEntry): Boolean {
         val index = fluidIntakes.indexOfFirst { it.id == entry.id && it.profileId == entry.profileId }
         if (index < 0) return false
         fluidIntakes[index] = entry
+        fluidChanges.value++
         return true
     }
-    override suspend fun deleteFluidIntake(id: MeasurementId): Boolean = fluidIntakes.removeAll { it.id == id }
+    override suspend fun deleteFluidIntake(id: MeasurementId): Boolean =
+        fluidIntakes.removeAll { it.id == id }.also { if (it) fluidChanges.value++ }
     override suspend fun getFluidLimits(profileId: ProfileId): FluidLimits = fluidLimits.value[profileId] ?: FluidLimits.NONE
     override fun observeFluidLimits(profileId: ProfileId): Flow<FluidLimits> =
         fluidLimits.map { it[profileId] ?: FluidLimits.NONE }

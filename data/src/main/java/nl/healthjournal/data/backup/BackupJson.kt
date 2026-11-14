@@ -385,12 +385,14 @@ object BackupJson {
                 }
             },
             fluidEntries = guard("fluidEntries") {
+                // An entry whose amount is outside 10 to 5000 ml is left out, so one bad value never blocks a restore.
                 readList(o.optJSONArray("fluidEntries")) { e ->
-                    FluidIntakeEntry(
+                    val ml = e.getInt("ml")
+                    if (ml !in FluidMl.MIN..FluidMl.MAX) null else FluidIntakeEntry(
                         MeasurementId.fromString(e.req("id")), pid, Instant.parse(e.req("timestamp")),
-                        FluidDrink.fromCode(e.text("drink")), FluidMl(e.getInt("ml")), e.comment()
+                        FluidDrink.fromCode(e.text("drink")), FluidMl(ml), e.comment()
                     )
-                }
+                }.filterNotNull()
             },
             fluidLimits = guard("fluidLimits") {
                 runCatching {

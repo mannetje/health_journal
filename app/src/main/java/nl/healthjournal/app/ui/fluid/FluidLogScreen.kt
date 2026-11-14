@@ -76,6 +76,16 @@ fun FluidLogScreen(viewModel: FluidLogViewModel, modifier: Modifier = Modifier) 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
 
+    // Today's total belongs to the local calendar day, so ask for a recount just after each midnight.
+    LaunchedEffect(Unit) {
+        while (true) {
+            val now = java.time.ZonedDateTime.now()
+            val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay(now.zone)
+            kotlinx.coroutines.delay(java.time.Duration.between(now, nextMidnight).toMillis() + 500)
+            viewModel.refreshToday()
+        }
+    }
+
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         state.message?.let {
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
@@ -209,7 +219,7 @@ private fun DrinkTile(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Column(
-            Modifier.fillMaxWidth().clickable(onClick = onAdd).semantics { contentDescription = addDescription }.padding(top = 12.dp),
+            Modifier.fillMaxWidth().clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onAdd).semantics { contentDescription = addDescription }.padding(top = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DrinkIcon(drink, Modifier.size(40.dp))

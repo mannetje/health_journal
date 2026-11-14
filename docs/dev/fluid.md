@@ -38,16 +38,20 @@ The [C4 page](c4.md) has the slice across the three modules, and the [database p
 
 The feature follows [ADR 0021](../adr/0021-medication-compliance-and-privacy.md) and the `compliance` capability: no assessment, advice, target, reminder, streak, badge, mascot or motivational text. The position label is a plain statement about the person's own numbers in one neutral colour, never red or green. The calendar and charts never rely on colour alone (printed number, shape marker, dashed line with text). The wording scan test over the strings bans advice and verdict words.
 
+## Screen behaviour
+
+The Fluid tab asks for a recount just after each local midnight (`FluidLogViewModel.refreshToday`), so the gauge and total roll over to the new day without a new entry. History observes the limits as a flow, so numbers set on the Fluid tab show there at once.
+
 ## Import, export and backup
 
 | Format | Content |
 |---|---|
-| CSV | `timestamp,ml,drink,comment`; a row outside 10 to 5000 ml is rejected, an unknown drink reads as `other`, a file without the drink column imports as `other`. Limits are not in the CSV. |
-| Backup | per profile `fluidEntries` (`id`, `timestamp`, `ml`, `drink`, `comment`) plus `fluidMinMl` and `fluidMaxMl`, written only when present; `schemaVersion` stays 1 and an older reader ignores them. A merge adds entries by `id` and applies limits only when the profile has none. See [backup format](../backup-format/README.md). |
+| CSV | `timestamp,ml,drink,comment`; a row outside 10 to 5000 ml is rejected, an unknown drink reads as `other`, a file without the drink column imports as `other`, and a row that matches a stored entry (same time, amount and drink) is skipped and listed, so importing a file twice adds nothing. Limits are not in the CSV. |
+| Backup | per profile `fluidEntries` (`id`, `timestamp`, `ml`, `drink`, `comment`) plus `fluidMinMl` and `fluidMaxMl`, written only when present; `schemaVersion` stays 1 and an older reader ignores them. A merge adds entries by `id` and applies limits only when the profile has none. An entry outside 10 to 5000 ml is left out when reading, so one bad value never blocks a restore. See [backup format](../backup-format/README.md). |
 
 ## Tests
 
-`FluidModelTest` (domain: ranges, drink parsing, day totals, position, statistics, calendar) and the data and app tests that cover the mapper, CSV round trip, backup, migration 8 to 9, `HandlerRegistryTest` and the metric order (`MetricSlotTest`). See [Testing](testing.md).
+`FluidModelTest` (domain: ranges, drink parsing, day totals, position, statistics, calendar), `FluidLogViewModelTest` (taps, counts, position, limits, midnight recount, undo, History limits), `FluidGaugePreferenceTest`, the fluid cases in `CsvAdaptersTest` (round trip, duplicates, bad rows) and `BackupFormatTest` (round trip, unknown drink, out-of-range amount, invalid limits), and the mapper, migration 8 to 9, `HandlerRegistryTest` and `MetricSlotTest`. See [Testing](testing.md).
 
 ## Known gaps
 

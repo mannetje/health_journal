@@ -98,6 +98,8 @@ class CsvDataImportAdapter(
         val commentColumn = CsvQuoting.split(lines.first()).indexOfFirst { it.equals("comment", ignoreCase = true) }
         val skippedRows = mutableListOf<SkippedRow>()
         var importedCount = 0
+        // Drinks already stored, loaded on the first fluid row, so importing the same file twice adds nothing.
+        var knownFluid: MutableSet<Triple<Instant, Int, FluidDrink>>? = null
 
         for ((index, line) in dataLines.withIndex()) {
             val lineNumber = lineNumbers[index + 1] // physical line; the header is the first non-blank line
@@ -249,6 +251,12 @@ class CsvDataImportAdapter(
                         val ml = FluidMl(parts[1].trim().toInt())
                         // A missing or unknown drink reads as Other, so older files and later versions still import.
                         val drink = FluidDrink.fromCode(parts.getOrNull(2))
+                        val known = knownFluid ?: fluidRepository.getFluidHistory(profileId)
+                            .map { Triple(it.timestamp, it.amount.value, it.drink) }.toMutableSet().also { knownFluid = it }
+                        if (!known.add(Triple(timestamp, ml.value, drink))) {
+                            skippedRows.add(SkippedRow(lineNumber, "Already in your log (same time, amount and drink)"))
+                            continue
+                        }
                         fluidRepository.saveFluidIntake(
                             FluidIntakeEntry(MeasurementId.generate(), profileId, timestamp, drink, ml, comment)
                         )
