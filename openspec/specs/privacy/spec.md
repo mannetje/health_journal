@@ -97,6 +97,10 @@ The system SHALL NOT include the encrypted database or its key material in cloud
 - **WHEN** the platform's backup or device transfer runs
 - **THEN** neither the encrypted database nor its key material SHALL be included
 
+#### Scenario: Backup excludes the migration's leftovers
+- **WHEN** the platform's backup or device transfer runs while the set-aside plain files (`.pre-encryption`) or the temporary encrypted file of the migration exist
+- **THEN** none of them SHALL be included, because the set-aside files are plain health data
+
 #### Scenario: Restore on another device
 - **WHEN** the app is installed on another device or after data clearing
 - **THEN** it starts with an empty database and the notice names the encrypted backup file as the way to bring data back
@@ -138,6 +142,14 @@ When setting the plain database files aside or moving the encrypted database int
 - **WHEN** the database file is missing and its set-aside copy exists at startup
 - **THEN** the system SHALL NOT create a new database file, SHALL start with an empty in-memory database and the "not encrypted" notice, and SHALL leave the set-aside copy for the next start
 
+#### Scenario: A file cannot be put back
+- **WHEN** the swap fails and a set-aside file, such as the `-wal` file, cannot be restored
+- **THEN** the failure SHALL name the file, the plain database SHALL NOT be opened beside the missing file, and the next start SHALL restore it and migrate again
+
+#### Scenario: A set-aside copy cannot be deleted
+- **WHEN** the encrypted database is in place but a set-aside plain file cannot be deleted
+- **THEN** the migration SHALL NOT be reported as complete, the app SHALL keep using the encrypted database, and the next start SHALL retry the deletion
+
 ### Requirement: Recreating the Activity does not lock the app
 The app lock SHALL track the app being in the background, not the lifetime of an Activity. A rotation, a language or region change or any other recreation of the Activity SHALL NOT lock an unlocked app or start the lock timeout. A new process SHALL start locked.
 
@@ -163,3 +175,18 @@ Oxygen saturation readings, including pulse, context, site, the oxygen-given tic
 #### Scenario: Stored encrypted
 - **WHEN** the database file is read without the key
 - **THEN** the oxygen table content is not readable
+
+### Requirement: Fluid intake data is protected like all entries
+Fluid intake entries, including amounts, timestamps and comments, and the person's personal minimum and maximum SHALL be stored only in the encrypted database, SHALL NOT be written to any log, notification, preference file or the Android backup, and SHALL leave the device only through the user's own export or encrypted backup. The preference file MAY hold only the portion size of each drink, which are settings and not entries; it SHALL NOT hold any amount drunk, any daily total, the personal minimum or maximum or any timestamp of an entry. Screens follow the secure-screen setting.
+
+#### Scenario: No log output
+- **WHEN** an entry is added, undone, edited or deleted in a release build
+- **THEN** nothing about it appears in the device log
+
+#### Scenario: Stored encrypted
+- **WHEN** the database file is read without the key
+- **THEN** the fluid table content is not readable
+
+#### Scenario: Preferences hold no entries
+- **WHEN** the preference file is inspected after several quick-adds
+- **THEN** it contains the portion sizes only

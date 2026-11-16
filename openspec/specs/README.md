@@ -11,25 +11,32 @@ These specs are the platform-neutral source of truth for every business rule. A 
 | [health-metrics/blood-pressure](health-metrics/blood-pressure/spec.md) | Ranges, NHG classification |
 | [health-metrics/glucose](health-metrics/glucose/spec.md) | mmol/L canonical, mg/dL conversion, NHG classification |
 | [health-metrics/activity](health-metrics/activity/spec.md) | Sessions, duration, manual logging |
+| [health-metrics/waist-circumference](health-metrics/waist-circumference/spec.md) | Waist in cm, sex-specific Voedingscentrum ranges |
+| [health-metrics/fluid-intake](health-metrics/fluid-intake/spec.md) | Drinks logged in one tap, day total, the person's own limits, no advice |
+| [health-metrics/oxygen-saturation](health-metrics/oxygen-saturation/spec.md) | Oxygen saturation, optional pulse, situation, site and oxygen-given note, plain figures |
+| [health-metrics/smart-input-pickers](health-metrics/smart-input-pickers/spec.md) | Pulse with blood pressure, pickers that start from your own latest entry |
+| [entry-comments](entry-comments/spec.md) | Optional one-line comment of at most 200 characters on an entry |
 | [entry-management](entry-management/spec.md) | History list, edit, delete |
 | [units-presentation](units-presentation/spec.md) | Display units, conversions, defaults per region |
 | [health-trends](health-trends/spec.md) | Range, axes, zoom, colors (shared) |
 | [health-trends/weight](health-trends/weight/spec.md) | Weight stats, moving average |
 | [health-trends/blood-pressure](health-trends/blood-pressure/spec.md) | Averages, gauges, distribution |
 | [health-trends/glucose](health-trends/glucose/spec.md) | In-range bars, chips |
-| health-metrics/range-labels (added when `reword-range-labels` is archived) | Neutral "name · range" labels, three blood pressure bands, source order, neutral colours |
+| [health-metrics/range-labels](health-metrics/range-labels/spec.md) | Neutral "name · range" labels, three blood pressure bands, source order, neutral colours |
 | [health-metrics](health-metrics/spec.md) | Order of the Log tabs and History chips |
 | [metric-display-order](metric-display-order/spec.md) | User-chosen metric order, kept on the device, never in a backup |
 | [medication](medication/spec.md) | Medications, schedules, intake outcomes, pillbox view |
 | [privacy](privacy/spec.md) | No transmission, controlled export, no sensitive logging |
 | [compliance](compliance/spec.md) | Intended purpose, no advice, wording rules, review gate |
 | [data-export](data-export/spec.md) | CSV export and import, Libra |
+| [data-backup](data-backup/spec.md) | One passphrase-encrypted `.hjbackup` file, published format, merge on restore |
 | [localization](localization/spec.md) | Languages, region, message resolution |
 | [migraine](migraine/spec.md) | Migraine entries, personal tags, History card, graph view and calendar, CSV and backup, plain facts only |
 | [mindfulness](mindfulness/spec.md) | Breathe, Meditate, Guided recordings, Start here, safety note, credits, nothing recorded |
 | [theming](theming/spec.md) | Light/dark palette, top bar |
 | [app-identity](app-identity/spec.md) | Icon palette |
 | [architecture-governance](architecture-governance/spec.md) | Layers, ADRs, README |
+| [developer-documentation](developer-documentation/spec.md) | Developer docs in English and the checks that keep them accurate |
 | [platform-android](platform-android/spec.md) | **Android-only** decisions (SDK levels, Room, SharedPreferences, Compose, signing). Not business rules; replace on other platforms |
 
 ## Porting guide (iPhone or another platform)
@@ -84,6 +91,7 @@ classDiagram
     class BloodPressureEntry { timestamp, systolic, diastolic, category }
     class GlucoseEntry { timestamp, mmolL, context, category }
     class ActivityEntry { start, end, meters }
+    class WaistCircumferenceEntry { timestamp, cm, category? }
     Profile "1" --> "*" WeightEntry : owns
     Profile "1" --> "*" BloodPressureEntry : owns
     Profile "1" --> "*" GlucoseEntry : owns
@@ -98,7 +106,7 @@ classDiagram
     UnitBoundary ..> ActivityEntry : metric in/out
 ```
 
-## Porting guide
+## What a port reimplements
 
 Reimplement exactly (domain rules): value ranges and boundaries, BMI formula and rounding, the four NHG classifiers (blood pressure, glucose, BMI, waist circumference), glucose conversion factor 0.0555, activity rules, profile validation and active-profile semantics, update/delete semantics, trend range filter, statistics and moving average, unit conversions and regional defaults.
 
@@ -116,6 +124,13 @@ Platform choice (free): UI toolkit, persistence engine, navigation, chart render
 | units-presentation | 0014 | app `settings/UnitPreference`, `ui/common/UnitFormat`, domain `shared/model/UnitConversion` |
 | health-trends/* | 0006 | app `ui/history/charts` |
 | data-export | 0004 | data `csv` adapters |
+| data-backup | 0024 | data `backup`, `docs/backup-format` |
+| entry-comments | 0019 | comment column on each entry table, app entry dialogs |
+| health-metrics/smart-input-pickers | 0018, 0033 | app `ui/log` pickers |
+| health-metrics/fluid-intake | 0030 | domain `metrics/model` (`Fluid*`), app `ui/fluid`, `docs/dev/fluid.md` |
+| health-metrics/oxygen-saturation | 0026 | domain `metrics/model`, app `ui/log` |
+| health-metrics/waist-circumference | 0005 | domain `metrics/model` |
+| developer-documentation | 0001 | `docs/dev`, `scripts/check-docs.sh` |
 | localization | 0009, 0010, 0013, 0015 | app `settings/LanguagePreference`, `ui/common/UiText` |
 | theming | 0010 | app `ui/theme` |
 | app-identity | 0011 | app `res` launcher assets |
@@ -123,7 +138,6 @@ Platform choice (free): UI toolkit, persistence engine, navigation, chart render
 
 ## Discrepancies and open questions
 
-- Waist circumference is planned (change `add-waist-circumference-tracking`) but not implemented; there is no spec for it.
 - Activity export and import have no UI entry point.
 - Older installs may contain an extra profile row created by the bug fixed in ADR 0016.
 - Activity tests and Dutch string content were not exhaustively verified against these specs.

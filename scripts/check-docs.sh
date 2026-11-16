@@ -34,5 +34,31 @@ for f in $(find docs/dev -name '*.md'); do
 done
 [ -e /tmp/check-docs-fail.$$ ] && { rm -f /tmp/check-docs-fail.$$; fail=1; }
 
+# 3. Structured facts: the database version written in the docs and specs must be the one in the code
+db_version=$(grep -oE '^[[:space:]]*version = [0-9]+,' data/src/main/java/nl/healthjournal/data/local/HealthJournalDatabase.kt | head -1 | grep -oE '[0-9]+')
+if [ -z "$db_version" ]; then
+  echo "CANNOT READ the database version from HealthJournalDatabase.kt"
+  fail=1
+else
+  for f in $(find docs/dev openspec/specs -name '*.md'); do
+    grep -noE '(Room v[0-9]+|schema v[0-9]+|schema version [0-9]+|database version [0-9]+|\(([0-9]+) now, next)' "$f" | while IFS=: read -r line match; do
+      n=$(echo "$match" | grep -oE '[0-9]+' | head -1)
+      if [ "$n" != "$db_version" ]; then
+        echo "STALE DATABASE VERSION in $f:$line: '$match' (the code is at $db_version)"
+        echo x > /tmp/check-docs-fail.$$
+      fi
+    done
+  done
+  [ -e /tmp/check-docs-fail.$$ ] && { rm -f /tmp/check-docs-fail.$$; fail=1; }
+fi
+
+# 4. Every spec in openspec/specs must be listed in the index
+for spec in $(find openspec/specs -mindepth 2 -name spec.md | sed -e 's#^openspec/specs/##'); do
+  if ! grep -qF "($spec)" openspec/specs/README.md; then
+    echo "SPEC NOT IN INDEX: openspec/specs/$spec is missing from openspec/specs/README.md"
+    fail=1
+  fi
+done
+
 if [ "$fail" -eq 0 ]; then echo "docs ok"; fi
 exit "$fail"

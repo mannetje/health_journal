@@ -6,7 +6,7 @@ Defines the user-chosen order of the metrics: where it is set (Profile), how it 
 ## Requirements
 
 ### Requirement: User-configurable metric display order
-The system SHALL let the user set the order in which metrics appear on the Log and History screens. The order SHALL be stored in SharedPreferences and survive app restarts. The orderable metrics are every metric the app can log, including Migraine and Oxygen saturation.
+The system SHALL let the user set the order in which metrics appear on the Log and History screens. The order SHALL be stored in SharedPreferences and survive app restarts. The orderable metrics are every metric the app can log, including Migraine, Oxygen saturation and Fluid.
 
 #### Scenario: User saves a custom metric order
 - **WHEN** the user moves a metric in the Profile tab's "Metric order" section
@@ -14,7 +14,7 @@ The system SHALL let the user set the order in which metrics appear on the Log a
 
 #### Scenario: Default order when nothing is saved
 - **WHEN** no metric order has been saved
-- **THEN** the order SHALL be: Weight, Blood Pressure, Glucose, Migraine, Waist, Activity, Oxygen
+- **THEN** the order SHALL be: Weight, Blood Pressure, Glucose, Migraine, Waist, Activity, Oxygen saturation, Fluid
 
 #### Scenario: Persisted order survives restart
 - **WHEN** the user has saved a custom order and restarts the app
@@ -45,7 +45,7 @@ The Profile tab SHALL contain a "Metric order" section listing every orderable m
 
 #### Scenario: Screen reader announces the move
 - **WHEN** a screen reader user moves a row with a button
-- **THEN** the new position SHALL be announced (for example "Glucose, position 2 of 6"), and each button SHALL name its metric (for example "Move Glucose up")
+- **THEN** the new position SHALL be announced (for example "Glucose, position 2 of 8"), and each button SHALL name its metric (for example "Move Glucose up")
 
 #### Scenario: Touch targets
 - **WHEN** the section is shown
@@ -75,3 +75,14 @@ The metric order SHALL NOT be written to or read from the encrypted backup.
 #### Scenario: Restore on a new phone
 - **WHEN** a backup is restored
 - **THEN** the metric order SHALL be the default order until the user changes it
+
+### Requirement: Fluid intake is an orderable metric
+Fluid intake SHALL be one more metric in the user-configurable order, with its own Log tab and History chip. In the default order it comes after Oxygen saturation, and a stored order that lacks it gets it appended in that position, as for every metric added later. Changing the order SHALL NOT change a stored entry, a minimum or a maximum.
+
+#### Scenario: Default order
+- **WHEN** the user has never chosen an order
+- **THEN** Fluid comes after Oxygen saturation on the Log tabs and the History chips
+
+#### Scenario: Older stored order
+- **WHEN** an order saved before Fluid existed is read
+- **THEN** Fluid is appended at the end and the other metrics keep their places

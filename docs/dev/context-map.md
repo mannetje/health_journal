@@ -8,7 +8,7 @@ The domain is divided into bounded contexts, one folder each under `domain/src/m
 flowchart BT
     SHARED["shared (shared/model)<br/>ids, units, EntryComment, HeightCm, WeightKg"]
     PROFILE["profile<br/>Profile, Sex"]
-    METRICS["metrics (includes NHG)<br/>readings, entries, range classifiers"]
+    METRICS["metrics (includes NHG)<br/>weight, blood pressure, glucose, waist, activity, oxygen saturation, fluid: entries and classifiers"]
     MED["medication<br/>Medication, Pillbox, Adherence"]
     MIG["migraine<br/>MigraineEntry, tags, statistics"]
     BACKUP["backup<br/>backup document and ports"]

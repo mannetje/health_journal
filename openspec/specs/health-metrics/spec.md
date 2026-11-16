@@ -6,7 +6,7 @@ Defines how the metric tabs on the Log screen and the filter chips on the Histor
 ## Requirements
 
 ### Requirement: Log screen metric tab order
-The Log screen metric tabs SHALL follow the stored metric order (see the `metric-display-order` capability), Migraine included. When no order is saved the default order SHALL be used: Weight, Blood Pressure, Glucose, Migraine, Waist, Activity. The `PrimaryScrollableTabRow` SHALL build its tabs and its selected index from the ordered list at render time and SHALL NOT use `MetricType.ordinal`.
+The Log screen metric tabs SHALL follow the stored metric order (see the `metric-display-order` capability), Migraine included. When no order is saved the default order SHALL be used: Weight, Blood Pressure, Glucose, Migraine, Waist, Activity, Oxygen saturation, Fluid. The `PrimaryScrollableTabRow` SHALL build its tabs and its selected index from the ordered list at render time and SHALL NOT use `MetricType.ordinal`.
 
 #### Scenario: Tabs in the saved order
 - **WHEN** the user has saved a custom order and opens the Log screen
@@ -14,7 +14,7 @@ The Log screen metric tabs SHALL follow the stored metric order (see the `metric
 
 #### Scenario: Tabs in the default order
 - **WHEN** no order is saved and the user opens the Log screen
-- **THEN** the tabs SHALL appear as Weight, Blood Pressure, Glucose, Migraine, Waist, Activity
+- **THEN** the tabs SHALL appear as Weight, Blood Pressure, Glucose, Migraine, Waist, Activity, Oxygen saturation, Fluid
 
 #### Scenario: First metric of the order is selected on a fresh launch
 - **WHEN** the app starts and the Log screen is shown for the first time
@@ -33,7 +33,7 @@ The History screen filter chips SHALL follow the same stored order. The "All" ch
 
 #### Scenario: Chips in the default order
 - **WHEN** no order is saved and the user opens the History screen
-- **THEN** the chips SHALL appear as All, Weight, Blood Pressure, Glucose, Migraine, Waist, Activity
+- **THEN** the chips SHALL appear as All, Weight, Blood Pressure, Glucose, Migraine, Waist, Activity, Oxygen saturation, Fluid
 
 #### Scenario: Import dialog chips are unaffected
 - **WHEN** the user opens the History import dialog

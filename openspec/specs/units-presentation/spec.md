@@ -59,7 +59,7 @@ Numeric input SHALL accept either a comma or a point as decimal separator (input
 - **THEN** it is read as 72.5
 
 ### Requirement: Logging validation messages
-Blank, non-numeric or out-of-range input in the Log screen SHALL show a localized error specific to the field (weight, systolic, diastolic, glucose, duration, distance). Domain range errors that pass through are shown as English text. With no active profile the record buttons are disabled and a message asks to create a profile first.
+Blank, non-numeric or out-of-range input in the Log screen SHALL show a localized error specific to the field (weight, systolic, diastolic, glucose, duration, distance). Domain range errors that pass through are shown as localized text, in the app language. With no active profile the record buttons are disabled and a message asks to create a profile first.
 
 #### Scenario: No profile
 - **WHEN** no active profile exists

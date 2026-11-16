@@ -1,7 +1,7 @@
 # 30. Fluid Intake as a Quick Log With Personal Limits
 
 - **Date:** 2026-10-21 (revised 2026-11-14)
-- **Status:** Proposed
+- **Status:** Accepted
 - **Deciders:** Architecture Team, AI Coding Assistant
 
 ## Context
@@ -41,4 +41,4 @@ The first draft of this decision let the person enter one limit and showed only 
 
 ## Related
 - [ADR 0005](0005-dutch-nhg-guidelines.md), [ADR 0015](0015-localized-viewmodel-messages.md), [ADR 0018](0018-smart-input-pickers.md), [ADR 0019](0019-entry-comments.md), [ADR 0021](0021-medication-compliance-and-privacy.md), [ADR 0024](0024-portable-encrypted-backup.md), [ADR 0026](0026-oxygen-saturation-without-assessment.md)
-- [OpenSpec change `add-fluid-intake`](../../openspec/changes/add-fluid-intake/proposal.md)
+- [OpenSpec change `add-fluid-intake`](../../openspec/changes/archive/2026-11-16-add-fluid-intake/proposal.md)

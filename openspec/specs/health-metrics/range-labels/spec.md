@@ -25,7 +25,7 @@ A label shown next to a BMI, blood pressure or glucose value SHALL name the meas
 - **THEN** it contains none of: diabetes, prediabetes, hypertension, hypertensie, impaired, gestoord, hypoglycaemia, hypoglykemie
 
 ### Requirement: Waist circumference is outside the neutral wording rule
-Waist circumference labels SHALL follow the wording of the Dutch authority that publishes the ranges (Voedingscentrum, in line with NHG guidance), with the sex-specific range, and are not subject to the label rule or the neutral colour ramp above. The categories are Healthy, Increased risk and High risk. See `health-metrics/waist-circumference`.
+Waist circumference labels SHALL follow the wording of the Dutch authority that publishes the ranges (Voedingscentrum, in line with NHG guidance), with the sex-specific range, and are not subject to the label rule above. Their bands use the neutral colour ramp. The categories are Healthy, Increased risk and High risk. See `health-metrics/waist-circumference`.
 
 #### Scenario: Waist label keeps the authority wording
 - **WHEN** a waist circumference of 90 cm is shown for a woman

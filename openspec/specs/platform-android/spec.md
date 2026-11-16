@@ -20,11 +20,11 @@ The project SHALL consist of three Gradle modules: `domain` (pure Kotlin, no And
 - **THEN** it SHALL compile without any Android or third-party UI or persistence library (ADR 0002, ADR 0003)
 
 ### Requirement: Local storage with Room
-The app SHALL persist data offline in a SQLite database through Room, with the database at schema version 7. Each step SHALL be a real migration that keeps all rows: 1 to 2 adds the optional sex column to the profile table, 2 to 3 adds the waist circumference table, 3 to 4 adds the optional pulse column to blood pressure, 4 to 5 adds the optional comment column to the weight, blood pressure, glucose, waist circumference and activity tables, 5 to 6 adds the medication, medication schedule, medication time and intake tables, and 6 to 7 adds the migraine tables. Storage SHALL always be metric.
+The app SHALL persist data offline in a SQLite database through Room, with the database at schema version 9. Each step SHALL be a real migration that keeps all rows: 1 to 2 adds the optional sex column to the profile table, 2 to 3 adds the waist circumference table, 3 to 4 adds the optional pulse column to blood pressure, 4 to 5 adds the optional comment column to the weight, blood pressure, glucose, waist circumference and activity tables, 5 to 6 adds the medication, medication schedule, medication time and intake tables, 6 to 7 adds the migraine tables, 7 to 8 adds the oxygen saturation table, and 8 to 9 adds the fluid intake and fluid settings tables. Storage SHALL always be metric.
 
 #### Scenario: Upgrade keeps data
-- **WHEN** a device with a version 1, 2, 3, 4, 5 or 6 database installs a build that has version 7
-- **THEN** all profiles and entries SHALL still be present, the sex of each profile, the pulse of each earlier blood pressure and the comment of every earlier entry SHALL be unset, the waist circumference history SHALL be empty when upgrading from version 1 or 2, the medication tables SHALL be empty when upgrading from version 5 or older, and the migraine tables SHALL be empty (ADR 0004)
+- **WHEN** a device with a version 1, 2, 3, 4, 5, 6, 7 or 8 database installs a build that has version 9
+- **THEN** all profiles and entries SHALL still be present, the sex of each profile, the pulse of each earlier blood pressure and the comment of every earlier entry SHALL be unset, the waist circumference history SHALL be empty when upgrading from version 1 or 2, the medication tables SHALL be empty when upgrading from version 5 or older, and the migraine, oxygen saturation and fluid tables SHALL be empty when they did not exist before (ADR 0004)
 
 ### Requirement: Preferences in SharedPreferences
 Language, region, unit system and glucose unit choices SHALL be stored in private SharedPreferences, not in the health database, so they survive a database reset and never appear in CSV files.
@@ -163,8 +163,12 @@ The manifest SHALL provide `dataExtractionRules` and `fullBackupContent` that ex
 - **WHEN** Android backup or device transfer runs
 - **THEN** neither the encrypted database nor the wrapped key is included
 
+#### Scenario: Migration leftovers excluded from backup
+- **WHEN** Android backup or device transfer runs and the plain-to-encrypted migration left set-aside (`.pre-encryption`) or temporary files
+- **THEN** every `database` path the migration can create, with its `-journal`, `-wal` and `-shm` files, is excluded in both rule files
+
 ### Requirement: Dependency exceptions
-`net.zetetic:sqlcipher-android` and `androidx.biometric` SHALL be the only new third-party or AndroidX dependencies added by this change, each recorded in ADR 0023 as an exception to ADR 0003 with licence, size, 16 KB page size support and absence of network code checked.
+Every third-party or AndroidX dependency beyond the platform and Compose basics SHALL be recorded in an ADR as an exception to ADR 0003. At present these are `net.zetetic:sqlcipher-android` and `androidx.biometric` (ADR 0023), Bouncy Castle (ADR 0024), Hilt (ADR 0035) and Vico (ADR 0006), each with licence, size, 16 KB page size support and absence of network code checked.
 
 #### Scenario: Dependency review
 - **WHEN** a dependency is added without an ADR entry
