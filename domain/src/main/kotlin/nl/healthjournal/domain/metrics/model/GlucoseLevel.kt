@@ -14,9 +14,11 @@ data class GlucoseLevel(val valueInMmolL: BigDecimal) {
     constructor(doubleVal: Double) : this(BigDecimal.valueOf(doubleVal).setScale(2, RoundingMode.HALF_UP))
 
     companion object {
-        fun of(valueInMmolL: BigDecimal): DomainResult<GlucoseLevel> = validated(
-            rangeError(ValidationField.GLUCOSE, valueInMmolL, MIN_GLUCOSE, MAX_GLUCOSE)
-        ) { GlucoseLevel(valueInMmolL) }
+        /** Rounds to 2 decimals (half up) first, as the spec stores it, and checks the range on the rounded value. */
+        fun of(valueInMmolL: BigDecimal): DomainResult<GlucoseLevel> {
+            val rounded = valueInMmolL.setScale(2, RoundingMode.HALF_UP)
+            return validated(rangeError(ValidationField.GLUCOSE, rounded, MIN_GLUCOSE, MAX_GLUCOSE)) { GlucoseLevel(rounded) }
+        }
 
         /** Checked variant of [fromMgDl]: the converted value must lie inside the accepted range. */
         fun ofMgDl(valueInMgDl: BigDecimal): DomainResult<GlucoseLevel> =
