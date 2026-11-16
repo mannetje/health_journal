@@ -62,6 +62,13 @@ All screenshots of the Health Journal app, in the light and dark theme. Back to 
 |-------|------|
 | <img src="screenshots/light-bp-edit-pulse.png" width="250" alt="Edit dialog for a blood pressure entry with systolic, diastolic and an optional pulse field, light theme"> | <img src="screenshots/dark-bp-edit-pulse.png" width="250" alt="Edit dialog for a blood pressure entry with an optional pulse field, dark theme, Dutch"> |
 
+**Log pickers in pounds and mg/dL** (Regional formats set to US: the weight ruler and the glucose field start from the latest entry in the units shown, here 75.6 kg as 166.7 lb and 5.4 mmol/L as 97 mg/dL; switching the glucose unit converts the value in the field)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-log-weight-imperial.png" width="250" alt="Weight ruler in pounds starting at 166.7 lb, light theme"> | <img src="screenshots/dark-log-weight-imperial.png" width="250" alt="Weight ruler in pounds starting at 166.7 lb, dark theme"> |
+| <img src="screenshots/light-log-glucose-mgdl.png" width="250" alt="Glucose field in mg/dL starting at 97, light theme"> | <img src="screenshots/dark-log-glucose-mgdl.png" width="250" alt="Glucose field in mg/dL starting at 97, dark theme"> |
+
 **Glucose graphs** (time in range per NHG category, by time of day, sample data)
 
 | Light | Dark |

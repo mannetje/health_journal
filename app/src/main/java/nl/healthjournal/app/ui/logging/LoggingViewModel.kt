@@ -16,7 +16,12 @@ import nl.healthjournal.app.settings.MetricDisplayOrderPreference
 import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.settings.UnitPreference
 import nl.healthjournal.app.ui.common.UiText
+import nl.healthjournal.app.ui.common.glucoseFromMmol
+import nl.healthjournal.app.ui.common.glucoseToMmol
+import nl.healthjournal.app.ui.common.parseDecimal
 import nl.healthjournal.app.ui.common.toUiText
+import nl.healthjournal.app.ui.common.weightFromKg
+import nl.healthjournal.app.ui.common.weightToKg
 import nl.healthjournal.domain.metrics.model.GlucoseContext
 import nl.healthjournal.domain.metrics.model.OxygenContext
 import nl.healthjournal.domain.metrics.model.OxygenSite
@@ -25,6 +30,7 @@ import nl.healthjournal.domain.shared.command.Dispatcher
 import nl.healthjournal.domain.shared.command.DomainResult
 import nl.healthjournal.domain.shared.command.GetHistoryQuery
 import nl.healthjournal.domain.shared.model.EntryComment
+import nl.healthjournal.domain.shared.model.GlucoseUnit
 import nl.healthjournal.domain.shared.model.ProfileId
 
 @HiltViewModel
@@ -51,6 +57,9 @@ class LoggingViewModel(
         )
     )
     val uiState: StateFlow<LoggingUiState> = _uiState.asStateFlow()
+
+    /** The units the weight and glucose fields are written in right now, so a change of units can convert them. */
+    private var shownUnits: DisplayUnits = units()
 
     init {
         observeMetricOrder()
@@ -80,14 +89,18 @@ class LoggingViewModel(
             val systolic = latestBp?.reading?.systolic ?: start.systolicValue
             val diastolic = latestBp?.reading?.diastolic ?: start.diastolicValue
             val pulse = latestBp?.reading?.pulse ?: start.pulseValue
-            val formattedWeight = String.format(Locale.US, "%.1f", weightKg)
+            // Stored values are metric; the pickers and fields work in the units shown (ADR 0014)
+            val shown = units()
+            shownUnits = shown
+            val weightShown = shown.weightFromKg(weightKg)
+            val formattedWeight = String.format(Locale.US, "%.1f", weightShown)
             val formattedWaist = String.format(Locale.US, "%.1f", waistCm)
-            val formattedGlucose = latestGlucose?.glucose?.valueInMmolL?.let { String.format(Locale.US, "%.1f", it.toDouble()) }.orEmpty()
+            val formattedGlucose = latestGlucose?.glucose?.valueInMmolL?.let { formatGlucoseInput(it.toDouble(), shown) }.orEmpty()
 
             _uiState.value = _uiState.value.copy(
                 activeProfile = profile,
                 profileLoaded = true,
-                weightValue = weightKg,
+                weightValue = weightShown,
                 weightInput = formattedWeight,
                 waistValue = waistCm,
                 waistInput = formattedWaist,
@@ -204,9 +217,37 @@ class LoggingViewModel(
 
     /** Re-runs the live previews after the display units changed, since typed numbers mean something else now. */
     fun onUnitsChanged() {
+        convertFieldsToShownUnits()
         updateWeightPreview(_uiState.value.weightInput)
         updateGlucosePreview(_uiState.value.glucoseInput, _uiState.value.glucoseContext)
     }
+
+    /** A weight or glucose value already in a field keeps its meaning when the units change: 75 kg becomes 165.3 lb. */
+    private fun convertFieldsToShownUnits() {
+        val from = shownUnits
+        val to = units()
+        if (from == to) return
+        shownUnits = to
+        val state = _uiState.value
+        var next = state
+        if (from.system != to.system) {
+            val kg = state.weightInput.parseDecimal()?.let { from.weightToKg(it) } ?: from.weightToKg(state.weightValue)
+            val weight = to.weightFromKg(kg)
+            next = next.copy(weightValue = weight, weightInput = String.format(Locale.US, "%.1f", weight))
+        }
+        if (from.glucose != to.glucose) {
+            val mmol = state.glucoseInput.parseDecimal()?.let { from.glucoseToMmol(it) }
+            if (mmol != null) next = next.copy(glucoseInput = formatGlucoseInput(mmol, to))
+        }
+        _uiState.value = next
+    }
+
+    private fun formatGlucoseInput(mmol: Double, units: DisplayUnits): String =
+        if (units.glucose == GlucoseUnit.MG_PER_DL) {
+            String.format(Locale.US, "%.0f", units.glucoseFromMmol(mmol))
+        } else {
+            String.format(Locale.US, "%.1f", mmol)
+        }
 
     fun onActivityDurationChanged(input: String) {
         _uiState.value = _uiState.value.copy(activityDurationInput = input, errorMessage = null)

@@ -248,6 +248,62 @@ class ViewModelsTest {
     }
 
     @Test
+    fun `LoggingViewModel starts from the latest entry in the units shown`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepository()
+        val profile = Profile.create("Bob", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        healthLogRepo.saveWeight(WeightEntry(MeasurementId.generate(), profile.id, Instant.now(), WeightKg(BigDecimal("75.0")), null))
+        healthLogRepo.saveGlucose(
+            GlucoseEntry(
+                MeasurementId.generate(), profile.id, Instant.now(), GlucoseLevel(BigDecimal("5.5")),
+                GlucoseContext.FASTING, NhgGlucoseCategory.NORMAL
+            )
+        )
+
+        val vm = loggingViewModel(profileRepo, healthLogRepo, imperialUnits)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // 75 kg is 165.3 lb and 5.5 mmol/L is 99 mg/dL; saving the untouched start must not record 75 lb
+        assertEquals(165.3, vm.uiState.value.weightValue, 0.05)
+        assertEquals("165.3", vm.uiState.value.weightInput)
+        assertEquals("99", vm.uiState.value.glucoseInput)
+        vm.selectMetric(MetricType.WEIGHT)
+        vm.saveCurrentMetric()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(75.0, healthLogRepo.weights.maxByOrNull { it.timestamp }!!.weight.value.toDouble(), 0.1)
+    }
+
+    @Test
+    fun `LoggingViewModel converts the weight and glucose in the fields when the units change`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val healthLogRepo = FakeHealthLogRepository()
+        profileRepo.save(Profile.create("Alice", LocalDate.of(1990, 1, 1)))
+        var units = DisplayUnits.DEFAULT
+        val vm = LoggingViewModel(
+            historyDispatcher(
+                profileRepo, healthLogRepo, FakeMigraines(), FakeExportAdapter(), FakeImportAdapter(),
+                FakeMigraineExport(), FakeMigraineImport()
+            ),
+            units = { units }
+        )
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.onWeightChanged("80")
+        vm.onGlucoseChanged("5.5")
+
+        units = imperialUnits
+        vm.onUnitsChanged()
+        assertEquals("176.4", vm.uiState.value.weightInput)
+        assertEquals(176.4, vm.uiState.value.weightValue, 0.05)
+        assertEquals("99", vm.uiState.value.glucoseInput)
+
+        units = DisplayUnits.DEFAULT
+        vm.onUnitsChanged()
+        assertEquals("80.0", vm.uiState.value.weightInput)
+        assertEquals("5.5", vm.uiState.value.glucoseInput)
+    }
+
+    @Test
     fun `LoggingViewModel cannot record a starting position until the person sets the value`() = runTest {
         val profileRepo = FakeProfileRepo()
         val healthLogRepo = FakeHealthLogRepository()
