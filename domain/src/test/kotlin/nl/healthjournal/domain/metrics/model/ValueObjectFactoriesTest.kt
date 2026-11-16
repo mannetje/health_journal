@@ -97,6 +97,17 @@ class ValueObjectFactoriesTest {
     }
 
     @Test
+    fun `glucose typed in mmol per l is rounded to 2 decimals half up before it is stored`() {
+        assertEquals(BigDecimal("5.56"), GlucoseLevel.of(BigDecimal("5.555")).getOrNull()?.valueInMmolL)
+        assertEquals(BigDecimal("5.54"), GlucoseLevel.of(BigDecimal("5.5449")).getOrNull()?.valueInMmolL)
+        assertEquals(BigDecimal("5.50"), GlucoseLevel.of(BigDecimal("5.5")).getOrNull()?.valueInMmolL)
+        // The range is checked on the rounded value, like the conversion from mg/dL
+        assertEquals(BigDecimal("0.50"), GlucoseLevel.of(BigDecimal("0.495")).getOrNull()?.valueInMmolL)
+        GlucoseLevel.of(BigDecimal("0.494"))
+            .assertOutOfRange(ValidationField.GLUCOSE, GlucoseLevel.MIN_GLUCOSE, GlucoseLevel.MAX_GLUCOSE)
+    }
+
+    @Test
     fun `glucose in mg per dl is checked after conversion`() {
         assertEquals(BigDecimal("5.55"), GlucoseLevel.ofMgDl(BigDecimal("100")).getOrNull()?.valueInMmolL)
         GlucoseLevel.ofMgDl(BigDecimal("1"))

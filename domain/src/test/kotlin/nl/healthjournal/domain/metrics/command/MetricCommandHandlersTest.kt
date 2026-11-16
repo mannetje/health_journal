@@ -153,7 +153,7 @@ class MetricCommandHandlersTest {
             .handle(RecordGlucoseCommand(pid, GlucoseContext.FASTING, valueInMmolL = BigDecimal("5.5"))).getOrNull()!!
         val update = UpdateGlucoseHandler(health)
         assertEquals(
-            BigDecimal("6.1"),
+            BigDecimal("6.10"),
             update.handle(UpdateGlucoseCommand(saved.id, pid, GlucoseContext.FASTING, BigDecimal("6.1"), explicit)).getOrNull()!!.glucose.valueInMmolL
         )
         val missing = MeasurementId.generate()
