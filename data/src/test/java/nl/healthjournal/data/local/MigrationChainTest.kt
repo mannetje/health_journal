@@ -54,7 +54,8 @@ class MigrationChainTest {
             assertEquals(0, db.count("blood_pressures WHERE pulse IS NOT NULL"))
             assertEquals(0, db.count("weights WHERE comment IS NOT NULL"))
             // Tables added later start empty.
-            listOf("waist_circumferences", "medications", "intakes", "migraines", "migraine_tags", "oxygen_saturations")
+            listOf("waist_circumferences", "medications", "intakes", "migraines", "migraine_tags", "oxygen_saturations",
+                "fluid_intakes", "fluid_settings")
                 .forEach { assertEquals(it, 0, db.count(it)) }
         }
     }

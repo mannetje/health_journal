@@ -41,3 +41,15 @@
 - [x] 3.1 `docs/backup-format/` (README, schema, `hjbackup.py`, vectors, recovery page)
 - [x] 3.2 `docs/dev/database.md` (ER diagram, current version, version history and the naming conventions for `fluid_intakes` and `fluid_settings`), range labels page, other `docs/dev/` pages, `docs/dev/how-to/add-a-metric.md` if needed, `docs/dev/zib-mapping.md`, README, CHANGELOG, screenshots
 - [ ] 3.3 Archive the change into `openspec/specs/`; release
+
+## Closing note (2026-11-16)
+
+The feature shipped in 1.7.3 (database version 9) and this change was archived with the delta specs merged into `openspec/specs/`. Tasks left unticked were not verified at the time of archiving and are not claimed as done:
+
+- 0.9 and 0.11 (user review and wording sign-off): resolved by the release, no separate record exists.
+- 0.9a (Antonius leaflet): never read; the reference note rests on the sources named in ADR 0030.
+- 2.5 (4.5:1 contrast of the position label colours): no automated contrast test exists.
+- 2.6 (a Profile notice sentence for fluid): not found; the wording scan test `FluidWordingTest` exists.
+- 2.8 and 2.9 (accessibility and emulator pass): content descriptions, the Undo announcement and the screenshots exist; the 48 dp targets and the 320 dp, minimum-only and maximum-only cases were not re-checked.
+- 3.3 (archive): done by this note.
+

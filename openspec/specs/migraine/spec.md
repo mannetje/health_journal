@@ -209,7 +209,7 @@ History SHALL list migraines with the other entry types in the merged timeline, 
 - **THEN** it is gone from History, the graphs and the calendar
 
 ### Requirement: Migraine view in the graph section
-The History graph section SHALL offer a Migraine view with a Graph and Calendar toggle and the range chips week, month, 3 months, 6 months and year (the same chips and range rules as other trends). All figures SHALL be computed by pure functions in the domain layer for the active profile and range. The Graph view SHALL show, in this order: summary tiles; a timeline chart; a duration chart; an intensity chart; a weekday chart; a weekday-by-time-of-day heat map; symptom counts; trigger counts; pain character counts; relief method counts. An empty range SHALL show a plain "No migraines in this period" text and no charts.
+The History graph section SHALL offer a Migraine view with a Graph and Calendar toggle and the shared range chips 7 days, 30 days, 90 days and All (the same chips and range rules as other trends). All figures SHALL be computed by pure functions in the domain layer for the active profile and range. The Graph view SHALL show, in this order: summary tiles; a timeline chart; a duration chart; an intensity chart; a weekday chart; a weekday-by-time-of-day heat map; symptom counts; trigger counts; pain character counts; relief method counts. An empty range SHALL show a plain "No migraines in this period" text and no charts.
 
 #### Scenario: Summary tiles
 - **WHEN** the range holds 4 migraines on 3 different days, something taken on 2 of those days, and the range is 30 days
@@ -287,4 +287,4 @@ Every Migraine string SHALL exist in English and Dutch. Dutch SHALL use "migrain
 
 #### Scenario: Dutch card
 - **WHEN** the app language is Dutch
-- **THEN** the card button reads "Migraine registreren" and the tiles read "dagen met migraine" and "migraine-vrije dagen"
+- **THEN** the card button reads "Migraine registreren" and the tiles read "dagen met migraine" and "Dagen zonder migraine"

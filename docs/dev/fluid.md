@@ -1,6 +1,6 @@
 # Fluid intake
 
-The Fluid log records what a person drinks, one tap at a time, and shows the day total. The person may set their own minimum and maximum; the app never picks a number. This page is the map of the feature. The reasoning is in [ADR 0030](../adr/0030-fluid-intake-quick-log-with-personal-limits.md), the requirements in the [change proposal](../../openspec/changes/add-fluid-intake/proposal.md). Back to the [developer docs](README.md).
+The Fluid log records what a person drinks, one tap at a time, and shows the day total. The person may set their own minimum and maximum; the app never picks a number. This page is the map of the feature. The reasoning is in [ADR 0030](../adr/0030-fluid-intake-quick-log-with-personal-limits.md), the requirements in the [change proposal](../../openspec/changes/archive/2026-11-16-add-fluid-intake/proposal.md). Back to the [developer docs](README.md).
 
 ## What it does
 

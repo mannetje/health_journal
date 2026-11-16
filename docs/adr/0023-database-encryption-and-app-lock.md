@@ -34,7 +34,7 @@ Both protections were part of the original medication proposal but are split int
   2. Generate passphrase, create Keystore key, wrap passphrase, store wrapped key.
   3. Create encrypted database via `sqlcipher_export` from the plain database.
   4. Verify row counts per table match.
-  5. Only on success: set the plain database and its `-wal`/`-shm`/`-journal` files aside (`.pre-encryption`), move the encrypted file in, then delete the set-aside files. A crash in between is recovered at the next start: the set-aside files are restored, or dropped when the encrypted file is already in place.
+  5. Only on success: set the plain database and its `-wal`/`-shm`/`-journal` files aside (`.pre-encryption`), move the encrypted file in, then delete the set-aside files. A crash in between is recovered at the next start: the set-aside files are restored, or dropped when the encrypted file is already in place. When a file cannot be put back after a failed swap, the failure names it and nothing opens a database over it (`isSetAside`); when a set-aside file cannot be deleted after a good swap, the result is `CleanupIncomplete` and the next start retries. The set-aside and temporary files are excluded from cloud backup and device transfer.
   6. On any failure: keep plain database, show a localized banner on every tab (dismissible per session, with a shortcut to the Profile tab) and the notice in Profile, retry on next start.
 - **Schema version:** Unchanged (stays at 6). Encryption is a file-level change, not a schema change.
 

@@ -32,7 +32,7 @@ The Breathe section SHALL offer these patterns, each with a short description an
 - **THEN** no breath-hold reminder is shown
 
 ### Requirement: Breathing exercise screen
-During an exercise the screen SHALL name the current phase in text, count down the seconds of the phase and show a visual that grows or opens during the inhale, stays still during a hold and shrinks or closes during the exhale. The user SHALL be able to choose the visual: a lotus whose petals open and close (the default) or a circle that grows and shrinks. Box breathing SHALL also show a dot that moves along one side of a square per phase. The visual SHALL use the app theme in light and dark. When the system animation setting is off, the movement SHALL be replaced by a change of state per phase without continuous animation. The phase SHALL be announced to a screen reader when it changes.
+During an exercise the screen SHALL name the current phase in text, count down the seconds of the phase and show a visual that grows or opens during the inhale, stays still during a hold and shrinks or closes during the exhale. The user SHALL be able to choose the visual: a lotus whose petals open and close (the default), a circle that grows and shrinks, or a rounded square. The square SHALL show a dot that moves along one side per phase, which makes it the natural picture for box breathing. The visual SHALL use the app theme in light and dark. When the system animation setting is off, the movement SHALL be replaced by a change of state per phase without continuous animation. The phase SHALL be announced to a screen reader when it changes.
 
 #### Scenario: Phase text and countdown
 - **WHEN** an exercise is in the inhale phase with 3 seconds left
@@ -81,7 +81,7 @@ The system SHALL offer a list of recorded guided exercises that play from audio 
 - **THEN** playback stops and nothing about the session is kept
 
 ### Requirement: Meditation timer
-The Meditate section SHALL offer a timer with a duration chosen by the user, a start bell, an end bell and optional interval bells. The timer SHALL stop when the user leaves the screen.
+The Meditate section SHALL offer a timer with a duration chosen by the user from the presets 5, 10, 15, 20 and 30 minutes, a start bell, an end bell and optional interval bells. The timer SHALL stop when the user leaves the screen.
 
 #### Scenario: Timer with an interval bell
 - **WHEN** the user starts a 10 minute timer with an interval bell every 2 minutes

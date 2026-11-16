@@ -70,7 +70,7 @@ flowchart TD
         KEY_PROV["DatabaseKeyProvider (Android Keystore + AES-GCM)"]
         SQLCIPHER["SupportOpenHelperFactory (SQLCipher)"]
         MIGRATION["PlainToEncryptedMigration"]
-        ROOM_DB["HealthJournalDatabase (Room v7)"]
+        ROOM_DB["HealthJournalDatabase (Room v9)"]
     end
 
     LOCK_MGR -->|implements| PORT_LOCK
@@ -126,7 +126,7 @@ sequenceDiagram
     alt Plain DB exists
         Migrator->>Migrator: Verify plain DB & copy to temp encrypted DB
         Migrator->>Migrator: Verify row counts match
-        Migrator->>Migrator: Set plain files aside (.pre-encryption), move encrypted DB in, delete set-aside files (any failure puts them all back)
+        Migrator->>Migrator: Set plain files aside (.pre-encryption), move encrypted DB in, delete set-aside files (any failure puts them all back; a file that cannot be put back is reported, and one that cannot be deleted is retried at the next start)
     end
     DB-->>App: Room Database Ready (Encrypted at Rest)
 ```
