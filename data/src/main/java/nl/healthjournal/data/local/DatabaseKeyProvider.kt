@@ -5,8 +5,8 @@ import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
-import android.security.keystore.StrongBoxUnavailableException
 import java.security.KeyStore
+import java.security.ProviderException
 import java.security.UnrecoverableKeyException
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
@@ -76,19 +76,20 @@ open class DatabaseKeyProvider(context: Context) {
         keyStore.getKey(KEY_ALIAS, null)?.let { return it as SecretKey }
 
         // Key does not exist yet — create it. StrongBox (hardware security module) is tried
-        // first on API 28+; when the device has none, generateKey() throws
-        // StrongBoxUnavailableException and the key is created in the TEE instead.
+        // first on API 28+. A device without StrongBox throws StrongBoxUnavailableException, but some
+        // devices with a faulty or busy StrongBox throw a plain ProviderException (its superclass) instead.
+        // Either way the key is created in the TEE, so a StrongBox problem never blocks the database.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             try {
                 return generateKey(strongBox = true)
-            } catch (_: StrongBoxUnavailableException) {
+            } catch (_: ProviderException) {
                 // Fall through to the TEE.
             }
         }
         return generateKey(strongBox = false)
     }
 
-    private fun generateKey(strongBox: Boolean): SecretKey {
+    protected open fun generateKey(strongBox: Boolean): SecretKey {
         val builder = KeyGenParameterSpec.Builder(
             KEY_ALIAS,
             KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT

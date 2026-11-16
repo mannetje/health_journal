@@ -156,4 +156,25 @@ class DatabaseKeyProviderTest {
         assertEquals("DB version must be the same after reopen", version1, version2)
         assertEquals("DB must be at the expected schema version", 9, version1)
     }
+
+    /** Some devices throw a plain ProviderException, not StrongBoxUnavailableException, when StrongBox fails. */
+    @Test
+    fun a_provider_exception_from_strongbox_falls_back_to_the_tee() {
+        org.junit.Assume.assumeTrue(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P)
+        provider.discardKey() // the Keystore entry of an earlier test would make key creation a no-op
+        val attempts = mutableListOf<Boolean>()
+        val failing = object : DatabaseKeyProvider(context) {
+            override fun generateKey(strongBox: Boolean): javax.crypto.SecretKey {
+                attempts.add(strongBox)
+                if (strongBox) throw java.security.ProviderException("StrongBox is broken on this device")
+                return super.generateKey(strongBox)
+            }
+        }
+
+        val passphrase = failing.getOrCreatePassphrase()
+
+        assertEquals(listOf(true, false), attempts)
+        assertEquals(32, passphrase.size)
+        assertArrayEquals("the key must unwrap again", passphrase, DatabaseKeyProvider(context).getOrCreatePassphrase())
+    }
 }

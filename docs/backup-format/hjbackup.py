@@ -34,6 +34,7 @@ FIXED_HEADER = struct.Struct(">8sHBBBBBBII4s")  # 28 bytes, big-endian
 TAG_LENGTH = 16
 MAX_MEMORY_KIB = 1024 * 1024  # refuse more than 1 GiB because of a hostile header
 MAX_ITERATIONS = 100
+MAX_WORK_KIB_PASSES = 4 * 1024 * 1024  # memory (KiB) times iterations
 MAX_PARALLELISM = 16
 
 
@@ -66,7 +67,7 @@ def decode(data, passphrase):
     if salt_len != 16 or nonce_len != 12:
         raise BackupError("Unexpected salt or nonce length.")
     if not (1 <= parallelism <= MAX_PARALLELISM and 8 * parallelism <= memory_kib <= MAX_MEMORY_KIB
-            and 1 <= iterations <= MAX_ITERATIONS):
+            and 1 <= iterations <= MAX_ITERATIONS and memory_kib * iterations <= MAX_WORK_KIB_PASSES):
         raise BackupError("Key derivation parameters are out of range.")
     header_end = FIXED_HEADER.size + salt_len + nonce_len
     if len(data) < header_end + TAG_LENGTH:

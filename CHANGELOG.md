@@ -8,6 +8,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **Encryption migration:** when moving the database to encrypted storage fails, a file that cannot be put back or deleted is now reported instead of ignored. The app no longer opens a database beside a set-aside `-wal` or `-journal` file that was not restored, and a migration with undeleted plain copies is no longer reported as done; the next start retries the deletion.
 - **Backups:** Android cloud backup and device transfer now also skip the set-aside plain copies and the temporary encrypted file the migration can leave behind.
 - **CSV import:** cancelling an import now stops it, instead of being counted as a skipped row.
+- **Database key:** if StrongBox fails with a general provider error, the key is now created in the normal hardware keystore instead of blocking the database.
+- **Reminders:** the receiver that re-arms reminders after boot and time changes now ignores intents from other apps; it only acts on the system broadcasts it is declared for.
+- **Backups:** a backup file whose key-derivation settings ask for too much work (memory times iterations above 4 GiB-passes) is refused before any key is derived. Files written by the app are far below this.
 
 ## [1.7.5] - 2026-11-14
 
