@@ -31,4 +31,7 @@ Rows marked *proposed, not built* describe an open OpenSpec change under `opensp
 | Energy level (**proposed, not built**) | none found (nearest: [Symptoom](https://zibs.nl/wiki/Symptoom-v2.0(2026-1NL)) v2.0) | nothing adopted: Symptoom requires a severity, an onset and a symptom name, which a one-tap rating does not carry | own 0 to 10 rating, no severity or assessment; see [`add-energy-level`](../../openspec/changes/add-energy-level/proposal.md) | checked against the zib, own model |
 
 ## Not planned
-- A FHIR or zib export for care providers. It moves towards a care context and would be its own change with a compliance review.
+- A FHIR or zib export **for care providers**, or any claim of use in care or interoperability. It moves towards a care context and would be its own change with a compliance review. A copy of the person's own entries in a format *based on* FHIR and the zibs, for their own use at their own risk, is a different thing: see the OpenSpec changes `add-fhir-based-export` and `add-fhir-based-import`.
+
+## Closer to the zibs
+How far each metric is from its zib, and what closing the gap would cost, is in [zib-gap-table.md](zib-gap-table.md).
