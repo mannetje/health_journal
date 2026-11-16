@@ -8,6 +8,8 @@
 - [ ] 0.7 Open: accept `meta.profile` pointing to draft, beta profiles, with the package version stated
 - [ ] 0.8 Open: validator run locally only, not in CI
 - [ ] 0.9 Open: verify the EHDS text on EUR-Lex and the HL7 naming rules; final English and Dutch wording
+- [x] 0.10 The notice also states that the person is responsible for the data entered and exported and the makers are not (requested 2026-11-16)
+- [ ] 0.11 Open: whether the responsibility sentence should also appear once for the whole app in the Profile notice (separate change)
 
 ## 1. Domain (`:domain`) and data (`:data`)
 - [ ] 1.1 Read-only export port and use case (range, metrics); JVM tests

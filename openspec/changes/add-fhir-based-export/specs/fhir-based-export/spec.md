@@ -34,11 +34,11 @@ The export SHALL NOT write an `interpretation`, a reference range, a flag or any
 - **THEN** only those two values are added to the `Patient`
 
 ### Requirement: The notice and the wording
-The export dialog SHALL show, in English and Dutch, that the file is based on the Dutch zib and FHIR formats, has not been checked or approved by anyone, is not for use in care, is not encrypted, and is used at the person's own risk. The app, the README, the store listing and the documentation SHALL call it a "FHIR-based" or "based on FHIR" export and SHALL NOT claim that it conforms to, is certified for, or works with any care system, EHR system, GP system or personal health environment.
+The export dialog SHALL show, in English and Dutch, that the file is based on the Dutch zib and FHIR formats, has not been checked or approved by anyone, is not for use in care, is not encrypted, and is used at the person's own risk. It SHALL also state that the person is responsible for the data they enter and export, and that the makers of the app are not responsible for the data or for how the file is used. The app, the README, the store listing and the documentation SHALL call it a "FHIR-based" or "based on FHIR" export and SHALL NOT claim that it conforms to, is certified for, or works with any care system, EHR system, GP system or personal health environment.
 
 #### Scenario: Notice shown
 - **WHEN** the person opens the export dialog
-- **THEN** the notice is visible above the export button in the language of the app
+- **THEN** the notice, including the own-risk and responsibility statements, is visible above the export button in the language of the app
 
 #### Scenario: Document scan
 - **WHEN** the repository documents and string resources are scanned

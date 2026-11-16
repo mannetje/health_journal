@@ -38,7 +38,9 @@ The `Patient` is minimal by default. Birth date and sex are opt-in through two t
 3. A test that fails if a bundle contains a field outside the allowed list (no name, no identifier, no interpretation).
 
 ### Notice and wording
-Shown in the dialog above the button and written in the docs. English: "This file is based on the Dutch zib and FHIR formats. It has not been checked or approved by anyone, is not for use in care and is not encrypted. Use it at your own risk." Dutch: "Dit bestand is gebaseerd op de Nederlandse zib- en FHIR-formaten. Het is door niemand gecontroleerd of goedgekeurd, niet bedoeld voor gebruik in de zorg en niet versleuteld. Gebruik is op eigen risico." The compliance wording review applies.
+Shown in the dialog above the button and written in the docs. English: "This file is based on the Dutch zib and FHIR formats. It has not been checked or approved by anyone, is not for use in care and is not encrypted. Use it at your own risk. You are responsible for the data you enter and export. The makers of the app are not responsible for the data or for how the file is used." Dutch: "Dit bestand is gebaseerd op de Nederlandse zib- en FHIR-formaten. Het is door niemand gecontroleerd of goedgekeurd, niet bedoeld voor gebruik in de zorg en niet versleuteld. Gebruik is op eigen risico. Jij bent verantwoordelijk voor de gegevens die je invoert en exporteert. De makers van de app zijn niet verantwoordelijk voor de gegevens of voor het gebruik van het bestand." The compliance wording review applies.
+
+A responsibility statement describes who decides and who answers for the data. It cannot remove liability that the law does not allow anyone to waive (for example under Dutch and EU consumer and product liability rules), so it supports the other wording rules and is not a replacement for them. Whether the same sentence should also appear once for the whole app (the Profile notice) is left for a separate change.
 
 ## Risks
 - **Draft profiles:** a later package may change element names or required elements; the file states the package version, and the docs say it is a snapshot.
