@@ -141,6 +141,7 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
     var weight by remember { mutableStateOf(initialWeight) }
     var systolic by remember { mutableStateOf((ref as? EntryRef.BloodPressure)?.entry?.reading?.systolic?.toString().orEmpty()) }
     var diastolic by remember { mutableStateOf((ref as? EntryRef.BloodPressure)?.entry?.reading?.diastolic?.toString().orEmpty()) }
+    var bpPulse by remember { mutableStateOf((ref as? EntryRef.BloodPressure)?.entry?.reading?.pulse?.toString().orEmpty()) }
     var glucose by remember { mutableStateOf(initialGlucose) }
     var glucoseContext by remember { mutableStateOf((ref as? EntryRef.Glucose)?.entry?.context ?: GlucoseContext.FASTING) }
     var duration by remember {
@@ -182,8 +183,11 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
             is EntryRef.BloodPressure -> {
                 val sys = systolic.toIntOrNull()?.takeIf { it in BloodPressureReading.MIN_SYSTOLIC..BloodPressureReading.MAX_SYSTOLIC }
                 val dia = diastolic.toIntOrNull()?.takeIf { it in BloodPressureReading.MIN_DIASTOLIC..BloodPressureReading.MAX_DIASTOLIC }
-                if (sys == null || dia == null || sys <= dia) invalid = true
-                else viewModel.updateBloodPressure(ref.entry, sys, dia, dateTime.atZone(zone).toInstant(), comment)
+                // Blank means no pulse; anything else must be a whole number in the pulse range.
+                val pulse = bpPulse.takeIf { it.isNotBlank() }?.let { it.toIntOrNull() ?: -1 }
+                val pulseOk = pulse == null || pulse in BloodPressureReading.MIN_PULSE..BloodPressureReading.MAX_PULSE
+                if (sys == null || dia == null || sys <= dia || !pulseOk) invalid = true
+                else viewModel.updateBloodPressure(ref.entry, sys, dia, dateTime.atZone(zone).toInstant(), comment, pulse)
             }
             is EntryRef.Glucose -> {
                 val unchanged = glucose == initialGlucose
@@ -233,22 +237,32 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
             ) {
                 when (ref) {
                     is EntryRef.Weight -> DecimalField(weight, { weight = it }, stringResource(R.string.log_weight_label, units.weightSymbol))
-                    is EntryRef.BloodPressure -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    is EntryRef.BloodPressure -> {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedTextField(
+                                value = systolic,
+                                onValueChange = { systolic = it },
+                                label = { Text(stringResource(R.string.log_systolic_label)) },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true,
+                                modifier = Modifier.weight(1f)
+                            )
+                            OutlinedTextField(
+                                value = diastolic,
+                                onValueChange = { diastolic = it },
+                                label = { Text(stringResource(R.string.log_diastolic_label)) },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                         OutlinedTextField(
-                            value = systolic,
-                            onValueChange = { systolic = it },
-                            label = { Text(stringResource(R.string.log_systolic_label)) },
+                            value = bpPulse,
+                            onValueChange = { bpPulse = it.filter(Char::isDigit).take(3) },
+                            label = { Text(stringResource(R.string.history_edit_pulse_label)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
-                            modifier = Modifier.weight(1f)
-                        )
-                        OutlinedTextField(
-                            value = diastolic,
-                            onValueChange = { diastolic = it },
-                            label = { Text(stringResource(R.string.log_diastolic_label)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                     is EntryRef.Glucose -> {

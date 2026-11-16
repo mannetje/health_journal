@@ -56,6 +56,12 @@ All screenshots of the Health Journal app, in the light and dark theme. Back to 
 | <img src="screenshots/light-bp-scatter.png" width="250" alt="Blood pressure graph with readings as dots on the three NHG bands, light theme"> | <img src="screenshots/dark-bp-scatter.png" width="250" alt="Blood pressure graph with readings as dots on the three NHG bands, dark theme"> |
 | <img src="screenshots/light-bp-statistics.png" width="250" alt="Reading steadiness and comparison with the previous period, light theme"> | <img src="screenshots/dark-bp-statistics.png" width="250" alt="Reading steadiness and comparison with the previous period, dark theme"> |
 
+**Blood pressure edit dialog** (History, pencil on a blood pressure entry: systolic, diastolic, an optional pulse of 30 to 250 that keeps its value when you edit something else, date, time and comment; the dark picture is in Dutch)
+
+| Light | Dark |
+|-------|------|
+| <img src="screenshots/light-bp-edit-pulse.png" width="250" alt="Edit dialog for a blood pressure entry with systolic, diastolic and an optional pulse field, light theme"> | <img src="screenshots/dark-bp-edit-pulse.png" width="250" alt="Edit dialog for a blood pressure entry with an optional pulse field, dark theme, Dutch"> |
+
 **Glucose graphs** (time in range per NHG category, by time of day, sample data)
 
 | Light | Dark |

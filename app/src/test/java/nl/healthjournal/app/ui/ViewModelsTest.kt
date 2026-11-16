@@ -652,6 +652,33 @@ class ViewModelsTest {
     }
 
     @Test
+    fun `HistoryViewModel keeps, changes and clears the pulse when a blood pressure entry is edited`() = runTest {
+        val profileRepo = FakeProfileRepo()
+        val health = FakeHealthLogRepository()
+        val profile = Profile.create("Alice", LocalDate.of(1990, 1, 1))
+        profileRepo.save(profile)
+        val bp = BloodPressureEntry(
+            MeasurementId.generate(), profile.id, at, BloodPressureReading(130, 85, pulse = 72), NhgBloodPressureCategory.NORMAL
+        )
+        health.bloodPressures.add(bp)
+        val vm = historyViewModel(profileRepo, health)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Editing without naming a pulse must not erase the stored one.
+        vm.updateBloodPressure(bp, 140, 90, at, comment = null)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(72, vm.uiState.value.bloodPressures.single().reading.pulse)
+
+        vm.updateBloodPressure(vm.uiState.value.bloodPressures.single(), 140, 90, at, comment = null, pulse = 65)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(65, vm.uiState.value.bloodPressures.single().reading.pulse)
+
+        vm.updateBloodPressure(vm.uiState.value.bloodPressures.single(), 140, 90, at, comment = null, pulse = null)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertNull(vm.uiState.value.bloodPressures.single().reading.pulse)
+    }
+
+    @Test
     fun `HistoryViewModel edits and deletes every entry type`() = runTest {
         val profileRepo = FakeProfileRepo()
         val health = FakeHealthLogRepository()
