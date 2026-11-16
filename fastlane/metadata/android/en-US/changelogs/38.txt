@@ -1,0 +1,5 @@
+- Richer breathing pictures: a detailed lotus, a circle of ripples and a square with nested outlines
+- The square's dot no longer moves smoothly when system animations are off
+- Editing a blood pressure entry keeps its pulse
+- The weight and glucose pickers start in your chosen units
+- Safer database encryption migration and backup handling

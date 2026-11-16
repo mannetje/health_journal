@@ -1,0 +1,5 @@
+- Rijkere ademhalingsbeelden: een gedetailleerde lotus, een cirkel van rimpelingen en een vierkant met geneste randen
+- De stip van het vierkant beweegt niet meer vloeiend als systeemanimaties uit staan
+- Een bloeddrukmeting bewerken behoudt de hartslag
+- De gewichts- en glucosekiezers beginnen in de gekozen eenheden
+- Veiliger omzetten van de database naar versleutelde opslag en veiliger back-ups
