@@ -16,6 +16,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **Log pickers use the units you chose:** with pounds or mg/dL selected, the weight ruler and the glucose field started from the stored kilograms or mmol/L number, so an untouched start read as 75 lb (saved as about 34 kg). They now start from the latest entry in your units, the weight ruler range follows the unit, and switching units converts what is already in the fields.
 - **Editing a blood pressure entry no longer erases its pulse:** saving an edit in History dropped the stored pulse. The edit dialog now has an optional pulse field (30 to 250, empty clears it), and the entry keeps its pulse when you change something else. English and Dutch strings.
 - **Blood pressure edit dialog labels fit:** in History, the Systolic and Diastolic fields are now stacked, so "Diastolic (mmHg)" and the longer Dutch "Systolisch (mmHg)" no longer wrap and get clipped at the top of a half-width field.
+- **Specs match the app on backup wording:** the privacy spec now describes what the notice says (health data is not restored from a cloud backup, the encrypted backup file is the way to keep it, CSV is not encrypted), and the backup spec names the suggested file `healthjournal-<date>.hjbackup` as the app does. Documentation only; the app is unchanged.
 
 ## [1.7.5] - 2026-11-14
 

@@ -16,8 +16,8 @@ The system SHALL keep all health and medication data on the device, SHALL NOT tr
 - **WHEN** dependencies are reviewed
 - **THEN** none SHALL collect or transmit user data
 
-### Requirement: Data leaves the app only through the user or the platform backup the user controls
-The system SHALL only create an export or backup file after an explicit user action and save or share it only to a destination the user chooses. The privacy notice SHALL state that the device's own backup, when the user has it turned on, may include app data, that the encrypted backup file and the CSV export are the ways to move data under the user's control, and that the CSV export is not encrypted.
+### Requirement: Data leaves the app only through the user
+The system SHALL only create an export or backup file after an explicit user action and save or share it only to a destination the user chooses. The privacy notice SHALL state that the health data is not restored from a cloud backup or moved automatically to a new phone, that the encrypted backup file is the way to keep and move it under the user's control, and that the CSV export is a readable copy that is not encrypted.
 
 #### Scenario: Export is user initiated
 - **WHEN** the user exports data or creates a backup
@@ -25,7 +25,7 @@ The system SHALL only create an export or backup file after an explicit user act
 
 #### Scenario: Backup stated in the notice
 - **WHEN** the user reads the privacy notice
-- **THEN** it states that the platform backup is outside the app's control, names the encrypted backup file as the way to keep and restore everything, and says that CSV files are plain text
+- **THEN** it states that the data cannot be restored from a cloud backup or moved automatically to a new phone, names the encrypted backup file as the way to keep and move everything, and says that the CSV export is not encrypted
 
 ### Requirement: No sensitive logging
 The system SHALL NOT write medication names, doses or measurements to the device log in release builds.
