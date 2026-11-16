@@ -104,9 +104,11 @@ fun BreathingExerciseScreen(
         BreathingCanvas(
             visual = visual,
             fill = fill,
-            squareProgress = squareProgress(timer.pattern, state),
+            squareProgress = squareProgress(timer.pattern, state, reduceMotion),
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier.padding(horizontal = 8.dp),
+            // One slow loop every six seconds, standing still when system animations are off.
+            drift = if (reduceMotion) 0f else (elapsed % DRIFT_MILLIS) / DRIFT_MILLIS.toFloat()
         )
         val label = when (state) {
             is BreathingState.Ready -> stringResource(R.string.breathing_ready)
@@ -140,11 +142,17 @@ private fun steppedFill(kind: BreathingPhaseKind): Float = when (kind) {
     BreathingPhaseKind.EXHALE, BreathingPhaseKind.HOLD_EMPTY -> 0f
 }
 
-/** The dot travels one side of the square per phase of box breathing; other patterns just use their phase share. */
-private fun squareProgress(pattern: BreathingPattern, state: BreathingState): Float {
+/** Length of one loop of the light band that travels over the circle's ripples. */
+private const val DRIFT_MILLIS = 6_000L
+
+/**
+ * The dot travels one side of the square per phase of box breathing; other patterns just use their phase share.
+ * With system animations off it waits at the start of each side and jumps at the phase change.
+ */
+private fun squareProgress(pattern: BreathingPattern, state: BreathingState, reduceMotion: Boolean): Float {
     if (state !is BreathingState.Running) return 0f
     val sides = pattern.phases.size.coerceAtLeast(1)
-    return (state.phaseIndex + state.phaseProgress) / sides
+    return (state.phaseIndex + if (reduceMotion) 0f else state.phaseProgress) / sides
 }
 
 internal fun phaseLabel(kind: BreathingPhaseKind): Int = when (kind) {
