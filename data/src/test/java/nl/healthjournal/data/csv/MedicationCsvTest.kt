@@ -35,6 +35,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import kotlin.coroutines.cancellation.CancellationException
 
 /** Placeholder names only ("Medication A"); tests never use real medicine names. */
 class MedicationCsvTest {
@@ -241,5 +242,30 @@ class MedicationCsvTest {
         val result = f.import.importMedicationCsv(ProfileId.generate(), MedicationCsvFiles("", "", ""))
         assertEquals(0, result.importedCount)
         assertTrue(result.skippedRows.isEmpty())
+    }
+
+    @Test
+    fun `cancelling while an intake is saved reaches the caller and no later intake is saved`() = runBlocking {
+        val f = Fixture()
+        var saves = 0
+        val cancelling = object : MedicationRepositoryPort by f.repo {
+            override suspend fun saveIntake(intake: Intake) {
+                saves++
+                if (saves == 1) throw CancellationException("cancelled while saving")
+                f.repo.saveIntake(intake)
+            }
+        }
+        val files = MedicationCsvFiles(
+            medications = "$MEDICATIONS_HEADER\n1,Medication A,TABLET,10,MG,1,TABLETS,false,,,,\n",
+            schedules = "$SCHEDULES_HEADER\n1,2026-09-01,08:00,MON,,2026-09-01,\n",
+            intakes = "$INTAKES_HEADER\n1,2026-09-01T08:00,TAKEN,2026-09-01T06:00:00Z,,\n" +
+                "1,2026-09-08T08:00,TAKEN,2026-09-08T06:00:00Z,,\n"
+        )
+
+        val outcome = runCatching { CsvMedicationImportAdapter(cancelling, f.profiles).importMedicationCsv(f.profile.id, files) }
+
+        assertTrue("cancellation must reach the caller", outcome.exceptionOrNull() is CancellationException)
+        assertEquals("the second intake must not be tried", 1, saves)
+        assertEquals(0, f.repo.getAllIntakes(f.profile.id).size)
     }
 }

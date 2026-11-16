@@ -28,6 +28,7 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import nl.healthjournal.domain.shared.model.EntryComment
 import nl.healthjournal.domain.shared.model.WeightKg
+import kotlin.coroutines.cancellation.CancellationException
 
 /** Factor for converting pounds to kilograms (1 lb = 0.45359237 kg). */
 private val LBS_TO_KG = BigDecimal("0.45359237")
@@ -266,6 +267,8 @@ class CsvDataImportAdapter(
                         skippedRows.add(SkippedRow(lineNumber, "Unsupported metric type: $metricType"))
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 skippedRows.add(SkippedRow(lineNumber, e.message ?: "Invalid data format"))
             }
@@ -378,6 +381,8 @@ class CsvDataImportAdapter(
                 )
                 weightRepository.saveWeight(entry)
                 importedCount++
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 skippedRows.add(SkippedRow(currentLineNumber, e.message ?: "Invalid data format"))
             }

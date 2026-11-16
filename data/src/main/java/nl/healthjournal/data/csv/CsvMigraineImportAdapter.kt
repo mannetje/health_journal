@@ -22,6 +22,7 @@ import nl.healthjournal.domain.shared.model.SkippedRow
 import nl.healthjournal.domain.migraine.usecase.AddMigraineTagUseCase
 import nl.healthjournal.domain.migraine.usecase.AddTagResult
 import java.time.Instant
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Imports the migraine file into a profile. Only `start_timestamp` is required; other columns may be missing or
@@ -52,6 +53,8 @@ class CsvMigraineImportAdapter(
             try {
                 save(profileId, row)
                 imported++
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 skipped += SkippedRow(number, e.message ?: "Invalid data format")
             }

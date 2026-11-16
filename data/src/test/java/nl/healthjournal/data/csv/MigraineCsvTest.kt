@@ -26,6 +26,8 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.time.Instant
 import java.time.LocalDate
+import kotlin.coroutines.cancellation.CancellationException
+import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
 
 /** Migraine CSV export and import against a real in-memory database. */
 @RunWith(RobolectricTestRunner::class)
@@ -138,5 +140,26 @@ class MigraineCsvTest {
         val result = import.importMigraineCsv(profile.id, "intensity\n5\n")
         assertEquals(0, result.importedCount)
         assertEquals("Missing column start_timestamp", result.skippedRows.single().reason)
+    }
+
+    @Test
+    fun `cancelling while an entry is saved reaches the caller and no later row is saved`() = runTest {
+        var saves = 0
+        val cancelling = object : MigraineRepositoryPort by repo {
+            override suspend fun saveMigraine(entry: MigraineEntry) {
+                saves++
+                if (saves == 1) throw CancellationException("cancelled while saving")
+                repo.saveMigraine(entry)
+            }
+        }
+        val adapter = CsvMigraineImportAdapter(cancelling, RoomProfileRepository(db.profileDao()))
+        val row = "%s,false,,,,,,,,false,,false,,,,,false,false,,\n"
+        val csv = header + "\n" + row.format("2026-10-20T06:30:00Z") + row.format("2026-10-21T06:30:00Z")
+
+        val outcome = runCatching { adapter.importMigraineCsv(profile.id, csv) }
+
+        assertTrue("cancellation must reach the caller", outcome.exceptionOrNull() is CancellationException)
+        assertEquals("the second row must not be tried", 1, saves)
+        assertEquals(0, repo.getMigraineHistory(profile.id).size)
     }
 }
