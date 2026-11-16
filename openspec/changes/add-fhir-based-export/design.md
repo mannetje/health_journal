@@ -9,14 +9,19 @@ The app is a personal, offline log (ADR 0021, ADR 0026). It makes no claim to fo
 The file is built to validate against the Nictiz `zib2020` profiles, and each resource says which profile it follows in `meta.profile`. The label to the person stays "based on FHIR": the profiles are drafts (package 0.12.1-beta.1), and no authority has approved the output. A conformance statement would be stronger than anything the app can back up, so it is not made.
 
 ### Bundle shape
-One `Bundle` of type `collection`, no `request` or `response` entries, with `Patient` first, then the `Observation` resources oldest first. Resource ids are UUIDs derived from the entry ids so a repeated export of the same data gives the same ids. Times are written with the offset of the person's zone at the time of the reading (`2026-11-16T10:36:00+01:00`).
+One `Bundle` of type `collection`, no `request` or `response` entries, with `Patient` first, then the `Observation` resources oldest first. Resource ids are UUIDs derived from the entry ids so a repeated export of the same data gives the same ids. Times are written with an offset (`2026-11-16T10:36:00+01:00`). The offset is the one stored with the entry if the app stores a zone or offset for it; if it stores only an instant, the offset is that of the device's zone at export time, and the docs say so. Which of the two applies is checked in the code before implementation (task 1.0); a person who travelled or changed zone could otherwise get a wrong offset.
+
+The `Bundle` carries `timestamp` (the export time) and a `meta.source` or `meta.tag` that names the app and its version and the profile package version it was built against (for example "Health Journal 1.x, package nictiz.fhir.nl.r4.zib2020 0.12.1-beta.1"). This makes a file traceable to the build that wrote it. It says nothing about conformance and uses no claim wording.
+
+### Range
+The export dialog offers a choice of range: all entries, or the range currently selected in History. The default is all entries. The suggested file name is `healthjournal-<yyyy-mm-dd>.json` for both choices; it carries no "FHIR" brand.
 
 ### Mapping
 | App | Resource and profile | Notes |
 |---|---|---|
 | Weight | `Observation`, `zib-BodyWeight` | LOINC 29463-7; `valueQuantity` in `kg` (UCUM); comment as `note`; no clothing |
 | Blood pressure | `Observation`, `zib-BloodPressure` | LOINC 85354-9; components 8480-6 and 8462-4 in `mm[Hg]`; comment as `note`; no position, cuff, method, site or mean |
-| Pulse in a blood pressure entry | `Observation`, `zib-HeartRate` | LOINC 8867-4; `valueQuantity` in `/min`; same time as the blood pressure; see open question 4 |
+| Pulse in a blood pressure entry | `Observation`, `zib-HeartRate` | LOINC 8867-4; `valueQuantity` in `/min`; same time as the blood pressure; no link to the blood pressure Observation (no `derivedFrom`, no `hasMember`): the zib does not define one and it avoids a modelling choice the validator could question |
 | Person | `Patient`, `zib-Patient` | generated id; birth date and sex only if the person chooses; never name by default, never a BSN |
 
 Every Observation has the category `vital-signs`, `status` `final`, a `subject` reference to the Patient and an `effectiveDateTime` (required by `pattern-VitalSigns`). Display units follow storage: weight is exported in kg and glucose, if added, in mmol/L, whatever the person's display setting is (ADR 0014).
@@ -30,7 +35,7 @@ No `interpretation`, `referenceRange` or flag is ever written, which keeps the f
 The `Patient` is minimal by default. Birth date and sex are opt-in through two tick boxes in the export dialog. The name is not offered. No national identifier is ever written. The file says nothing about who the person is beyond what they chose, and the notice tells them the file is not encrypted.
 
 ### Layering
-`:domain` gets a read-only port that returns the entries to export and a use case that selects the range. `:data` gets `FhirBasedBundleWriter`, which maps domain entries to JSON and has no Android dependency. `:app` adds the button, the two options, the notice and the document picker. The writer is pure and unit tested.
+`:domain` gets a read-only port that returns the entries to export and a use case that selects the range. `:data` gets `FhirBasedBundleWriter`, which maps domain entries to JSON and has no Android dependency. `:app` adds the button, the range choice, the two identity options, the short notice with its expander and the document picker. The writer is pure and unit tested.
 
 ### Verification plan
 1. JVM tests assert structure: required elements present, codes and units as in the table, ids stable, times with offsets, no `interpretation`.
@@ -38,7 +43,7 @@ The `Patient` is minimal by default. Birth date and sex are opt-in through two t
 3. A test that fails if a bundle contains a field outside the allowed list (no name, no identifier, no interpretation).
 
 ### Notice and wording
-Shown in the dialog above the button and written in the docs. English: "This file is based on the Dutch zib and FHIR formats. It has not been checked or approved by anyone, is not for use in care and is not encrypted. Use it at your own risk. You are responsible for the data you enter and export. The makers of the app are not responsible for the data or for how the file is used." Dutch: "Dit bestand is gebaseerd op de Nederlandse zib- en FHIR-formaten. Het is door niemand gecontroleerd of goedgekeurd, niet bedoeld voor gebruik in de zorg en niet versleuteld. Gebruik is op eigen risico. Jij bent verantwoordelijk voor de gegevens die je invoert en exporteert. De makers van de app zijn niet verantwoordelijk voor de gegevens of voor het gebruik van het bestand." The compliance wording review applies.
+The dialog shows a short notice above the button and a "More" control that expands the full notice. The full notice is also written in the docs. Short, English: "Based on the Dutch zib and FHIR formats. Not for use in care, not encrypted. Use it at your own risk." Short, Dutch: "Gebaseerd op de Nederlandse zib- en FHIR-formaten. Niet bedoeld voor gebruik in de zorg, niet versleuteld. Gebruik is op eigen risico." The expanded text is the full notice below, which includes the statement that the person is responsible for the data and the makers are not. The expander is a standard accessible control (role, state, touch target), and the full text is reachable with one tap before the export button is used. Full, English: "This file is based on the Dutch zib and FHIR formats. It has not been checked or approved by anyone, is not for use in care and is not encrypted. Use it at your own risk. You are responsible for the data you enter and export. The makers of the app are not responsible for the data or for how the file is used." Dutch: "Dit bestand is gebaseerd op de Nederlandse zib- en FHIR-formaten. Het is door niemand gecontroleerd of goedgekeurd, niet bedoeld voor gebruik in de zorg en niet versleuteld. Gebruik is op eigen risico. Jij bent verantwoordelijk voor de gegevens die je invoert en exporteert. De makers van de app zijn niet verantwoordelijk voor de gegevens of voor het gebruik van het bestand." The compliance wording review applies.
 
 A responsibility statement describes who decides and who answers for the data. It cannot remove liability that the law does not allow anyone to waive (for example under Dutch and EU consumer and product liability rules), so it supports the other wording rules and is not a replacement for them. Whether the same sentence should also appear once for the whole app (the Profile notice) is left for a separate change.
 
