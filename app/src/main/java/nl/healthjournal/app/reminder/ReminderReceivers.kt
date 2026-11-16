@@ -61,6 +61,20 @@ class ReminderActionReceiver : AsyncReceiver() {
 /** Boot, app update, time or time-zone change, exact-alarm permission change: set the alarm again. */
 class RescheduleReceiver : AsyncReceiver() {
     override suspend fun handle(reminders: ReminderCoordinator, intent: Intent) {
+        // The receiver is exported for the system broadcasts, so another app can also send it an intent.
+        // Only the actions of the manifest filter count; anything else is ignored.
+        if (intent.action !in ACTIONS) return
         reminders.rearm()
+    }
+
+    companion object {
+        /** Must match the intent filter in AndroidManifest.xml. */
+        val ACTIONS: Set<String> = setOf(
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_MY_PACKAGE_REPLACED,
+            Intent.ACTION_TIME_CHANGED,
+            Intent.ACTION_TIMEZONE_CHANGED,
+            "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED",
+        )
     }
 }

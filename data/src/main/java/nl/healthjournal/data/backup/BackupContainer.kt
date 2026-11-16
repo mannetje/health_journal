@@ -91,6 +91,8 @@ class BackupContainer(
         if (lanes !in 1..MAX_LANES) throw BackupException.Unsupported("parallelism $lanes")
         if (memory > MAX_MEMORY_KIB || memory < 8L * lanes) throw BackupException.Unsupported("memory")
         if (passes !in 1..MAX_ITERATIONS) throw BackupException.Unsupported("iterations")
+        // Each limit alone still allows 1 GiB for 100 passes, minutes of work that locks the import.
+        if (memory * passes > MAX_WORK_KIB_PASSES) throw BackupException.Unsupported("memory times iterations")
 
         val salt = file.copyOfRange(HEADER_LENGTH - SALT_LENGTH - NONCE_LENGTH, HEADER_LENGTH - NONCE_LENGTH)
         val nonce = file.copyOfRange(HEADER_LENGTH - NONCE_LENGTH, HEADER_LENGTH)
@@ -168,6 +170,9 @@ class BackupContainer(
         const val DEFAULT_PARALLELISM = 1
         const val MAX_MEMORY_KIB = 1_048_576L
         const val MAX_ITERATIONS = 100L
+
+        /** Memory (KiB) times iterations a reader accepts: 4 GiB-passes, about 20 times the default of 64 MiB x 3. */
+        const val MAX_WORK_KIB_PASSES = 4L * 1_048_576L
         const val MAX_LANES = 16
         const val MAX_DOCUMENT_BYTES = 256L * 1024 * 1024
         private const val TRANSFORMATION = "AES/GCM/NoPadding"

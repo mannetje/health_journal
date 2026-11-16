@@ -47,7 +47,7 @@ All integers are **big-endian**. Offsets are in bytes from the start of the file
 
 - The **header** is bytes 0 to 55 (fixed part, salt and nonce). It is passed unchanged as the **associated data** of AES-GCM, so any change to it makes decryption fail.
 - A reader MUST read the Argon2 parameters from the header, never assume the defaults.
-- A reader MUST refuse, before deriving a key, a file with: wrong magic, an unknown container version, KDF id, cipher id or compression id, non-zero reserved bytes, a salt length other than 16 or a nonce length other than 12, memory above 1 GiB (1048576 KiB), memory below 8 times the lanes, iterations outside 1 to 100, or lanes outside 1 to 16. This stops a hostile file from using all memory of the device.
+- A reader MUST refuse, before deriving a key, a file with: wrong magic, an unknown container version, KDF id, cipher id or compression id, non-zero reserved bytes, a salt length other than 16 or a nonce length other than 12, memory above 1 GiB (1048576 KiB), memory below 8 times the lanes, iterations outside 1 to 100, or lanes outside 1 to 16, or memory in KiB times iterations above 4194304 (4 GiB-passes; the defaults are 65536 x 3). This stops a hostile file from using all memory of the device.
 - The file extension is `.hjbackup`. There is no registered media type; use `application/octet-stream`.
 
 ```mermaid

@@ -17,7 +17,7 @@ A backup SHALL be a single file with the extension `.hjbackup`. It SHALL start w
 - **THEN** the two files differ because salt and nonce are random
 
 #### Scenario: Reader limits
-- **WHEN** a header asks for more than 1 GiB of Argon2 memory, more than 100 iterations, more than 16 lanes, unknown ids or non-zero reserved bytes
+- **WHEN** a header asks for more than 1 GiB of Argon2 memory, more than 100 iterations, more than 4 GiB-passes of memory times iterations, more than 16 lanes, unknown ids or non-zero reserved bytes
 - **THEN** the reader refuses the file before deriving a key and says that the file is not supported
 
 ### Requirement: Key derivation from the passphrase

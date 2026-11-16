@@ -271,6 +271,7 @@ class BackupFormatTest {
             "huge memory" to mutate { it.putInt(16, -1) },
             "iterations zero" to mutate { it.putInt(20, 0) },
             "iterations 101" to mutate { it.putInt(20, 101) },
+            "memory times iterations too large" to mutate { it.putInt(16, 1_048_576); it.putInt(20, 5) },
             "reserved" to mutate { it.putInt(24, 1) }
         )
         for ((name, file) in cases) {
