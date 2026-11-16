@@ -328,10 +328,18 @@ class HistoryViewModel(
     fun updateWeight(entry: WeightEntry, weightKg: BigDecimal, timestamp: Instant, comment: String?) =
         runUpdate { dispatcher.dispatch(UpdateWeightCommand(entry.id, entry.profileId, weightKg, timestamp, comment)) }
 
-    fun updateBloodPressure(entry: BloodPressureEntry, systolic: Int, diastolic: Int, timestamp: Instant, comment: String?) =
+    /** [pulse] is the pulse after the edit; left out, the entry keeps the pulse it has (null clears it). */
+    fun updateBloodPressure(
+        entry: BloodPressureEntry,
+        systolic: Int,
+        diastolic: Int,
+        timestamp: Instant,
+        comment: String?,
+        pulse: Int? = entry.reading.pulse
+    ) =
         runUpdate {
             dispatcher.dispatch(
-                UpdateBloodPressureCommand(entry.id, entry.profileId, systolic, diastolic, timestamp, comment = comment)
+                UpdateBloodPressureCommand(entry.id, entry.profileId, systolic, diastolic, timestamp, pulse = pulse, comment = comment)
             )
         }
 
