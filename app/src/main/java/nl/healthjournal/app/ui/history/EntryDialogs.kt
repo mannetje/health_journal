@@ -238,24 +238,23 @@ private fun EditEntryDialog(ref: DialogEntryRef, serverError: UiText?, viewModel
                 when (ref) {
                     is EntryRef.Weight -> DecimalField(weight, { weight = it }, stringResource(R.string.log_weight_label, units.weightSymbol))
                     is EntryRef.BloodPressure -> {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedTextField(
-                                value = systolic,
-                                onValueChange = { systolic = it },
-                                label = { Text(stringResource(R.string.log_systolic_label)) },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
-                            )
-                            OutlinedTextField(
-                                value = diastolic,
-                                onValueChange = { diastolic = it },
-                                label = { Text(stringResource(R.string.log_diastolic_label)) },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                        // Stacked, not side by side: the half-width fields were too narrow for the labels, which wrapped and clipped.
+                        OutlinedTextField(
+                            value = systolic,
+                            onValueChange = { systolic = it },
+                            label = { Text(stringResource(R.string.log_systolic_label)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = diastolic,
+                            onValueChange = { diastolic = it },
+                            label = { Text(stringResource(R.string.log_diastolic_label)) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                         OutlinedTextField(
                             value = bpPulse,
                             onValueChange = { bpPulse = it.filter(Char::isDigit).take(3) },

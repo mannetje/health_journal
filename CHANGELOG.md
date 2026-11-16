@@ -15,6 +15,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **Glucose typed in mmol/L is rounded to 2 decimals:** a value such as 5.555 was stored as typed, while the specification (and the mg/dL path) store 2 decimals, half up. It is now rounded first, and the 0.5 to 55.0 range is checked on the rounded value. Nothing changes on screen for values with one decimal.
 - **Log pickers use the units you chose:** with pounds or mg/dL selected, the weight ruler and the glucose field started from the stored kilograms or mmol/L number, so an untouched start read as 75 lb (saved as about 34 kg). They now start from the latest entry in your units, the weight ruler range follows the unit, and switching units converts what is already in the fields.
 - **Editing a blood pressure entry no longer erases its pulse:** saving an edit in History dropped the stored pulse. The edit dialog now has an optional pulse field (30 to 250, empty clears it), and the entry keeps its pulse when you change something else. English and Dutch strings.
+- **Blood pressure edit dialog labels fit:** in History, the Systolic and Diastolic fields are now stacked, so "Diastolic (mmHg)" and the longer Dutch "Systolisch (mmHg)" no longer wrap and get clipped at the top of a half-width field.
 
 ## [1.7.5] - 2026-11-14
 

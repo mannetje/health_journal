@@ -56,11 +56,11 @@ All screenshots of the Health Journal app, in the light and dark theme. Back to 
 | <img src="screenshots/light-bp-scatter.png" width="250" alt="Blood pressure graph with readings as dots on the three NHG bands, light theme"> | <img src="screenshots/dark-bp-scatter.png" width="250" alt="Blood pressure graph with readings as dots on the three NHG bands, dark theme"> |
 | <img src="screenshots/light-bp-statistics.png" width="250" alt="Reading steadiness and comparison with the previous period, light theme"> | <img src="screenshots/dark-bp-statistics.png" width="250" alt="Reading steadiness and comparison with the previous period, dark theme"> |
 
-**Blood pressure edit dialog** (History, pencil on a blood pressure entry: systolic, diastolic, an optional pulse of 30 to 250 that keeps its value when you edit something else, date, time and comment; the dark picture is in Dutch)
+**Blood pressure edit dialog** (History, pencil on a blood pressure entry: systolic, diastolic, an optional pulse of 30 to 250 that keeps its value when you edit something else, date, time and comment; the fields are stacked so the longer Dutch labels fit; the light picture is in Dutch)
 
 | Light | Dark |
 |-------|------|
-| <img src="screenshots/light-bp-edit-pulse.png" width="250" alt="Edit dialog for a blood pressure entry with systolic, diastolic and an optional pulse field, light theme"> | <img src="screenshots/dark-bp-edit-pulse.png" width="250" alt="Edit dialog for a blood pressure entry with an optional pulse field, dark theme, Dutch"> |
+| <img src="screenshots/light-bp-edit-pulse.png" width="250" alt="Edit dialog for a blood pressure entry with stacked systolic, diastolic and an optional pulse field, light theme, Dutch"> | <img src="screenshots/dark-bp-edit-pulse.png" width="250" alt="Edit dialog for a blood pressure entry with stacked systolic, diastolic and an optional pulse field, dark theme"> |
 
 **Log pickers in pounds and mg/dL** (Regional formats set to US: the weight ruler and the glucose field start from the latest entry in the units shown, here 75.6 kg as 166.7 lb and 5.4 mmol/L as 97 mg/dL; switching the glucose unit converts the value in the field)
 
