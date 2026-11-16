@@ -47,8 +47,8 @@ Lengths are 1, 3 or 5 minutes. Every exercise starts with a 3 second "Get ready"
 - **Nothing is recorded.** No history, streaks, counts or results. The only stored values are display choices: pattern, length, picture, meditation minutes and interval, cues on or off with the voice name, and whether the safety note was acknowledged.
 - **Works offline.** No network permission. Spoken cues use the phone's own text-to-speech; recordings are inside the app.
 - **The screen stays on** during an exercise and returns to normal afterwards.
-- **Soft, calm pictures.** No hard edges: the lotus is four rings of rounded petals, the circle is soft gradient layers, and the square has rounded corners with a dot that leaves a fading trail. Shapes ease in and out and turn only a few degrees.
-- **Reduced motion.** When system animations are off, the picture jumps between full and empty instead of moving.
+- **Soft, calm pictures.** No hard edges: the lotus is four rings of rounded petals (each with a soft gradient, an outline and a vein, around a ring of stamens, the outer rings opening last and closing first), the circle is a drop in the middle of fourteen thin ripple rings that spread on the in-breath and draw in on the out-breath while a light band slowly travels outwards through them (one loop every six seconds), and the square has rounded corners, four fainter outlines nested inside it, and a dot that leaves a fading trail. Shapes ease in and out and turn only a few degrees.
+- **Reduced motion.** When system animations are off, the lotus and the circle jump between full and empty instead of moving, the circle's light band stands still, and the square's dot waits at the start of each side and jumps at the phase change. Nothing animates continuously.
 - **Language.** Everything is in English and Dutch. Recordings are English for now; items whose audio matches the app language are listed first.
 - **Safety first.** A short note on first open, a reminder on pausing the breath, and the full text under "About these exercises". Wording: [mindfulness.md](mindfulness.md#2-safety-note).
 
@@ -189,7 +189,7 @@ stateDiagram-v2
     Done --> [*]
 ```
 
-The screen draws `fill` directly. The square picture ignores `fill` and moves a dot one side per phase (`phaseIndex + phaseProgress` over the number of phases), so it only reads as a true "box" for box breathing. Every picture eases `fill` with a smoothstep (`soft` in `BreathingCanvas.kt`) before drawing, which is only a drawing choice: the timer's `fill` stays linear and is what the tests check.
+The screen draws `fill` directly. The square picture ignores `fill` and moves a dot one side per phase (`phaseIndex + phaseProgress` over the number of phases, or just `phaseIndex` with system animations off), so it only reads as a true "box" for box breathing. The circle also gets `drift`, a 0 to 1 value that loops every six seconds (`DRIFT_MILLIS` in `BreathingExerciseScreen.kt`) and moves the light band over its rings; it stays 0 with system animations off. `drift` is a drawing input only: the timer, the cues and the tests do not use it. Every picture eases `fill` with a smoothstep (`soft` in `BreathingCanvas.kt`) before drawing, which is only a drawing choice: the timer's `fill` stays linear and is what the tests check.
 
 ### What happens while an exercise runs
 

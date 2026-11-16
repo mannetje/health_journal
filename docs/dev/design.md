@@ -124,7 +124,7 @@ Missed is never stored: it is Pending plus the clock. Correcting a past outcome 
 
 | Concern | Rule |
 |---|---|
-| Looks | soft shapes only: rounded petals, gradient circle, rounded square with a fading dot. Slow easing. With system animations off the picture jumps between full and empty |
+| Looks | soft shapes only: rounded petals, thin ripple rings, rounded square with a fading dot. Slow easing. With system animations off the picture jumps between full and empty (the square's dot between corners) and nothing moves continuously |
 | During a run | the screen stays on, nothing else appears, and the Stop button fades after 4 seconds and returns on touch (always visible with a screen reader and when done) |
 | What ends a run | Stop, Back, the app going to the background, a call or an alarm taking the audio focus, or the end. Everything is released in one place (`ExerciseSession`) |
 | System settings | never changed: no volume, ringer mode, Do Not Disturb or brightness |
