@@ -31,7 +31,7 @@ Each exported reading SHALL be an `Observation` with the category `vital-signs`,
 - **THEN** the exported value is 75.6 kg
 
 ### Requirement: Nothing is interpreted and nothing identifies the person by default
-The export SHALL NOT write an `interpretation`, a reference range, a flag or any other assessment. It SHALL NOT write a national identifier or the person's name. Birth date and sex SHALL be written only if the person ticks them in the export dialog.
+The export SHALL NOT write an `interpretation`, a reference range, a flag or any other assessment. It SHALL NOT write a national identifier or the person's name. The only identifier it writes is, on each Observation, the app's own entry identifier (system `urn:health-journal:entry`), so that a later import of the file can recognise entries that already exist; the `Patient` carries no identifier except its generated id. Birth date and sex SHALL be written only if the person ticks them in the export dialog.
 
 #### Scenario: Default file
 - **WHEN** the person exports without ticking anything

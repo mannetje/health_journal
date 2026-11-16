@@ -16,7 +16,7 @@
 - [ ] 1.0 Check whether entries store a zone or offset or only an instant, and write the offset rule in the docs accordingly
 - [ ] 1.1 Read-only export port and use case (range, metrics); JVM tests
 - [ ] 1.2 `FhirBasedBundleWriter` for weight, blood pressure and pulse; JVM tests for structure, codes, units, ids, offsets
-- [ ] 1.3 Test that a bundle never contains a name, an identifier or an interpretation
+- [ ] 1.3 Test that a bundle never contains a name, an interpretation or any identifier other than the entry identifier on each Observation
 
 ## 2. App (`:app`)
 - [ ] 2.1 Button in the History export dialog, the range choice, the two identity options, the short notice with an accessible "More" expander for the full notice, and the file-name suggestion

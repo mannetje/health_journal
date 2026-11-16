@@ -41,7 +41,7 @@ Could not be read or confirmed:
 ## Non-goals
 - No claim of conformance, certification or interoperability, and no statement that any system accepts the file.
 - No sending, uploading, sharing integration or network call by the app; the person moves the file.
-- No import of FHIR files.
+- No import of FHIR files in this change; reading the app's own file back is the separate change `add-fhir-based-import`.
 - No interpretation, flag, range or assessment in the file: no `interpretation` element, no reference range, no status beyond `final`.
 - No BSN or other national identifier, ever.
 - No medication in this change.
