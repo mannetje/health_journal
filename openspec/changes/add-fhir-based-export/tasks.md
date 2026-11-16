@@ -7,7 +7,8 @@
 - [ ] 0.6 Open: link from the pulse Observation to the blood pressure Observation
 - [ ] 0.7 Open: accept `meta.profile` pointing to draft, beta profiles, with the package version stated
 - [ ] 0.8 Open: validator run locally only, not in CI
-- [ ] 0.9 Open: verify the EHDS text on EUR-Lex and the HL7 naming rules; final English and Dutch wording
+- [x] 0.9 EHDS text verified on EUR-Lex and the HL7 trademark rules read on hl7.org (2026-11-16); see the proposal Sources
+- [ ] 0.9a Open: final English and Dutch wording, including the HL7 trademark sentence in the README and the docs
 - [x] 0.10 The notice also states that the person is responsible for the data entered and exported and the makers are not (requested 2026-11-16)
 - [ ] 0.11 Open: whether the responsibility sentence should also appear once for the whole app in the Profile notice (separate change)
 

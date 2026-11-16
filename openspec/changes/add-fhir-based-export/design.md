@@ -46,4 +46,5 @@ A responsibility statement describes who decides and who answers for the data. I
 - **Draft profiles:** a later package may change element names or required elements; the file states the package version, and the docs say it is a snapshot.
 - **A claim by implication:** a store or README sentence that mentions care systems would defeat the wording rule. The doc scan test fails on the banned phrases.
 - **Identity:** a file with a birth date and sex plus readings is personal data the person controls; the notice states it is unencrypted.
-- **EHDS and trademark points** are unconfirmed; see the proposal.
+- **EHDS:** read in the Official Journal. The labelling duty (Articles 47 and 48) depends on a manufacturer's claim of interoperability with an EHR system, and the EHR system definition on the manufacturer's intended use. Both are avoided by the wording rules, not by the file content, so those rules are the control and the scan test guards them. The Regulation does not apply before 26 March 2027 (Articles 47 to 49 not before 2029).
+- **Trademark:** HL7 allows naming the standard to describe the file, with the registered-trademark form and its endorsement sentence at first use in the docs. The button text "based on FHIR" follows that; the sentence goes in the README and the docs page, and `FHIR` is not part of the app name or a file-name brand.
