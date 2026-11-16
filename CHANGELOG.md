@@ -11,6 +11,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **Database key:** if StrongBox fails with a general provider error, the key is now created in the normal hardware keystore instead of blocking the database.
 - **Reminders:** the receiver that re-arms reminders after boot and time changes now ignores intents from other apps; it only acts on the system broadcasts it is declared for.
 - **Backups:** a backup file whose key-derivation settings ask for too much work (memory times iterations above 4 GiB-passes) is refused before any key is derived. Files written by the app are far below this.
+- **Log pickers use the units you chose:** with pounds or mg/dL selected, the weight ruler and the glucose field started from the stored kilograms or mmol/L number, so an untouched start read as 75 lb (saved as about 34 kg). They now start from the latest entry in your units, the weight ruler range follows the unit, and switching units converts what is already in the fields.
 - **Editing a blood pressure entry no longer erases its pulse:** saving an edit in History dropped the stored pulse. The edit dialog now has an optional pulse field (30 to 250, empty clears it), and the entry keeps its pulse when you change something else. English and Dutch strings.
 
 ## [1.7.5] - 2026-11-14

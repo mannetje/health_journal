@@ -23,6 +23,7 @@ import nl.healthjournal.app.settings.MetricSlot
 import nl.healthjournal.app.ui.common.CommentField
 import nl.healthjournal.app.ui.common.LocalDisplayUnits
 import nl.healthjournal.app.ui.common.asString
+import nl.healthjournal.app.ui.common.weightFromKg
 import nl.healthjournal.domain.shared.model.GlucoseUnit
 import nl.healthjournal.domain.metrics.model.GlucoseContext
 import nl.healthjournal.app.ui.logging.components.HorizontalRulerPicker
@@ -131,7 +132,7 @@ fun LogMetricScreen(
                     HorizontalRulerPicker(
                         value = state.weightValue,
                         onValueChange = { viewModel.onWeightValueChanged(it) },
-                        range = 20.0..250.0,
+                        range = units.weightFromKg(20.0)..units.weightFromKg(250.0),
                         label = stringResource(R.string.log_weight_label, units.weightSymbol),
                         isSet = LogField.WEIGHT in state.chosen,
                         step = 0.1,
