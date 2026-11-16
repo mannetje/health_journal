@@ -17,6 +17,7 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - **Editing a blood pressure entry no longer erases its pulse:** saving an edit in History dropped the stored pulse. The edit dialog now has an optional pulse field (30 to 250, empty clears it), and the entry keeps its pulse when you change something else. English and Dutch strings.
 - **Blood pressure edit dialog labels fit:** in History, the Systolic and Diastolic fields are now stacked, so "Diastolic (mmHg)" and the longer Dutch "Systolisch (mmHg)" no longer wrap and get clipped at the top of a half-width field.
 - **Specs match the app on backup wording:** the privacy spec now describes what the notice says (health data is not restored from a cloud backup, the encrypted backup file is the way to keep it, CSV is not encrypted), and the backup spec names the suggested file `healthjournal-<date>.hjbackup` as the app does. Documentation only; the app is unchanged.
+- **zib mapping checked against zibs.nl:** `docs/dev/zib-mapping.md` now names the zib version read for each row. Pulse maps to Hartfrequentie instead of the palpation zib Polsfrequentie; all four planned body temperature sites (ear, forehead, mouth, armpit) are in the zib's value set, which the table said only two were; there is no headache zib, so the migraine row names Pijnscore and Symptoom as the nearest; shipped activity recording and medication now have rows. Documentation only; the app is unchanged.
 
 ## [1.7.5] - 2026-11-14
 
