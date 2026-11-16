@@ -4,6 +4,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.7.6] - 2026-11-16
+
 ### Changed
 - **Richer breathing pictures:** the lotus petals now have a soft gradient, an outline and a vein, around a ring of stamens, and the outer petals open last and close first. The circle is now a drop with fourteen thin ripple rings that spread as you breathe in and draw in as you breathe out, with a light band that slowly travels outwards. The square gets four fainter outlines nested inside it and a longer, softer trail behind the dot. Drawing only: the timing, cues and wording are unchanged.
 
@@ -358,7 +360,8 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 - Profiles with weight (BMI), blood pressure and glucose logging, classified against the Dutch NHG guidelines ([ADR 0005](docs/adr/0005-dutch-nhg-guidelines.md)).
 - Offline-first storage and CSV export ([ADR 0004](docs/adr/0004-room-for-offline-first-persistence.md)).
 
-[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.5...HEAD
+[Unreleased]: https://github.com/mannetje/health_journal/compare/v1.7.6...HEAD
+[1.7.6]: https://github.com/mannetje/health_journal/compare/v1.7.5...v1.7.6
 [1.7.5]: https://github.com/mannetje/health_journal/compare/v1.7.4...v1.7.5
 [1.7.4]: https://github.com/mannetje/health_journal/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/mannetje/health_journal/compare/v1.7.2...v1.7.3
