@@ -2,7 +2,7 @@
 
 Tests are plain JUnit 4 with `kotlinx-coroutines-test`. Robolectric is used only for the tests that need a real SQLite (the encryption migration test (including crash recovery of the file swap), the medication DAO test and the schema migration tests). This keeps `./gradlew test` fast and runnable in CI.
 
-A small instrumented suite in `data/src/androidTest/` covers what needs the real device: the Android Keystore key (`DatabaseKeyProviderTest`) and the native SQLCipher library (`SqlCipherDatabaseTest`: an encrypted database reads back with the same key, does not open with another key and is not plain on disk, and the real plain-to-encrypted migration keeps the rows and leaves no set-aside files). CI does not run it, because that needs an emulator; run it before a release that touches storage.
+A small instrumented suite in `data/src/androidTest/` covers what needs the real device: the Android Keystore key (`DatabaseKeyProviderTest`) and the native SQLCipher library (`SqlCipherDatabaseTest`: an encrypted database reads back with the same key, does not open with another key and is not plain on disk, and the real plain-to-encrypted migration keeps the rows and leaves no set-aside files). CI runs it on an API 34 emulator in the separate workflow `.github/workflows/instrumented.yml` (only when `data`, `domain` or the Gradle files change); locally, run it before a release that touches storage.
 
 ```bash
 ./gradlew test             # unit tests, all modules

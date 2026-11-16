@@ -8,6 +8,7 @@ Every push and pull request is checked by GitHub Actions. This page lists what r
 |----------|------|---------|--------------|-----------------|
 | **Android CI & Build APK** | `.github/workflows/android.yml` | push and pull request to `master`, tags `v*`, manual | Checks the docs, runs the unit tests, measures coverage, builds the debug APK, publishes a release on a tag | Yes (the check is called "Build & Test Android APK") |
 | **Android Lint** | `.github/workflows/lint.yml` | push and pull request to `master`, manual | Runs Android Lint on the app. Lint errors fail the check, warnings do not | Yes, once you make it a required check |
+| **Instrumented Tests** | `.github/workflows/instrumented.yml` | push and pull request that change `data/**`, `domain/**` or the Gradle files, manual | Runs `data/src/androidTest` (real Keystore, real SQLCipher, the real migration) on an API 34 emulator | Not meant to: it is path-filtered, so do not make it a required check |
 | **OpenSpec** | `.github/workflows/specs.yml` | push and pull request that change `openspec/**`, manual | Validates all specs and open changes in strict mode | Yes, once you make it a required check |
 | **CodeQL** | `.github/workflows/codeql.yml` | push and pull request to `master`, every Monday | Static security analysis of the Kotlin code | Findings show under Security, Code scanning |
 | **Dependabot** | `.github/dependabot.yml` | every Monday | Opens pull requests for newer dependency and action versions | No, it only proposes changes |
