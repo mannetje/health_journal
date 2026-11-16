@@ -4,5 +4,13 @@
     <exclude domain="database" path="health_journal.db-journal" />
     <exclude domain="database" path="health_journal.db-wal" />
     <exclude domain="database" path="health_journal.db-shm" />
+    <exclude domain="database" path="health_journal.db.pre-encryption" />
+    <exclude domain="database" path="health_journal.db-journal.pre-encryption" />
+    <exclude domain="database" path="health_journal.db-wal.pre-encryption" />
+    <exclude domain="database" path="health_journal.db-shm.pre-encryption" />
+    <exclude domain="database" path="health_journal_enc.db" />
+    <exclude domain="database" path="health_journal_enc.db-journal" />
+    <exclude domain="database" path="health_journal_enc.db-wal" />
+    <exclude domain="database" path="health_journal_enc.db-shm" />
     <exclude domain="root" path="no_backup" />
 </full-backup-content>

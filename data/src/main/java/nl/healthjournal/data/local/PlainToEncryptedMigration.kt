@@ -27,11 +27,18 @@ class PlainToEncryptedMigration(
     private val exportStep: (plainPath: String, encPath: String, passphrase: ByteArray, plainVersion: Int) -> Unit = ::defaultExportStep,
     private val verifyStep: (encPath: String, passphrase: ByteArray, expectedCounts: Map<String, Long>, expectedVersion: Int) -> Unit = ::defaultVerifyStep,
     private val rename: (from: File, to: File) -> Boolean = File::renameTo,
+    private val delete: (File) -> Boolean = File::delete,
 ) {
 
     sealed class MigrationResult {
         data object Success : MigrationResult()
         data object AlreadyEncrypted : MigrationResult()
+
+        /**
+         * The encrypted database is in place and verified, but a set-aside plain file could not be deleted.
+         * The next [migrate] retries the deletion. Not [Success]: plain health data is still on disk.
+         */
+        data class CleanupIncomplete(val leftovers: List<String>) : MigrationResult()
         data class Failed(val reason: String) : MigrationResult()
     }
 
@@ -76,9 +83,9 @@ class PlainToEncryptedMigration(
             verifyStep(tempEncFile.absolutePath, passphrase, plainCounts, plainVersion)
 
             // Verification succeeded! Now swap the files; the plain ones stay recoverable until the end.
-            swapIn(plainFile, tempEncFile)
+            val leftovers = swapIn(plainFile, tempEncFile)
 
-            return MigrationResult.Success
+            return if (leftovers.isEmpty()) MigrationResult.Success else MigrationResult.CleanupIncomplete(leftovers)
         } catch (e: Exception) {
             val msg = "Migration failed: ${e.message}"
             cleanupFiles(tempEncFile)
@@ -90,17 +97,22 @@ class PlainToEncryptedMigration(
 
     /**
      * Sets the plain files aside, moves the encrypted file in, and only then drops the set-aside files.
-     * When any step fails, every file already set aside is put back before the failure is reported.
+     * When any step fails, every file already set aside is put back before the failure is reported. When a file
+     * cannot be put back the failure names it, and [isSetAside] keeps the app from opening a database over it.
+     * Returns the set-aside files that could not be deleted at the end (empty when the cleanup is complete).
      */
-    private fun swapIn(plainFile: File, tempEncFile: File) {
+    private fun swapIn(plainFile: File, tempEncFile: File): List<String> {
         try {
             setPlainFilesAside(plainFile)
             check(rename(tempEncFile, plainFile)) { "Could not move the encrypted database into place" }
         } catch (e: Exception) {
-            restoreBackups(plainFile)
+            val notRestored = restoreBackups(plainFile)
+            if (notRestored.isNotEmpty()) {
+                throw IllegalStateException("${e.message}; could not restore ${notRestored.joinToString()}", e)
+            }
             throw e
         }
-        deleteBackups(plainFile)
+        return deleteBackups(plainFile)
     }
 
     private fun setPlainFilesAside(plainFile: File) {
@@ -123,21 +135,29 @@ class PlainToEncryptedMigration(
         if (plainFile.exists() && !isPlainSqlite(plainFile)) deleteBackups(plainFile) else restoreBackups(plainFile)
     }
 
-    private fun restoreBackups(plainFile: File) {
-        val dir = plainFile.parentFile ?: return
+    /** Puts every set-aside file back. Returns the names that could not be restored (empty when all were). */
+    private fun restoreBackups(plainFile: File): List<String> {
+        val dir = plainFile.parentFile ?: return emptyList()
+        val failed = mutableListOf<String>()
         for (suffix in DATABASE_SUFFIXES) {
             val original = File(dir, DATABASE_NAME + suffix)
             val backup = backupOf(original)
-            if (backup.exists()) {
-                original.delete()
-                backup.renameTo(original)
-            }
+            if (!backup.exists()) continue
+            val clear = !original.exists() || delete(original)
+            if (!clear || !rename(backup, original)) failed.add(backup.name)
         }
+        return failed
     }
 
-    private fun deleteBackups(plainFile: File) {
-        val dir = plainFile.parentFile ?: return
-        for (suffix in DATABASE_SUFFIXES) backupOf(File(dir, DATABASE_NAME + suffix)).delete()
+    /** Deletes the set-aside files. Returns the names that could not be deleted (empty when all were). */
+    private fun deleteBackups(plainFile: File): List<String> {
+        val dir = plainFile.parentFile ?: return emptyList()
+        val failed = mutableListOf<String>()
+        for (suffix in DATABASE_SUFFIXES) {
+            val backup = backupOf(File(dir, DATABASE_NAME + suffix))
+            if (backup.exists() && !delete(backup)) failed.add(backup.name)
+        }
+        return failed
     }
 
     private fun backupOf(file: File) = File(file.parentFile, file.name + BACKUP_SUFFIX)
@@ -193,9 +213,18 @@ class PlainToEncryptedMigration(
 
         private val SQLITE_HEADER = "SQLite format 3\u0000".toByteArray(Charsets.US_ASCII)
 
-        /** True when the database file is missing but its set-aside copy is still there: nothing may create a new one. */
-        fun isSetAside(databaseFile: File): Boolean =
-            !databaseFile.exists() && File(databaseFile.parentFile, databaseFile.name + BACKUP_SUFFIX).exists()
+        /**
+         * True when a set-aside plain file is still there and the database is not the finished encrypted one:
+         * the database file is missing, or it is plain while a set-aside sidecar (-wal, -journal, -shm) was not
+         * restored. Nothing may open or create a database then. Leftovers beside a finished encrypted database
+         * are only a cleanup to retry, so they do not count.
+         */
+        fun isSetAside(databaseFile: File): Boolean {
+            val dir = databaseFile.parentFile
+            val anyAside = DATABASE_SUFFIXES.any { File(dir, databaseFile.name + it + BACKUP_SUFFIX).exists() }
+            if (!anyAside) return false
+            return !databaseFile.exists() || isPlainSqlite(databaseFile)
+        }
 
         fun isPlainSqlite(file: File): Boolean {
             if (!file.exists() || file.length() < 16) return false

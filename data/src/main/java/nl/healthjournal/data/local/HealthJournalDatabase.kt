@@ -319,6 +319,18 @@ abstract class HealthJournalDatabase : RoomDatabase() {
             // Attempt one-time plain to encrypted migration if needed.
             val migration = PlainToEncryptedMigration(context, keyProvider).migrate()
 
+            // A failed swap that could not put every plain file back (the database itself, or a set-aside -wal
+            // or -journal beside a restored plain database): opening or creating a database here would hide or
+            // lose the original, and the next start could mistake it for a finished migration and delete the
+            // set-aside files. Checked before the plain fallback below, which would open it without its sidecar.
+            if (PlainToEncryptedMigration.isSetAside(dbFile)) {
+                val reason = (migration as? PlainToEncryptedMigration.MigrationResult.Failed)?.reason
+                    ?: "the original database is set aside and could not be restored"
+                Log.e(TAG, "Database is NOT available: $reason. Starting with an empty in-memory database.")
+                DatabaseEncryptionStatus.state = EncryptionState.NotActive(reason)
+                return createInMemory(context)
+            }
+
             // If the database file is still plain SQLite (migration failed), fall back to plain SQLite so
             // the user does not lose access to their data. The next app start retries.
             if (dbFile.exists() && PlainToEncryptedMigration.isPlainSqlite(dbFile)) {
@@ -327,13 +339,9 @@ abstract class HealthJournalDatabase : RoomDatabase() {
                 return notEncrypted(builder, reason)
             }
 
-            // A failed swap that could not put the plain database back: a new database here would let the
-            // next start mistake it for a finished migration and delete the set-aside original.
-            if (PlainToEncryptedMigration.isSetAside(dbFile)) {
-                val reason = "the original database is set aside and could not be restored"
-                Log.e(TAG, "Database is NOT available: $reason. Starting with an empty in-memory database.")
-                DatabaseEncryptionStatus.state = EncryptionState.NotActive(reason)
-                return createInMemory(context)
+            if (migration is PlainToEncryptedMigration.MigrationResult.CleanupIncomplete) {
+                // The encrypted database is in place; the next start retries deleting the plain leftovers.
+                Log.w(TAG, "Plain database copies could not be deleted yet: ${migration.leftovers.joinToString()}")
             }
 
             val passphrase = try {

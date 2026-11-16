@@ -368,4 +368,113 @@ class PlainToEncryptedMigrationTest {
         assertEquals(PlainToEncryptedMigration.MigrationResult.Success, result)
         assertTrue(provider.discarded)
     }
+
+    private fun walOf(file: File) = File(file.parentFile, file.name + "-wal")
+
+    /**
+     * The encrypted file cannot move in (the swap fails), and the set-aside files that match [cannotRestore]
+     * cannot be put back either. Everything else behaves normally.
+     */
+    private fun migrationWhereRestoreFails(cannotRestore: (File) -> Boolean): PlainToEncryptedMigration =
+        PlainToEncryptedMigration(
+            context = context,
+            keyProvider = keyProvider,
+            exportStep = fakeExportStep,
+            verifyStep = fakeVerifyStep,
+            rename = { from, to ->
+                when {
+                    from.name == PlainToEncryptedMigration.TEMP_ENC_NAME -> false
+                    from.name.endsWith(PlainToEncryptedMigration.BACKUP_SUFFIX) && cannotRestore(from) -> false
+                    else -> from.renameTo(to)
+                }
+            }
+        )
+
+    @Test
+    fun a_failed_restore_of_the_database_is_reported_and_keeps_the_app_from_opening_a_database() {
+        createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }
+
+        val result = migrationWhereRestoreFails { it.name == backupOf(dbFile).name }.migrate()
+
+        assertTrue(result is PlainToEncryptedMigration.MigrationResult.Failed)
+        assertTrue((result as PlainToEncryptedMigration.MigrationResult.Failed).reason.contains("could not restore"))
+        assertFalse(dbFile.exists())
+        assertTrue(backupOf(dbFile).exists())
+        assertTrue(PlainToEncryptedMigration.isSetAside(dbFile))
+    }
+
+    @Test
+    fun a_failed_restore_of_a_sidecar_beside_a_restored_database_counts_as_set_aside() {
+        createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }
+        val wal = walOf(dbFile).apply { writeText("") }
+
+        val result = migrationWhereRestoreFails { it.name == backupOf(wal).name }.migrate()
+
+        assertTrue(result is PlainToEncryptedMigration.MigrationResult.Failed)
+        assertTrue((result as PlainToEncryptedMigration.MigrationResult.Failed).reason.contains(backupOf(wal).name))
+        assertTrue("database itself is back", PlainToEncryptedMigration.isPlainSqlite(dbFile))
+        assertTrue(backupOf(wal).exists())
+        assertTrue("must not be opened without its -wal", PlainToEncryptedMigration.isSetAside(dbFile))
+
+        // A later start, when the filesystem cooperates again, puts the sidecar back and migrates.
+        val retried = migrationWithFakeSteps().migrate()
+        assertTrue(retried is PlainToEncryptedMigration.MigrationResult.Success)
+        assertFalse(backupOf(wal).exists())
+        assertFalse(PlainToEncryptedMigration.isSetAside(dbFile))
+    }
+
+    @Test
+    fun a_failed_deletion_of_the_plain_copies_is_not_reported_as_success_and_is_retried() {
+        createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }
+        val wal = walOf(dbFile).apply { writeText("") }
+        val stubborn = PlainToEncryptedMigration(
+            context = context,
+            keyProvider = keyProvider,
+            exportStep = fakeExportStep,
+            verifyStep = fakeVerifyStep,
+            delete = { file -> if (file.name.endsWith(PlainToEncryptedMigration.BACKUP_SUFFIX)) false else file.delete() }
+        )
+
+        val result = stubborn.migrate()
+
+        assertTrue(result is PlainToEncryptedMigration.MigrationResult.CleanupIncomplete)
+        val leftovers = (result as PlainToEncryptedMigration.MigrationResult.CleanupIncomplete).leftovers
+        assertEquals(setOf(backupOf(dbFile).name, backupOf(wal).name), leftovers.toSet())
+        assertTrue(backupOf(dbFile).exists() && backupOf(wal).exists())
+
+        // The real encrypted file is not plain SQLite: stand in for it, then start again.
+        dbFile.writeBytes(ByteArray(64) { 0x7F })
+        assertFalse("leftovers beside an encrypted database are only a cleanup", PlainToEncryptedMigration.isSetAside(dbFile))
+
+        val retried = migrationWithFakeSteps().migrate()
+
+        assertEquals(PlainToEncryptedMigration.MigrationResult.AlreadyEncrypted, retried)
+        assertFalse(backupOf(dbFile).exists())
+        assertFalse(backupOf(wal).exists())
+    }
+
+    @Test
+    fun a_failed_deletion_while_restoring_is_reported() {
+        // The encrypted file cannot move in, and the half-moved database cannot be cleared to restore into.
+        createPlainDb { db -> db.execSQL("INSERT INTO profiles VALUES ('p1', 'Maria')") }
+        val result = PlainToEncryptedMigration(
+            context = context,
+            keyProvider = keyProvider,
+            exportStep = fakeExportStep,
+            verifyStep = fakeVerifyStep,
+            rename = { from, to ->
+                if (from.name == PlainToEncryptedMigration.TEMP_ENC_NAME) {
+                    to.writeBytes(ByteArray(64) { 0x7F }) // a stray file now sits where the database belongs
+                    false
+                } else {
+                    from.renameTo(to)
+                }
+            },
+            delete = { false }
+        ).migrate()
+
+        assertTrue(result is PlainToEncryptedMigration.MigrationResult.Failed)
+        assertTrue((result as PlainToEncryptedMigration.MigrationResult.Failed).reason.contains("could not restore"))
+        assertTrue(backupOf(dbFile).exists())
+    }
 }
