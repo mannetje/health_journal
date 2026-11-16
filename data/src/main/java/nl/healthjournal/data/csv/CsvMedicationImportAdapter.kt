@@ -31,6 +31,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Imports the three medication CSV files into a profile. Rows link through `ref`; new identifiers are assigned.
@@ -160,6 +161,8 @@ class CsvMedicationImportAdapter(
                 if (!isNew) continue
                 medicationRepository.saveIntake(intake)
                 imported++
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 skip("intakes", row.line, e.message)
             }
