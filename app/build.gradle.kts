@@ -70,6 +70,22 @@ kotlin {
     }
 }
 
+// The unit tests that check the manifest the app ships read the merged manifest (the app's own plus every
+// library's), so a dependency that adds a permission is caught, not only a line in our own file.
+tasks.withType<Test>().configureEach {
+    for (variant in listOf("Debug", "Release")) {
+        val merged = layout.buildDirectory.file(
+            "intermediates/merged_manifests/${variant.lowercase()}/process${variant}Manifest/AndroidManifest.xml"
+        )
+        dependsOn("process${variant}Manifest")
+        // Declared, so a changed manifest or string file reruns the tests that read them straight from disk
+        inputs.file(merged).optional()
+        systemProperty("mergedManifest$variant", merged.get().asFile.path)
+    }
+    inputs.file("src/main/AndroidManifest.xml")
+    inputs.dir("src/main/res")
+}
+
 // Hilt 2.58 bundles kotlin-metadata-jvm 2.3, which cannot read classes compiled by Kotlin 2.4.
 configurations.configureEach {
     resolutionStrategy.force("org.jetbrains.kotlin:kotlin-metadata-jvm:${libs.versions.kotlin.get()}")

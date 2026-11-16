@@ -16,6 +16,22 @@ class PrivacyChecksTest {
         assertFalse("INTERNET must stay out of the manifest", manifest.contains("android.permission.INTERNET"))
     }
 
+    /** The source manifest says nothing about a library that brings its own permission; the merged one does. */
+    @Test
+    fun mergedManifestsDoNotRequestInternet() {
+        for (variant in listOf("mergedManifestDebug", "mergedManifestRelease")) {
+            val path = System.getProperty(variant)
+            assertTrue("$variant is set by app/build.gradle.kts", path != null)
+            val file = File(path!!)
+            assertTrue("${file.absolutePath} must exist (the test task depends on the manifest task)", file.exists())
+            val manifest = file.readText()
+            // The merged file holds the app's and the libraries' permissions; seeing ours proves it is the merged one
+            assertTrue("$variant must be the merged manifest", manifest.contains("android.permission.VIBRATE"))
+            val permissions = Regex("""<uses-permission[^>]*android:name="([^"]+)"""").findAll(manifest).map { it.groupValues[1] }.toList()
+            assertFalse("INTERNET must stay out of the $variant manifest, found in: $permissions", "android.permission.INTERNET" in permissions)
+        }
+    }
+
     @Test
     fun manifestAsksOnlyForVibrationAmongTheMindfulnessPermissions() {
         val manifest = File("src/main/AndroidManifest.xml").readText()
