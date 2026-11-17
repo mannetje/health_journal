@@ -380,59 +380,83 @@ flowchart TD
 
 ## 7. Greenfield Redesign: How to Approach Building it Anew for Android
 
-If Health Journal were rebuilt from scratch today for Android, incorporating the lessons learned and modernization patterns identified in the codebase, the ideal architecture would look like this:
+If Health Journal were rebuilt from scratch today for Android, incorporating the lessons learned and modern design patterns, both the backend architecture and the UI/UX systems should be reimagined from a clean slate.
 
-### 1. Unified CQRS Application Boundary from Day One
-- **The Problem in Legacy:** Early versions accumulated dozens of fine-grained, single-method use case classes, eventually leading to synthetic parameter tuples (e.g. `EntryUseCases` containing 14 use cases) to satisfy ViewModel constructors.
-- **The Modern Approach:** Adopt a unified **CQRS Dispatcher** from the start:
-  - Commands (`RecordWeightCommand`, `TakeMedicationCommand`) for state mutations.
-  - Queries (`GetPillboxDayQuery`, `ObserveWeightTrendsQuery`) for reads.
-  - Handlers (`CommandHandler<C, R>`, `QueryHandler<Q, R>`) that encapsulate single business operations.
-  - ViewModels inject only the `Dispatcher` and their specific query stream, keeping ViewModel constructors clean (1–3 dependencies maximum).
+### 7.1 Architectural & Backend Foundation
 
-### 2. Rich Domain Aggregates & Typed Results (No Exceptions for Control Flow)
-- **The Problem in Legacy:** Domain models occasionally relied on unchecked `IllegalArgumentException` thrown in `init` blocks, which ViewModels caught via generic `catch (e: Exception)` blocks.
-- **The Modern Approach:**
-  - Value objects use factory constructors returning typed results:
-    ```kotlin
-    data class BloodPressureReading private constructor(
-        val systolic: Int,
-        val diastolic: Int
-    ) {
-        companion object {
-            fun create(systolic: Int, diastolic: Int): DomainResult<BloodPressureReading, ValidationError> {
-                if (systolic !in 60..300) return DomainResult.Failure(ValidationError.SystolicOutOfRange)
-                if (diastolic !in 30..200) return DomainResult.Failure(ValidationError.DiastolicOutOfRange)
-                if (systolic <= diastolic) return DomainResult.Failure(ValidationError.SystolicNotGreaterThanDiastolic)
-                return DomainResult.Success(BloodPressureReading(systolic, diastolic))
-            }
-        }
-    }
-    ```
-  - ViewModels map typed `DomainError` directly to localized `UiText` without try/catch overhead.
+1. **Unified CQRS Application Boundary from Day One:**
+   - Adopt a unified **CQRS Dispatcher** from the start (`Command`, `Query`, `Dispatcher`, `DomainResult<T, DomainError>`). ViewModels inject only the `Dispatcher` and their specific query stream, keeping ViewModel constructors clean (1–3 dependencies maximum).
+2. **Rich Domain Aggregates & Typed Results (No Exceptions for Control Flow):**
+   - Value objects use private constructors with factory methods returning typed results (`DomainResult<T, ValidationError>`), eliminating unchecked `IllegalArgumentException` thrown across layer boundaries.
+3. **Interface Segregation for Repositories (ISP):**
+   - Keep repositories segregated per aggregate (`WeightRepositoryPort`, `BloodPressureRepositoryPort`, `MedicationRepositoryPort`). A command handler depends strictly on the ports it reads or modifies.
+4. **Modern Multiplatform Room & Pre-Encrypted Schema:**
+   - Use **Room KMP (2.7+)** with SQLCipher enabled from **Version 1**. Hardware-backed Android Keystore wrapping the 256-bit AES master key from the initial release, eliminating migration gymnastics and file-swap rollbacks.
+5. **Compose Architecture: MVI & Type-Safe Navigation:**
+   - Single immutable `UiState` and sealed `UiEvent`s per screen.
+   - Use Jetpack Compose Navigation with type-safe Kotlin Serializable routes (`@Serializable` route objects), replacing custom destination enums or string-based routes.
+6. **Convention Plugins & Strict ArchUnit Guardrails:**
+   - Use Gradle `build-logic` convention plugins instead of repeating plugin declarations across modules. Embed architectural fitness tests from day one to enforce hexagonal boundaries.
 
-### 3. Interface Segregation for Repositories (ISP)
-- **The Problem in Legacy:** Earlier iterations had monolithic repository interfaces (e.g. `HealthLogRepositoryPort`) coupling 6+ distinct metric aggregates together.
-- **The Modern Approach:** Keep repositories segregated per aggregate (`WeightRepositoryPort`, `BloodPressureRepositoryPort`, `MedicationRepositoryPort`). A command handler should depend strictly on the ports it reads or modifies.
+---
 
-### 4. Modern Multiplatform Room & Pre-Encrypted Schema
-- **The Problem in Legacy:** Starting with plain SQLite required building complex plain-to-encrypted migration logic and crash-recovery file swaps when SQLCipher was introduced after earlier unencrypted releases.
-- **The Modern Approach:**
-  - Use **Room KMP (2.7+)** with SQLCipher enabled from **Version 1**.
-  - No legacy migration gymnastics or file-swap rollbacks.
-  - Hardware-backed Android Keystore wrapping the 256-bit AES master key from the initial release.
+### 7.2 UI/UX Systems Engineering & Modern Android Design Patterns
 
-### 5. Compose Architecture: MVI & Design System
-- **State Management:** Strict Model-View-Intent (MVI) / Unidirectional Data Flow (UDF):
-  - Every screen has a single immutable `UiState` data class.
-  - User actions are emitted as sealed `UiEvent`s to the ViewModel.
-  - One-time side effects (navigation, snackbars) are exposed via a shared effect channel.
-- **Navigation:** Use Jetpack Compose Navigation with type-safe Kotlin Serializable routes (`@Serializable` route objects), replacing custom destination enums or string-based routes.
-- **Adaptive Layouts:** Leverage Compose's official `NavigationSuiteScaffold` and `WindowSizeClass` utilities to transition cleanly between bottom bar (compact), navigation rail (medium), and split-pane detail views (expanded).
+A greenfield Android rewrite should elevate Health Journal into a benchmark of modern Android design engineering:
 
-### 6. Build Logic & Tooling
-- **Convention Plugins:** Use Gradle `build-logic` convention plugins instead of repeating plugin declarations, compiler options, and JaCoCo configurations across `:app`, `:data`, and `:domain`.
-- **Strict ArchUnit / Guardrails:** Embed architectural fitness tests from day one to enforce hexagonal boundaries, ensure zero framework imports in domain, and prevent unwanted Android permissions.
+```mermaid
+flowchart TD
+    subgraph Core_UX["Greenfield Android UI/UX Architecture"]
+        EDGE["Edge-to-Edge System Bar Integration (enableEdgeToEdge)"]
+        THEME["Material 3 Expressive Tonal Palettes + AMOLED Pure Black"]
+        NAV["4-Pillar Scaffolding (Log, Trends, Pillbox, Profile)"]
+        HAPTIC["Pixel & Samsung Haptic Textures (HapticFeedbackConstants)"]
+        GLANCE["Zero-Friction Ecosystem (Jetpack Glance Widgets & Shortcuts)"]
+        ADAPT["Foldable & Tablet Responsive Layouts (WindowSizeClass)"]
+    end
+```
+
+#### 1. Material 3 "Expressive" & Immersive Edge-to-Edge
+- **Full Edge-to-Edge:** Implement `enableEdgeToEdge()` from Day 1 with fully transparent status and navigation bars. Use Compose `WindowInsets` (`safeDrawing`, `ime`) so scrolling lists flow naturally behind system bars.
+- **Organic Theming (Dynamic Color with Clinical Neutrality):** Allow users to select a calming thematic accent (Nordic Slate, Calm Sage, or Lavender), while strictly isolating healthcare metric range labels to immutable, non-judgmental neutral palettes.
+- **Eliminate Top-Bar Heaviness:** Replace the fixed navy bar with a tonally elevated, collapsible top bar that blends seamlessly into the screen canvas.
+
+#### 2. Information Architecture: 4-Pillar Navigation Without Top-Bar Hijacking
+- **The 4 Primary Destinations:**
+  1. **Log:** Tactile, rapid single-handed measurement recording.
+  2. **Trends:** Unified history timeline, range distribution, and interactive trend charts.
+  3. **Pillbox:** First-class destination for Today’s schedule, Taken/Skip actions, and 7/30/90-day adherence.
+  4. **Profile:** Personal parameters, units, security, app lock, and encrypted backups.
+- **Ambient Mindfulness Integration:** Instead of abruptly replacing the screen, present Mindfulness as an ambient sanctuary accessed via a calm card or detented modal sheet.
+- **Predictive Back Navigation:** Integrate Android 14+ predictive back gestures (`PredictiveBackHandler`) so users preview the prior screen during swipe-back gestures without accidental loss of entered data.
+
+#### 3. Tactile Feedback & Precision Haptics Engine
+Modern Android devices (Google Pixel, Samsung Galaxy) feature precision linear resonant actuators. Greenfield UI should leverage `HapticFeedbackConstants`:
+- `SEGMENT_TICK` (API 34+) on every 0.1 decimal step of the measuring tape ruler.
+- `GESTURE_END` / `CONFIRM` when the ruler snaps to an integer value or matches the user's previous measurement anchor.
+- `TOGGLE_ON` / `TOGGLE_OFF` with distinct acoustic pitch when marking pills as Taken vs. Skipped.
+- **Physical Wheel Physics:** Combine Compose `Animatable` with spring and decay animations so flicking the ruler feels like spinning a weighted mechanical dial.
+
+#### 4. The Zero-Friction Android Quick-Add Ecosystem
+Health logging friction is highest when users must unlock, launch, find a tab, and type. Greenfield Android should reduce time-to-log to under 2 seconds:
+- **Jetpack Glance Home Screen Widgets:**
+  - *Quick Fluid Widget:* Tap a +250 ml button directly on the home screen to log fluid without opening the app.
+  - *Next Dose Glance:* Displays the next upcoming medication slot with a direct "Take" button on the widget.
+- **App Shortcuts (`shortcuts.xml`):** Long-pressing the launcher icon reveals instant direct shortcuts: *"Log Weight"*, *"Log Blood Pressure"*, *"Take Morning Dose"*.
+- **Quick Settings Tile:** A system notification shade tile that triggers a floating quick-entry dialog from anywhere in the OS.
+
+#### 5. Adaptive Window Size Classes (Foldables & Tablets)
+Support modern foldable phones (Pixel Fold, Galaxy Fold/Flip) and tablets via official `WindowSizeClass`:
+- **Compact (Phones):** Single-column vertical layout with bottom navigation bar.
+- **Medium (Foldable unfolded / Dual-screen):** Dual-pane layout respecting the physical hinge crease via Compose `TwoPane` layout (History on the left pane, interactive trend chart and statistics on the right pane).
+- **Expanded (Tablets / DeX mode):** 3-column master-detail layout (Permanent Navigation Rail -> Metric feed -> Side-by-side chart and deep statistical analysis).
+
+#### 6. Progressive Disclosure in Data Entry
+- Primary view exposes **only the core value picker** (e.g. Systolic & Diastolic ruler).
+- Secondary fields (Pulse, Date/Time, Note/Comment, Situation context) remain tucked inside an expandable "Add details" chip that smoothly unfolds only when needed.
+
+#### 7. AMOLED Midnight Mode (Circadian Eye Comfort)
+Health logging often occurs late at night (bedtime medications, nocturnal blood pressure checks, acute migraine attacks). A greenfield build should provide a true **AMOLED Pure Black (`#000000`)** mode alongside standard dark theme, eliminating backlight glare and preserving night-adjusted vision.
 
 ---
 
