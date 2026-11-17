@@ -274,7 +274,111 @@ jobs:
 
 ---
 
-## 6. Greenfield Redesign: How to Approach Building it Anew for Android
+## 6. UI/UX Systems Engineering & Apple HIG Translation
+
+Translating Health Journal to iPhone requires elevating the interaction patterns to match Apple's **Human Interface Guidelines (HIG)** while preserving the app's calm, non-judgmental philosophy.
+
+### 6.1 UX Audit: Strengths & Interaction Debt of Current App
+
+| Aspect | Current Android (Material 3) Implementation | UX Assessment & Cognitive Impact |
+| :--- | :--- | :--- |
+| **Calm Informatics** | Neutral blue-grey ramps, `"name · range"` text labels, zero red alarms. | **Masterclass in ethical UX:** Eliminates health anxiety (*nosophobia*) by treating measurements as neutral observations rather than moral verdicts. |
+| **Data Entry** | Horizontal measuring tape ruler with snap-to-tick inertia. | **High tactile satisfaction:** Reduces cognitive friction compared to numeric keyboard input. Pre-filling from latest entry enables sub-3-second logging. |
+| **Dutch Typography** | `ChoiceRow` dynamically wraps segmented rows to stacked columns at >1.3x font scale. | **Defensive localization:** Prevents truncated Dutch compound nouns (*Bloeddrukmeting*, *Nuchtere bloedsuikerspiegel*) when accessibility scaling is active. |
+| **Navigation Scaffolding** | 💊 Pillbox and 🪷 Mindfulness buttons in the top app bar replace the entire tab view. | **Interaction Debt:** Breaks mental model. The user is unsure whether these are tabs, modal sheets, or separate sub-apps. Reaching the top bar strains the thumb. |
+| **History Viewport** | Filter chips, Year chips, Month chips, and List/Graph toggles stack vertically. | **Viewport Crowding:** Consumes over 40% of vertical screen height before the first health record appears. |
+| **Migraine Crisis Input** | Multi-step form (intensity, location, type, symptoms, triggers, relief). | **Cognitive Overload during Attack:** Users in the middle of a migraine attack suffer from light and cognitive sensitivity and abandon detailed questionnaires. |
+
+```mermaid
+flowchart LR
+    subgraph Current_Android["Current Android Pattern"]
+        TOP_BAR["Top App Bar Icons"] -->|Replaces Scaffolding| MODAL_VIEW["Full Screen Swap"]
+        DENSE_HEADER["Stacked Year/Month/Filter Chips"] --> VIEWPORT["Cramped History Viewport"]
+    end
+
+    subgraph Apple_HIG["Elevated Apple HIG Pattern"]
+        SHEETS["Native Detented Sheets (.sheet)"] --> PRESERVE["Preserved Tab Context"]
+        STICKY_RAIL["Collapsible Date Rail & Header"] --> SPACIOUS["75%+ Viewport for Health Data"]
+    end
+```
+
+### 6.2 Translating Material 3 to Apple HIG
+
+1. **Large Titles with Inline Collapse:**
+   Use SwiftUI's native `.navigationBarTitleDisplayMode(.large)`. On scroll, the large heading seamlessly contracts into the top navigation bar, expanding vertical reading space.
+2. **Interactive Modal Sheets for Pillbox and Mindfulness:**
+   Instead of replacing the main tab container, open the Pillbox and Mindfulness workflows as **detented modal sheets**:
+   ```swift
+   .sheet(isPresented: $showPillbox) {
+       PillboxView()
+           .presentationDetents([.medium, .large])
+           .presentationDragIndicator(.visible)
+   }
+   ```
+   This maintains the user's spatial orientation and allows dismissing with a natural downward swipe.
+3. **Apple Materials & Grouped Lists:**
+   Replace flat container surfaces with native iOS grouped styles (`List` styled with `.insetGrouped`) using dynamic background materials (`Color(uiColor: .systemGroupedBackground)` and `.ultraThinMaterial`).
+
+### 6.3 Apple Taptic Engine Language (The Haptic Palette)
+
+On iPhone, haptics provide physical feedback that reinforces digital interactions. The app should implement a unified haptic grammar:
+
+| User Interaction | Core Haptics / UIKit Haptic API | Physical Sensation |
+| :--- | :--- | :--- |
+| **Ruler: Whole integer tick** | `UIImpactFeedbackGenerator(style: .rigid)` | Solid physical notch |
+| **Ruler: Decimal step (0.1)** | `UIImpactFeedbackGenerator(style: .light)` | Subtle mechanical click |
+| **Medication: Taken All action** | `UINotificationFeedbackGenerator().notificationOccurred(.success)` | Double-pulse confirmation |
+| **Fluid: Quick-add drink** | `UIImpactFeedbackGenerator(style: .soft)` | Soft liquid bubble tap |
+| **Chart: Scrubbing across NHG boundary** | `UIImpactFeedbackGenerator(style: .medium)` | Physical boundary resistance |
+
+### 6.4 Interactive Swift Charts with Floating Glass Scrubbers
+
+In place of static graph toggles, implement interactive scrubbing with floating HUDs:
+- As the user drags a finger across a trend chart, an animated vertical rule line tracks the touch.
+- A floating capsule styled with `.ultraThinMaterial` displays the timestamp, reading value, and guideline range label.
+- Tapping two data points simultaneously draws an interactive delta indicator calculating the change between entries.
+
+### 6.5 Greenfield Ergonomics: The "One-Handed Thumb Zone"
+
+On modern 6.7-inch displays, interactive elements must be placed where the thumb naturally rests:
+
+```
++-----------------------------------+
+| Top 20%: Status & Summary Only    |  <-- Passive Glance Zone (No primary buttons)
++-----------------------------------+
+| Middle 35%: Chart & Trends        |  <-- Viewing Zone
++-----------------------------------+
+| Lower 45%: Tactile Pickers,       |  <-- Active Thumb Zone (Effortless Reach)
+| Primary Save & Navigation         |
++-----------------------------------+
+```
+
+- **Ruler Positioning:** Place horizontal ruler pickers in the lower third, immediately above the tab bar.
+- **Floating Bottom Bar Save:** Replace top-bar checkmark actions with a full-width bottom floating action pill.
+
+### 6.6 The 2-Phase Migraine UX: "Crisis Stamp" vs. "Retrospective Detail"
+
+To respect user cognitive bandwidth during acute attacks:
+
+```mermaid
+flowchart TD
+    CRISIS["Migraine Attack Occurs"] --> ONE_TAP["1-Tap: 'Record Attack Started'"]
+    ONE_TAP --> STAMP["Instant Timestamp + Ongoing State + Dark Screen"]
+    STAMP -.-> HOURS_LATER["Hours or Days Later (Feeling Well)"]
+    HOURS_LATER --> ENRICH["Tap Banner in History: Fill Triggers, Symptoms & Relief"]
+```
+
+1. **Phase 1 (Active Crisis):** A single large button: *"Record Attack Started"*. Tapping records the current timestamp, flags the episode as ongoing, emits a soft haptic pulse, and dims the display to minimize light exposure.
+2. **Phase 2 (Retrospective Enrichment):** When the attack has ended, a neutral prompt on the History screen invites the user to add symptoms, triggers, medications, and end time at their own pace.
+
+### 6.7 Accessibility & Audio Graphs (WCAG 2.2 AAA)
+
+- **Apple Audio Graphs:** Implement the accessibility audio graph protocol. VoiceOver users scrubbing a chart hear pitch variations that rise and fall with systolic pressure or blood glucose levels.
+- **Multimodal Status:** Range bands must never rely solely on color. Every indicator pairs an explicit text string (`"Normaal"`, `"Verhoogd"`), a geometric glyph (circle, triangle, diamond), and compliant 4.5:1 text contrast.
+
+---
+
+## 7. Greenfield Redesign: How to Approach Building it Anew for Android
 
 If Health Journal were rebuilt from scratch today for Android, incorporating the lessons learned and modernization patterns identified in the codebase, the ideal architecture would look like this:
 
@@ -332,7 +436,7 @@ If Health Journal were rebuilt from scratch today for Android, incorporating the
 
 ---
 
-## 7. Summary Checklist for an iOS Port
+## 8. Summary Checklist for an iOS Port
 
 When beginning the iOS implementation:
 1. **Specification:** Create `platform-ios/spec.md` (under OpenSpec) detailing iOS-specific framework choices while keeping all metric, medication, and compliance specs intact.
