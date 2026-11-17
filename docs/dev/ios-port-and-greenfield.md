@@ -1,6 +1,6 @@
 # iOS Port Architecture & Greenfield Modernization Guide
 
-This document evaluates the strategy for bringing **Health Journal** to the iPhone (iOS) and outlines how to structure a modern greenfield rewrite if starting the Android project fresh today.
+This document evaluates the strategy for bringing **Health Journal** to the iPhone (iOS), provides a complete blueprint for developing iOS apps from a Linux workstation using cloud CI/CD at €0 hardware cost, and outlines how to structure a modern greenfield rewrite if starting the Android project fresh today.
 
 ---
 
@@ -12,6 +12,7 @@ When considering an iPhone version:
 - **.NET MAUI is not recommended.** Because the existing Android app is already built in Kotlin and Jetpack Compose, .NET MAUI provides **zero cross-platform code-sharing leverage**. Furthermore, MAUI introduces substantial friction on iOS: lack of native charting, sluggish custom touch gestures (critical for the tape-measure ruler pickers), large runtime overhead, and fragile local notification bindings.
 - **Native iOS (Swift 6 + SwiftUI) is the recommended primary route.** It delivers 120Hz ProMotion fluid rendering for custom pickers, first-class charting via **Swift Charts**, hardware-backed encryption via **Keychain / Secure Enclave**, and seamless local background reminders via `UNUserNotificationCenter`.
 - **Kotlin Multiplatform (KMP) + SwiftUI is the recommended alternative for code sharing.** Because `:domain` is pure Kotlin with zero Android/UI dependencies, the business logic, NHG classifiers, and medication scheduling can be shared directly as an XCFramework to a native SwiftUI app.
+- **You do not need to buy a Mac to develop for iPhone.** A Linux workstation (e.g. Dell XPS with Ubuntu) can write Swift code and trigger automated cloud compilation via **GitHub Actions (`macos-latest`)**, deploying test builds directly to a physical iPhone via **Apple TestFlight** for €0 in hardware expenses.
 
 ---
 
@@ -118,7 +119,162 @@ This avoids duplicating complex domain tests (such as NHG boundary checks and me
 
 ---
 
-## 5. Greenfield Redesign: How to Approach Building it Anew for Android
+## 5. Developing for iOS from a Linux Workstation (€0 Hardware Cost via Cloud CI/CD)
+
+A common assumption is that developing an iOS app requires owning an Apple Mac. While Apple requires macOS to run the Xcode compiler and iOS Simulator, you can develop an iOS app from an **Ubuntu Linux workstation (e.g. Dell XPS)** using **GitHub Actions cloud runners** and a physical iPhone for testing.
+
+```mermaid
+flowchart LR
+    subgraph Local_Linux["Ubuntu Workstation (Dell XPS)"]
+        VSCODE["VS Code / Swift LSP"] --> CODE["Write Swift & SwiftUI"]
+        CODE --> TEST["Local Unit Tests (swift test)"]
+        TEST --> GIT["git push origin master"]
+    end
+
+    subgraph GitHub_Cloud["GitHub Actions Cloud (Free macOS Runner)"]
+        GIT --> RUNNER["runs-on: macos-latest<br/>(Apple Silicon M-Series)"]
+        RUNNER --> XCODE["xcodebuild & Code Signing"]
+        XCODE --> IPA["Build .ipa Package"]
+        IPA --> TF_UPLOAD["Upload to Apple TestFlight"]
+    end
+
+    subgraph Physical_Device["Physical Device"]
+        TF_UPLOAD --> IPHONE["iPhone with TestFlight App"]
+        IPHONE --> RUN["Test Real Sensors, Touch & Haptics"]
+    end
+```
+
+### 5.1 Local Linux Workstation Setup
+
+You can write and test Swift code on Ubuntu without any emulation:
+
+1. **Install Swift for Linux:**
+   Apple maintains official Swift toolchains for Ubuntu. You can install it via the official `swiftly` tool or apt packages:
+   ```bash
+   curl -O https://download.swift.org/swiftly/swiftly-install.sh
+   bash swiftly-install.sh
+   swiftly install latest
+   ```
+2. **IDE & Editor:**
+   Install **VS Code** on Ubuntu with the official **Swift** extension (backed by Apple's `SourceKit-LSP`). This gives you full autocomplete, syntax highlighting, type hover documentation, jump-to-definition, and refactoring on Linux.
+3. **Local Unit Testing:**
+   All domain logic (NHG calculations, BMI formulas, medication schedules, and string formatting) lives in pure Swift structs and runs natively on Linux:
+   ```bash
+   swift test
+   ```
+   You only offload the UI and platform assembly steps to CI.
+
+### 5.2 Headless Code Signing Without Xcode UI
+
+Signing an iOS app on CI requires certificates and provisioning profiles. These can be automated headlessly without ever opening the Xcode GUI:
+
+1. **App Store Connect API Key:**
+   Generate an API Key in App Store Connect (*Users and Access -> Integrations -> App Store Connect API*). Download the `.p8` private key and record the Key ID and Issuer ID.
+2. **Automated Certificates via Fastlane Match:**
+   Using Fastlane Match (or manual script), generate an Apple Distribution Certificate and Provisioning Profile. Store them encrypted in a private GitHub repository or as base64 environment variables in **GitHub Actions Secrets**:
+   - `APP_STORE_CONNECT_KEY_ID`
+   - `APP_STORE_CONNECT_ISSUER_ID`
+   - `APP_STORE_CONNECT_PRIVATE_KEY`
+   - `IOS_SIGNING_CERTIFICATE_BASE64`
+   - `IOS_SIGNING_CERTIFICATE_PASSWORD`
+   - `IOS_PROVISIONING_PROFILE_BASE64`
+
+### 5.3 Automated Cloud Build Pipeline (GitHub Actions `macos-latest`)
+
+GitHub provides hosted macOS runners (`macos-latest`, powered by Apple Silicon) with the latest Xcode pre-installed. Public repositories receive unlimited free minutes; private repositories receive free monthly runner minutes.
+
+Here is an example workflow for building and uploading the iOS app:
+
+```yaml
+name: iOS CI & TestFlight Deploy
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build iOS IPA & Upload to TestFlight
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Select latest Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+
+      - name: Set up signing keychain
+        env:
+          CERT_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
+          PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          # Create temporary keychain
+          KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
+          KEYCHAIN_PASSWORD=$(uuidgen)
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Import distribution certificate
+          echo -n "$CERT_BASE64" | base64 --decode -o $RUNNER_TEMP/certificate.p12
+          security import $RUNNER_TEMP/certificate.p12 -k "$KEYCHAIN_PATH" -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Install provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo -n "$PROFILE_BASE64" | base64 --decode -o ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+
+      - name: Build Archive & IPA
+        run: |
+          xcodebuild clean archive \
+            -project HealthJournal.xcodeproj \
+            -scheme HealthJournal \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/HealthJournal.xcarchive \
+            CODE_SIGN_STYLE=Manual
+
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/HealthJournal.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath $RUNNER_TEMP/build
+
+      - name: Upload to Apple TestFlight
+        env:
+          API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          API_ISSUER: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          API_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo -n "$API_PRIVATE_KEY" > ~/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8
+          xcrun altool --upload-app \
+            -f $RUNNER_TEMP/build/HealthJournal.ipa \
+            -t ios \
+            --apiKey "$API_KEY_ID" \
+            --apiIssuer "$API_ISSUER"
+```
+
+### 5.4 Distribution & Real Device Testing via Apple TestFlight
+
+1. **Install TestFlight:** Install the free **TestFlight** app from the App Store on your personal iPhone.
+2. **Push to Deploy:** Every time you push a commit or merge a PR, GitHub Actions compiles the app in 3–5 minutes and pushes the new build to TestFlight.
+3. **Install & Test:** TestFlight notifies your iPhone that a new build is available. Tap **Update** and test the build directly on hardware.
+
+### 5.5 Trade-offs of the Linux-to-Cloud Workflow
+
+| Aspect | Cloud CI + Physical iPhone | Local Mac (e.g. Mac Mini) |
+| :--- | :--- | :--- |
+| **Hardware Expense** | **€0** (uses existing Dell XPS & iPhone) | ~€350–€450 for a headless Mac Mini |
+| **SwiftUI Previews** | None locally (preview via TestFlight) | Real-time live SwiftUI canvas in Xcode |
+| **Feedback Loop** | 3–5 minutes per full build | Instantaneous on local simulator |
+| **Hardware Fidelity** | **100% real:** Tests real Face ID, screen refresh rate, haptics, and background alarms | Simulated Face ID / haptics in software |
+| **Local OS Freedom** | 100% Linux (Ubuntu) environment | macOS required locally |
+
+---
+
+## 6. Greenfield Redesign: How to Approach Building it Anew for Android
 
 If Health Journal were rebuilt from scratch today for Android, incorporating the lessons learned and modernization patterns identified in the codebase, the ideal architecture would look like this:
 
@@ -176,7 +332,7 @@ If Health Journal were rebuilt from scratch today for Android, incorporating the
 
 ---
 
-## 6. Summary Checklist for an iOS Port
+## 7. Summary Checklist for an iOS Port
 
 When beginning the iOS implementation:
 1. **Specification:** Create `platform-ios/spec.md` (under OpenSpec) detailing iOS-specific framework choices while keeping all metric, medication, and compliance specs intact.
@@ -185,4 +341,5 @@ When beginning the iOS implementation:
 4. **Backup Compatibility:** Implement `.hjbackup` decoding and encoding according to `docs/backup-format/README.md` and verify against existing test vectors.
 5. **UI & Pickers:** Build the SwiftUI screens using Swift Charts and a custom horizontal ruler picker with haptics.
 6. **Reminders:** Configure `UNUserNotificationCenter` with a 64-notification rolling window.
-7. **Compliance Review:** Verify all strings against `openspec/specs/compliance/spec.md` to ensure zero medical claims, no diagnosis labels, and neutral NHG terminology.
+7. **CI/CD Pipeline:** Set up the GitHub Actions `macos-latest` workflow with TestFlight distribution for headless deployment from Linux.
+8. **Compliance Review:** Verify all strings against `openspec/specs/compliance/spec.md` to ensure zero medical claims, no diagnosis labels, and neutral NHG terminology.
