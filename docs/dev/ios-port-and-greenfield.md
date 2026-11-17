@@ -156,7 +156,7 @@ If Health Journal were rebuilt from scratch today for Android, incorporating the
 - **The Modern Approach:** Keep repositories segregated per aggregate (`WeightRepositoryPort`, `BloodPressureRepositoryPort`, `MedicationRepositoryPort`). A command handler should depend strictly on the ports it reads or modifies.
 
 ### 4. Modern Multiplatform Room & Pre-Encrypted Schema
-- **The Problem in Legacy:** Starting with plain SQLite required building complex plain-to-encrypted migration logic and crash-recovery file swaps when SQLCipher was introduced at database version 6.
+- **The Problem in Legacy:** Starting with plain SQLite required building complex plain-to-encrypted migration logic and crash-recovery file swaps when SQLCipher was introduced after earlier unencrypted releases.
 - **The Modern Approach:**
   - Use **Room KMP (2.7+)** with SQLCipher enabled from **Version 1**.
   - No legacy migration gymnastics or file-swap rollbacks.
