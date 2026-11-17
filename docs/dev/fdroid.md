@@ -119,7 +119,9 @@ F-Droid also supports reproducible builds: it builds the app, compares it with t
 | `fdroid build` | run locally in F-Droid's `buildserver-trixie` image with CI's flags (`--test --refresh-scanner --on-server --no-tarball nl.healthjournal:37`): builds tag `v1.7.5` in about 2 minutes, unsigned APK of 32 MB |
 | `fdroid scanner` on the built APK | run locally (`--exit-code`): no non-free classes or extra signing blocks, exit 0 |
 | Merge request to `fdroid/fdroiddata` | open: !57386, "New app: Health Journal" |
-| Pipeline for the merge request | cannot run: GitLab asks the account for identity verification (phone or card), which was declined |
+| Pipeline for the merge request | passed (2026-11-15, in the target project, on commit `2f2542dc`). Pipelines in the fork cannot run: GitLab asks the account for identity verification (phone or card), which was declined |
+| Merge request state | open and mergeable, labels `New App` and `waiting-on-response` (read 2026-11-17). No review comments yet; the label was set by a reviewer, who also rebased the two commits onto the current `master` of `fdroiddata` |
+| Later releases | `v1.7.6` (code 38) is tagged; the recipe still names `v1.7.5` and is expected to be updated by the bot after the merge |
 
 Pipelines that run in the fork on a push can fail with no jobs; a merge request pipeline runs in the target project instead. Judge the build by the merge request pipeline, not by the fork's.
 
