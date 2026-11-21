@@ -6,7 +6,7 @@
 - [x] 0.4 Preview shows counts only (agreed 2026-11-21)
 - [x] 0.5 Limits 20 MB and 100,000 entries (agreed 2026-11-21)
 - [x] 0.6 Unmatched pulse Observation is skipped (agreed 2026-11-21)
-- [ ] 0.7 Final English and Dutch wording, reviewed against the compliance spec before the foreign part is built (no named source, no interoperability claim)
+- [ ] 0.7 English and Dutch strings drafted in the design (2026-11-21), waiting for approval; then reviewed against the compliance spec before the foreign part is built (no named source, no interoperability claim)
 
 ## 1. Domain (`:domain`) and data (`:data`)
 - [ ] 1.1 Import port and use case: preview, then merge in one transaction; JVM tests
