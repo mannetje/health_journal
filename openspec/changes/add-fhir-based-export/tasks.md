@@ -1,14 +1,14 @@
 ## 0. Decisions
 - [x] 0.1 Technical conformance to the Nictiz zib2020 profiles where the data allows, labelled "based on FHIR" (decided 2026-11-16)
 - [x] 0.2 No claim of interoperability or use in care; "use at your own risk" notice (decided 2026-11-16)
-- [ ] 0.3 Spec review by the user before implementation starts
-- [ ] 0.4 Open: identity defaults (generated id only; birth date and sex opt-in; never name or BSN)
-- [ ] 0.5 Open: glucose in or out of the first version
-- [ ] 0.6 Proposed: no link from the pulse Observation to the blood pressure Observation (confirm)
-- [ ] 0.7 Open: accept `meta.profile` pointing to draft, beta profiles, with the package version stated
-- [ ] 0.8 Open: validator run locally only, not in CI
+- [x] 0.3 Scope and wording agreed by the user (2026-11-21); the specs get a final review before implementation starts
+- [x] 0.4 Identity defaults: generated id only; birth date and sex opt-in; never name or BSN (agreed 2026-11-21)
+- [x] 0.5 Glucose is out of the first version (agreed 2026-11-21)
+- [x] 0.6 No link from the pulse Observation to the blood pressure Observation (agreed 2026-11-21)
+- [x] 0.7 `meta.profile` points to the draft, beta profiles, with the package version stated (agreed 2026-11-21)
+- [x] 0.8 Validator run locally only, not in CI (agreed 2026-11-21)
 - [x] 0.9 EHDS text verified on EUR-Lex and the HL7 trademark rules read on hl7.org (2026-11-16); see the proposal Sources
-- [ ] 0.9a Open: final English and Dutch wording, including the HL7 trademark sentence in the README and the docs
+- [x] 0.9a Wording "based on FHIR" / "op FHIR gebaseerd" and trademark notice agreed (2026-11-21); final strings are written with the implementation, including the HL7 trademark sentence in the README and the docs
 - [x] 0.10 The notice also states that the person is responsible for the data entered and exported and the makers are not (requested 2026-11-16)
 - [ ] 0.11 Open: whether the responsibility sentence should also appear once for the whole app in the Profile notice (separate change)
 

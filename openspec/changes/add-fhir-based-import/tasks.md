@@ -1,15 +1,16 @@
 ## 0. Decisions
-- [x] 0.1 Separate change from the export; first version reads only the app's own file; skipped entries are never overwritten (decided 2026-11-16)
-- [ ] 0.2 Spec review by the user before implementation starts; requires `add-fhir-based-export` agreed first
-- [ ] 0.3 Open: both source marker and entry identifier required to recognise the file
-- [ ] 0.4 Open: preview shows counts only
-- [ ] 0.5 Open: file size and entry limits (proposed 20 MB, 100,000 entries)
-- [ ] 0.6 Open: unmatched pulse Observation is skipped
-- [ ] 0.7 Open: final English and Dutch wording
+- [x] 0.1 Separate change from the export; skipped entries are never overwritten (decided 2026-11-16)
+- [x] 0.1a Files from other tools are read too, for the same three readings, with time and value matching (decided 2026-11-21, replaces "own file only")
+- [x] 0.2 Scope and wording agreed by the user (2026-11-21); the specs get a final review before implementation starts; requires `add-fhir-based-export` built first
+- [x] 0.3 Own file recognised by source marker plus entry identifier; any other Bundle is read as a foreign file (agreed 2026-11-21)
+- [x] 0.4 Preview shows counts only (agreed 2026-11-21)
+- [x] 0.5 Limits 20 MB and 100,000 entries (agreed 2026-11-21)
+- [x] 0.6 Unmatched pulse Observation is skipped (agreed 2026-11-21)
+- [ ] 0.7 Final English and Dutch wording, reviewed against the compliance spec before the foreign part is built (no named source, no interoperability claim)
 
 ## 1. Domain (`:domain`) and data (`:data`)
 - [ ] 1.1 Import port and use case: preview, then merge in one transaction; JVM tests
-- [ ] 1.2 `FhirBasedBundleReader` with shared constants with the writer; JVM tests for round trip, twice, no overwrite, bad units, foreign file, size limit, Patient ignored
+- [ ] 1.2 `FhirBasedBundleReader` with shared constants with the writer; JVM tests for round trip, twice, no overwrite, bad units, file from another tool (read, twice adds nothing, same time other value added), file without readings, size limit, Patient ignored
 - [ ] 1.3 Malformed and truncated input test: nothing written, no crash
 
 ## 2. App (`:app`)

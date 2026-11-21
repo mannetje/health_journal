@@ -3,7 +3,7 @@
 ## Why
 A person who keeps weight, blood pressure and pulse in the app may want to take them to another tool of their own choice. The CSV export is a plain table with no codes or units that another program can rely on, and the `.hjbackup` file is private to this app. The Dutch zib profiles and FHIR describe the same readings with agreed names, codes and units. A file shaped by them gives the person a more portable copy, on their own initiative and at their own risk.
 
-This change is **a proposal for review, not yet agreed**. It asks for decisions on scope and wording (see Open questions) before any code is written.
+This change is **agreed on scope and wording (2026-11-21, see Decisions)**. Nothing is built yet.
 
 ## What Changes
 - **One extra export in the History export dialog**, next to the CSV buttons: "Export (based on FHIR)" ("Exporteren (op FHIR gebaseerd)"). It writes one JSON file, a FHIR R4 `Bundle` of type `collection`, to a place the person picks with the system document picker, exactly like the other exports. It is created only after the person's action. Nothing is sent anywhere.
@@ -46,11 +46,11 @@ Could not be read or confirmed:
 - No BSN or other national identifier, ever.
 - No medication in this change.
 
-## Open questions
-1. **Wording:** "based on FHIR" in English, "op FHIR gebaseerd" in Dutch; the maintainer agrees the final strings.
-2. **Identity in the file:** by default the `Patient` carries nothing that identifies the person except a generated id. Options the person ticks: birth date, sex (from the Profile). Name is never included by default. Confirm this default.
-3. **Glucose:** include it only if a suitable code and a defensible profile claim exist. A home reading is not a laboratory test, so the claim may have to be weaker (a plain `Observation` with a LOINC code and no profile claim) or glucose left out. Confirm.
-4. **Pulse link:** the pulse stored with a blood pressure entry becomes its own `HeartRate` Observation, with no link to the blood pressure Observation (proposed: the zib defines none). Confirm.
-5. **Profile claim:** `meta.profile` names draft, beta profiles; confirm that is acceptable, with the exact package version stated in the file and in the docs.
-6. **Verification:** the HL7 validator is a 205 MB Java program. Confirm it is run locally only, not in CI, in this change.
-7. **Trademark notice:** the dialog button label "based on FHIR" is a descriptive reference to the specification, which the HL7 rules allow, but the README and the docs need the registered-trademark form and the HL7 sentence at first use, and "FHIR" must not appear in the app name, a domain or a file-name brand. Confirm.
+## Decisions (agreed 2026-11-21)
+1. **Wording:** "Export (based on FHIR)" in English, "Exporteren (op FHIR gebaseerd)" in Dutch.
+2. **Identity in the file:** by default the `Patient` carries nothing that identifies the person except a generated id. Birth date and sex (from the Profile) are two opt-in tick boxes. The name is never offered and no national identifier is ever written.
+3. **Glucose:** not in the first version. A home reading is not a laboratory test and the Nictiz code list was not inspected. A later version may add a plain `Observation` with a LOINC code and no profile claim.
+4. **Pulse link:** the pulse stored with a blood pressure entry becomes its own `HeartRate` Observation, with no link to the blood pressure Observation (the zib defines none).
+5. **Profile claim:** `meta.profile` names the draft Nictiz profiles. The exact package version (0.12.1-beta.1) is stated in the file and in the docs, and the label to the person stays "based on".
+6. **Verification:** the HL7 validator (205 MB Java program) is run locally only, not in CI, and the run is documented in `docs/dev/testing.md`.
+7. **Trademark notice:** the button label "based on FHIR" is a descriptive reference. The README and the docs carry the registered-trademark form and the HL7 sentence at first use, and "FHIR" is not part of the app name, a domain or a file-name brand.
