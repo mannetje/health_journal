@@ -52,13 +52,13 @@ class ReminderNotifier(private val appContext: Context) {
         val time = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).format(slot.time)
 
         val publicVersion = Notification.Builder(ctx, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification_pill)
+            .setSmallIcon(R.drawable.ic_notification_task)
             .setContentTitle(generic)
             .build()
 
         val inbox = Notification.InboxStyle().also { style -> lines.forEach { style.addLine(it) } }
         val notification = Notification.Builder(ctx, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification_pill)
+            .setSmallIcon(R.drawable.ic_notification_task)
             .setContentTitle(time)
             .setContentText(lines.joinToString("; "))
             .setStyle(inbox)
@@ -83,7 +83,7 @@ class ReminderNotifier(private val appContext: Context) {
             appContext, request, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         return Notification.Action.Builder(
-            Icon.createWithResource(ctx, R.drawable.ic_notification_pill), ctx.getString(label), pending
+            Icon.createWithResource(ctx, R.drawable.ic_notification_task), ctx.getString(label), pending
         ).build()
     }
 
