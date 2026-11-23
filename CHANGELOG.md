@@ -4,6 +4,9 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+### Fixed
+- **Reminder notification icon:** the small icon of the medication reminder was a tilted capsule that looks like a phone handset in the status bar. It is now a circle with a check mark, like a finished task.
+
 ## [1.7.6] - 2026-11-16
 
 ### Changed
