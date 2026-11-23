@@ -1,0 +1,2 @@
+- The reminder notification now has a circle with a check mark as its small icon, instead of a capsule that looks like a phone handset
+- Updated libraries (Jetpack Compose and build tools)

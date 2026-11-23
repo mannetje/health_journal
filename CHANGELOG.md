@@ -4,6 +4,11 @@ All notable changes to Health Journal. Format follows [Keep a Changelog](https:/
 
 ## [Unreleased]
 
+## [1.7.7] - 2026-11-23
+
+### Changed
+- **Updated libraries:** Jetpack Compose (BOM 2026.11.01), the Android Gradle plugin, Gradle, the biometric library and the test library Robolectric. The app is now compiled against Android 37.1, which the new Compose requires; the lowest supported Android version (8.0) and the target version are unchanged. No change in how the app looks or works.
+
 ### Fixed
 - **Reminder notification icon:** the small icon of the medication reminder was a tilted capsule that looks like a phone handset in the status bar. It is now a circle with a check mark, like a finished task.
 
