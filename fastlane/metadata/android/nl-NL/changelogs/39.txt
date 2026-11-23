@@ -1,0 +1,2 @@
+- De herinneringsmelding heeft nu een cirkel met een vinkje als klein pictogram, in plaats van een capsule die op een telefoonhoorn lijkt
+- Bijgewerkte bibliotheken (Jetpack Compose en bouwhulpmiddelen)
