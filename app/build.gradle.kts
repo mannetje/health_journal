@@ -16,7 +16,7 @@ fun changelogAnchor(version: String): String =
 android {
     namespace = "nl.healthjournal.app"
     compileSdk {
-        version = release(36) { minorApiLevel = 1 }
+        version = release(37)
     }
 
     defaultConfig {
