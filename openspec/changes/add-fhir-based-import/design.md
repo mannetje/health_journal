@@ -34,8 +34,8 @@ The file is untrusted. The reader streams or bounds its input (size limit, entry
 ### Notice and wording
 Shown in the preview dialog, English: "This file is read as it is. You are responsible for the data you import. The makers of the app are not responsible for the data or for how the file was made." Dutch: "Dit bestand wordt gelezen zoals het is. Jij bent verantwoordelijk voor de gegevens die je importeert. De makers van de app zijn niet verantwoordelijk voor de gegevens of voor hoe het bestand is gemaakt." The button, strings and docs say "based on FHIR", never name care providers, GP systems or personal health environments, and make no claim of interoperability. The banned-phrase scan from the export change also covers the import strings.
 
-### Strings (draft for review, 2026-11-21)
-Plain, neutral and in "je" form in Dutch. No string names a source, a care system or a standard other than "based on FHIR", and none says a file is accepted or compatible. The notice is the one agreed above; the rest is new. Placeholders are the same in both languages (the key parity test checks this).
+### Strings (approved 2026-11-23)
+Approved by the owner on 2026-11-23 with two changes: the confirm and result strings are Android plural resources (quantity one and other) in both languages, and Dutch says "metingen" throughout (also in the too-many-entries string). Plain, neutral and in "je" form in Dutch. No string names a source, a care system or a standard other than "based on FHIR", and none says a file is accepted or compatible. The notice is the one agreed above; the rest is new. Placeholders are the same in both languages (the key parity test checks this).
 
 | Where | English | Dutch |
 |---|---|---|
@@ -44,14 +44,14 @@ Plain, neutral and in "je" form in Dutch. No string names a source, a care syste
 | Counts per reading (weight, blood pressure, pulse) | %1$s: %2$d new, %3$d already in the app, %4$d skipped | %1$s: %2$d nieuw, %3$d al in de app, %4$d overgeslagen |
 | Skipped reasons | Unit not known / Value out of range / Not a reading the app can use / Pulse without blood pressure / Information missing | Eenheid onbekend / Waarde buiten het bereik / Geen meting die de app kan gebruiken / Pols zonder bloeddruk / Informatie ontbreekt |
 | Notice | This file is read as it is. You are responsible for the data you import. The makers of the app are not responsible for the data or for how the file was made. | Dit bestand wordt gelezen zoals het is. Jij bent verantwoordelijk voor de gegevens die je importeert. De makers van de app zijn niet verantwoordelijk voor de gegevens of voor hoe het bestand is gemaakt. |
-| Confirm button | Import %1$d entries | %1$d metingen importeren |
+| Confirm button (plural: one / other) | Import %1$d entry / Import %1$d entries | %1$d meting importeren / %1$d metingen importeren |
 | Cancel button | Cancel | Annuleren |
 | Nothing new | Nothing new to import. | Er is niets nieuws om te importeren. |
-| Result | %1$d added, %2$d skipped | %1$d toegevoegd, %2$d overgeslagen |
+| Result (plural on the added count) | %1$d added, %2$d skipped | %1$d toegevoegd, %2$d overgeslagen |
 | Refused: no readings or not a FHIR file | No readings found in this file. | Geen metingen gevonden in dit bestand. |
 | Refused: cannot be read (invalid or cut off) | This file could not be read. | Dit bestand kan niet worden gelezen. |
 | Refused: too large | This file is too large to import. | Dit bestand is te groot om te importeren. |
-| Refused: too many entries | This file holds too many entries to import. | Dit bestand bevat te veel items om te importeren. |
+| Refused: too many entries | This file holds too many entries to import. | Dit bestand bevat te veel metingen om te importeren. |
 | Refused: own file from an unknown version | This file was made by a version of the app that this version cannot read. | Dit bestand is gemaakt met een versie van de app die deze versie niet kan lezen. |
 
 The preview is plain text with the numbers in the sentence, so a screen reader reads each line whole; the confirm button repeats the number to import. With nothing new the confirm button is not shown.
