@@ -7,7 +7,7 @@ This document describes the FHIR-based export feature of Health Journal (`add-fh
 Health Journal offers an export option in the History export dialog: **"Export (based on FHIR)"** ("Exporteren (op FHIR gebaseerd)").
 It exports weight, blood pressure, and pulse readings as a single JSON file formatted as a FHIR R4 `Bundle` of type `collection`.
 
-> **Notice:** The export is based on the Dutch zib (Zorginformatiebouwstenen) and HL7® FHIR® formats. It has not been checked or approved by anyone, is not for use in care, and is not encrypted. It is used at the person's own risk. The person is responsible for the data entered and exported; the makers of the app are not responsible for the data or for how the file is used.
+> **Notice:** The export is based on FHIR and the Dutch zib (Zorginformatiebouwstenen) formats. It has not been checked or approved by anyone, is not intended for clinical use, and is not encrypted. It is used at the person's own risk. The person is responsible for the data entered and exported; the makers of the app are not responsible for the data or for how the file is used.
 >
 > HL7, FHIR and the FHIR [FLAME DESIGN] are the registered trademarks of Health Level Seven International and their use does not constitute endorsement by HL7.
 

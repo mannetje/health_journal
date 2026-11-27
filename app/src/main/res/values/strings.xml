@@ -149,6 +149,16 @@
     <string name="history_export_waist">Export Waist Circumference CSV</string>
     <string name="history_preview_label">Preview:</string>
     <string name="history_export_migraine">Export Migraine CSV</string>
+    <string name="history_export_fhir_button">Export (based on FHIR)</string>
+    <string name="history_export_fhir_short_notice">Based on FHIR and the Dutch zib. Not intended for clinical use, not encrypted. Use it at your own risk.</string>
+    <string name="history_export_fhir_full_notice">This file is based on FHIR and the Dutch zib. It has not been checked or approved by anyone, is not intended for clinical use and is not encrypted. Use it at your own risk. You are responsible for the data you enter and export. The makers of the app are not responsible for the data or for how the file is used.</string>
+    <string name="history_export_fhir_notice_more">More</string>
+    <string name="history_export_fhir_notice_less">Less</string>
+    <string name="history_export_fhir_range_all">All entries</string>
+    <string name="history_export_fhir_range_selected">Selected range in History</string>
+    <string name="history_export_fhir_opt_in_birth_date">Include birth date</string>
+    <string name="history_export_fhir_opt_in_sex">Include sex</string>
+    <string name="history_msg_export_fhir_done">File exported (based on FHIR)</string>
 
     <string name="history_import_dialog_title">Import CSV</string>
     <string name="history_import_type_weight">Weight</string>

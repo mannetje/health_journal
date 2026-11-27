@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -107,6 +108,27 @@ private fun HistoryList(
     var importCsvText by remember { mutableStateOf("") }
     val context = LocalContext.current
     val pickFileError = stringResource(R.string.history_pick_file_error)
+
+    // FHIR export state (hoisted here so the launcher can read them when the callback fires)
+    var fhirRange by remember { mutableStateOf(FhirExportRange.ALL) }
+    var fhirIncludeBirthDate by remember { mutableStateOf(false) }
+    var fhirIncludeSex by remember { mutableStateOf(false) }
+    val fhirSaveLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let {
+            viewModel.exportFhir(
+                uri = it,
+                range = fhirRange,
+                includeBirthDate = fhirIncludeBirthDate,
+                includeSex = fhirIncludeSex,
+                appVersion = runCatching {
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "unknown"
+                }.getOrDefault("unknown"),
+                openOutputStream = { u -> context.contentResolver.openOutputStream(u) }
+            )
+        }
+    }
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             val text = runCatching {
@@ -589,6 +611,93 @@ private fun HistoryList(
                     Button(onClick = { viewModel.exportCsv("migraine") }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.history_export_migraine))
                     }
+
+                    // FHIR export section
+                    HorizontalDivider()
+                    Text(
+                        stringResource(R.string.history_export_fhir_short_notice),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    var fhirNoticeExpanded by remember { mutableStateOf(false) }
+                    TextButton(onClick = { fhirNoticeExpanded = !fhirNoticeExpanded }) {
+                        Text(
+                            stringResource(
+                                if (fhirNoticeExpanded) R.string.history_export_fhir_notice_less
+                                else R.string.history_export_fhir_notice_more
+                            )
+                        )
+                    }
+                    if (fhirNoticeExpanded) {
+                        Text(
+                            stringResource(R.string.history_export_fhir_full_notice),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    // Range selection
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        RadioButton(
+                            selected = fhirRange == FhirExportRange.ALL,
+                            onClick = { fhirRange = FhirExportRange.ALL }
+                        )
+                        Text(
+                            stringResource(R.string.history_export_fhir_range_all),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        RadioButton(
+                            selected = fhirRange == FhirExportRange.SELECTED_RANGE,
+                            onClick = { fhirRange = FhirExportRange.SELECTED_RANGE }
+                        )
+                        Text(
+                            stringResource(R.string.history_export_fhir_range_selected),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    // Opt-in checkboxes
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Checkbox(
+                            checked = fhirIncludeBirthDate,
+                            onCheckedChange = { fhirIncludeBirthDate = it }
+                        )
+                        Text(
+                            stringResource(R.string.history_export_fhir_opt_in_birth_date),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Checkbox(
+                            checked = fhirIncludeSex,
+                            onCheckedChange = { fhirIncludeSex = it }
+                        )
+                        Text(
+                            stringResource(R.string.history_export_fhir_opt_in_sex),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            fhirSaveLauncher.launch("healthjournal-${LocalDate.now()}.json")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.history_export_fhir_button))
+                    }
+
                     state.exportedCsvContent?.let { content ->
                         HorizontalDivider()
                         Text(stringResource(R.string.history_preview_label), style = MaterialTheme.typography.labelMedium)

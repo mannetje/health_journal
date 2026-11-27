@@ -1,5 +1,13 @@
 package nl.healthjournal.app.ui.history
 
+import android.net.Uri
+import java.io.IOException
+import java.io.OutputStream
+import java.time.Instant
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
+import nl.healthjournal.data.fhir.FhirBasedBundleWriter
+import nl.healthjournal.domain.metrics.command.GetFhirExportDataQuery
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -47,7 +55,6 @@ import nl.healthjournal.domain.profile.model.Profile
 import nl.healthjournal.domain.shared.model.ImportResult
 import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
 import java.math.BigDecimal
-import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.Job
 import nl.healthjournal.domain.metrics.command.ObserveFluidLimitsQuery
@@ -250,6 +257,70 @@ class HistoryViewModel(
                 is DomainResult.Failure -> _uiState.value.copy(
                     errorMessage = UiText.Res(R.string.history_err_export, result.error.detail())
                 )
+            }
+        }
+    }
+
+    fun exportFhir(
+        uri: Uri,
+        range: FhirExportRange,
+        includeBirthDate: Boolean,
+        includeSex: Boolean,
+        appVersion: String,
+        zoneId: ZoneId = ZoneId.systemDefault(),
+        openOutputStream: (Uri) -> OutputStream?
+    ) {
+        val profile = _uiState.value.activeProfile ?: return
+        viewModelScope.launch {
+            val (from, to) = when (range) {
+                FhirExportRange.ALL -> null to null
+                FhirExportRange.SELECTED_RANGE -> {
+                    val days = _uiState.value.selectedDateRange.days
+                    if (days != null) {
+                        val newest = listOfNotNull(
+                            _uiState.value.weights.maxOfOrNull { it.timestamp },
+                            _uiState.value.bloodPressures.maxOfOrNull { it.timestamp }
+                        ).maxOrNull()
+                        if (newest != null) newest.minus(days, ChronoUnit.DAYS) to newest else null to null
+                    } else {
+                        null to null
+                    }
+                }
+            }
+            val query = GetFhirExportDataQuery(profileId = profile.id, from = from, to = to)
+            when (val result = dispatcher.query(query)) {
+                is DomainResult.Success -> {
+                    val json = FhirBasedBundleWriter.write(
+                        data = result.value,
+                        appVersion = appVersion,
+                        exportTime = Instant.now(),
+                        zoneId = zoneId,
+                        includeBirthDate = includeBirthDate,
+                        includeSex = includeSex
+                    )
+                    try {
+                        val stream = openOutputStream(uri)
+                        if (stream != null) {
+                            stream.use { it.write(json.toByteArray(Charsets.UTF_8)) }
+                            _uiState.value = _uiState.value.copy(
+                                infoMessage = UiText.Res(R.string.history_msg_export_fhir_done)
+                            )
+                        } else {
+                            _uiState.value = _uiState.value.copy(
+                                errorMessage = UiText.Res(R.string.history_err_export, "Cannot open destination file")
+                            )
+                        }
+                    } catch (e: IOException) {
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = UiText.Res(R.string.history_err_export, e.message ?: "Failed to write file")
+                        )
+                    }
+                }
+                is DomainResult.Failure -> {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = UiText.Res(R.string.history_err_export, result.error.detail())
+                    )
+                }
             }
         }
     }

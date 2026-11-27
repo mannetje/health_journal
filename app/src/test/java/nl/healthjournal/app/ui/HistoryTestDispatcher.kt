@@ -52,6 +52,10 @@ import nl.healthjournal.domain.migraine.port.MigraineRepositoryPort
 import nl.healthjournal.domain.profile.port.ProfileRepositoryPort
 import nl.healthjournal.domain.profile.command.GetActiveProfileHandler
 import nl.healthjournal.domain.profile.command.GetActiveProfileQuery
+import nl.healthjournal.domain.metrics.command.GetFhirExportDataHandler
+import nl.healthjournal.domain.metrics.command.GetFhirExportDataQuery
+import nl.healthjournal.domain.metrics.usecase.GetFhirExportDataUseCase
+import nl.healthjournal.data.fhir.RoomFhirExportSourceAdapter
 import nl.healthjournal.domain.testing.FakeHealthLogRepository
 import nl.healthjournal.domain.testing.healthHistoryUseCase
 import java.time.Clock
@@ -88,7 +92,8 @@ internal fun historyDispatcher(
     queries = mapOf<Class<*>, QueryHandler<*, *>>(
         GetActiveProfileQuery::class.java to GetActiveProfileHandler(profiles),
         GetHistoryQuery::class.java to GetHistoryHandler(health.healthHistoryUseCase(), migraines),
-        ExportCsvQuery::class.java to ExportCsvHandler(export, migraineExport)
+        ExportCsvQuery::class.java to ExportCsvHandler(export, migraineExport),
+        GetFhirExportDataQuery::class.java to GetFhirExportDataHandler(GetFhirExportDataUseCase(RoomFhirExportSourceAdapter(health, health, profiles)))
     ),
     observers = mapOf<Class<*>, ObserveQueryHandler<*, *>>(
         ObserveFluidLimitsQuery::class.java to ObserveFluidLimitsHandler(health)

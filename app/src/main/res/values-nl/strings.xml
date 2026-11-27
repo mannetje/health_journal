@@ -149,6 +149,16 @@
     <string name="history_export_waist">Middelomtrek CSV Exporteren</string>
     <string name="history_preview_label">Voorbeeld:</string>
     <string name="history_export_migraine">Migraine CSV Exporteren</string>
+    <string name="history_export_fhir_button">Exporteren (op FHIR gebaseerd)</string>
+    <string name="history_export_fhir_short_notice">Op FHIR gebaseerd, inclusief de Nederlandse zib. Niet bedoeld voor klinisch gebruik, niet versleuteld. Gebruik is op eigen risico.</string>
+    <string name="history_export_fhir_full_notice">Dit bestand is op FHIR gebaseerd en maakt gebruik van de Nederlandse zib. Het is door niemand gecontroleerd of goedgekeurd, niet bedoeld voor klinisch gebruik en niet versleuteld. Gebruik is op eigen risico. Jij bent verantwoordelijk voor de gegevens die je invoert en exporteert. De makers van de app zijn niet verantwoordelijk voor de gegevens of voor het gebruik van het bestand.</string>
+    <string name="history_export_fhir_notice_more">Meer</string>
+    <string name="history_export_fhir_notice_less">Minder</string>
+    <string name="history_export_fhir_range_all">Alle metingen</string>
+    <string name="history_export_fhir_range_selected">Geselecteerde periode in Geschiedenis</string>
+    <string name="history_export_fhir_opt_in_birth_date">Geboortedatum toevoegen</string>
+    <string name="history_export_fhir_opt_in_sex">Geslacht toevoegen</string>
+    <string name="history_msg_export_fhir_done">Bestand geëxporteerd (op FHIR gebaseerd)</string>
 
     <string name="history_import_dialog_title">CSV Importeren</string>
     <string name="history_import_type_weight">Gewicht</string>

@@ -19,9 +19,9 @@
 - [x] 1.3 Test that a bundle never contains a name, an interpretation or any identifier other than the entry identifier on each Observation
 
 ## 2. App (`:app`)
-- [ ] 2.1 Button in the History export dialog, the range choice, the two identity options, the short notice with an accessible "More" expander for the full notice, and the file-name suggestion
+- [x] 2.1 Button in the History export dialog, the range choice, the two identity options, the short notice with an accessible "More" expander for the full notice, and the file-name suggestion
 - [x] 2.1a Source marker and `timestamp` in the bundle; test asserts both and the absence of conformance wording
-- [ ] 2.2 Strings in English and Dutch (the key parity test passes); scan test for banned phrases (care system, EHR, GP, compatible, certified, "FHIR export" without "based on")
+- [x] 2.2 Strings in English and Dutch (the key parity test passes); scan test for banned phrases (care system, EHR, GP, compatible, certified, "FHIR export" without "based on")
 - [ ] 2.3 Emulator pass: English and Dutch, light and dark, screenshots of the dialog
 
 ## 3. Verification
