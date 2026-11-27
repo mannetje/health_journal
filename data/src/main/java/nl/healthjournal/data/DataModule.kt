@@ -80,6 +80,9 @@ class DataModule(context: Context) {
 
     val migraineImportPort: MigraineImportPort = CsvMigraineImportAdapter(migraineRepository, profileRepository)
 
+    val fhirExportSourcePort: nl.healthjournal.domain.metrics.port.FhirExportSourcePort =
+        nl.healthjournal.data.fhir.RoomFhirExportSourceAdapter(weightRepository, bloodPressureRepository, profileRepository)
+
     val backupSnapshotPort: BackupSnapshotPort = RoomBackupSnapshot(database)
 
     val backupCodec: BackupCodecPort = HjBackupCodec(BackupContainer(Argon2KeyDerivation()))

@@ -22,6 +22,10 @@ import nl.healthjournal.domain.shared.command.Dispatcher
 import nl.healthjournal.domain.shared.command.EntryGateway
 import nl.healthjournal.domain.shared.command.ExportCsvHandler
 import nl.healthjournal.domain.shared.command.ExportCsvQuery
+import nl.healthjournal.domain.metrics.command.GetFhirExportDataHandler
+import nl.healthjournal.domain.metrics.command.GetFhirExportDataQuery
+import nl.healthjournal.domain.metrics.usecase.GetFhirExportDataUseCase
+import nl.healthjournal.domain.metrics.port.FhirExportSourcePort
 import nl.healthjournal.domain.shared.command.GetHistoryHandler
 import nl.healthjournal.domain.shared.command.GetHistoryQuery
 import nl.healthjournal.domain.shared.command.ImportCsvCommand
@@ -207,6 +211,10 @@ object CommandModule {
     @Provides @IntoMap @ClassKey(ExportCsvQuery::class)
     fun exportCsv(export: DataExportPort, migraine: MigraineExportPort): QueryHandler<*, *> =
         ExportCsvHandler(export, migraine)
+
+    @Provides @IntoMap @ClassKey(GetFhirExportDataQuery::class)
+    fun getFhirExportData(source: FhirExportSourcePort): QueryHandler<*, *> =
+        GetFhirExportDataHandler(GetFhirExportDataUseCase(source))
 
     @Provides @IntoMap @ClassKey(ImportCsvCommand::class)
     fun importCsv(import: DataImportPort, migraine: MigraineImportPort): CommandHandler<*, *> =

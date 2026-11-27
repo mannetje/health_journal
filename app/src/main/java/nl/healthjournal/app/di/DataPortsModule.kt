@@ -68,6 +68,9 @@ object DataPortsModule {
     fun dataExport(data: DataModule): DataExportPort = data.dataExportPort
 
     @Provides
+    fun fhirExportSource(data: DataModule): nl.healthjournal.domain.metrics.port.FhirExportSourcePort = data.fhirExportSourcePort
+
+    @Provides
     fun dataImport(data: DataModule): DataImportPort = data.dataImportPort
 
     @Provides
